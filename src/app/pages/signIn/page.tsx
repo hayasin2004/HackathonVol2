@@ -2,6 +2,8 @@
 import React, {useState} from 'react';
 import {signIn} from "@/repository/authRepository";
 import {useRouter} from "next/navigation"
+import  prisma from "@/lib/prismaClient"
+
 const SignIn = () => {
     const [email, setEmail] = useState<string>("")
     const [username, setUsername] = useState<string>("")
@@ -10,10 +12,7 @@ const SignIn = () => {
     const handleSignIn = async (e :  React.MouseEvent<HTMLElement, MouseEvent>) => {
         e.preventDefault()
         const response = await  signIn(email, username, password)
-        if (response.status === 200) {
-            window.alert("成功")
-            router.push("/")
-        }
+        console.log(response)
     }
     return (
         <div>
