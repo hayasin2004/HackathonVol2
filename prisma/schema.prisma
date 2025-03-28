@@ -18,7 +18,7 @@ model User {
   username    String      @unique
   email       String      @unique
   password    String
-  description String
+  description String?
   character   Character[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @default(now())
