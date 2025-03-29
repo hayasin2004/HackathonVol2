@@ -20,6 +20,8 @@ model User {
   password    String
   description String?
   character   Character[]
+  followings  Follow[]    @relation("Followings")
+  followers   Follow[]    @relation("Followers")
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @default(now())
 }
@@ -34,7 +36,11 @@ model Character {
 }
 
 model Follow {
-  id        Int      @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  id           Int      @id
+  followingsId Int
+  followersId  Int
+  followings   User     @relation("Followings", fields: [followingsId], references: [id])
+  followers    User     @relation("Followers", fields: [followersId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
 }
