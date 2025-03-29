@@ -14,6 +14,7 @@ export const following = async (currentUserId: number | undefined, targetUser: p
             throw new Error("自分はフォローできないです");
         }
 
+
         // フォロワーとフォローされる人の存在確認
         const followerExists = await prisma.user.findUnique({where: {id: targetUser?.detailPlayer?.id}});
         const followingsExists = await prisma.user.findUnique({where: {id: currentUserId}});
