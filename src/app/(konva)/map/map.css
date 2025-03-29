@@ -1,0 +1,14 @@
+.backgroundStyle {
+  margin: 0;
+  padding: 0;
+  overflow: "hidden";
+  background-color: "#F0F0F0";
+  background-image: url("/forest.jpg");
+  background-size: "cover";
+  background-position: "center";
+  height: "100vh";
+  width: "100vw";
+  position: "fixed";
+  top: 0;
+  left: 0;
+}
