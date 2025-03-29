@@ -90,6 +90,23 @@ const ToShowMeDetail:React.FC<DetailPlayerTypes> = async ({detailPlayerData, det
                 ＊＊＊
             </div>
             <div>
+                <h1>ここで個人情報の変更</h1>
+
+                <h2>変更前アイコン : {detailPlayerData?.username}</h2>
+                <h2>変更後アイコン : </h2>
+
+                <h2>変更前ID : {detailPlayerData?.id}</h2>
+                <h2>変更後ID : </h2>
+
+                <h2>変更前Username : {detailPlayerData?.username}</h2>
+                <h2>変更後Username : </h2>
+
+                <h2>変更前自己紹介 : {detailPlayerData?.username}</h2>
+                <h2>変更後自己紹介 : </h2>
+
+
+            </div>
+            <div>
                 <h1>ここでフォロワー一覧</h1>
                 {detailPlayerDataFollowersList?.map((followerUserData, index) => (
                     <div key={followerUserData.followers.id}>
