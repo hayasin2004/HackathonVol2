@@ -1,6 +1,7 @@
 import React from 'react';
 import prisma from "@/lib/prismaClient";
 import FollowButton from "@/components/followButton/FolloButton";
+import {PlayerType} from "@/types/Player";
 
 const DetailPlayer = async ({params}: { params :{id: string}}) => {
     const currentUserId = decodeURIComponent(params.id);

@@ -36,13 +36,15 @@ model Character {
 }
 
 model Follow {
-  id           Int      @id
+  id           Int      @id @default(autoincrement())
   followingsId Int
   followersId  Int
-  followings   User     @relation("Followings", fields: [followingsId], references: [id])
-  followers    User     @relation("Followers", fields: [followersId], references: [id])
+  followings   User     @relation("Followings", fields: [followingsId], references: [id], onDelete: Cascade)
+  followers    User     @relation("Followers", fields: [followersId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 
   @@unique([followersId, followingsId])
+  @@index([followersId])
+  @@index([followingsId])
 }
