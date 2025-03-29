@@ -43,4 +43,6 @@ model Follow {
   followers    User     @relation("Followers", fields: [followersId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
+
+  @@unique([followersId, followingsId])
 }
