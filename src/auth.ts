@@ -35,9 +35,10 @@ export const authOptions: NextAuthOptions = {
     ]
     , callbacks: {
         async session({session, token}) {
-            session.user.id = token.id as number
-            session.user.username = token.username as string
-            console.log("auth session : " + session)
+            if (token) {
+                session.user.id = token.id as number
+                session.user.username = token.username as string
+            }
             return session
         },
 
@@ -52,6 +53,7 @@ export const authOptions: NextAuthOptions = {
     },
     pages: {
         signIn: "/login",
+        signOut: "/",
     },
 }
 
