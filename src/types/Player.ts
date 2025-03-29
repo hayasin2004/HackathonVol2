@@ -10,15 +10,14 @@ export interface PlayerType {
 
 // フォローボタンコンポーネントに渡す用
 export interface propsPlayerType {
-    id?: number
     detailPlayer: {
         id?: number;
         username?: string;
         email?: string;
         password?: string;
         description?: string | null;
-        createdAt: Date;
-        updatedAt: Date;
+        createdAt?: Date;
+        updatedAt?: Date;
     } | null
 }
 

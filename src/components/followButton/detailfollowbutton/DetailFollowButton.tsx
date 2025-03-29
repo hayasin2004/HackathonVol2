@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import {useSession} from "next-auth/react";
-import {propsPlayerType, propsFollowingsPlayerType, propsPlayerDetailFollowType} from "@/types/Player";
+import {propsPlayerDetailFollowType} from "@/types/Player";
 import {following} from "@/repository/prisma/userfollowRepository";
 
 const DetailFollowButton:React.FC<propsPlayerDetailFollowType | null> = (props) =>{
