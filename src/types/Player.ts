@@ -33,6 +33,7 @@ export interface propsFollowingsPlayerType {
         updatedAt?: Date; // オプションに変更
     };
 }
+
 // フォロワー取得用の型指定
 export interface propsFollowersPlayerType {
     followers: {

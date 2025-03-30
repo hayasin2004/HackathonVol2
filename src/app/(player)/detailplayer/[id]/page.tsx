@@ -4,13 +4,16 @@ import DetailFollowButton from "@/components/followButton/detailfollowbutton/Det
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
 import {DetailPlayerTypes} from "@/types/Player";
-import Link from "next/link";
+import UpdateUser from "@/app/(userAuth)/updateUser/page";
 
 
 const DetailPlayer = async ({params}: { params: { id: string } }) => {
     const currentUserName = decodeURIComponent(params.id);
+
     const detailPlayerData = await prisma.user.findFirst({where: {username: currentUserName}})
+
     const session = await getServerSession(authOptions)
+
     console.log("session　サーバ側" + JSON.stringify(session))
         console.log(JSON.stringify(detailPlayerData))
     const detailPlayerDataFollowingsList  = await prisma.follow.findMany({
@@ -79,29 +82,9 @@ const ToShowMeDetail:React.FC<DetailPlayerTypes> = async ({detailPlayerData, det
                 ))}
             </div>
             <div>
-                1、編集ボタンのみコンポーネントディレクトリにクライアントコンポーネントで作成詳しくは
-                components/DetailFollowButtonの中身みたいな感じで
-                2、コンポーネントを呼び出したら、プロップスで今のログインしているユーザーの情報(id)で渡す。
-                　→受け取るときは8行目らへんを参考にしてもらって
-                3、コンポーネントでボタンのOnClickでEdit用の関数を呼び出する。
-                　→　非同期関数はrepository/prismaに更新用の関数を作成してほしい
-                4、更新する内容はメールアドレス、ユーザー名、自己紹介、プロフィール画像
-                ＊＊＊
-                    なにも変更がないInputタグがある状態で関数を実行したときにnull,undefinedにデータが空になるのを防いでほしい
-                ＊＊＊
-            </div>
-            <div>
                 <h1>ここで個人情報の変更</h1>
-
-                <Link href="/">
-                    <button>
-                        ここから変更
-                    </button>
-                </Link>
+                <UpdateUser  detailPlayer={detailPlayerData}/>
                 <h3>Username : {detailPlayerData?.username}</h3>
-                {}
-
-
             </div>
             <div>
                 <h1>ここでフォロワー一覧</h1>

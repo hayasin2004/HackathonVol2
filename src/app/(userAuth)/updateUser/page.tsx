@@ -1,19 +1,33 @@
 "use client"
 import React, {useState} from 'react';
 import {updateUserRepository} from "@/repository/prisma/updateUserRepository";
-import {router} from "next/client";
+import {useRouter} from "next/navigation";
+import {propsPlayerType} from "@/types/Player";
 
 
-const updateUser = () => {
-    const [email, setEmail] = useState<string>("")
-    const [username, setUsername] = useState<string>("")
-    const [password, setPassword] = useState<string>("")
-    const handleUpdateUser = async (e :  React.MouseEvent<HTMLElement, MouseEvent>) => {
+const UpdateUser: React.FC<propsPlayerType> = (props) => {
+    const router = useRouter();
+    // デバッグ用
+    console.log(props)
+    console.log(props?.detailPlayer?.username)
+    console.log(props?.detailPlayer?.id)
+
+    ///
+    const changeTypeId = Number(props?.detailPlayer?.id)
+    const [email, setEmail] = useState<string>(typeof props?.detailPlayer?.email)
+    const [username, setUsername] = useState<string>(typeof props?.detailPlayer?.username)
+    const [password, setPassword] = useState<string>(typeof props?.detailPlayer?.password)
+    const [description, setDescription] = useState<string>(typeof props?.detailPlayer?.description)
+
+    const handleUpdateUser = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         e.preventDefault()
-        const response = await  updateUserRepository(email, username, password)
+        const response = await updateUserRepository(
+            changeTypeId, email, username, description, password
+        )
         console.log(response)
-        router.push("/")
+        await router.push("/allplayer")
     }
+
     return (
         <div>
             <form>
@@ -21,9 +35,12 @@ const updateUser = () => {
                 <br/>
                 <label htmlFor="email">メールアドレス</label>
                 <input name={"email"} type="email" required onChange={(e) => setEmail(e.target.value)}/>
-                <br />
+                <br/>
                 <label htmlFor="username">ユーザー名</label>
-                <input name={"username"} type="username" required onChange={(e) => setUsername(e.target.value)}/>
+                <input name={"username"} type="text" required onChange={(e) => setUsername(e.target.value)}/>
+                <br/>
+                <label htmlFor={"description"}>自己紹介</label>
+                <input name={"description"} type="text" required onChange={(e) => setDescription(e.target.value)}/>
                 <br/>
                 <label htmlFor="password">パスワード</label>
                 <input name={"password"} type="password" required onChange={(e) => setPassword(e.target.value)}/>
@@ -33,4 +50,4 @@ const updateUser = () => {
     );
 };
 
-export default updateUser();
+export default UpdateUser;
