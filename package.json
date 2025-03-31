@@ -16,7 +16,9 @@
     "next-auth": "^4.24.11",
     "prisma": "^6.5.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-konva": "^19.0.3",
+    "canvas": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
