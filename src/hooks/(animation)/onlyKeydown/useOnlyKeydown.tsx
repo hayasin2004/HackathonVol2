@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 export const useKeyboardControl = (updatePosition: (deltaX: number, deltaY: number) => void) => {
     useEffect(() => {
-        const DELTA = 30; // 移動量を定義
+        const DELTA = 20; // 移動量を定義
 
         const handleKeyDown = (e: KeyboardEvent) => {
             switch (e.keyCode) {
