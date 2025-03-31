@@ -4,10 +4,10 @@ import prisma from "@/lib/prismaClient"
 
 export const updateUserRepository = async (
     id : number,
-    email: string,
-    username: string,
-    description: string,
-    password: string
+    email: string | undefined,
+    username: string| undefined,
+    description: string| undefined | null,
+    password: string| undefined
 ) => {
     try {
         console.log("username" + username)

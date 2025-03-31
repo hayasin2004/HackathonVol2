@@ -8,17 +8,20 @@ import {propsPlayerType} from "@/types/Player";
 const UpdateUser: React.FC<propsPlayerType> = (props) => {
     const router = useRouter();
     // デバッグ用
-    console.log(props)
-    console.log(props?.detailPlayer?.username)
-    console.log(props?.detailPlayer?.id)
+    // console.log(props)
+    // console.log(props?.detailPlayer?.username)
+    // console.log(props?.detailPlayer?.id)
 
     ///
     const changeTypeId = Number(props?.detailPlayer?.id)
-    const [email, setEmail] = useState<string>(typeof props?.detailPlayer?.email)
-    const [username, setUsername] = useState<string>(typeof props?.detailPlayer?.username)
-    const [password, setPassword] = useState<string>(typeof props?.detailPlayer?.password)
-    const [description, setDescription] = useState<string>(typeof props?.detailPlayer?.description)
+    const [email, setEmail] = useState<string | undefined>(props?.detailPlayer?.email)
+    const [username, setUsername] = useState<string| undefined>(props?.detailPlayer?.username)
+    const [password, setPassword] = useState<string | undefined>( props?.detailPlayer?.password)
+    const [description, setDescription] = useState<string| undefined | null>( props?.detailPlayer?.description)
 
+    // デバック
+        console.log("email"+email , "username"+ username , "password" +password , "description"+ description )
+    //
     const handleUpdateUser = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         e.preventDefault()
         const response = await updateUserRepository(
