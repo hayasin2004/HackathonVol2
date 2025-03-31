@@ -70,6 +70,6 @@ model DefalutItemList {
   id              Int          @id @default(autoincrement())
   PlayerItem      PlayerItem[]
   itemName        String
-  itemDescription String
+  itemDescription String       @default("")
   itemIcon        String?
 }
