@@ -14,16 +14,17 @@ datasource db {
 }
 
 model User {
-  id          Int         @id @default(autoincrement())
-  username    String      @unique
-  email       String      @unique
+  id          Int          @id @default(autoincrement())
+  username    String       @unique
+  email       String       @unique
   password    String
   description String?
   character   Character[]
-  followings  Follow[]    @relation("Followings")
-  followers   Follow[]    @relation("Followers")
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now())
+  followings  Follow[]     @relation("Followings")
+  followers   Follow[]     @relation("Followers")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+  playerData  PlayerData[] @relation("PlayerData")
 }
 
 model Character {
@@ -47,4 +48,28 @@ model Follow {
   @@unique([followersId, followingsId])
   @@index([followersId])
   @@index([followingsId])
+}
+
+model PlayerData {
+  id       Int          @id @default(autoincrement())
+  haveItem PlayerItem[] @relation("Item")
+  player   User         @relation("PlayerData", fields: [playerId], references: [id], onDelete: Cascade)
+  playerId Int
+}
+
+model PlayerItem {
+  id       Int             @id @default(autoincrement())
+  itemName String
+  item     DefalutItemList @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId   Int
+  player   PlayerData      @relation("Item", fields: [playerId], references: [id], onDelete: Cascade)
+  playerId Int
+}
+
+model DefalutItemList {
+  id              Int          @id @default(autoincrement())
+  PlayerItem      PlayerItem[]
+  itemName        String
+  itemDescription String
+  itemIcon        String?
 }
