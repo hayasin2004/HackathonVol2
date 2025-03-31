@@ -21,7 +21,9 @@ const UpdateUser: React.FC<propsPlayerType> = (props) => {
 
     // デバック
         console.log("email"+email , "username"+ username , "password" +password , "description"+ description )
-    //
+
+
+
     const handleUpdateUser = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         e.preventDefault()
         const response = await updateUserRepository(
@@ -30,6 +32,7 @@ const UpdateUser: React.FC<propsPlayerType> = (props) => {
         console.log(response)
         await router.push("/allplayer")
     }
+
 
     return (
         <div>
