@@ -12,6 +12,7 @@ const UpdateUser: React.FC<propsPlayerType> = (props) => {
     // console.log(props)
     // console.log(props?.detailPlayer?.username)
     // console.log(props?.detailPlayer?.id)
+
     ///
     const changeTypeId = Number(props?.detailPlayer?.id)
     const [email, setEmail] = useState<string | undefined>(props?.detailPlayer?.email)
