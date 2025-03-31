@@ -3,7 +3,12 @@ import prisma from "@/lib/prismaClient";
 import Link from "next/link";
 
 const AllPlayer = async () => {
-    const data = await prisma.user.findMany({select: {id: true, username: true, email: true}})
+
+    const data = await prisma.user.findMany(
+        {orderBy : [{createdAt : "asc"}],
+        select: {id: true, username: true, email: true}}
+    )
+
     console.log(data)
     return (
         <div>

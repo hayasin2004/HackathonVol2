@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import {updateUserRepository} from "@/repository/prisma/updateUserRepository";
 import {useRouter} from "next/navigation";
 import {propsPlayerType} from "@/types/Player";
+import userUpdateProfileValidator from "@/validator/userUpdateProfileValidator";
 
 
 const UpdateUser: React.FC<propsPlayerType> = (props) => {
@@ -11,17 +12,35 @@ const UpdateUser: React.FC<propsPlayerType> = (props) => {
     // console.log(props)
     // console.log(props?.detailPlayer?.username)
     // console.log(props?.detailPlayer?.id)
-
     ///
     const changeTypeId = Number(props?.detailPlayer?.id)
     const [email, setEmail] = useState<string | undefined>(props?.detailPlayer?.email)
-    const [username, setUsername] = useState<string| undefined>(props?.detailPlayer?.username)
-    const [password, setPassword] = useState<string | undefined>( props?.detailPlayer?.password)
-    const [description, setDescription] = useState<string| undefined | null>( props?.detailPlayer?.description)
+    const [username, setUsername] = useState<string | undefined>(props?.detailPlayer?.username)
+    const [password, setPassword] = useState<string | undefined>(props?.detailPlayer?.password)
+    const [description, setDescription] = useState<string | undefined | null>(props?.detailPlayer?.description)
 
     // デバック
-        console.log("email"+email , "username"+ username , "password" +password , "description"+ description )
+    console.log("email" + email, "username" + username, "password" + password, "description" + description)
     //
+
+    const validatorUserData = {
+        propsData : props ,
+        email : email ,
+        username : username ,
+        description : description ,
+        password : password ,
+        setEmail : setEmail,
+        setUsername : setUsername,
+        setPassword : setPassword,
+        setDescription : setDescription
+    }
+
+    // バリデーション処理をサーバ側で行う
+    userUpdateProfileValidator(validatorUserData)
+    // if (username == ""){
+    //     console.log("からだよ")
+    //     setUsername(props.detailPlayer?.username)
+    // }
     const handleUpdateUser = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         e.preventDefault()
         const response = await updateUserRepository(
