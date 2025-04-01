@@ -25,7 +25,7 @@ export const adminUserRepositoryCreateItem = async (itemName: string, itemDescri
         }
     } catch (err) {
         console.log("アイテム作成中にエラーが発生しました:");
-        return {status :"error" , message : "サーバーエラー : アイテム作成中にエラーが発生しました"}
+        return {status: "error", message: "サーバーエラー : アイテム作成中にエラーが発生しました"}
     }
 }
 
@@ -34,12 +34,12 @@ export const adminUserRepositoryCreateItem = async (itemName: string, itemDescri
 export const adminUserRepositoryDeleteItem = async (itemName: string, id :number, targetItem: defaultItem | null) => {
     try{
         const existItemData = await prisma.defaultItemList.findFirst({
-            where:{
+            where: {
                 itemName: itemName
             }
         })
-        if(existItemData) {
-            console.log('削除対象アイテムです',itemName)
+        if (existItemData) {
+            console.log('削除対象アイテムです', itemName)
             const DeleteItem = await prisma.defaultItemList.delete({
                 where:{
                     id: targetItem?.defaultItem.id,

@@ -30,7 +30,7 @@ const UserControllerKonva: React.FC<CharacterPartsType> = (props) => {
 
 
     // useKeyboardControl(updatePosition);
-    const {collisionKeyDownPosition, collisionKeyDownColliding} = useCollisionWithKeyboard(
+    const {collisionKeyDownPosition, collisionStatus} = useCollisionWithKeyboard(
         {x: 100, y: 100}, // 円の初期位置
         rectPosition,
         circleRadius
@@ -50,7 +50,7 @@ const UserControllerKonva: React.FC<CharacterPartsType> = (props) => {
                 <Layer>
                     {/*<Circle {...parts} x={autoActionPosition.x} y={autoActionPosition.y}></Circle>*/}
                     <Circle {...parts} x={collisionKeyDownPosition.x} y={collisionKeyDownPosition.y}
-                            fill={collisionKeyDownColliding ? "green" : "red"}></Circle>
+                            fill={collisionStatus ? "green" : "red"}></Circle>
                     <Rect
                         x={rectPosition.x}
                         y={rectPosition.y}
