@@ -10,11 +10,16 @@ const useCollisionWithKeyboard = (
 
     // 衝突検知関数
     const checkCollision = (newX: number, newY: number): boolean => {
+        let padding = 20
         return (
-            newX + circleRadius > rectPosition.x &&
-            newX - circleRadius < rectPosition.x + rectPosition.width &&
-            newY + circleRadius > rectPosition.y &&
-            newY - circleRadius < rectPosition.y + rectPosition.height
+            //左に食い込んでる
+            newX + circleRadius + padding > rectPosition.x &&
+            //右に食い込んでる
+            newX - circleRadius - padding< rectPosition.x + rectPosition.width &&
+            //上に食い込んでる
+            newY + circleRadius + padding> rectPosition.y &&
+            //下に食い込んでる
+            newY - circleRadius - padding< rectPosition.y + rectPosition.height
         );
     };
 
@@ -44,6 +49,7 @@ const useCollisionWithKeyboard = (
                 }
 
                 // 新しい座標を画面内に制限
+                // 0 →　最小値　, 今回は円で衝突検知をしているため、circleRadius * 2で直径を求めてる。
                 newX = Math.max(0, Math.min(window.innerWidth - circleRadius * 2, newX));
                 newY = Math.max(0, Math.min(window.innerHeight - circleRadius * 2, newY));
 
