@@ -32,10 +32,10 @@ const UserControllerKonva: React.FC<CharacterPartsType> = (props) => {
 
 
     // 衝突＋イベント
-    const {ECollisionPosition, ECollisionStatus} = useEventHappen(
+    const {collisionKeyDownPosition, collisionKeyDownColliding} = useEventHappen(
         {x: 100, y: 100},
-        rectPosition,
         circleRadius,
+        rectPosition,
     )
 
 
@@ -57,13 +57,13 @@ const UserControllerKonva: React.FC<CharacterPartsType> = (props) => {
                     {/*自動で動くやつを呼び出す*/}
                     {/*<Circle {...parts} x={autoActionPosition.x} y={autoActionPosition.y}></Circle>*/}
 
-                    {/*衝突＋キー操作*/}
+                    衝突＋キー操作
                     {/*<Circle {...parts} x={collisionKeyDownPosition.x} y={collisionKeyDownPosition.y}*/}
                     {/*        fill={collisionStatus ? "green" : "red"}></Circle>*/}
 
                     {/*衝突 + イベント*/}
-                    <Circle {...parts} x={ECollisionPosition.x} y={ECollisionPosition.y}
-                            fill={ECollisionStatus ? "#ecee33" : "#1c027f"}></Circle>
+                    <Circle {...parts} x={collisionKeyDownPosition.x} y={collisionKeyDownPosition.y}
+                            fill={collisionKeyDownColliding ? "#ecee33" : "#1c027f"}></Circle>
 
                     <Rect
                         x={rectPosition.x}

@@ -51,25 +51,35 @@ model Follow {
 }
 
 model PlayerData {
-  id       Int          @id @default(autoincrement())
-  haveItem PlayerItem[] @relation("Item")
-  player   User         @relation("PlayerData", fields: [playerId], references: [id], onDelete: Cascade)
-  playerId Int
+  id        Int          @id @default(autoincrement())
+  haveItem  PlayerItem[] @relation("Item")
+  player    User         @relation("PlayerData", fields: [playerId], references: [id], onDelete: Cascade)
+  playerId  Int
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now())
 }
 
 model PlayerItem {
-  id       Int             @id @default(autoincrement())
-  itemName String
-  item     DefalutItemList @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  itemId   Int
-  player   PlayerData      @relation("Item", fields: [playerId], references: [id], onDelete: Cascade)
-  playerId Int
+  id        Int             @id @default(autoincrement())
+  itemName  String
+  item      DefaultItemList @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId    Int
+  player    PlayerData      @relation("Item", fields: [playerId], references: [id], onDelete: Cascade)
+  playerId  Int
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now())
 }
 
-model DefalutItemList {
+model DefaultItemList {
   id              Int          @id @default(autoincrement())
   PlayerItem      PlayerItem[]
   itemName        String
   itemDescription String
   itemIcon        String?
+  x               Int
+  y               Int
+  width           Int
+  height          Int
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now())
 }

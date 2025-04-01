@@ -2,7 +2,7 @@
 import prisma from "@/lib/prismaClient";
 
 //アイテム一覧取得
-export const itemList = async (itemName: string) => {
+export const itemList = async () => {
     try {
         const existItemData = await prisma?.defaultItemList.findFirst({
             where:{
@@ -26,7 +26,7 @@ export const itemList = async (itemName: string) => {
     }
     catch(err){
         console.log(err)
-        return {status: "error", message: "サーバーエラー : アイテム一覧コードよりエラーが発生しました"}
+        return null
     }
 
 
@@ -34,7 +34,6 @@ export const itemList = async (itemName: string) => {
 
 
 //インベントリにアイテム保存
-
 
 
 // インベントリからアイテム削除

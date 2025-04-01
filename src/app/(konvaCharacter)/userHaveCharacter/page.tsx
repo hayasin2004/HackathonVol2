@@ -3,6 +3,7 @@ import UserControllerKonva from "@/components/(konva)/userControllerKonva/UserCo
 import prisma from "@/lib/prismaClient";
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
+import ItemControllerKonva from "@/components/(konva)/itemControllerKonva/ItemControllerKonva";
 
 const UserHaveCharacter = async () => {
     const session = await getServerSession(authOptions)
@@ -16,7 +17,7 @@ const UserHaveCharacter = async () => {
     return (
         <div>
             <h1>ここはユーザーの図形を操れるページ</h1>
-            <h2><UserControllerKonva character={userHaveCharacterData}/></h2>
+            <h2><ItemControllerKonva character={userHaveCharacterData}/></h2>
         </div>
     );
 };
