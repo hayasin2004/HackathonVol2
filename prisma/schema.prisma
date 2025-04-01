@@ -93,8 +93,7 @@ model Follow {
 model PlayerData {
   id        Int          @id @default(autoincrement())
   playerId  Int?         @unique // Userモデルから取得したID（一意）
-  player    User?        @relation(fields: [playerId
-  ..], references: [id], onDelete: Cascade) // Userモデルとのリレーション
+  player    User?        @relation(fields: [playerId], references: [id], onDelete: Cascade) // Userモデルとのリレーション
   haveItems PlayerItem[] @relation("PlayerToItems") // Playerが所持しているアイテムのリレーション
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now())
