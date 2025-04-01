@@ -5,6 +5,7 @@ import {Circle, Layer, Rect, Stage} from "react-konva";
 import {useKeyboardControl} from "@/hooks/(animation)/onlyKeydown/useOnlyKeydown";
 import {useOnlyAuto} from "@/hooks/(animation)/onlyAuto/useOnlyAuto";
 import useCollisionWithKeyboard from "@/hooks/(animation)/collision/useCollisionWithKeyboard";
+import useEventHappen from "@/hooks/(animation)/eventHappen/useEventHappen";
 
 const UserControllerKonva: React.FC<CharacterPartsType> = (props) => {
     const [keyDownPosition, setKeyDownPosition] = useState({x: 100, y: 100})
@@ -19,22 +20,23 @@ const UserControllerKonva: React.FC<CharacterPartsType> = (props) => {
     //         y: prev.y + deltaY,
     //     }));
     // };
-
-    const updatePosition = (deltaX: number, deltaY: number) => {
-        setKeyDownPosition((prev) => ({
-            x: prev.x + deltaX,
-            y: prev.y + deltaY,
-        }));
-    };
-
-
-
     // useKeyboardControl(updatePosition);
-    const {collisionKeyDownPosition, collisionStatus} = useCollisionWithKeyboard(
-        {x: 100, y: 100}, // 円の初期位置
+
+
+    // 衝突よう
+    // const {collisionKeyDownPosition, collisionStatus} = useCollisionWithKeyboard(
+    //     {x: 100, y: 100}, // 円の初期位置
+    //     rectPosition,
+    //     circleRadius
+    // );
+
+
+    // 衝突＋イベント
+    const {ECollisionPosition, ECollisionStatus} = useEventHappen(
+        {x: 100, y: 100},
         rectPosition,
-        circleRadius
-    );
+        circleRadius,
+    )
 
 
     // // // 自動動作カスタムフック使用例
@@ -48,9 +50,21 @@ const UserControllerKonva: React.FC<CharacterPartsType> = (props) => {
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
             >
                 <Layer>
+                    {/*キー操作*/}
+                    {/*<Circle {...parts} x={keyDownPosition.x} y={keyDownPosition.y}*/}
+                    {/*        fill={collisionStatus ? "green" : "red"}></Circle>*/}
+
+                    {/*自動で動くやつを呼び出す*/}
                     {/*<Circle {...parts} x={autoActionPosition.x} y={autoActionPosition.y}></Circle>*/}
-                    <Circle {...parts} x={collisionKeyDownPosition.x} y={collisionKeyDownPosition.y}
-                            fill={collisionStatus ? "green" : "red"}></Circle>
+
+                    {/*衝突＋キー操作*/}
+                    {/*<Circle {...parts} x={collisionKeyDownPosition.x} y={collisionKeyDownPosition.y}*/}
+                    {/*        fill={collisionStatus ? "green" : "red"}></Circle>*/}
+
+                    {/*衝突 + イベント*/}
+                    <Circle {...parts} x={ECollisionPosition.x} y={ECollisionPosition.y}
+                            fill={ECollisionStatus ? "#ecee33" : "#1c027f"}></Circle>
+
                     <Rect
                         x={rectPosition.x}
                         y={rectPosition.y}
