@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {CharacterPartsType} from "@/types/character";
 import {Circle, Layer, Rect, Stage} from "react-konva";
 import useEventHappen from "@/hooks/(animation)/eventHappen/useEventHappen";
@@ -11,14 +11,33 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
     //     {id: "rect2", x: 300, y: 200, width: 120, height: 80, fill: "green"},
     //     {id: "rect3", x: 500, y: 300, width: 150, height: 100, fill: "orange"},
     // ];
-    const itemArray = props.itemArray
-    console.log(itemArray)
+    // 初回レンダリング時にランダム座標を設定
+    const generateRandomCoordinates = (maxWidth: number, maxHeight: number): { x: number; y: number } => {
+        return {
+            x: Math.floor(Math.random() * maxWidth),
+            y: Math.floor(Math.random() * maxHeight),
+        };
+    };
+    const screenWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+    const screenHeight = typeof window !== "undefined" ? window.innerHeight : 0;
+
+    const itemArray = props.itemArray ?? [];
+    const [itemsWithCoordinates, setItemsWithCoordinates] = useState(() =>
+        itemArray?.map((item) => {
+            const {x, y} = generateRandomCoordinates(screenWidth, screenHeight);
+            return {...item, x, y};
+        })
+    );
     const circleRadius = 30;
+    const userId = props.character?.userId
     const {ECollisionPosition, ECollisionStatus, adjacentObstacles, adjacentObstaclesStatus} = useGetItem(
+        userId,
         {x: 100, y: 100},
         circleRadius,
-        itemArray
+        itemsWithCoordinates
     );
+
+
 
     return (
         <>
@@ -35,7 +54,7 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
                         ))
                     ) :
                     <div>
-                        <p style={{opacity : "0"}}>aaa</p>
+                        <p style={{opacity: "0"}}>aaa</p>
                     </div>
                 }
             </div>
@@ -53,13 +72,13 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
                     />
 
                     {/* 障害物 */}
-                    {itemArray?.map((rect , index) => (
+                    {itemsWithCoordinates?.map((rect, index) => (
                         <Rect
                             key={rect.id}
                             x={rect.x}
                             y={rect.y}
-                            width={rect.width}
-                            height={rect.height}
+                            width={100}
+                            height={100}
                             fill={"red"}
                         />
                     ))}

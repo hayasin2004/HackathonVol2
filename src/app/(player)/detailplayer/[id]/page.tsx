@@ -15,8 +15,8 @@ const DetailPlayer = async ({params}: { params: { id: string } }) => {
     const session = await getServerSession(authOptions)
 
     console.log("session　サーバ側" + JSON.stringify(session))
-        console.log(JSON.stringify(detailPlayerData))
-    const detailPlayerDataFollowingsList  = await prisma.follow.findMany({
+    console.log(JSON.stringify(detailPlayerData))
+    const detailPlayerDataFollowingsList = await prisma.follow.findMany({
         where: {
             followersId: detailPlayerData?.id,
             followingsId: {not: detailPlayerData?.id}
@@ -66,7 +66,11 @@ const DetailPlayer = async ({params}: { params: { id: string } }) => {
 export default DetailPlayer;
 
 //もし見ているユーザーが自分だった時のコンポーネント
-const ToShowMeDetail:React.FC<DetailPlayerTypes> = async ({detailPlayerData, detailPlayerDataFollowingsList, detailPlayerDataFollowersList}) => {
+const ToShowMeDetail: React.FC<DetailPlayerTypes> = async ({
+                                                               detailPlayerData,
+                                                               detailPlayerDataFollowingsList,
+                                                               detailPlayerDataFollowersList
+                                                           }) => {
     return (
         <div>
             <h1>ここは自分のページです</h1>
@@ -83,7 +87,7 @@ const ToShowMeDetail:React.FC<DetailPlayerTypes> = async ({detailPlayerData, det
             </div>
             <div>
                 <h1>ここで個人情報の変更</h1>
-                <UpdateUser  detailPlayer={detailPlayerData}/>
+                <UpdateUser detailPlayer={detailPlayerData}/>
                 <h3>Username : {detailPlayerData?.username}</h3>
             </div>
             <div>
@@ -99,7 +103,11 @@ const ToShowMeDetail:React.FC<DetailPlayerTypes> = async ({detailPlayerData, det
 }
 
 //もし見ているユーザーが自分じゃなかった時のコンポーネント
-const ToShowOtherDetail:React.FC<DetailPlayerTypes> = async ({detailPlayerData, detailPlayerDataFollowingsList, detailPlayerDataFollowersList}) => {
+const ToShowOtherDetail: React.FC<DetailPlayerTypes> = async ({
+                                                                  detailPlayerData,
+                                                                  detailPlayerDataFollowingsList,
+                                                                  detailPlayerDataFollowersList
+                                                              }) => {
     return (
         <div>
             <h1>ここは他の人のページです</h1>

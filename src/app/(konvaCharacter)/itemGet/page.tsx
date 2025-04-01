@@ -34,4 +34,5 @@ const ItemGet =async () => {
         </div>
     );
 }
+
 export default ItemGet;

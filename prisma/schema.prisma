@@ -24,7 +24,7 @@ model User {
   followers   Follow[]     @relation("Followers")
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now())
-  playerData  PlayerData[] @relation("PlayerData")
+  PlayerData  PlayerData[]
 }
 
 model Character {
@@ -50,36 +50,76 @@ model Follow {
   @@index([followingsId])
 }
 
+//
+// model PlayerData {
+//   id         Int          @id @default(autoincrement())
+//   haveItem   PlayerItem[]
+//   player     User         @relation("PlayerData", fields: [playerId], references: [id], onDelete: Cascade)
+//   playerId   Int          @unique
+//   createdAt  DateTime     @default(now())
+//   updatedAt  DateTime     @default(now())
+//   User       User?        @relation(fields: [userId], references: [id])
+//   userId     Int?
+//   PlayerItem PlayerItem[]
+//   PlayerItem PlayerItem[]
+// }
+//
+// model PlayerItem {
+//   id              Int              @id @default(autoincrement())
+//   itemList        Int
+//   quantity        Int              @default(1)
+//   createdAt       DateTime         @default(now())
+//   updatedAt       DateTime         @default(now())
+//   playerData      PlayerData       @relation("PlayerData", fields: [playerDataId], references: [playerId], onDelete: Cascade)
+//   playerDataId    Int
+//   DefaultItemList DefaultItemList? @relation(fields: [itemList], references: [id], onDelete: Cascade)
+//   PlayerData      PlayerData       @relation(fields: [playerDataId], references: [id])
+// }
+//
+// model DefaultItemList {
+//   id              Int          @id @default(autoincrement())
+//   PlayerItem      PlayerItem[]
+//   itemName        String
+//   itemDescription String
+//   itemIcon        String?
+//   x               Int
+//   y               Int
+//   width           Int
+//   height          Int
+//   createdAt       DateTime     @default(now())
+//   updatedAt       DateTime     @default(now())
+// }
+
 model PlayerData {
   id        Int          @id @default(autoincrement())
-  haveItem  PlayerItem[] @relation("Item")
-  player    User         @relation("PlayerData", fields: [playerId], references: [id], onDelete: Cascade)
-  playerId  Int
+  userId    Int?         @unique // Userモデルから取得したID（一意）
+  player    User?        @relation(fields: [userId], references: [id], onDelete: Cascade) // Userモデルとのリレーション
+  haveItems PlayerItem[] @relation("PlayerToItems") // Playerが所持しているアイテムのリレーション
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now())
 }
 
 model PlayerItem {
-  id        Int             @id @default(autoincrement())
-  itemName  String
-  item      DefaultItemList @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  itemId    Int
-  player    PlayerData      @relation("Item", fields: [playerId], references: [id], onDelete: Cascade)
-  playerId  Int
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @default(now())
+  id              Int              @id @default(autoincrement())
+  playerDataId    Int // PlayerData外部キー
+  itemId          Int // DefaultItemList外部キー
+  quantity        Int              @default(1) // 所持数
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now())
+  playerData      PlayerData       @relation("PlayerToItems", fields: [playerDataId], references: [userId], onDelete: Cascade) // PlayerDataリレーション
+  DefaultItemList DefaultItemList? @relation(fields: [itemId], references: [id], onDelete: Cascade) // DefaultItemListリレーション
 }
 
 model DefaultItemList {
   id              Int          @id @default(autoincrement())
-  PlayerItem      PlayerItem[]
-  itemName        String
-  itemDescription String
-  itemIcon        String?
-  x               Int
-  y               Int
-  width           Int
-  height          Int
+  itemName        String // アイテム名
+  itemDescription String // アイテムの説明
+  itemIcon        String? // アイテムのアイコン
+  x               Int // x軸の座標
+  y               Int // y軸の座標
+  width           Int // アイテムの幅
+  height          Int // アイテムの高さ
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @default(now())
+  PlayerItems     PlayerItem[] // PlayerItemとのリレーション
 }
