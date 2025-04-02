@@ -1,6 +1,9 @@
 "use client"
 import {useSession} from "next-auth/react";
 import {logout} from "@/lib/nextAuth-actions";
+import {logIn} from "@/repository/prisma/authRepository";
+import {useEffect} from "react";
+import {useRouter} from "next/navigation";
 
 const LogIn = () => {
     const {data: session, status} = useSession();
@@ -46,6 +49,7 @@ const LogIn = () => {
             <p>ID : {session.user.id}</p>
             <p>Email : {session.user.email}</p>
             <p>Username : {session.user.username}</p>
+            <p>PlayerID : {}</p>
             <form action={logout}>
                 <button>
                     ログアウト
