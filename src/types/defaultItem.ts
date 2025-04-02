@@ -1,6 +1,6 @@
 export interface defaultItem{
     id:number;
-    itemName:string;
+    itemName?:string;
     x?: number
     y?: number
     width? : number

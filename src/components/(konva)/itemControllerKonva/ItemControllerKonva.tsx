@@ -28,12 +28,11 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
             return {...item, x, y};
         })
     );
-    console.log(props?.character?.y)
     const circleRadius = 30;
     const userId = props.character?.userId
     const {ECollisionPosition, ECollisionStatus, adjacentObstacles, adjacentObstaclesStatus} = useGetItem(
         userId,
-        {x: props?.character?.x, y: props?.character?.y},
+        {x: props?.playerData?.x, y: props?.playerData?.y},
         circleRadius,
         itemsWithCoordinates
     );

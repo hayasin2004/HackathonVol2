@@ -1,19 +1,22 @@
+import {PlayerItem} from "@/types/playerItem";
+import {JsonValue} from "@prisma/client/runtime/binary";
+
 export interface CharacterPartsType {
     character?: {
         id: number;
         userId: number;
-        x : number
-        y : number
         parts: JsonValue;
         createdAt: Date;
-        updatedAt: Date;
+        updatedAt: Date;　
     } | null; // nullも許容
 
-    itemArray? :Array<{
+    playerData: PlayerItem | null; // nullも許容
+
+    itemArray :Array<{
         id:number;
-        itemName:string;
-        x? : number
-        y? : number
+        itemName?:string;
+        x : number
+        y : number
         width? : number
         height? : number
         itemDescription:string;
