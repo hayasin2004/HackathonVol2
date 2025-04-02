@@ -1,9 +1,9 @@
 "use client"
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {CharacterPartsType} from "@/types/character";
 import {Circle, Layer, Rect, Stage} from "react-konva";
-import useEventHappen from "@/hooks/(animation)/eventHappen/useEventHappen";
 import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
+import PlayerPlaceSaveButton from "@/components/playerPlaceSaveButton/page";
 
 const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
     // const rectPositions = [
@@ -37,6 +37,7 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
         itemsWithCoordinates
     );
 
+        console.log(adjacentObstacles)
 
 
     return (
@@ -44,8 +45,10 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
             {/* 隣接している障害物を表示 */}
             <div>
                 <h2>隣接している障害物</h2>
+                <PlayerPlaceSaveButton userId={userId} x={100} y={100}/>
+
                 {adjacentObstaclesStatus == "" ? (
-                        adjacentObstacles.map((obstacle) => (
+                        adjacentObstacles?.map((obstacle) => (
                             <div key={obstacle.id}>
                                 <p>
                                     障害物ID: {obstacle.itemName}

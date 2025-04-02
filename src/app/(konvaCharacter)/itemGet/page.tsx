@@ -3,9 +3,10 @@ import prisma from "@/lib/prismaClient";
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
 import ItemControllerKonva from "@/components/(konva)/itemControllerKonva/ItemControllerKonva";
-import {itemList} from "@/repository/prisma/ClientItemRepository";
+import {itemList, playerCoordinate} from "@/repository/prisma/ClientItemRepository";
 import {defaultItem} from "@/types/defaultItem";
 import {adminItemRepositoryDeleteItem, adminItemRepositoryUpdateItem} from "@/repository/prisma/adminItemRepository";
+import PlayerPlaceSaveButton from "@/components/playerPlaceSaveButton/page";
 
 const ItemGet =async () => {
 
@@ -20,8 +21,11 @@ const ItemGet =async () => {
 
 
     console.log("取得してきた userHaveCharacterData :" + JSON.stringify(userHaveCharacterData))
+
+
     return (
         <div>
+
             {itemArray?.map((defaultItem :defaultItem) => (
                 <div key={defaultItem.id}>
                     <h2>アイテム: {defaultItem.id}</h2>

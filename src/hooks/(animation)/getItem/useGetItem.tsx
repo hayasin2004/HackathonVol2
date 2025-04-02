@@ -3,46 +3,56 @@ import { defaultItem } from "@/types/defaultItem";
 import { playerGetItem } from "@/repository/prisma/ClientItemRepository";
 
 const useGetItem = (
-    userId,
+    userId : number | undefined,
     initialPosition = { x: 100, y: 100 },
     circleRadius = 30,
-    rectPositions
+    rectPositions : Array<defaultItem> | null
 ) => {
     const [ECollisionPosition, setECollisionPosition] = useState(initialPosition);
-    const [adjacentObstacles, setAdjacentObstacles] = useState([]);
+    const [adjacentObstacles, setAdjacentObstacles] = useState<defaultItem[] | null>([]);
     const [adjacentObstaclesStatus, setAdjacentObstaclesStatus] = useState("");
+    console.log(adjacentObstaclesStatus)
     const ECollisionRef = useRef(false);
     const keyPressedRef = useRef(false);
     const isProcessingRef = useRef(false);
 
     const memoizedRectPositions = useMemo(() => rectPositions, [rectPositions]);
 
-    const getCollidingObstacles = (newX, newY) => {
+    const getCollidingObstacles = (newX : number, newY: number) => {
         const padding = 10;
         return memoizedRectPositions?.filter(rect =>
-            newX + circleRadius + padding > rect.x &&
-            newX - circleRadius - padding < rect.x + rect.width &&
-            newY + circleRadius + padding > rect.y &&
-            newY - circleRadius - padding < rect.y + rect.height
+            newX + circleRadius + padding > rect.x! &&
+            newX - circleRadius - padding < rect.x! + rect.width! &&
+            newY + circleRadius + padding > rect.y! &&
+            newY - circleRadius - padding < rect.y! + rect.height!
         );
     };
 
+    useEffect(() => {
+        const collidingObstacles = getCollidingObstacles(ECollisionPosition.x, ECollisionPosition.y);
+
+        ECollisionRef.current = collidingObstacles!.length > 0;
+        if (collidingObstacles!.length === 0) {
+            setAdjacentObstacles(null);
+        }
+    }, [ECollisionPosition, memoizedRectPositions]);
+
     const handleEKeyPress = async () => {
-        if (isProcessingRef.current) return;
+        if (isProcessingRef.current || !ECollisionRef.current) return;
         isProcessingRef.current = true;
 
         const collidingObstacles = getCollidingObstacles(ECollisionPosition.x, ECollisionPosition.y);
-        if (collidingObstacles.length > 0) {
-            setAdjacentObstacles(collidingObstacles);
-            setAdjacentObstaclesStatus("");
+        if (collidingObstacles!.length > 0) {
+            setAdjacentObstacles(collidingObstacles!);
             try {
-                const ItemIds = collidingObstacles.map(item => item.id);
+                const ItemIds = collidingObstacles!.map(item => item.id);
                 if (ItemIds.length > 0 && userId !== undefined) {
                     const result = await playerGetItem(userId, ItemIds);
                     if (result?.status === "success") {
                         console.log("アイテム獲得成功:", result.savedItem);
-                        setAdjacentObstacles([]);
-                    } else {
+                        setAdjacentObstacles(collidingObstacles!); // 隣接している障害物を更新
+
+                       } else {
                         console.log("アイテム取得失敗");
                     }
                 }
@@ -53,7 +63,7 @@ const useGetItem = (
             }
         } else {
             console.log("隣接している障害物はありません");
-            setAdjacentObstaclesStatus("衝突なし");
+            setAdjacentObstacles(null);
             isProcessingRef.current = false;
         }
     };

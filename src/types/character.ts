@@ -17,3 +17,12 @@ export interface CharacterPartsType {
         itemDescription:string;
     }> | null
 }
+
+
+//characterの位置を保存する
+export interface PlayerCoordinateProps  {
+    userId?: number;
+    x?: number;
+    y?: number;
+};
+

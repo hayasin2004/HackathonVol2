@@ -1,5 +1,7 @@
 "use server"
 import prisma from "@/lib/prismaClient";
+import {PlayerCoordinateProps} from "@/types/character";
+import {CreatePlayerData, findPlayerData, logIn, savaPlayerPlaceData} from "@/repository/prisma/authRepository";
 
 //アイテム一覧取得
 export const itemList = async () => {
@@ -120,11 +122,34 @@ export const playerDeleteItem = async (playerId: number, itemId: number) => {
             where: {id: playerItem.itemId}
         })
         return {status: 'success', message: 'アイテムを削除しました', deleteItem}
-
     } catch (err) {
         console.log(err)
         return {status: 'error', message: 'アイテム削除中にエラーが発生しました'}
 
     }
+}
 
+export const playerCoordinate = async (props: PlayerCoordinateProps) => {
+    try {
+        if (props !== undefined) {
+            const {userId, x, y} = props;
+            const playerData = await findPlayerData(userId)
+            if (playerData.status == 200) {
+                const playerPlaceData = await savaPlayerPlaceData(userId, x, y)
+                console.log(playerPlaceData)
+                return {status: 200, message: "保存完了"}
+            } else {
+                const playerPlaceCreate = await CreatePlayerData(userId)
+                if (playerPlaceCreate.status == 200) {
+                    const playerPlaceData = await savaPlayerPlaceData(userId, x, y)
+                    console.log(playerPlaceData)
+                    return {status: 200, message: "保存完了"}
+                }
+                console.log('プレイヤーが存在しません')
+            }
+        }
+    } catch {
+        console.log('error')
+        return {status: 'error', message: 'プレイヤーの位置情報を保存できませんでした'}
+    }
 }
