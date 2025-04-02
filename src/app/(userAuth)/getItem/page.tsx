@@ -56,7 +56,7 @@ const getItem = async () => {
                 <button type={"submit"} onClick={handleGetItem}>送信</button>
                 <br/>
 
-                {itemArray?.map((defaultItem:{id:string,itemName:string,itemDescription:string}) => (
+                {itemArray?.map((defaultItem:{id:number,itemName:string,itemDescription:string}) => (
                     <div key={defaultItem.id}>
                         <h2>アイテム: {defaultItem.id}</h2>
                         <h2>アイテム名: {defaultItem.itemName}</h2>
