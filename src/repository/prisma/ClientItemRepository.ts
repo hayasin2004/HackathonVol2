@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/lib/prismaClient";
 import {PlayerCoordinateProps} from "@/types/character";
-import {CreatePlayerData, findPlayerData, logIn, savaPlayerPlaceData} from "@/repository/prisma/authRepository";
+import {createPlayerData, findPlayerData, logIn, savaPlayerPlaceData} from "@/repository/prisma/authRepository";
 
 //アイテム一覧取得
 export const itemList = async () => {
@@ -17,6 +17,7 @@ export const itemList = async () => {
                 y: true,
                 width: true,
                 height: true,
+                itemIcon : true
                 // itemIcon : true
             }
 
@@ -139,7 +140,7 @@ export const playerCoordinate = async (props: PlayerCoordinateProps) => {
                 console.log(playerPlaceData)
                 return {status: 200, message: "保存完了"}
             } else {
-                const playerPlaceCreate = await CreatePlayerData(userId)
+                const playerPlaceCreate = await createPlayerData(userId)
                 if (playerPlaceCreate.status == 200) {
                     const playerPlaceData = await savaPlayerPlaceData(userId, x, y)
                     console.log(playerPlaceData)

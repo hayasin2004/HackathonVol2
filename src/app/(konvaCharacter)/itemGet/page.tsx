@@ -7,6 +7,7 @@ import {itemList, playerCoordinate} from "@/repository/prisma/ClientItemReposito
 import {defaultItem} from "@/types/defaultItem";
 import {adminItemRepositoryDeleteItem, adminItemRepositoryUpdateItem} from "@/repository/prisma/adminItemRepository";
 import PlayerPlaceSaveButton from "@/components/playerPlaceSaveButton/page";
+import Image from "next/image";
 
 const ItemGet = async () => {
 
@@ -36,6 +37,7 @@ const ItemGet = async () => {
                     <h2>アイテム: {defaultItem.id}</h2>
                     <h2>アイテム名: {defaultItem.itemName}</h2>
                     <h2>アイテム説明: {defaultItem.itemDescription}</h2>
+                    <h2>アイテムアイコン:</h2><Image src={`/${defaultItem.itemIcon}` } alt={"アイテムアイコン"} height={100}width={100}/>
                 </div>
             ))}
             <h1>ここはユーザーの図形を操れるページ</h1>

@@ -3,6 +3,21 @@
 //アイテムを追加する処理
 import prisma from "@/lib/prismaClient";
 
+export const ItemIConCreate = async  (itemName : string , imageUrl:string) => {
+    // Step 2: Itemモデルにデータを保存
+    const newItem = await prisma.defaultItemList.create({
+        data: {
+            itemName: itemName,
+            itemDescription: "test",
+            x: 100,
+            y: 100,
+            width: 100,
+            height: 100,
+            itemIcon: imageUrl, // 画像URLを設定
+        },
+    });
+}
+
 
 export const adminItemRepositoryCreateItem = async (itemName: string, itemDescription: string) => {
     try {
@@ -15,14 +30,15 @@ export const adminItemRepositoryCreateItem = async (itemName: string, itemDescri
             console.log('すでに作成されているアイテムなので新しく更新します。')
         } else {
 
-            const newItem = await prisma.defaultItemList.create({
-                // AND?
-                data: {
-                    itemName: itemName,
-                    itemDescription: itemDescription,
-                }
-            })
-            console.log('新しいアイテムが誕生しました', newItem)
+            // const newItem = await prisma.defaultItemList.create({
+            //     // AND?
+            //     data: {
+            //         itemName: itemName,
+            //         itemDescription: itemDescription,
+            //
+            //     }
+            // })
+            // console.log('新しいアイテムが誕生しました', newItem)
         }
     } catch (err) {
         console.log("アイテム作成中にエラーが発生しました:");
