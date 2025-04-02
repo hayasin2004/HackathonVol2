@@ -4,6 +4,8 @@ import {CharacterPartsType} from "@/types/character";
 import {Circle, Layer, Rect, Stage} from "react-konva";
 import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
 import PlayerPlaceSaveButton from "@/components/playerPlaceSaveButton/page";
+import {craftItem} from "@/repository/prisma/test/testRepositoy";
+import {successCraftItem, successPlayerData} from "@/repository/prisma/test/dummyData";
 
 const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
     // const rectPositions = [
@@ -37,15 +39,20 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
         itemsWithCoordinates
     );
 
-        console.log(adjacentObstacles)
+    console.log(adjacentObstacles)
 
+    const testCraft = async () => {
+        const result = await craftItem(successPlayerData.id, successCraftItem.createdItemId)
+        console.log(result)
+    }
 
     return (
         <>
             {/* 隣接している障害物を表示 */}
             <div>
                 <h2>隣接している障害物</h2>
-                <PlayerPlaceSaveButton userId={userId} x={ECollisionPosition.x} y={ECollisionPosition.y}/>
+                <button onClick={testCraft}>テスト</button>
+                {/*<PlayerPlaceSaveButton userId={userId} x={ECollisionPosition.x} y={ECollisionPosition.y}/>*/}
 
                 {adjacentObstaclesStatus == "" ? (
                         adjacentObstacles?.map((obstacle) => (

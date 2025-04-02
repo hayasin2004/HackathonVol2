@@ -113,28 +113,44 @@ model PlayerItem {
 }
 
 model DefaultItemList {
-  id              Int          @id @default(autoincrement())
-  itemName        String // アイテム名
-  itemDescription String // アイテムの説明
-  itemIcon        String? // アイテムのアイコン
-  x               Int // x軸の座標
-  y               Int // y軸の座標
-  width           Int // アイテムの幅
-  height          Int // アイテムの高さ
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @default(now())
-  PlayerItems     PlayerItem[] // PlayerItemとのリレーション
-  needCraftItemId Int? //CraftTable外部キー
-  CraftTable      CraftTable[]
+  id              Int                 @id @default(autoincrement())
+  itemName        String
+  itemDescription String
+  itemIcon        String?
+  x               Int
+  y               Int
+  width           Int
+  height          Int
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @default(now())
+  // # 作成されるアイテムとしての CraftItem 参照
+  CraftedItems    CraftItem[]         @relation("CreatedItem")
+  // # 素材として使用される CraftItemMaterial のリレーション
+  UsedInRecipes   CraftItemMaterial[] @relation("MaterialItem")
+  PlayerItem      PlayerItem[]
 }
 
-model CraftTable {
-  id                       Int              @id @default(autoincrement())
-  createItemName           String
-  cratedItemIdMaterialData Int[]
-  crateItemNeedQuantity    Int[] //1個 , 2個
-  createdAt                DateTime         @default(now())
-  updatedAt                DateTime         @default(now())
-  defaultItemListKey       DefaultItemList? @relation(fields: [needCraftItemId], references: [id], onDelete: Cascade)
-  needCraftItemId          Int[] //CraftTable外部キー
+model CraftItem {
+  id            Int                 @id @default(autoincrement())
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @default(now())
+  // # 作成されるアイテム (1対1)
+  createdItemId Int
+  createdItem   DefaultItemList     @relation("CreatedItem", fields: [createdItemId], references: [id], onDelete: Cascade)
+  // # 必要な素材（中間テーブルを利用）
+  materials     CraftItemMaterial[]
+}
+
+// # 中間テーブル：クラフトに必要な素材 + 個数
+model CraftItemMaterial {
+  id             Int             @id @default(autoincrement())
+  craftItemId    Int
+  materialItemId Int
+  quantity       Int // 必要な個数
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now())
+  // # クラフトレシピとのリレーション
+  craftItem      CraftItem       @relation(fields: [craftItemId], references: [id], onDelete: Cascade)
+  // # 必要な素材アイテムとのリレーション
+  materialItem   DefaultItemList @relation("MaterialItem", fields: [materialItemId], references: [id], onDelete: Cascade)
 }
