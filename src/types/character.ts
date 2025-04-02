@@ -7,7 +7,7 @@ export interface CharacterPartsType {
         updatedAt: Date;
     } | null; // nullも許容
 
-    itemArray :Array<{
+    itemArray? :Array<{
         id:number;
         itemName:string;
         x? : number
