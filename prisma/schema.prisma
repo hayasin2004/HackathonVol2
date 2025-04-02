@@ -124,15 +124,17 @@ model DefaultItemList {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @default(now())
   PlayerItems     PlayerItem[] // PlayerItemとのリレーション
-  CraftTable      CraftTable?  @relation(fields: [needCraftItemId], references: [id], onDelete: Cascade)
   needCraftItemId Int? //CraftTable外部キー
+  CraftTable      CraftTable[]
 }
 
 model CraftTable {
-  id                    Int               @id @default(autoincrement())
-  cratedItem            Int[] // 石炭 , 木の棒
-  crateItemNeedQuantity Int[] //1個 , 2個
-  DefaultItemList       DefaultItemList[]
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @default(now())
+  id                       Int              @id @default(autoincrement())
+  createItemName           String
+  cratedItemIdMaterialData Int[]
+  crateItemNeedQuantity    Int[] //1個 , 2個
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @default(now())
+  defaultItemListKey       DefaultItemList? @relation(fields: [needCraftItemId], references: [id], onDelete: Cascade)
+  needCraftItemId          Int[] //CraftTable外部キー
 }

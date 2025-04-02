@@ -1,7 +1,15 @@
 import prisma from "@/lib/prismaClient";
 
-export const craftItem = async (CreateItemId: number , userId : number) => {
+export const craftItemRepository = async ( userId : number,CreateItemId: number ) => {
     try {
+        // userIdはplayerDataから取得したきたplayerIdを想定
+        // createItemIdを作成するアイテムをフロントから渡す
+
+
+        // 試験的に
+        const userIdTest = 1
+        const createItemId = 1
+
 
         const playerItems = await prisma.playerItem.findMany({
             where: {
