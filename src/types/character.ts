@@ -2,6 +2,8 @@ export interface CharacterPartsType {
     character?: {
         id: number;
         userId: number;
+        x : number
+        y : number
         parts: JsonValue;
         createdAt: Date;
         updatedAt: Date;

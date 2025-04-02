@@ -4,7 +4,7 @@ import { playerGetItem } from "@/repository/prisma/ClientItemRepository";
 
 const useGetItem = (
     userId : number | undefined,
-    initialPosition = { x: 100, y: 100 },
+    initialPosition : {x : number | undefined ,y : number | undefined} = { x : 0 ,y : 0 },
     circleRadius = 30,
     rectPositions : Array<defaultItem> | null
 ) => {
@@ -18,13 +18,14 @@ const useGetItem = (
 
     const memoizedRectPositions = useMemo(() => rectPositions, [rectPositions]);
 
-    const getCollidingObstacles = (newX : number, newY: number) => {
+    const getCollidingObstacles = (newX : number | undefined, newY: number | undefined) => {
+        console.log(newX , newY)
         const padding = 10;
         return memoizedRectPositions?.filter(rect =>
-            newX + circleRadius + padding > rect.x! &&
-            newX - circleRadius - padding < rect.x! + rect.width! &&
-            newY + circleRadius + padding > rect.y! &&
-            newY - circleRadius - padding < rect.y! + rect.height!
+            newX! + circleRadius + padding > rect.x! &&
+            newX! - circleRadius - padding < rect.x! + rect.width! &&
+            newY! + circleRadius + padding > rect.y! &&
+            newY! - circleRadius - padding < rect.y! + rect.height!
         );
     };
 
@@ -80,15 +81,15 @@ const useGetItem = (
             }
 
             setECollisionPosition((prev) => {
-                let newX = prev.x;
-                let newY = prev.y;
-                if (e.keyCode === 37) newX -= DELTA;
-                if (e.keyCode === 38) newY -= DELTA;
-                if (e.keyCode === 39) newX += DELTA;
-                if (e.keyCode === 40) newY += DELTA;
+                let newX = prev.x ?? 100;
+                let newY = prev.y ?? 100;
+                if (e.keyCode === 37) newX! -= DELTA;
+                if (e.keyCode === 38) newY! -= DELTA;
+                if (e.keyCode === 39) newX! += DELTA;
+                if (e.keyCode === 40) newY! += DELTA;
 
-                newX = Math.max(0, Math.min(window.innerWidth - circleRadius * 2, newX));
-                newY = Math.max(0, Math.min(window.innerHeight - circleRadius * 2, newY));
+                newX = Math.max(0, Math.min(window.innerWidth - circleRadius * 2, newX!));
+                newY = Math.max(0, Math.min(window.innerHeight - circleRadius * 2, newY!));
                 return { x: newX, y: newY };
             });
         };

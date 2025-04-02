@@ -12,9 +12,9 @@ const ItemGet =async () => {
 
     const session = await getServerSession(authOptions)
 
-    const userHaveCharacterData = await prisma.character.findFirst({
+    const userHaveCharacterData = await prisma.playerData.findFirst({
         where: {
-            userId: session?.user.id
+            playerId: session?.user.id
         }
     })
     const itemArray= await itemList()
