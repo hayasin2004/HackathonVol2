@@ -45,7 +45,7 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
             {/* 隣接している障害物を表示 */}
             <div>
                 <h2>隣接している障害物</h2>
-                <PlayerPlaceSaveButton userId={userId} x={100} y={100}/>
+                <PlayerPlaceSaveButton userId={userId} x={ECollisionPosition.x} y={ECollisionPosition.y}/>
 
                 {adjacentObstaclesStatus == "" ? (
                         adjacentObstacles?.map((obstacle) => (
