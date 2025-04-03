@@ -66,7 +66,7 @@ const DetailPlayer = async ({params}: { params: { id: string } }) => {
 export default DetailPlayer;
 
 //もし見ているユーザーが自分だった時のコンポーネント
-const ToShowMeDetail: React.FC<DetailPlayerTypes> = async ({
+const ToShowMeDetail: React.FC<DetailPlayerTypes> = ({
                                                                detailPlayerData,
                                                                detailPlayerDataFollowingsList,
                                                                detailPlayerDataFollowersList
@@ -103,7 +103,7 @@ const ToShowMeDetail: React.FC<DetailPlayerTypes> = async ({
 }
 
 //もし見ているユーザーが自分じゃなかった時のコンポーネント
-const ToShowOtherDetail: React.FC<DetailPlayerTypes> = async ({
+const ToShowOtherDetail: React.FC<DetailPlayerTypes> =({
                                                                   detailPlayerData,
                                                                   detailPlayerDataFollowingsList,
                                                                   detailPlayerDataFollowersList
