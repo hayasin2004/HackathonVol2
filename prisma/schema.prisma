@@ -50,46 +50,6 @@ model Follow {
   @@index([followingsId])
 }
 
-//
-// model PlayerData {
-//   id         Int          @id @default(autoincrement())
-//   haveItem   PlayerItem[]
-//   player     User         @relation("PlayerData", fields: [playerId], references: [id], onDelete: Cascade)
-//   playerId   Int          @unique
-//   createdAt  DateTime     @default(now())
-//   updatedAt  DateTime     @default(now())
-//   User       User?        @relation(fields: [userId], references: [id])
-//   userId     Int?
-//   PlayerItem PlayerItem[]
-//   PlayerItem PlayerItem[]
-// }
-//
-// model PlayerItem {
-//   id              Int              @id @default(autoincrement())
-//   itemList        Int
-//   quantity        Int              @default(1)
-//   createdAt       DateTime         @default(now())
-//   updatedAt       DateTime         @default(now())
-//   playerData      PlayerData       @relation("PlayerData", fields: [playerDataId], references: [playerId], onDelete: Cascade)
-//   playerDataId    Int
-//   DefaultItemList DefaultItemList? @relation(fields: [itemList], references: [id], onDelete: Cascade)
-//   PlayerData      PlayerData       @relation(fields: [playerDataId], references: [id])
-// }
-//
-// model DefaultItemList {
-//   id              Int          @id @default(autoincrement())
-//   PlayerItem      PlayerItem[]
-//   itemName        String
-//   itemDescription String
-//   itemIcon        String?
-//   x               Int
-//   y               Int
-//   width           Int
-//   height          Int
-//   createdAt       DateTime     @default(now())
-//   updatedAt       DateTime     @default(now())
-// }
-
 // PlayerDataモデルを修正
 model PlayerData {
   id        Int          @id @default(autoincrement())
