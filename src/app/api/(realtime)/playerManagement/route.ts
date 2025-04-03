@@ -1,51 +1,48 @@
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from "@/lib/prismaClient";
-import {supabase} from "@/lib/supabase";
 
 // プレイヤーの作成
 
-export const createPlayer = async (req: NextApiRequest, res: NextApiResponse) => {
-    try {
-        const { userId } = req.body;
+import prisma from '@/lib/prismaClient';
+import { supabase } from '@/lib/supabase';
 
+export const createPlayer = async ( userId :number) => {
+    try {
         if (!userId) {
-            return res.status(400).json({ error: 'ユーザーIDが必要です' });
+            throw new Error('ユーザーIDが必要です');
         }
 
-        // 既存のプレイヤーを確認
+        // Check if the player already exists
         const existingPlayer = await prisma.playerData.findUnique({
-            where: { playerId: Number(userId) },
+            where: { playerId: userId },
         });
 
         if (existingPlayer) {
-            return res.status(400).json({ error: 'このユーザーIDのプレイヤーは既に存在します' });
+            throw new Error('このユーザーIDのプレイヤーは既に存在します');
         }
 
-        // プレイヤーの作成
+        // Create a new player
         const player = await prisma.playerData.create({
             data: {
-                playerId: Number(userId),
-                x: 100, // デフォルト位置
-                y: 100, // デフォルト位置
+                playerId: userId,
+                x: 100, // Default X position
+                y: 100, // Default Y position
             },
         });
 
-        // Supabaseにも通知
-        await supabase
-            .from('player_events')
-            .insert({
-                type: 'PLAYER_CREATED',
-                player_id: player.id,
-                data: { x: player.x, y: player.y }
-            });
+        // Notify Supabase
+        await supabase.from('player_events').insert({
+            type: 'PLAYER_CREATED',
+            player_id: player.playerId,
+            data: { x: player.x, y: player.y },
+        });
 
-        return res.status(201).json(player);
+        return player;
     } catch (error) {
         console.error('プレイヤー作成エラー:', error);
-        return res.status(500).json({ error: 'プレイヤーの作成に失敗しました' });
+        throw new Error('プレイヤーの作成に失敗しました');
     }
-};
+};;
 
 // プレイヤーの取得
 export const getPlayer = async (req: NextApiRequest, res: NextApiResponse) => {

@@ -10,32 +10,54 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
     const [items, setItems] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+　
 
     useEffect(() => {
-        if (!playerId || !roomId) return;
+        if (!playerId || !roomId) {
+            console.log('Missing playerId or roomId:', { playerId, roomId });
+            return;
+        }
 
-        // Socket.io接続
-        const socketIo = io(process.env.NEXT_PUBLIC_SOCKET_URL || '', {
-            transports: ['websocket'],
+        // デバッグ情報
+        console.log('Attempting socket connection with:', { playerId, roomId });
+
+        // Socket.io接続 - フォールバック用ポーリングを含める
+        const socketIo = io("http://localhost:5000", {
+            transports: ['websocket', 'polling'], // フォールバックとしてpollingを追加
+            reconnectionAttempts: 3,
+            reconnectionDelay: 1000,
+            timeout: 20000, // タイムアウト時間を長くする
+            path: '/socket.io/' // パスを明示的に指定
         });
 
         // 接続イベント
         socketIo.on('connect', () => {
-            console.log('Socket connected');
+            console.log('Socket connected with ID:', socketIo.id);
             setConnected(true);
-
+　
             // ルームに参加
             socketIo.emit('join_room', { playerId, roomId });
+            console.log('Emitted join_room event:', { playerId, roomId });
+        });
+
+        console.log("ここまで来たんや！３")
+
+        // 接続エラーイベント
+        socketIo.on('connect_error', (err) => {
+            console.error('Socket connection error:', err.message);
+            setError(`接続エラー: ${err.message}`);
         });
 
         // ルームデータ受信
         socketIo.on('room_data', (data) => {
+            console.log('Received room_data:', data);
             setPlayers(data.players || []);
             setItems(data.items || []);
         });
 
         // プレイヤー参加イベント
         socketIo.on('player_joined', ({ playerId, playerData }) => {
+            console.log('Player joined:', { playerId, playerData });
             setPlayers(prev => [...prev, playerData]);
         });
 
@@ -52,28 +74,26 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
 
         // アイテム取得イベント
         socketIo.on('items_collected', ({ itemIds, result }) => {
+            console.log('Items collected:', { itemIds, result });
             // 取得したアイテムをリストから削除
             setItems(prev => prev.filter(item => !itemIds.includes(item.itemId)));
         });
 
         // 他プレイヤーによるアイテム取得イベント
         socketIo.on('items_collected_by_player', ({ playerId, itemIds }) => {
+            console.log('Items collected by player:', { playerId, itemIds });
             setItems(prev => prev.filter(item => !itemIds.includes(item.itemId)));
-        });
-
-        // プレイヤー退出イベント
-        socketIo.on('player_left', ({ playerId }) => {
-            setPlayers(prev => prev.filter(player => player.playerId !== playerId));
         });
 
         // エラーイベント
         socketIo.on('error', ({ message }) => {
+            console.error('Socket error event:', message);
             setError(message);
         });
 
         // 切断イベント
-        socketIo.on('disconnect', () => {
-            console.log('Socket disconnected');
+        socketIo.on('disconnect', (reason) => {
+            console.log('Socket disconnected:', reason);
             setConnected(false);
         });
 
@@ -82,15 +102,25 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
         // クリーンアップ
         return () => {
             if (socketIo) {
+                console.log('Cleaning up socket connection');
                 socketIo.emit('leave_room', { playerId, roomId });
                 socketIo.disconnect();
             }
         };
     }, [playerId, roomId]);
 
+
     // プレイヤー移動関数
     const movePlayer = (x: number, y: number) => {
-        if (!socket || !connected || !playerId || !roomId) return;
+        if (!socket || !connected || !playerId || !roomId) {
+            console.log('Cannot move player - conditions not met:', {
+                socket: !!socket,
+                connected,
+                playerId,
+                roomId
+            });
+            return;
+        }
 
         // 移動データを送信
         socket.emit('player_move', { playerId, roomId, x, y });

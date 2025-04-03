@@ -1,24 +1,38 @@
 // server.js
-const { createServer } = require('http');
-const { parse } = require('url');
 const next = require('next');
-const { initializeSocketServer } = require('./server/socket');
+const { initializeSocketServer } = require('./socket');
+const http = require('http');
+const express = require('express');
+const {Server} = require('socket.io');
+const app = express();
 
-const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
-const handle = app.getRequestHandler();
+const server = http.createServer(app); // HTTPサーバーを作成
+const io = new Server(server);
 
-app.prepare().then(() => {
-    const server = createServer((req, res) => {
-        const parsedUrl = parse(req.url, true);
-        handle(req, res, parsedUrl);
-    });
+const PORT = 5000;
 
-    // Socket.ioサーバーを初期化
-    const io = initializeSocketServer(server);
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`)); // サーバーを起動
 
-    server.listen(process.env.PORT || 3000, (err) => {
-        if (err) throw err;
-        console.log(`> Ready on http://localhost:${process.env.PORT || 3000}`);
-    });
-});
+io.on('connect', (socket) => {
+    console.log("クライアントと接続")
+    socket.on("disconnect", (code) => {
+        console.log("クライアントと切断")
+    })
+
+})
+
+//
+// app.prepare().then(() => {
+//     const server = createServer((req, res) => {
+//         const parsedUrl = parse(req.url, true);
+//         handle(req, res, parsedUrl);
+//     });
+//
+//     // Socket.ioサーバーを初期化
+//     // const io = initializeSocketServer(server);
+//
+//     server.listen(process.env.PORT || 3000, (err) => {
+//         if (err)console.log(err);
+//         console.log(`> Ready on http://localhost:${process.env.PORT || 3000}`);
+//     });
+// });
