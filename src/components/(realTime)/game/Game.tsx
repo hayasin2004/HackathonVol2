@@ -167,14 +167,15 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
                         />
                     ))}
                 {/* 自分のプレイヤー */}
+
                 <div
                     className="current-player"
                     style={{
                         position: 'absolute',
                         left: `${position.x}px`,
                         top: `${position.y}px`,
-                        width: '20px',
-                        height: '20px',
+                        width: '60px',
+                        height: '60px',
                         borderRadius: '50%',
                         backgroundColor: 'red',
                         zIndex: 20
