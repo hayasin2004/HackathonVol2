@@ -110,7 +110,7 @@ export function initializeSocketServer(server: HTTPServer) {
                         const itemIds = collidedItems.map(item => item.itemId);
 
                         // アイテム取得処理を実行
-                        const collectResult = await import('@/app/api/item/getItem').then(module => {
+                        const collectResult = await import('@/app/api/item/getItems').then(module => {
                             return module.playerGetItem(playerId, itemIds);
                         });
 

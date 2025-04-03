@@ -1,37 +1,39 @@
-
-// api/player/route.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prismaClient";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ status: 'error', message: 'Method not allowed' });
-    }
-
-    const { playerId, roomId } = req.body;
-
-    if (!playerId) {
-        return res.status(400).json({ status: 'error', message: 'プレイヤーIDが必要です' });
-    }
-
+export async function POST(req: Request) {
     try {
+        const body = await req.json(); // リクエストボディを取得
+        const { playerId, roomId } = body;
+
+        if (!playerId) {
+            return NextResponse.json(
+                { status: "error", message: "プレイヤーIDが必要です" },
+                { status: 400 }
+            );
+        }
+
         const playerData = await prisma.playerData.create({
             data: {
-                playerId: parseInt(playerId),
-                roomId: roomId ? parseInt(roomId) : null,
+                roomId: roomId ? roomId : null,
                 x: 100 + Math.floor(Math.random() * 100),
-                y: 100 + Math.floor(Math.random() * 100)
-            }
+                y: 100 + Math.floor(Math.random() * 100),
+            },
         });
 
-        return res.status(201).json({
-            status: 'success',
-            message: 'プレイヤーデータを作成しました',
-            playerData
-        });
+        return NextResponse.json(
+            {
+                status: "success",
+                message: "プレイヤーデータを作成しました",
+                playerData,
+            },
+            { status: 201 }
+        );
     } catch (error) {
-        console.error('Error creating player:', error);
-        return res.status(500).json({ status: 'error', message: 'プレイヤーデータの作成に失敗しました' });
+        console.error("Error creating player:", error);
+        return NextResponse.json(
+            { status: "error", message: "プレイヤーデータの作成に失敗しました" },
+            { status: 500 }
+        );
     }
 }

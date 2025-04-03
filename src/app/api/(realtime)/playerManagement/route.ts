@@ -51,7 +51,6 @@ export const createPlayer = async (req: NextApiRequest, res: NextApiResponse) =>
 export const getPlayer = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         const { playerId } = req.query;
-
         if (!playerId) {
             return res.status(400).json({ error: 'プレイヤーIDが必要です' });
         }
@@ -74,6 +73,7 @@ export const getPlayer = async (req: NextApiRequest, res: NextApiResponse) => {
 
         return res.status(200).json(player);
     } catch (error) {
+        console.log("req.method"+JSON.stringify(req))
         console.error('プレイヤー取得エラー:', error);
         return res.status(500).json({ error: 'プレイヤーの取得に失敗しました' });
     }

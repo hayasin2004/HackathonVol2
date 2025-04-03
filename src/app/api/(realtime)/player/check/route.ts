@@ -13,10 +13,11 @@ export async function GET(req: Request) {
     }
 
     try {
+        const NumPlayerId = Number(playerId)
         const playerData = await prisma.playerData.findUnique({
-            where: { playerId: parseInt(playerId, 10) }
+            where: { playerId: NumPlayerId }
         });
-
+        console.log("playerData"+playerId);
         return NextResponse.json({
             status: "success",
             exists: !!playerData,

@@ -16,8 +16,9 @@ const CreateItem = () => {
     const [itemListArray, setItemListArray] = useState<defaultItem[] | null>([])
     console.log(itemListArray)
     const [itemPrimaryKey, setItemPrimaryKey] = useState<number | null>(null)
+
     const handleChange = (event) => {
-        const selectedId = event.target.value === "null" ? null : parseInt(event.target.value, 10);
+        const selectedId = event.target.value === "null" ? null : event.target.value;
         setItemPrimaryKey(selectedId);
     };
 

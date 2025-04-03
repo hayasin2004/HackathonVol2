@@ -4,7 +4,7 @@ import prisma from "@/lib/prismaClient";
 export async function GET(req: Request) {
     const roomId = req.url.split('/').pop(); // URLの最後の部分を取得
 
-    if (!roomId || isNaN(parseInt(roomId, 10))) {
+    if (!roomId || isNaN(roomId)) {
         return NextResponse.json(
             { status: "error", message: "無効なルームIDです" },
             { status: 400 }
@@ -12,8 +12,9 @@ export async function GET(req: Request) {
     }
 
     try {
+        const NumRoomId = Number(roomId)
         const room = await prisma.room.findUnique({
-            where: { id: parseInt(roomId, 10) },
+            where: { id: NumRoomId },
             include: {
                 players: true,
                 items: {
@@ -44,7 +45,7 @@ export async function PUT(req: Request) {
     const { searchParams } = new URL(req.url);
     const roomId = searchParams.get("id");
 
-    if (!roomId || isNaN(parseInt(roomId, 10))) {
+    if (!roomId || isNaN(roomId)) {
         return NextResponse.json(
             { status: "error", message: "無効なルームIDです" },
             { status: 400 }
@@ -54,9 +55,9 @@ export async function PUT(req: Request) {
     try {
         const body = await req.json();
         const { name } = body;
-
+        const NumRoomId = Number(roomId)
         const room = await prisma.room.update({
-            where: { id: parseInt(roomId, 10) },
+            where: { id: NumRoomId },
             data: { name }
         });
 
@@ -73,8 +74,8 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const roomId = searchParams.get("id");
-
-    if (!roomId || isNaN(parseInt(roomId, 10))) {
+    const NumRoomId = Number(roomId)
+    if (!roomId || isNaN(roomId)) {
         return NextResponse.json(
             { status: "error", message: "無効なルームIDです" },
             { status: 400 }
@@ -82,8 +83,9 @@ export async function DELETE(req: Request) {
     }
 
     try {
+
         await prisma.room.delete({
-            where: { id: parseInt(roomId, 10) }
+            where: { id: NumRoomId }
         });
 
         return NextResponse.json(

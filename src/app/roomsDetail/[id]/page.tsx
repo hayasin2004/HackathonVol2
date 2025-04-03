@@ -14,23 +14,20 @@ const RoomPage = ({params} : {params : { id : string }}) => {
     const [room, setRoom] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [playerId, setPlayerId] = useState<number | null>(null);
-
+    const [playerId, setPlayerId] = useState<number | null |undefined>(null);
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
         // クエリパラメータから取得する方法を示します
         const userId = session?.user.id
-        const NumUserId = Number(userId)
+        // const NumUserId = Number(1)
         if (userId) {
-            setPlayerId(NumUserId);
+            setPlayerId(1);
         } else {
             // デモ用に仮のプレイヤーIDを生成
-            const tempPlayerId = Math.floor(Math.random() * 10000) + 1;
-            localStorage.setItem('userId', tempPlayerId.toString());
-            setPlayerId(tempPlayerId);
+            setPlayerId(session?.user?.id);
         }
-    }, [id]);
+    }, [id , session]);
 
     // ルーム情報の取得
     useEffect(() => {
@@ -68,7 +65,7 @@ const RoomPage = ({params} : {params : { id : string }}) => {
 
         const initializePlayerData = async () => {
             try {
-                // プレイヤーデータの確認
+                console.log("プレイヤーデータの確認")
                 const checkResponse = await fetch(`/api/player/check?playerId=${playerId}`,{method : "GET"});
                 const checkData = await checkResponse.json();
 
