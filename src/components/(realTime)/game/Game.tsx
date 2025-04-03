@@ -4,38 +4,38 @@ import React, {useEffect, useState} from 'react';
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import {usePlayerMovement} from "@/hooks/(realTime)/playerMovement/usePlayerMovement";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
+import {PlayerType} from "@/types/Player";
+import {PlayerItem} from "@/types/playerItem";
 
 interface GameProps {
-    playerId: number;
+    playerId: PlayerItem;
     roomId: number;
 }
 
 const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     // Socket.io接続
-
-    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId, roomId);
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     // プレイヤー移動
     const {position} = usePlayerMovement({
-        initialX: 100,
-        initialY: 100,
+        initialX: playerId.x,
+        initialY: playerId.x,
         speed: 5,
         movePlayer
     });
 
     // Supabaseリアルタイムイベント
-    const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId);
+    const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
     // 現在のプレイヤー情報
-    const currentPlayer = players.find(player => player.playerId === playerId);
+    const currentPlayer = players.find(player => player.playerId === playerId.id);
     // ゲーム状態
     const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
 
     // プレイヤーアイテム情報の取得
     useEffect(() => {
-        console.log(playerId, roomId)
         if (playerId) {
-            fetch(`/api/player/getItems/${playerId}`)
+            fetch(`/api/player/getItems/${playerId.id}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
@@ -50,7 +50,7 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     useEffect(() => {
         if (itemEvents.length > 0) {
             const latestEvent = itemEvents[itemEvents.length - 1];
-            if (latestEvent.player_id !== playerId) {
+            if (latestEvent.player_id !== playerId.id) {
                 // 他のプレイヤーのイベント
                 setNotifications(prev => [
                     `プレイヤーID:${latestEvent.player_id}がアイテムを取得しました`,
@@ -75,7 +75,7 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     useEffect(() => {
         if (craftEvents.length > 0) {
             const latestEvent = craftEvents[craftEvents.length - 1];
-            if (latestEvent.player_id !== playerId) {
+            if (latestEvent.player_id !== playerId.id) {
                 // 他のプレイヤーのイベント
                 setNotifications(prev => [
                     `プレイヤーID:${latestEvent.player_id}がアイテムをクラフトしました`,
@@ -97,14 +97,15 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     }, [craftEvents, playerId]);
 
     // アイテムクラフト関数
-    const handleCraftItem = async (craftItemId: number) => {
+    const handleCraftItem = async (craftItemId: number ,  ArgPlayerId  : PlayerType) => {
         try {
+            const playerId = ArgPlayerId.id
             const response = await fetch('/api/item/craftItem', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({playerId, craftItemId})
+                body: JSON.stringify({playerId , craftItemId})
             });
 
             const data = await response.json();

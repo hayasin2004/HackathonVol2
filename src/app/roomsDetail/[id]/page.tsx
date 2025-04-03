@@ -7,7 +7,7 @@ import {useSession} from "next-auth/react";
 
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
-    const id = params?.id;
+    const id = params?.id
     const roomId = parseInt(id as string);
     const {data: session} = useSession()
 
@@ -30,8 +30,9 @@ const RoomPage = ({params}: { params: { id: string } }) => {
 
                 const text = await response.text(); // レスポンスをテキストとして取得
                 const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
-                console.log("response" + JSON.stringify(data));
-                setPlayerId(1);
+                const userData = JSON.parse(JSON.stringify(data.playerData))
+                console.log(userData)
+                setPlayerId(userData);
             }
             currentUserId()
         } else {

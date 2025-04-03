@@ -9,8 +9,8 @@ interface UsePlayerMovementProps {
 }
 
 export function usePlayerMovement({
-                                      initialX = 100,
-                                      initialY = 100,
+                                      initialX ,
+                                      initialY ,
                                       speed = 5,
                                       movePlayer
                                   }: UsePlayerMovementProps = {}) {

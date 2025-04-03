@@ -1,4 +1,4 @@
-import {defaultItem} from "@/types/defaultItem";
+
 
 export interface PlayerItem {
     id: number;
