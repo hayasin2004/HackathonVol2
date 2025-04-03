@@ -1,25 +1,24 @@
 "use server"
 import prisma from "@/lib/prismaClient";
 
-export async function craftItem(playerId: number, targetItemId: number) {
+export async function craftItem(playerId: number | undefined, craftItem: number) 
+{
+    
     // 1. プレイヤーデータを取得
     const player = await prisma.playerData.findUnique({
         where: { playerId },
         include: { haveItems: true }, // プレイヤーの所持アイテムも取得
     });
-    console.log("どこまで来てる" + targetItemId)
+    console.log("どこまで来てる" + craftItem)
 
     if (!player) {
         throw new Error("プレイヤーが見つかりません");
     }
-    // const craftRecipe1 = await prisma.craftItem.findFirst({
-    //     where: {id: targetItemId},
-    // })
-    // console.log("craftRecipe1" + craftRecipe1)
+
 
     // 2. クラフトレシピを取得（作成したいアイテムの情報）
     const craftRecipe = await prisma.craftItem.findFirst({
-        where: { createdItemId: targetItemId },
+        where: { createdItemId: craftItem },
         include: {
             materials: {
                 include: { materialItem: true }, // 必要なアイテム情報も取得
@@ -70,7 +69,7 @@ export async function craftItem(playerId: number, targetItemId: number) {
         const existingItem = await tx.playerItem.findFirst({
             where: {
                 playerDataId: player.id,
-                itemId: targetItemId,
+                itemId: craftItem,
             },
         });
 
@@ -85,7 +84,7 @@ export async function craftItem(playerId: number, targetItemId: number) {
             await tx.playerItem.create({
                 data: {
                     playerDataId: player.id,
-                    itemId: targetItemId,
+                    itemId: craftItem,
                     quantity: 1,
                 },
             });

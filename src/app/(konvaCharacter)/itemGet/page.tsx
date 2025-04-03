@@ -3,10 +3,8 @@ import prisma from "@/lib/prismaClient";
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
 import ItemControllerKonva from "@/components/(konva)/itemControllerKonva/ItemControllerKonva";
-import {itemList, playerCoordinate} from "@/repository/prisma/ClientItemRepository";
+import {allNeedCraftItem, itemList} from "@/repository/prisma/ClientItemRepository";
 import {defaultItem} from "@/types/defaultItem";
-import {adminItemRepositoryDeleteItem, adminItemRepositoryUpdateItem} from "@/repository/prisma/adminItemRepository";
-import PlayerPlaceSaveButton from "@/components/playerPlaceSaveButton/page";
 import Image from "next/image";
 
 const ItemGet = async () => {
@@ -25,6 +23,9 @@ const ItemGet = async () => {
     })
     const itemArray = await itemList()
 
+    const needCraftItem = await allNeedCraftItem()
+    console.log(needCraftItem)
+
 
     console.log("取得してきた userHaveCharacterData :" + JSON.stringify(userHaveCharacterData))
 
@@ -37,19 +38,17 @@ const ItemGet = async () => {
                     <h2>アイテム: {defaultItem.id}</h2>
                     <h2>アイテム名: {defaultItem.itemName}</h2>
                     <h2>アイテム説明: {defaultItem.itemDescription}</h2>
-                    <h2>アイテムアイコンURL: {defaultItem.itemIcon}</h2>
-                    <h2>アイテムアイコン:</h2>
                     <Image
-                        src={defaultItem.itemIcon || "https://bfkeedzqlqqsaluqxplz.supabase.co/storage/v1/object/public/hackathon2-picture-storage/public/illustrain10-pengin03.png"}
+                        src={defaultItem.itemIcon || "/"}
                         alt={"アイテムアイコン"}
-                        height={100}
-                        width={100}
+                        height={800}
+                        width={600}
                     />
                 </div>
             ))}
             <h1>ここはユーザーの図形を操れるページ</h1>
             <h2><ItemControllerKonva character={userHaveCharacterData} playerData={userHavePlayerData}
-                                     itemArray={itemArray}/></h2>
+                                     needCraftItem={needCraftItem} itemArray={itemArray}/></h2>
         </div>
     );
 }

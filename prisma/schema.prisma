@@ -117,10 +117,10 @@ model DefaultItemList {
   itemName        String
   itemDescription String
   itemIcon        String?
-  x               Int
-  y               Int
-  width           Int
-  height          Int
+  x               Int?
+  y               Int?
+  width           Int?
+  height          Int?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @default(now())
   // # 作成されるアイテムとしての CraftItem 参照
