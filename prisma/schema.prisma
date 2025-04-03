@@ -90,15 +90,19 @@ model Follow {
 //   updatedAt       DateTime     @default(now())
 // }
 
+// PlayerDataモデルを修正
 model PlayerData {
   id        Int          @id @default(autoincrement())
-  playerId  Int?         @unique // Userモデルから取得したID（一意）
-  player    User?        @relation(fields: [playerId], references: [id], onDelete: Cascade) // Userモデルとのリレーション
-  haveItems PlayerItem[] @relation("PlayerToItems") // Playerが所持しているアイテムのリレーション
+  playerId  Int?         @unique
+  player    User?        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  haveItems PlayerItem[] @relation("PlayerToItems")
   x         Int          @default(100)
   y         Int          @default(100)
+  roomId    Int? // ルームID
+  room      Room?        @relation("RoomPlayers", fields: [roomId], references: [id], map: "PlayerData_roomId_fkey_1")
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now())
+  Room      Room?        @relation(fields: [roomId], references: [id], map: "PlayerData_roomId_fkey_2")
 }
 
 model PlayerItem {
@@ -123,11 +127,10 @@ model DefaultItemList {
   height          Int?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @default(now())
-  // # 作成されるアイテムとしての CraftItem 参照
   CraftedItems    CraftItem[]         @relation("CreatedItem")
-  // # 素材として使用される CraftItemMaterial のリレーション
   UsedInRecipes   CraftItemMaterial[] @relation("MaterialItem")
   PlayerItem      PlayerItem[]
+  RoomItem        RoomItem[] // 追加
 }
 
 model CraftItem {
@@ -153,4 +156,28 @@ model CraftItemMaterial {
   craftItem      CraftItem       @relation(fields: [craftItemId], references: [id], onDelete: Cascade)
   // # 必要な素材アイテムとのリレーション
   materialItem   DefaultItemList @relation("MaterialItem", fields: [materialItemId], references: [id], onDelete: Cascade)
+}
+
+model Room {
+  id         Int          @id @default(autoincrement())
+  name       String
+  players    PlayerData[] @relation("RoomPlayers")
+  items      RoomItem[]   @relation("RoomItems")
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now())
+  PlayerData PlayerData[]
+}
+
+// ルーム内のアイテムモデル
+model RoomItem {
+  id        Int             @id @default(autoincrement())
+  roomId    Int
+  itemId    Int
+  x         Int
+  y         Int
+  isActive  Boolean         @default(true)
+  room      Room            @relation("RoomItems", fields: [roomId], references: [id], onDelete: Cascade)
+  item      DefaultItemList @relation(fields: [itemId], references: [id])
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now())
 }
