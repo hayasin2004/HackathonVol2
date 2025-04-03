@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
+import {NextResponse} from 'next/server';
 import prisma from "@/lib/prismaClient";
-import { supabase } from "@/lib/supabase";
+import {supabase} from "@/lib/supabase";
 
 // POSTリクエストを処理する
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { playerId, craftItemId } = body;
+        const {playerId, craftItemId} = body;
 
         if (!playerId || !craftItemId) {
             return NextResponse.json(
-                { status: 'error', message: 'Invalid input data' },
-                { status: 400 }
+                {status: 'error', message: 'Invalid input data'},
+                {status: 400}
             );
         }
 
@@ -20,8 +20,8 @@ export async function POST(req: Request) {
 
         // クラフト後のアイテム情報を取得
         const playerData = await prisma.playerData.findUnique({
-            where: { playerId },
-            include: { haveItems: true },
+            where: {playerId},
+            include: {haveItems: true},
         });
 
         // リアルタイムイベントを発行
@@ -40,14 +40,14 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json(
-            { status: 'success', message: 'アイテムを作成しました' },
-            { status: 200 }
+            {status: 'success', message: 'アイテムを作成しました'},
+            {status: 200}
         );
     } catch (error: any) {
         console.error('Craft error:', error);
         return NextResponse.json(
-            { status: 'error', message: error.message || 'クラフト中にエラーが発生しました' },
-            { status: 500 }
+            {status: 'error', message: error.message || 'クラフト中にエラーが発生しました'},
+            {status: 500}
         );
     }
 }
@@ -55,8 +55,8 @@ export async function POST(req: Request) {
 // クラフトロジックを分離
 async function route(playerId: number | undefined, craftItem: number) {
     const player = await prisma.playerData.findUnique({
-        where: { playerId },
-        include: { haveItems: true },
+        where: {playerId},
+        include: {haveItems: true},
     });
 
     if (!player) {
@@ -64,10 +64,10 @@ async function route(playerId: number | undefined, craftItem: number) {
     }
     console.log(craftItem)
     const craftRecipe = await prisma.craftItem.findFirst({
-        where: { id: craftItem },
+        where: {id: craftItem},
         include: {
             materials: {
-                include: { materialItem: true },
+                include: {materialItem: true},
             },
         },
     });
@@ -77,7 +77,7 @@ async function route(playerId: number | undefined, craftItem: number) {
     }
 
     const playerItems = await prisma.playerItem.findMany({
-        where: { playerDataId: player.id },
+        where: {playerDataId: player.id},
     });
 
     for (const material of craftRecipe.materials) {
@@ -106,24 +106,25 @@ async function route(playerId: number | undefined, craftItem: number) {
                 },
             });
         }
-
         const existingItem = await tx.playerItem.findFirst({
             where: {
                 playerDataId: player.id,
-                itemId: craftItem,
+                itemId: craftRecipe.createdItemId,
             },
         });
 
+        console.log(existingItem)
         if (existingItem) {
+            console.log("ここで松明が作成されるはず" + craftItem)
             await tx.playerItem.update({
-                where: { id: existingItem.id },
-                data: { quantity: { increment: 1 } },
+                where: {id: existingItem.id},
+                data: {quantity: {increment: 100}},
             });
         } else {
             await tx.playerItem.create({
                 data: {
                     playerDataId: player.id,
-                    itemId: craftItem,
+                    itemId: craftRecipe.createdItemId,
                     quantity: 1,
                 },
             });
