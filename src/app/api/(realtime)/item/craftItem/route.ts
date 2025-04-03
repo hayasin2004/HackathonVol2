@@ -1,26 +1,27 @@
-// api/player/route.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import {supabase} from "@/lib/supabase";
+import { NextResponse } from 'next/server';
 import prisma from "@/lib/prismaClient";
+import { supabase } from "@/lib/supabase";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ status: 'error', message: 'Method not allowed' });
-    }
-
+// POSTリクエストを処理する
+export async function POST(req: Request) {
     try {
-        const { playerId, craftItemId } = req.body;
+        const body = await req.json();
+        const { playerId, craftItemId } = body;
 
         if (!playerId || !craftItemId) {
-            return res.status(400).json({ status: 'error', message: 'Invalid input data' });
+            return NextResponse.json(
+                { status: 'error', message: 'Invalid input data' },
+                { status: 400 }
+            );
         }
 
+        // クラフトロジックを実行
         await route(playerId, craftItemId);
 
         // クラフト後のアイテム情報を取得
         const playerData = await prisma.playerData.findUnique({
             where: { playerId },
-            include: { haveItems: true }
+            include: { haveItems: true },
         });
 
         // リアルタイムイベントを発行
@@ -33,35 +34,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     player_id: playerId,
                     data: {
                         craftedItemId: craftItemId,
-                        playerItems: playerData.haveItems
-                    }
+                        playerItems: playerData.haveItems,
+                    },
                 });
         }
 
-        return res.status(200).json({ status: 'success', message: 'アイテムを作成しました' });
+        return NextResponse.json(
+            { status: 'success', message: 'アイテムを作成しました' },
+            { status: 200 }
+        );
     } catch (error: any) {
         console.error('Craft error:', error);
-        return res.status(500).json({ status: 'error', message: error.message || 'クラフト中にエラーが発生しました' });
+        return NextResponse.json(
+            { status: 'error', message: error.message || 'クラフト中にエラーが発生しました' },
+            { status: 500 }
+        );
     }
 }
 
-export async function route(playerId: number | undefined, craftItem: number) {
-    // 1. プレイヤーデータを取得
+// クラフトロジックを分離
+async function route(playerId: number | undefined, craftItem: number) {
     const player = await prisma.playerData.findUnique({
         where: { playerId },
-        include: { haveItems: true }, // プレイヤーの所持アイテムも取得
+        include: { haveItems: true },
     });
 
     if (!player) {
         throw new Error("プレイヤーが見つかりません");
     }
-
-    // 2. クラフトレシピを取得（作成したいアイテムの情報）
+    console.log(craftItem)
     const craftRecipe = await prisma.craftItem.findFirst({
-        where: { createdItemId: craftItem },
+        where: { id: craftItem },
         include: {
             materials: {
-                include: { materialItem: true }, // 必要なアイテム情報も取得
+                include: { materialItem: true },
             },
         },
     });
@@ -70,12 +76,10 @@ export async function route(playerId: number | undefined, craftItem: number) {
         throw new Error("このアイテムのクラフトレシピは存在しません");
     }
 
-    // 3. プレイヤーのアイテム所持状況を取得
     const playerItems = await prisma.playerItem.findMany({
         where: { playerDataId: player.id },
     });
 
-    // 4. 必要な素材が揃っているか確認
     for (const material of craftRecipe.materials) {
         const playerItem = playerItems.find(
             (item) => item.itemId === material.materialItemId
@@ -88,9 +92,7 @@ export async function route(playerId: number | undefined, craftItem: number) {
         }
     }
 
-    // 5. クラフト実行（トランザクション）
     await prisma.$transaction(async (tx) => {
-        // 素材を消費
         for (const material of craftRecipe.materials) {
             await tx.playerItem.updateMany({
                 where: {
@@ -105,7 +107,6 @@ export async function route(playerId: number | undefined, craftItem: number) {
             });
         }
 
-        // 作成アイテムを追加（すでに持っていれば個数を増加）
         const existingItem = await tx.playerItem.findFirst({
             where: {
                 playerDataId: player.id,

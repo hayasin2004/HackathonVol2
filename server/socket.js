@@ -49,7 +49,6 @@ const rooms = new Map();
 
 io.on('connection', (socket) => {
     console.log('接続！', socket.id);
-
     // プレイヤーがルームに参加
     socket.on('join_room', async ({playerId, roomId}) => {
         try {
@@ -103,7 +102,6 @@ io.on('connection', (socket) => {
 
             // 他のプレイヤーに移動通知
             socket.to(`room:${roomId}`).emit('player_moved', {playerId, x, y});
-            console.log("ここに来た")
             // 衝突判定とアイテム処理
             const nearbyItems = await prisma.roomItem.findMany({
                 where: {roomId, isActive: true},
@@ -125,7 +123,8 @@ io.on('connection', (socket) => {
 
             if (collidedItems.length > 0) {
                 const itemIds = collidedItems.map((item) => item.itemId);
-                const collectResult = await import('@/app/api/item/getItems').then((module) =>
+                const collectResult =
+                    await import('../../HackathonVol2/src/app/api/(realtime)/item/getItem').then((module) =>
                     module.playerGetItem(playerId, itemIds)
                 );
 

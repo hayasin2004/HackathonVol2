@@ -99,7 +99,7 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     // アイテムクラフト関数
     const handleCraftItem = async (craftItemId: number) => {
         try {
-            const response = await fetch('/api/player/craftItem', {
+            const response = await fetch('/api/item/craftItem', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
