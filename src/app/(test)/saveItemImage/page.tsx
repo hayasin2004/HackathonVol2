@@ -26,20 +26,21 @@ const CreateItem = () => {
             }
             console.log('ここまで来た！！！！あｓｄｆ！')
 
-            const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/item-images/${file.name}`
-            const {data: imageData, error: imageError}  = await supabase.storage
+            const {data: imageData, error: imageError} = await supabase.storage
                 .from('hackathon2-picture-storage')
-                .upload(imageUrl, file)
+                .upload(`public/${file.name}`, file)
 
             if (imageError) throw imageError
 
             console.log('ここまで来た１１１１１１１１１１１１１')
+            const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/hackathon2-picture-storage/public/${file.name}`;
+            console.log('画像URL:', imageUrl);
 
             // Step 2: Itemモデルにデータを保存
-            const newItem = await ItemIConCreate(itemName , imageUrl)
+            const newItem = await ItemIConCreate(itemName, imageUrl)
 
 
-            console.log('ここまで来た！！！！！' , newItem)
+            console.log('ここまで来た！！！！！', newItem)
         } catch (err) {
             console.log(err)
         } finally {

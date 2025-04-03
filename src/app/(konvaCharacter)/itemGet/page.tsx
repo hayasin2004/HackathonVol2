@@ -37,7 +37,14 @@ const ItemGet = async () => {
                     <h2>アイテム: {defaultItem.id}</h2>
                     <h2>アイテム名: {defaultItem.itemName}</h2>
                     <h2>アイテム説明: {defaultItem.itemDescription}</h2>
-                    <h2>アイテムアイコン:</h2><Image src={`/${defaultItem.itemIcon}` } alt={"アイテムアイコン"} height={100}width={100}/>
+                    <h2>アイテムアイコンURL: {defaultItem.itemIcon}</h2>
+                    <h2>アイテムアイコン:</h2>
+                    <Image
+                        src={defaultItem.itemIcon || "https://bfkeedzqlqqsaluqxplz.supabase.co/storage/v1/object/public/hackathon2-picture-storage/public/illustrain10-pengin03.png"}
+                        alt={"アイテムアイコン"}
+                        height={100}
+                        width={100}
+                    />
                 </div>
             ))}
             <h1>ここはユーザーの図形を操れるページ</h1>
