@@ -1,30 +1,32 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prismaClient";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== 'GET') {
-        return res.status(405).json({ status: 'error', message: 'Method not allowed' });
-    }
-
-    const { playerId } = req.query;
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const playerId = searchParams.get("playerId");
 
     if (!playerId) {
-        return res.status(400).json({ status: 'error', message: 'プレイヤーIDが必要です' });
+        return NextResponse.json(
+            { status: "error", message: "プレイヤーIDが必要です" },
+            { status: 400 }
+        );
     }
 
     try {
         const playerData = await prisma.playerData.findUnique({
-            where: { playerId: parseInt(playerId as string) }
+            where: { playerId: parseInt(playerId, 10) }
         });
 
-        return res.status(200).json({
-            status: 'success',
+        return NextResponse.json({
+            status: "success",
             exists: !!playerData,
             playerData
         });
     } catch (error) {
-        console.error('Error checking player:', error);
-        return res.status(500).json({ status: 'error', message: 'プレイヤー情報の確認に失敗しました' });
+        console.error("Error checking player:", error);
+        return NextResponse.json(
+            { status: "error", message: "プレイヤー情報の確認に失敗しました" },
+            { status: 500 }
+        );
     }
 }

@@ -1,77 +1,100 @@
-// api/rooms/[id].ts
-import { NextApiRequest, NextApiResponse } from 'next';
-
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prismaClient";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const { id } = req.query;
-    const roomId = parseInt(id as string);
+export async function GET(req: Request) {
+    const roomId = req.url.split('/').pop(); // URLの最後の部分を取得
 
-    if (isNaN(roomId)) {
-        return res.status(400).json({ status: 'error', message: '無効なルームIDです' });
+    if (!roomId || isNaN(parseInt(roomId, 10))) {
+        return NextResponse.json(
+            { status: "error", message: "無効なルームIDです" },
+            { status: 400 }
+        );
     }
 
-    // ルーム詳細の取得
-    if (req.method === 'GET') {
-        try {
-            const room = await prisma.room.findUnique({
-                where: { id: roomId },
-                include: {
-                    players: true,
-                    items: {
-                        where: {
-                            isActive: true
-                        },
-                        include: {
-                            item: true
-                        }
-                    }
+    try {
+        const room = await prisma.room.findUnique({
+            where: { id: parseInt(roomId, 10) },
+            include: {
+                players: true,
+                items: {
+                    where: { isActive: true },
+                    include: { item: true }
                 }
-            });
-
-            if (!room) {
-                return res.status(404).json({ status: 'error', message: 'ルームが見つかりません' });
             }
+        });
 
-            return res.status(200).json({ status: 'success', room });
-        } catch (error) {
-            console.error('Error fetching room:', error);
-            return res.status(500).json({ status: 'error', message: 'ルーム情報の取得に失敗しました' });
+        if (!room) {
+            return NextResponse.json(
+                { status: "error", message: "ルームが見つかりません" },
+                { status: 404 }
+            );
         }
+
+        return NextResponse.json({ status: "success", room });
+    } catch (error) {
+        console.error("Error fetching room:", error);
+        return NextResponse.json(
+            { status: "error", message: "ルーム情報の取得に失敗しました" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PUT(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const roomId = searchParams.get("id");
+
+    if (!roomId || isNaN(parseInt(roomId, 10))) {
+        return NextResponse.json(
+            { status: "error", message: "無効なルームIDです" },
+            { status: 400 }
+        );
     }
 
-    // ルームの更新
-    else if (req.method === 'PUT') {
-        try {
-            const { name } = req.body;
+    try {
+        const body = await req.json();
+        const { name } = body;
 
-            const room = await prisma.room.update({
-                where: { id: roomId },
-                data: { name }
-            });
+        const room = await prisma.room.update({
+            where: { id: parseInt(roomId, 10) },
+            data: { name }
+        });
 
-            return res.status(200).json({ status: 'success', room });
-        } catch (error) {
-            console.error('Error updating room:', error);
-            return res.status(500).json({ status: 'error', message: 'ルームの更新に失敗しました' });
-        }
+        return NextResponse.json({ status: "success", room });
+    } catch (error) {
+        console.error("Error updating room:", error);
+        return NextResponse.json(
+            { status: "error", message: "ルームの更新に失敗しました" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const roomId = searchParams.get("id");
+
+    if (!roomId || isNaN(parseInt(roomId, 10))) {
+        return NextResponse.json(
+            { status: "error", message: "無効なルームIDです" },
+            { status: 400 }
+        );
     }
 
-    // ルームの削除
-    else if (req.method === 'DELETE') {
-        try {
-            await prisma.room.delete({
-                where: { id: roomId }
-            });
+    try {
+        await prisma.room.delete({
+            where: { id: parseInt(roomId, 10) }
+        });
 
-            return res.status(200).json({ status: 'success', message: 'ルームを削除しました' });
-        } catch (error) {
-            console.error('Error deleting room:', error);
-            return res.status(500).json({ status: 'error', message: 'ルームの削除に失敗しました' });
-        }
-    }
-
-    else {
-        return res.status(405).json({ status: 'error', message: 'Method not allowed' });
+        return NextResponse.json(
+            { status: "success", message: "ルームを削除しました" },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error("Error deleting room:", error);
+        return NextResponse.json(
+            { status: "error", message: "ルームの削除に失敗しました" },
+            { status: 500 }
+        );
     }
 }

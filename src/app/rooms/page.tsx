@@ -56,7 +56,7 @@ const RoomsPage: React.FC = () => {
 
             if (data.status === 'success') {
                 // 作成したルームに遷移
-                router.push(`/rooms/${data.room.id}`);
+                router.push(`/roomDetail/${data.room.id}`);
             } else {
                 setError(data.message || 'ルームの作成に失敗しました');
             }
@@ -108,7 +108,7 @@ const RoomsPage: React.FC = () => {
                                 アイテム: {room.items.length}個
                             </p>
                             <Link
-                                href={`/rooms/${room.id}`}
+                                href={`/roomsDetail/${room.id}`}
                                 className="block text-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mt-4"
                             >
                                 参加する
