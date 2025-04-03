@@ -3,6 +3,27 @@ import prisma from "@/lib/prismaClient";
 import {PlayerCoordinateProps} from "@/types/character";
 import {createPlayerData, findPlayerData, logIn, savaPlayerPlaceData} from "@/repository/prisma/authRepository";
 
+
+// クラフトアイテムに存在するものだけを取得し
+export const allNeedCraftItem = async () => {
+    try {
+
+        const craftedOnlyItems = await prisma.defaultItemList.findMany({
+            where: {
+                CraftedItems: {
+                    some: {} // `CraftItem` に存在するアイテムのみ取得
+                },
+            },
+        });
+        return craftedOnlyItems
+
+    } catch (err) {
+        console.log(err)
+        return  null
+    }
+}
+
+
 //アイテム一覧取得
 export const itemList = async () => {
     try {
@@ -17,7 +38,7 @@ export const itemList = async () => {
                 y: true,
                 width: true,
                 height: true,
-                itemIcon : true
+                itemIcon: true
                 // itemIcon : true
             }
 
@@ -35,7 +56,6 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
     try {
         if (playerId) {
             // findUniqueを使用して、itemIdに一致するアイテムを取得する
-            console.log("難解で他のaaaaaaaaaaaaaa")
             const existingItems = await prisma.playerItem.findMany({
                 where: {
                     AND: [{

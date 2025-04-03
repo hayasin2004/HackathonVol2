@@ -3,16 +3,16 @@
 //アイテムを追加する処理
 import prisma from "@/lib/prismaClient";
 
-export const ItemIConCreate = async  (itemName : string , imageUrl:string) => {
+export const ItemIConCreate = async  (itemName : string ,itemDescription : string ,imageUrl:string) => {
     // Step 2: Itemモデルにデータを保存
     const newItem = await prisma.defaultItemList.create({
         data: {
             itemName: itemName,
-            itemDescription: "test",
-            x: 100,
-            y: 100,
-            width: 100,
-            height: 100,
+            itemDescription: itemDescription ,
+            x: 50,
+            y: 50,
+            width: 50,
+            height: 50,
             itemIcon: imageUrl, // 画像URLを設定
         },
     });

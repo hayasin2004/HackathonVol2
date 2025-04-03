@@ -4,7 +4,7 @@ import { playerGetItem } from "@/repository/prisma/ClientItemRepository";
 
 const useGetItem = (
     userId : number | undefined,
-    initialPosition : {x : number | undefined ,y : number | undefined} = { x : 0 ,y : 0 },
+    initialPosition : {x : number | undefined | null ,y : number | undefined | null} = { x : 0 ,y : 0 },
     circleRadius = 30,
     rectPositions : Array<defaultItem> | null
 ) => {
@@ -18,7 +18,7 @@ const useGetItem = (
 
     const memoizedRectPositions = useMemo(() => rectPositions, [rectPositions]);
 
-    const getCollidingObstacles = (newX : number | undefined, newY: number | undefined) => {
+    const getCollidingObstacles = (newX : number | undefined | null, newY: number | undefined | null) => {
         console.log(newX , newY)
         const padding = 10;
         return memoizedRectPositions?.filter(rect =>

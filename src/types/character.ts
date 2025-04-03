@@ -1,5 +1,6 @@
 import {PlayerItem} from "@/types/playerItem";
 import {JsonValue} from "@prisma/client/runtime/binary";
+import {defaultItem} from "@/types/defaultItem";
 
 export interface CharacterPartsType {
     character?: {
@@ -14,13 +15,16 @@ export interface CharacterPartsType {
 
     itemArray :Array<{
         id:number;
+        itemIcon:string | null;
         itemName?:string;
-        x : number
-        y : number
-        width? : number
-        height? : number
+        x? : number | null
+        y? : number | null
+        width? : number | null
+        height? : number | null
         itemDescription:string;
     }> | null
+
+    needCraftItem : Array<defaultItem> | null
 }
 
 
