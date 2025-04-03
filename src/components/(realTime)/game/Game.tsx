@@ -6,6 +6,7 @@ import {usePlayerMovement} from "@/hooks/(realTime)/playerMovement/usePlayerMove
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 import {PlayerType} from "@/types/Player";
 import {PlayerItem} from "@/types/playerItem";
+import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 
 interface GameProps {
     playerId: PlayerItem;
@@ -16,12 +17,16 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     // Socket.io接続
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     // プレイヤー移動
-    const {position} = usePlayerMovement({
-        initialX: playerId.x,
-        initialY: playerId.x,
-        speed: 5,
+    const { ECollisionPosition, ECollisionStatus, adjacentObstacles } = useRemakeItemGet({
+        userId: 1, // ユーザーID
+        initialPosition: { x: playerId.x, y: playerId.y }, // 初期位置
+        circleRadius: 30, // プレイヤーの範囲
+        rectPositions: items,
+        speed: 10, // 移動速度
         movePlayer
     });
+
+
 
     // Supabaseリアルタイムイベント
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
@@ -172,8 +177,8 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
                     className="current-player"
                     style={{
                         position: 'absolute',
-                        left: `${position.x}px`,
-                        top: `${position.y}px`,
+                        left: `${ECollisionPosition.x}px`,
+                        top: `${ECollisionPosition.y}px`,
                         width: '60px',
                         height: '60px',
                         borderRadius: '50%',

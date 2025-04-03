@@ -4,6 +4,7 @@ import React, {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Game from "../../../components/(realTime)/game/Game";
 import {useSession} from "next-auth/react";
+import {PlayerItem} from "@/types/playerItem";
 
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
@@ -14,7 +15,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const [room, setRoom] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [playerId, setPlayerId] = useState<number | null | undefined>(null);
+    const [playerId, setPlayerId] = useState<PlayerItem | null  >(null);
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
