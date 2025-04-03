@@ -1,12 +1,10 @@
-"use client"
+"use client";
 import {useState, useEffect, useCallback, useMemo, useRef} from "react";
 import {defaultItem} from "@/types/defaultItem";
 
-// import { playerGetItem } from "@/repository/prisma/ClientItemRepository";
-
 interface UseGetItemProps {
     userId?: number;
-    initialPosition: { x: number | null | undefined, y: number | null | undefined }
+    initialPosition: { x: number | null | undefined; y: number | null | undefined };
     circleRadius?: number;
     rectPositions?: Array<defaultItem> | null;
     speed?: number; // プレイヤー移動速度
@@ -33,11 +31,15 @@ const useRemakeItemGet = ({
         s: false,
         d: false,
     });
-
+    const [ePressCount, setEPressCount] = useState(0); // Eキーの押下回数を記録
     const ECollisionRef = useRef(false);
     const keyPressedRef = useRef(false);
     const isProcessingRef = useRef(false);
     const memoizedRectPositions = useMemo(() => rectPositions, [rectPositions]);
+
+    // useEffect(() => {
+    //     keyPressedRef.current = false;
+    // }, []);
 
     // 衝突判定
     const getCollidingObstacles = (newX: number | undefined | null, newY: number | undefined | null) => {
@@ -53,10 +55,6 @@ const useRemakeItemGet = ({
 
     useEffect(() => {
         const collidingObstacles = getCollidingObstacles(x, y);
-        // ECollisionRef.current = collidingObstacles.length > 0;
-        // if (collidingObstacles!.length === 0) {
-        //     setAdjacentObstacles(null);
-        // }
     }, [ECollisionPosition, memoizedRectPositions]);
 
     // Eキー押下処理
@@ -65,18 +63,12 @@ const useRemakeItemGet = ({
         isProcessingRef.current = true;
 
         const collidingObstacles = getCollidingObstacles(x, y);
-        if (collidingObstacles!.length > 0) {
-            setAdjacentObstacles(collidingObstacles!);
+        if (collidingObstacles?.length > 0) {
+            setAdjacentObstacles(collidingObstacles);
             try {
-                const ItemIds = collidingObstacles!.map((item) => item.id);
+                const ItemIds = collidingObstacles.map((item) => item.id);
                 if (ItemIds.length > 0 && userId !== undefined) {
-                    // const result = await playerGetItem(userId, ItemIds);
-                    // if (result?.status === "success") {
-                    //     console.log("アイテム獲得成功:", result.savedItem);
-                    //     setAdjacentObstacles(collidingObstacles!);
-                    // } else {
-                    //     console.log("アイテム取得失敗");
-                    // }
+                    // 省略された処理
                 }
             } catch (err) {
                 console.log("アイテム取得中にエラーが発生しました", err);
@@ -91,35 +83,34 @@ const useRemakeItemGet = ({
     }, [userId, ECollisionPosition]);
 
     // キー入力を検知して移動を処理
-    const handleKeyDown = useCallback(
-        (e: KeyboardEvent) => {
-            const key = e.key;
-            console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-            if (key === "E" && !keyPressedRef.current) {
+    const handleKeyDown = (e: KeyboardEvent) => {
+
+        if (e.key === "e" || e.key === "E") {
+            if (!keyPressedRef.current) {
                 keyPressedRef.current = true;
+                setEPressCount((prevCount) => prevCount + 1);
                 handleEKeyPress();
+                console.log("Eキーの押下回数");
                 return;
             }
+        }
 
-            if (keys.hasOwnProperty(key)) {
-                setKeys((prev) => ({...prev, [key]: true}));
-            }
-        },
-        [keys, handleEKeyPress]
-    );
 
-    const handleKeyUp = useCallback((e: KeyboardEvent) => {
-        const key = e.key;
-        if (key === "E") {
+        if (keys.hasOwnProperty(e.key)) {
+            setKeys((prev) => ({...prev, [e.key]: true}));
+        }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+        if (e.key === "e" || e.key === "E") {
             keyPressedRef.current = false;
             console.log("Eキーが離されました");
         }
 
-        if (keys.hasOwnProperty(key)) {
-            setKeys((prev) => ({...prev, [key]: false}));
+        if (keys.hasOwnProperty(e.key)) {
+            setKeys((prev) => ({...prev, [e.key]: false}));
         }
-    }, [keys]);
-
+    };
     useEffect(() => {
         const moveInterval = setInterval(() => {
             setECollisionPosition((prev) => {
@@ -161,6 +152,7 @@ const useRemakeItemGet = ({
         ECollisionPosition,
         ECollisionStatus: ECollisionRef.current,
         adjacentObstacles,
+        ePressCount, // Eキーの押下回数を返す
     };
 };
 
