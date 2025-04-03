@@ -1,0 +1,57 @@
+.outercontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background-image: url('/public/IMG_4574.jpg'); /* 背景画像のパス */
+    background-size: cover; /* 背景画像を全体にフィットさせる */
+    background-repeat: no-repeat; /* 繰り返しを防ぐ */
+    background-position: center; /* 背景の位置を中央に設定 */
+
+}
+
+.innercontainer {
+    display: flex; /* 子要素にフレックスボックスを適用 */
+    flex-direction: column; /* 縦方向に配置 */
+    align-items: center;
+    background-color: #ffffff;
+    padding: 80px 200px  80px 200px ;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.h1 {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    margin-bottom: 20px; /* タイトル下に余白 */
+}
+.input{
+    display: flex;
+    padding: 5px 15px 5px 15px;
+    border-radius: 15px;
+}
+
+.label {
+    text-align: center;
+    margin-bottom: 10px; /* ラベルの下に余白 */
+}
+
+
+.button {
+    margin-top: 20px; /* ボタンの上に余白 */
+    height: 40px;
+    width: 150px;
+    text-align: center;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    top: calc(50% - .5em);
+    left: 1rem;
+}
+
+.button:hover {
+    background-color: #0056b3; /* ボタンのホバー時の色 */
+}

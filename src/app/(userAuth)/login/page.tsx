@@ -2,7 +2,7 @@
 import React, {useState} from 'react';
 import {useRouter} from "next/navigation"
 import {signIn} from "next-auth/react";
-
+import styles from './page.module.css'
 const LogIn = () => {
     const router = useRouter()
     const [email, setEmail] = useState<string>("")
@@ -18,17 +18,18 @@ const LogIn = () => {
         }
     }
     return (
-        <div>
+        <div className={styles.outercontainer}>
             <form action="">
-
-                <h1>ログイン</h1>
-                <br/>
-                <label htmlFor="email">メールアドレス</label>
-                <input name={"email"} type="email" required onChange={(e) => setEmail(e.target.value)}/>
-                <br/>
-                <label htmlFor="password">パスワード</label>
-                <input name={"password"} type="password" required onChange={(e) => setPassword(e.target.value)}/>
-                <button type={"submit"} onClick={handleSignIn}>送信</button>
+                <div className={styles.innercontainer}>
+                    <h1 className={styles.h1}>ログイン</h1>
+                    <br/>
+                    <label htmlFor="email"  className={styles.label}>メールアドレス</label>
+                    <input name={"email"} type="email"  className={styles.input } required onChange={(e) => setEmail(e.target.value)}/>
+                    <br/>
+                    <label htmlFor="password"  className={styles.label}>パスワード</label>
+                    <input name={"password"}  className={styles.input } type="password" required onChange={(e) => setPassword(e.target.value)}/>
+                    <button type={"submit"} className={styles.button} onClick={handleSignIn}>送信</button>
+                </div>
             </form>
         </div>
     );
