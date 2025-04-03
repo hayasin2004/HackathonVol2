@@ -4,20 +4,22 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node socket.js"
+    "start": "node socket.js",
+    "prisma:generate": "prisma generate --schema=./prisma/schema.prisma"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^5.4.0",
+    "@prisma/client": "^5.22.0",
+    "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "nodemon": "^3.1.9",
-    "prisma": "^5.4.0",
+    "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },

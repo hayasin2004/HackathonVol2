@@ -10,7 +10,6 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
     const [items, setItems] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-　
 
     useEffect(() => {
         if (!playerId || !roomId) {
@@ -40,7 +39,6 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
             console.log('Emitted join_room event:', { playerId, roomId });
         });
 
-        console.log("ここまで来たんや！３")
 
         // 接続エラーイベント
         socketIo.on('connect_error', (err) => {
@@ -63,6 +61,7 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
 
         // プレイヤー移動イベント
         socketIo.on('player_moved', ({ playerId, x, y }) => {
+            console.log("個々が動くはず ")
             setPlayers(prev =>
                 prev.map(player =>
                     player.playerId === playerId
@@ -109,9 +108,9 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
         };
     }, [playerId, roomId]);
 
-
     // プレイヤー移動関数
-    const movePlayer = (x: number, y: number) => {
+    const movePlayer = (x: number, y: number) => {　
+
         if (!socket || !connected || !playerId || !roomId) {
             console.log('Cannot move player - conditions not met:', {
                 socket: !!socket,

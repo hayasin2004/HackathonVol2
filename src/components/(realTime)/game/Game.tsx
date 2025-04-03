@@ -14,7 +14,6 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     // Socket.io接続
 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId, roomId);
-
     // プレイヤー移動
     const {position} = usePlayerMovement({
         initialX: 100,
@@ -28,7 +27,6 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
 
     // 現在のプレイヤー情報
     const currentPlayer = players.find(player => player.playerId === playerId);
-
     // ゲーム状態
     const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
@@ -178,7 +176,7 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
                         width: '20px',
                         height: '20px',
                         borderRadius: '50%',
-                        backgroundColor: 'blue',
+                        backgroundColor: 'red',
                         zIndex: 20
                     }}
                 />

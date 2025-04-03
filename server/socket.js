@@ -3,21 +3,11 @@ const http = require('http');
 const express = require('express');
 const {Server} = require('socket.io');
 const app = express();
-// server.js または該当するファイルで
-const { PrismaClient } = require('./node_modules/@prisma/client');
-require('dotenv').config();
 
+const {PrismaClient} = require('@prisma/client'); // Prismaのインポート
 
 let prisma;
-// 環境ごとにPrismaクライアントを初期化
-if (process.env.NODE_ENV === 'production') {
-    prisma = new PrismaClient(); // 本番環境
-} else {
-    if (!global.prisma) {
-        global.prisma = new PrismaClient(); // 開発環境
-    }
-    prisma = global.prisma;
-}
+
 const server = http.createServer(app); // HTTPサーバーを作成
 // const io = new Server(server);
 
@@ -34,6 +24,16 @@ server.listen(PORT, () => console.log(`Listening on port ${PORT}`)); // サー�
 // })
 
 
+// 環境ごとにPrismaクライアントを初期化
+if (process.env.NODE_ENV === 'production') {
+    prisma = new PrismaClient(); // 本番環境では新しいインスタンスを作成
+} else {
+    // 開発環境ではグローバルスコープでインスタンスを再利用
+    if (!global.prisma) {
+        global.prisma = new PrismaClient();
+    }
+    prisma = global.prisma;
+}
 //
 // module.exports = prisma; // Prismaクライアントをエクスポート
 //
@@ -48,7 +48,7 @@ const io = new Server(server, {
 const rooms = new Map();
 
 io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
+    console.log('接続！', socket.id);
 
     // プレイヤーがルームに参加
     socket.on('join_room', async ({playerId, roomId}) => {
