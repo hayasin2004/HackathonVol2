@@ -38,6 +38,22 @@ const MapWithCharacter = () => {
         return "#8B5E3C";
       case Tile_list.Water:
         return "#4F94CD";
+      case Tile_list.Tree:
+        return "#228B22";
+      case Tile_list.Leaves:
+        return "#327040";
+      case Tile_list.Stone:
+        return "#747474";
+      case Tile_list.Iron:
+        return "#D1D1D1";
+      case Tile_list.Coal:
+        return "#2D2D2D";
+      case Tile_list.Flower:
+        return "#fa52e3";
+      case Tile_list.Mushroom:
+        return "#846847";
+      case Tile_list.Insect:
+        return "#ef5e3f";
       //デフォルトも草を設置
       default:
         return "#74C365";
