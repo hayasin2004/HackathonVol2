@@ -15,7 +15,7 @@ const RoomsPage: React.FC = () => {
     useEffect(() => {
         const fetchRooms = async () => {
             try {
-                const response = await fetch('/api/rooms');
+                const response = await fetch('/api/rooms/roomCrud', {method : "GET"});
                 const data = await response.json();
 
                 if (data.status === 'success') {
