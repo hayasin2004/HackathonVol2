@@ -56,7 +56,6 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
     try {
         if (playerId) {
             // findUniqueを使用して、itemIdに一致するアイテムを取得する
-            console.log("難解で他のaaaaaaaaaaaaaa")
             const existingItems = await prisma.playerItem.findMany({
                 where: {
                     AND: [{
