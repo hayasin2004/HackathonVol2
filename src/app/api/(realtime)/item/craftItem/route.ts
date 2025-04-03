@@ -118,7 +118,7 @@ async function route(playerId: number | undefined, craftItem: number) {
             console.log("ここで松明が作成されるはず" + craftItem)
             await tx.playerItem.update({
                 where: {id: existingItem.id},
-                data: {quantity: {increment: 100}},
+                data: {quantity: {increment: 1}},
             });
         } else {
             await tx.playerItem.create({

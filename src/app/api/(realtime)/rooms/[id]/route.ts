@@ -3,18 +3,17 @@ import prisma from "@/lib/prismaClient";
 
 export async function GET(req: Request) {
     const roomId = req.url.split('/').pop(); // URLの最後の部分を取得
-
-    if (!roomId || isNaN(roomId)) {
+    const numRoomId = Number(roomId)
+    if (!roomId || isNaN(numRoomId)) {
         return NextResponse.json(
             { status: "error", message: "無効なルームIDです" },
             { status: 400 }
         );
     }
 
-    try {
-        const NumRoomId = Number(roomId)
+    try { 
         const room = await prisma.room.findUnique({
-            where: { id: NumRoomId },
+            where: { id: numRoomId },
             include: {
                 players: true,
                 items: {
@@ -55,9 +54,9 @@ export async function PUT(req: Request) {
     try {
         const body = await req.json();
         const { name } = body;
-        const NumRoomId = Number(roomId)
+        const numRoomId = Number(roomId)
         const room = await prisma.room.update({
-            where: { id: NumRoomId },
+            where: { id: numRoomId },
             data: { name }
         });
 
@@ -74,7 +73,7 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const roomId = searchParams.get("id");
-    const NumRoomId = Number(roomId)
+    const numRoomId = Number(roomId)
     if (!roomId || isNaN(roomId)) {
         return NextResponse.json(
             { status: "error", message: "無効なルームIDです" },
@@ -85,7 +84,7 @@ export async function DELETE(req: Request) {
     try {
 
         await prisma.room.delete({
-            where: { id: NumRoomId }
+            where: { id: numRoomId }
         });
 
         return NextResponse.json(

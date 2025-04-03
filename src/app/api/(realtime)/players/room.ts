@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { joinRoom } from "@/app/api/(realtime)/playerManagement/playerManagement";
+import {joinRoom} from "@/app/api/(realtime)/playerManagement/route";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     switch (req.method) {

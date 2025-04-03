@@ -149,9 +149,9 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
                 {/* 他のプレイヤー */}
                 {players
                     .filter(player => player.playerId !== playerId)
-                    .map(player => (
+                    .map((player, index) => (
                         <div
-                            key={player.playerId}
+                            key={player.playerId || `player-${index}`}
                             className="other-player"
                             style={{
                                 position: 'absolute',
@@ -161,11 +161,10 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
                                 height: '20px',
                                 borderRadius: '50%',
                                 backgroundColor: 'red',
-                                zIndex: 10
+                                zIndex: 10,
                             }}
                         />
                     ))}
-
                 {/* 自分のプレイヤー */}
                 <div
                     className="current-player"

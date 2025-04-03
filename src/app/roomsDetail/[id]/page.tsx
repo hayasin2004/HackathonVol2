@@ -1,20 +1,20 @@
 "use client"
 // pages/rooms/[id].tsx
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import Game from "../../../components/(realTime)/game/Game";
 import {useSession} from "next-auth/react";
 
-const RoomPage = ({params} : {params : { id : string }}) => {
+const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
-    const id  = params?.id;
+    const id = params?.id;
     const roomId = parseInt(id as string);
-    const {data : session}  = useSession()
+    const {data: session} = useSession()
 
     const [room, setRoom] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [playerId, setPlayerId] = useState<number | null |undefined>(null);
+    const [playerId, setPlayerId] = useState<number | null | undefined>(null);
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
@@ -22,12 +22,23 @@ const RoomPage = ({params} : {params : { id : string }}) => {
         const userId = session?.user.id
         // const NumUserId = Number(1)
         if (userId) {
-            setPlayerId(1);
+            const currentUserId = async () =>{
+                const response = await fetch(`/api/player/catch/${userId}`, {method: "GET"});
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text(); // レスポンスをテキストとして取得
+                const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
+                console.log("response" + JSON.stringify(data));
+                setPlayerId(1);
+            }
+            currentUserId()
         } else {
             // デモ用に仮のプレイヤーIDを生成
             setPlayerId(session?.user?.id);
         }
-    }, [id , session]);
+    }, [id, session]);
 
     // ルーム情報の取得
     useEffect(() => {
@@ -35,7 +46,7 @@ const RoomPage = ({params} : {params : { id : string }}) => {
 
         const fetchRoomDetails = async () => {
             try {
-                const response = await fetch(`/api/rooms/${roomId}`, { method: "GET" });
+                const response = await fetch(`/api/rooms/${roomId}`, {method: "GET"});
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -66,7 +77,7 @@ const RoomPage = ({params} : {params : { id : string }}) => {
         const initializePlayerData = async () => {
             try {
                 console.log("プレイヤーデータの確認")
-                const checkResponse = await fetch(`/api/player/check?playerId=${playerId}`,{method : "GET"});
+                const checkResponse = await fetch(`/api/player/check?playerId=${playerId}`, {method: "GET"});
                 const checkData = await checkResponse.json();
 
                 if (checkData.status === 'success' && checkData.exists) {
@@ -76,7 +87,7 @@ const RoomPage = ({params} : {params : { id : string }}) => {
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ playerId, roomId })
+                        body: JSON.stringify({playerId, roomId})
                     });
                 } else {
                     // プレイヤーが存在しない場合は、作成
@@ -85,7 +96,7 @@ const RoomPage = ({params} : {params : { id : string }}) => {
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ playerId, roomId })
+                        body: JSON.stringify({playerId, roomId})
                     });
                 }
             } catch (error) {
@@ -156,7 +167,7 @@ const RoomPage = ({params} : {params : { id : string }}) => {
                 </div>
             </div>
 
-            <Game playerId={playerId} roomId={roomId} />
+            <Game playerId={playerId} roomId={roomId}/>
         </div>
     );
 };
