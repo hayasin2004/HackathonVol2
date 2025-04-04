@@ -5,6 +5,9 @@ import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
 import {DetailPlayerTypes} from "@/types/Player";
 import UpdateUser from "@/app/(userAuth)/updateUser/page";
+import  styles from './page.module.css';
+import Tabs from "@/components/Tabs/Tabs";
+
 
 
 const DetailPlayer = async ({params}: { params: { id: string } }) => {
@@ -73,7 +76,7 @@ const ToShowMeDetail: React.FC<DetailPlayerTypes> = async ({
                                                            }) => {
     return (
         <div>
-            <h1>ここは自分のページです</h1>
+            <h1>My page</h1>
             <h2>Id : {detailPlayerData?.id}</h2>
             <h3>Username : {detailPlayerData?.username}</h3>
             <div>
@@ -109,10 +112,13 @@ const ToShowOtherDetail: React.FC<DetailPlayerTypes> = async ({
                                                                   detailPlayerDataFollowersList
                                                               }) => {
     return (
-        <div>
-            <h1>ここは他の人のページです</h1>
+        <div className={styles.tabs}>
+            <h1>{detailPlayerData?.username}さんのページです</h1>
             <h2>Id : {detailPlayerData?.id}</h2>
             <h3>Username : {detailPlayerData?.username}</h3>
+            <div>
+                <Tabs/>
+            </div>
             <div>
                 <h1>ここでフォロー一覧</h1>
                 {detailPlayerDataFollowingsList?.map((followingUserData, index) => (

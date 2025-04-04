@@ -12,13 +12,14 @@
     "@prisma/client": "^6.5.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.3",
+    "canvas": "^3.1.0",
     "next": "15.2.4",
     "next-auth": "^4.24.11",
     "prisma": "^6.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-konva": "^19.0.3",
-    "canvas": "^3.1.0"
+    "react-tabs": "^6.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
