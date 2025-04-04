@@ -25,7 +25,7 @@ export const Map_height = 50; // 高さ
 
 
 export const generateItemPositions = (items: defaultItem[]) => {
-    const itemPositions: { tileX: number; tileY: number; items: defaultItem }[] = [];
+    const itemPositions: { tileX: number; tileY: number}[] = [];
     console.log(items)
     // アイテムをタイル座標に変換してリスト化
     items.forEach((item) => {
@@ -36,9 +36,7 @@ export const generateItemPositions = (items: defaultItem[]) => {
         if (tileX >= 0 && tileX < Map_width && tileY >= 0 && tileY < Map_height) {
             itemPositions.push({
                 tileX,
-                tileY,
-                items: item,
-
+                tileY
             });
         }
     });

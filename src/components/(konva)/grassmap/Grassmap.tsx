@@ -41,7 +41,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
     const [playerItems, setPlayerItems] = useState<any[]>([]);
-    const [itemRandom, setItemRandom] = useState<Array<{ items: defaultItem, tileX: number, tileY: number }> | []>([]);
+    const [itemRandom, setItemRandom] = useState<{tileX: number, tileY: number }>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
 
     const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
@@ -52,10 +52,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
     // プレイヤーアイテム情報の取得
 
-    // useEffect(() => {
-    //     const ItemRandomList = generateItemPositions(itemData)
-    //     setItemRandom(ItemRandomList);
-    // }, [itemData]);
+    useEffect(() => {
+        const ItemRandomList = generateItemPositions(itemData)
+        setItemRandom(ItemRandomList);
+    }, [itemData]);
 
     useEffect(() => {
         console.log(itemRandom)
@@ -244,8 +244,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
             // 非同期処理で全画像をロード
             await Promise.all(
-                itemRandom.map(async (data) => {
-                    const itemIcon = data.items?.itemIcon; // アイコンURLを取得
+                itemData.map(async (data) => {
+                    const itemIcon = data.itemIcon; // アイコンURLを取得
 
                     if (itemIcon) {
                         const img = new window.Image();
@@ -254,7 +254,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
                         // ロード完了後に`images`に保存
                         await new Promise((resolve, reject) => {
                             img.onload = () => {
-                                images[data?.items?.id] = img; // IDをキーに画像を保存
+                                images[data?.id] = img; // IDをキーに画像を保存
                                 resolve(true);
                             };
                             img.onerror = () => {
@@ -268,38 +268,33 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
             setLoadedImages(images); // 状態に反映
         };
-
-        if (itemRandom.length > 0) {
-            loadImages();
-        }
+        loadImages()
     }, [itemRandom]);
 
     useEffect(() => {
-        console.log("loadedImagesの更新:", loadedImages);
+        console.log("loadedImagesの更新:", );
     }, [loadedImages]);
 
 
     let imageElements = null;
 
-    if (itemRandom.length > 0 && Object.keys(loadedImages).length > 0) {
-        imageElements = itemRandom.map((data, index) => (
-            <Image
-                key={data.items?.id} // ユニークキーを設定
-                x={100 + 100 * index} // X座標
-                y={100} // Y座標
-                width={100} // 幅
-                height={100} // 高さ
-                image={loadedImages[data.items?.id]} // ロード済み画像を適用
-            />
-
-        ));
-    }
+    // if (itemData.length > 0 && Object.keys(loadedImages).length > 0) {
+    //     imageElements = itemData.map((data, index) => (
+    //         <Image
+    //             key={data.items?.id} // ユニークキーを設定
+    //             x={100 + 100 * index} // X座標
+    //             y={100} // Y座標
+    //             width={100} // 幅
+    //             height={100} // 高さ
+    //             image={loadedImages[data.items?.id]} // ロード済み画像を適用
+    //         />
+    //
+    //     ));
+    // }
 
     useEffect(() => {
-        console.log("itemRandom:", itemRandom);
         console.log("loadedImages:", loadedImages);
         console.log("items",itemData.length);
-        itemRandom.map((item) => {console.log(item)})
     }, [loadedImages]);
 
 
@@ -311,7 +306,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     if (error) {
         return <div className="error">エラー: {error}</div>;
     }
+    itemData.map((data, index) => {
+        const imageNode = loadedImages[data.id];
 
+        if (!imageNode) {
+            console.log(`画像がロードされていません: id=${data.id}`);
+            return null; // ロードされていない場合は描画しない
+        }
+    })
     return (
 
 
@@ -339,13 +341,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
                     {/*    ))*/}
                     {/*)}*/}
                     {itemData.map((data ,index) => (
-                        <Rect
+                        <Image
                             key={data.id} // ユニークなキーを指定
-                            x={data.x! + Tile_size * index}
-                            y={data.y! + Tile_size *index}
+                            x={400 + index * Tile_size} // x座標をずらす
+                            y={100} // 固定のy座標
                             width={Tile_size}
-                            height={Tile_size}  // ロード済みの画像を設定
-                            fill={"#f00"}
+                            height={Tile_size}
+                            image={loadedImages[data.id]} // ロード済みの画像を設定
                         />
                     ))}
                     {/*{imageElements}*/}
