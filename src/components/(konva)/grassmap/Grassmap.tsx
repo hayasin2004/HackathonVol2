@@ -90,6 +90,35 @@ const MapWithCharacter : React.FC<GameProps> = ({playerId, roomId}) => {
   }, [itemEvents, playerId]);
 
 
+  // アイテムクラフトイベントの処理
+  useEffect(() => {
+    if (craftEvents.length > 0) {
+      const latestEvent = craftEvents[craftEvents.length - 1];
+      if (latestEvent.player_id !== playerId.id) {
+        // 他のプレイヤーのイベント
+        setNotifications(prev => [
+          `プレイヤーID:${latestEvent.player_id}がアイテムをクラフトしました`,
+          ...prev.slice(0, 4)
+        ]);
+      } else {
+        // 自分のイベント
+        setNotifications(prev => [
+          `アイテムをクラフトしました`,
+          ...prev.slice(0, 4)
+        ]);
+
+        // プレイヤーのアイテムリストを更新
+        if (latestEvent.data && latestEvent.data.playerItems) {
+          setPlayerItems(latestEvent.data.playerItems);
+        }
+      }
+    }
+  }, [craftEvents, playerId]);
+
+
+
+
+
   const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
   //最初は画像がないはずだからnullらしい
   const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
