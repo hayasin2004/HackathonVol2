@@ -5,10 +5,17 @@ import prisma from "@/lib/prismaClient";
 import {NextResponse} from "next/server";
 export async function GET() {
     try {
-        const playerData = await prisma.defaultItemList.findMany({
-            orderBy:[{id: "asc"}]
+        const dropItem = await prisma.defaultItemList.findMany({
+            where: {
+                NOT: {
+                    CraftedItems: {
+                        some: {}, // `some`で関連するCraftItemが存在するものを対象
+                    },
+                },
+            },orderBy : [{createdAt : "asc"}]
         });
-        return NextResponse.json(playerData, { status: 200 });
+
+        return NextResponse.json(dropItem, { status: 200 });
     } catch (error) {
         console.error("Item collection error:", error);
         return NextResponse.json({ status: "error", message: "サーバーエラーが発生しました" }, { status: 500 });
