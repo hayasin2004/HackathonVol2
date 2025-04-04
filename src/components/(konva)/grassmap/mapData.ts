@@ -66,19 +66,40 @@ export const generateMap = () => {
         map2d[y] = new Array(Map_width).fill("grass");
     }
 
+    // 使用済み座標を追跡するセット
+    const occupiedPositions = new Set<string>();
+
+    const isPositionOccupied = (x: number, y: number) => {
+        return occupiedPositions.has(`${x}-${y}`);
+    };
+
+    const markPositionOccupied = (x: number, y: number) => {
+        occupiedPositions.add(`${x}-${y}`);
+    };
+
     // 建物の設置
     for (let i = 0; i < 10; i++) {
-        const x = Math.floor(Math.random() * Map_width);
-        const y = Math.floor(Math.random() * Map_height);
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * Map_width);
+            y = Math.floor(Math.random() * Map_height);
+        } while (isPositionOccupied(x, y));
+
         map2d[y][x] = "building";
+        markPositionOccupied(x, y);
     }
 
     // アイテムランダム配置系
     const placeRandom = (label: string, count: number) => {
         for (let i = 0; i < count; i++) {
-            const x = Math.floor(Math.random() * Map_width);
-            const y = Math.floor(Math.random() * Map_height);
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * Map_width);
+                y = Math.floor(Math.random() * Map_height);
+            } while (isPositionOccupied(x, y));
+
             map2d[y][x] = label;
+            markPositionOccupied(x, y);
         }
     };
 
@@ -90,15 +111,26 @@ export const generateMap = () => {
     // 2x2の資源設置（tree, stone, iron, coal）
     const placeSquare = (label: string, count: number) => {
         for (let i = 0; i < count; i++) {
-            const x = Math.floor(Math.random() * (Map_width - 1));
-            const y = Math.floor(Math.random() * (Map_height - 1));
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * (Map_width - 1));
+                y = Math.floor(Math.random() * (Map_height - 1));
+            } while (
+                isPositionOccupied(x, y) ||
+                isPositionOccupied(x + 1, y) ||
+                isPositionOccupied(x, y + 1) ||
+                isPositionOccupied(x + 1, y + 1)
+                );
 
-            if (x < Map_width - 1 && y < Map_height - 1) {
-                map2d[y][x] = label;
-                map2d[y][x + 1] = label;
-                map2d[y + 1][x] = label;
-                map2d[y + 1][x + 1] = label;
-            }
+            map2d[y][x] = label;
+            map2d[y][x + 1] = label;
+            map2d[y + 1][x] = label;
+            map2d[y + 1][x + 1] = label;
+
+            markPositionOccupied(x, y);
+            markPositionOccupied(x + 1, y);
+            markPositionOccupied(x, y + 1);
+            markPositionOccupied(x + 1, y + 1);
         }
     };
 
@@ -110,15 +142,17 @@ export const generateMap = () => {
     // 水を横一列に設置（y=20）
     for (let i = 5; i < 20; i++) {
         map2d[20][i] = "water";
+        markPositionOccupied(i, 20);
     }
 
     // 横一直線の道（マップ中央）
     const middle = Math.floor(Map_height / 2);
     for (let i = 0; i < Map_width; i++) {
         map2d[middle][i] = "path";
+        markPositionOccupied(i, middle);
     }
 
     return map2d;
-};
+};;
 
 export const Map_data = generateMap();

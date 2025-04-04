@@ -53,13 +53,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
     useEffect(() => {
         const mapData = generateMap();
-        const itemPositions = generateItemPositions(itemData, mapData, 1); // 距離1以上空ける
+        const itemPositions = generateItemPositions(itemData, mapData, 1);
         const result = itemData.map((data, index) => ({
-            ...data, // 既存のプロパティを保持
-            tileX: itemPositions[index]?.tileX, // tileX を追加
-            tileY: itemPositions[index]?.tileY, // tileY を追加
+            ...data,
+            tileX: itemPositions[index]?.tileX,
+            tileY: itemPositions[index]?.tileY,
         }));
-        setAugmentedItemData(result)
+        setAugmentedItemData(result);
+
 
         const loadImages = async () => {
             const images: { [key: string]: HTMLImageElement } = {}; // ロード済み画像を一時保存するオブジェクト
@@ -95,24 +96,32 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     }, [itemData]);
 
     useEffect(() => {
+        const occupiedPositions = new Set();
+
         const duplicatedItems = augmentedItemData.flatMap((item) => {
             const repeatCount = Math.floor(Math.random() * 5) + 1;
 
             return Array.from({ length: repeatCount }, (_, i) => {
-                const randomTileX = Math.floor(Math.random() * Map_width);
-                const randomTileY = Math.floor(Math.random() * Map_height);
+                let randomTileX, randomTileY;
+                do {
+                    randomTileX = Math.floor(Math.random() * Map_width);
+                    randomTileY = Math.floor(Math.random() * Map_height);
+                } while (occupiedPositions.has(`${randomTileX}-${randomTileY}`));
+
+                occupiedPositions.add(`${randomTileX}-${randomTileY}`);
 
                 return {
                     ...item,
                     tileX: randomTileX,
                     tileY: randomTileY,
-                    _uniqueId: `${item.id}-${i}-${Math.random()}` // key 用
+                    _uniqueId: `${item.id}-${i}-${Math.random()}`,
                 };
             });
         });
 
-        setRandomPlacedItems(duplicatedItems); // ← ここでstateに保存
+        setRandomPlacedItems(duplicatedItems);
     }, [augmentedItemData]);
+;
 
     useEffect(() => {
         if (playerId) {
