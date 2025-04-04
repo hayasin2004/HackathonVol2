@@ -117,6 +117,41 @@ const MapWithCharacter : React.FC<GameProps> = ({playerId, roomId}) => {
 
 
 
+// アイテムクラフト関数
+  const handleCraftItem = async (craftItemId: number) => {
+    try {
+      const playerDataId = playerId.id
+
+      const response = await fetch('/api/item/craftItem', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({playerDataId, craftItemId})
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        setNotifications(prev => [
+          `アイテムをクラフトしました`,
+          ...prev.slice(0, 4)
+        ]);
+      } else {
+        setNotifications(prev => [
+          `クラフト失敗: ${data.message}`,
+          ...prev.slice(0, 4)
+        ]);
+      }
+
+    } catch (error) {
+      console.error('Craft error:', error);
+      setNotifications(prev => [
+        'クラフト中にエラーが発生しました',
+        ...prev.slice(0, 4)
+      ]);
+    }
+  };
 
 
   const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
