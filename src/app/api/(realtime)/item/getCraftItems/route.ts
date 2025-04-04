@@ -23,32 +23,25 @@ export async function POST(req: Request) {
     } catch (error) {
         console.error("Error in POST:", error);
         return NextResponse.json(
-            { error: "Failed to create player", details: error.message },
+            { error: "Failed to create player", details: error },
             { status: 500 }
         );
     }
 }
 
-export async function GET(req: Request) {
-    // パスパラメータからプレイヤーIDを取得
-    const playerId = req.url.split('/').pop();
-    const NumPlayerId = Number(playerId);
+export async function GET() {
 
-    if (!playerId || isNaN(parseInt(playerId, 10))) {
-        return NextResponse.json(
-            { status: "error", message: "プレイヤーIDが無効です" },
-            { status: 400 }
-        );
-    }
+
 
     try {
         // データベースからプレイヤーアイテムを取得
-        const items = await prisma.playerItem.findMany({
-            where: { playerDataId: NumPlayerId },include:{DefaultItemList:true}
+        const craftItems = await prisma.craftItem.findMany({
+            include:{createdItem : true}
         });
 
+
         return NextResponse.json(
-            { status: "success", items },
+            { status: "success", craftItems },
             { status: 200 }
         );
     } catch (error) {

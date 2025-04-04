@@ -29,7 +29,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
+
     const [playerItems, setPlayerItems] = useState<any[]>([]);
+    const [craftItems, setCraftItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
@@ -132,6 +134,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 .then((data) => {
                     if (data.status === "success") {
                         setPlayerItems(data.items);
+                    }
+                })
+                .catch((err) => console.error("Failed to fetch player items:", err));
+            fetch(`/api/item/getCraftItems`,{method : "GET"})
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.status === "success") {
+                        setCraftItems(data.craftItems);
                     }
                 })
                 .catch((err) => console.error("Failed to fetch player items:", err));
@@ -345,8 +355,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         }
     })
 
+    console.log(craftItems)
 
-    console.log(playerItems)
+
     return (
 
 
@@ -429,6 +440,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 <h3>クラフトメニュー</h3>
                 <div className="craft-buttons">
                     {/* 例として、クラフト可能なアイテムを表示 */}
+                    {craftItems?.map((craftItem) => (
+                        <div key={craftItem.id}>
+                            <p>{craftItem.createdItem?.itemName}</p>
+                        </div>
+                    ))}
                     <button onClick={() => handleCraftItem(1)}>アイテム1をクラフト</button>
                     <button onClick={() => handleCraftItem(2)}>アイテム2をクラフト</button>
                 </div>
