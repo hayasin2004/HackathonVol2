@@ -4,11 +4,12 @@ import {supabase} from "@/lib/supabase";
 
 // POSTリクエストを処理する
 export async function POST(req: Request) {
+
     try {
         const body = await req.json();
-        const {playerId, craftItemId} = body;
-
-        if (!playerId || !craftItemId) {
+        const {playerDataId, craftItemId} = body;
+        console.log(playerDataId , craftItemId)
+        if (!playerDataId|| !craftItemId) {
             return NextResponse.json(
                 {status: 'error', message: 'Invalid input data'},
                 {status: 400}
@@ -16,11 +17,11 @@ export async function POST(req: Request) {
         }
 
         // クラフトロジックを実行
-        await route(playerId, craftItemId);
+        await route(playerDataId, craftItemId);
 
         // クラフト後のアイテム情報を取得
         const playerData = await prisma.playerData.findUnique({
-            where: {playerId},
+            where: {playerId : playerDataId},
             include: {haveItems: true},
         });
 
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
                 .insert({
                     event: 'item_craft',
                     room_id: playerData.roomId,
-                    player_id: playerId,
+                    player_id: playerDataId,
                     data: {
                         craftedItemId: craftItemId,
                         playerItems: playerData.haveItems,
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
 
 // クラフトロジックを分離
 async function route(playerId: number | undefined, craftItem: number) {
+
     const player = await prisma.playerData.findUnique({
         where: {playerId},
         include: {haveItems: true},

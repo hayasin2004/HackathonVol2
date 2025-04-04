@@ -79,7 +79,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         const initializePlayerData = async () => {
             try {
                 console.log("プレイヤーデータの確認")
-                const checkResponse = await fetch(`/api/player/check?playerId=${playerId}`, {method: "GET"});
+                const checkResponse = await fetch(`/api/player/check?playerId=${playerId.id}`, {method: "GET"});
                 const checkData = await checkResponse.json();
 
                 if (checkData.status === 'success' && checkData.exists) {

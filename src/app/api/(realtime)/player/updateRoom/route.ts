@@ -5,7 +5,6 @@ export async function POST(req: Request) {
     try {
         const body = await req.json(); // リクエストボディの取得
         const { playerId, roomId } = body;
-
         if (!playerId) {
             return NextResponse.json(
                 { status: "error", message: "プレイヤーIDが必要です" },
@@ -14,7 +13,7 @@ export async function POST(req: Request) {
         }
 
         const playerData = await prisma.playerData.update({
-            where: { playerId: playerId },
+            where: { playerId: playerId.id },
             data: {
                 roomId: roomId ? roomId : null,
                 // ランダムな初期位置を設定

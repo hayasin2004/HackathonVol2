@@ -17,15 +17,14 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     // Socket.io接続
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     // プレイヤー移動
-    const { ECollisionPosition, ECollisionStatus, adjacentObstacles } = useRemakeItemGet({
+    const {ECollisionPosition, ECollisionStatus, adjacentObstacles} = useRemakeItemGet({
         userId: 1, // ユーザーID
-        initialPosition: { x: playerId.x, y: playerId.y }, // 初期位置
+        initialPosition: {x: playerId.x, y: playerId.y}, // 初期位置
         circleRadius: 30, // プレイヤーの範囲
         rectPositions: items,
         speed: 10, // 移動速度
         movePlayer
     });
-
 
 
     // Supabaseリアルタイムイベント
@@ -102,30 +101,32 @@ const Game: React.FC<GameProps> = ({playerId, roomId}) => {
     }, [craftEvents, playerId]);
 
     // アイテムクラフト関数
-    const handleCraftItem = async (craftItemId: number ,  ArgPlayerId  : PlayerType) => {
+    const handleCraftItem = async (craftItemId: number) => {
         try {
-            const playerId = ArgPlayerId.id
-            const response = await fetch('/api/item/craftItem', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({playerId , craftItemId})
-            });
+            const playerDataId = playerId.id
 
-            const data = await response.json();
+                const response = await fetch('/api/item/craftItem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({playerDataId, craftItemId})
+                });
 
-            if (data.status === 'success') {
-                setNotifications(prev => [
-                    `アイテムをクラフトしました`,
-                    ...prev.slice(0, 4)
-                ]);
-            } else {
-                setNotifications(prev => [
-                    `クラフト失敗: ${data.message}`,
-                    ...prev.slice(0, 4)
-                ]);
-            }
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    setNotifications(prev => [
+                        `アイテムをクラフトしました`,
+                        ...prev.slice(0, 4)
+                    ]);
+                } else {
+                    setNotifications(prev => [
+                        `クラフト失敗: ${data.message}`,
+                        ...prev.slice(0, 4)
+                    ]);
+                }
+
         } catch (error) {
             console.error('Craft error:', error);
             setNotifications(prev => [

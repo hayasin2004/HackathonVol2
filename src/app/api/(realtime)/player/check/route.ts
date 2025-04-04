@@ -4,7 +4,7 @@ import prisma from "@/lib/prismaClient";
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const playerId = searchParams.get("playerId");
-
+    console.log("Player ID: ", playerId);
     if (!playerId) {
         return NextResponse.json(
             { status: "error", message: "プレイヤーIDが必要です" },
@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     try {
         const NumPlayerId = Number(playerId)
         const playerData = await prisma.playerData.findUnique({
-            where: { playerId: NumPlayerId }
+            where: { playerId: 1 }
         });
         console.log("playerData"+playerId);
         return NextResponse.json({
