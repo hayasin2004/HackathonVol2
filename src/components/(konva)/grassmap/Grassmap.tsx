@@ -6,14 +6,13 @@ import {
     Tile_size,
     Map_width,
     Map_height,
-    // Tile_list,
-    generateItemPositions,
+    generateItemPositions, Map_data, Tile_list,
 } from "./mapData";
 import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
-import {defaultItem} from "@/types/defaultItem";
+import {defaultItem, RoomDefaultItem} from "@/types/defaultItem";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 const initialPlayerPosition = {x: 10 * Tile_size, y: 10 * Tile_size};
@@ -41,25 +40,60 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
     const [playerItems, setPlayerItems] = useState<any[]>([]);
-    const [itemRandom, setItemRandom] = useState<{tileX: number, tileY: number }>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
 
     const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
+    const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
 
 
     // プレイヤーアイテム情報の取得
 
     useEffect(() => {
-        const ItemRandomList = generateItemPositions(itemData)
-        setItemRandom(ItemRandomList);
+        const itemPositions = generateItemPositions(itemData); // 座標を生成
+        const result = itemData.map((data, index) => ({
+            ...data, // 既存のプロパティを保持
+            tileX: itemPositions[index]?.tileX, // tileX を追加
+            tileY: itemPositions[index]?.tileY, // tileY を追加
+        }));
+        setAugmentedItemData(result)
+
+        const loadImages = async () => {
+            const images: { [key: string]: HTMLImageElement } = {}; // ロード済み画像を一時保存するオブジェクト
+
+            // 非同期処理で全画像をロード
+            await Promise.all(
+                itemData.map(async (data) => {
+                    const itemIcon = data.itemIcon; // アイコンURLを取得
+
+                    if (itemIcon) {
+                        const img = new window.Image();
+                        img.src = itemIcon;
+
+                        // ロード完了後に`images`に保存
+                        await new Promise((resolve, reject) => {
+                            img.onload = () => {
+                                images[data?.id] = img; // IDをキーに画像を保存
+                                resolve(true);
+                            };
+                            img.onerror = () => {
+                                console.error(`画像のロード失敗: ${itemIcon}`);
+                                reject(false);
+                            };
+                        });
+                    }
+                })
+            );
+
+            setLoadedImages(images); // 状態に反映
+        };
+        loadImages()
+
     }, [itemData]);
 
-    useEffect(() => {
-        console.log(itemRandom)
-    }, [itemRandom]);
+
 
     useEffect(() => {
         if (playerId) {
@@ -238,38 +272,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
 
 
-    useEffect(() => {
-        const loadImages = async () => {
-            const images: { [key: string]: HTMLImageElement } = {}; // ロード済み画像を一時保存するオブジェクト
-
-            // 非同期処理で全画像をロード
-            await Promise.all(
-                itemData.map(async (data) => {
-                    const itemIcon = data.itemIcon; // アイコンURLを取得
-
-                    if (itemIcon) {
-                        const img = new window.Image();
-                        img.src = itemIcon;
-
-                        // ロード完了後に`images`に保存
-                        await new Promise((resolve, reject) => {
-                            img.onload = () => {
-                                images[data?.id] = img; // IDをキーに画像を保存
-                                resolve(true);
-                            };
-                            img.onerror = () => {
-                                console.error(`画像のロード失敗: ${itemIcon}`);
-                                reject(false);
-                            };
-                        });
-                    }
-                })
-            );
-
-            setLoadedImages(images); // 状態に反映
-        };
-        loadImages()
-    }, [itemRandom]);
 
     useEffect(() => {
         console.log("loadedImagesの更新:", );
@@ -314,12 +316,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
             return null; // ロードされていない場合は描画しない
         }
     })
-    const itemPositions = generateItemPositions(itemData); // 座標を生成
-    const augmentedItemData = itemData.map((data, index) => ({
-        ...data, // 既存のプロパティを保持
-        tileX: itemPositions[index]?.tileX, // tileX を追加
-        tileY: itemPositions[index]?.tileY, // tileY を追加
-    }));
+
 
     return (
 
@@ -335,23 +332,23 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
                     {/*        アイテムID: {item.id}, X座標: {item.tileX}, Y座標: {item.tileY}*/}
                     {/*    </li>*/}
                     {/*))}*/}
-                    {/*{Map_data.map((row, rowIndex) =>*/}
-                    {/*    row.map((tile, colIndex) => (*/}
-                    {/*        <Rect*/}
-                    {/*            key={`${rowIndex}-${colIndex}`}*/}
-                    {/*            x={colIndex * Tile_size - cameraPosition.x}*/}
-                    {/*            y={rowIndex * Tile_size   - cameraPosition.y}*/}
-                    {/*            width={Tile_size}*/}
-                    {/*            height={Tile_size}*/}
-                    {/*            fill={getTilecolor(tile)}*/}
-                    {/*        />*/}
-                    {/*    ))*/}
-                    {/*)}*/}
+                    {Map_data.map((row, rowIndex) =>
+                        row.map((tile, colIndex) => (
+                            <Rect
+                                key={`${rowIndex}-${colIndex}`}
+                                x={colIndex * Tile_size - cameraPosition.x}
+                                y={rowIndex * Tile_size   - cameraPosition.y}
+                                width={Tile_size}
+                                height={Tile_size}
+                                fill={getTilecolor(tile)}
+                            />
+                        ))
+                    )}
                     {augmentedItemData.map((data) => (
                         <Image
                             key={data.id} // ユニークなキー
-                            x={data.tileX * Tile_size} // 計算された x 座標
-                            y={data.tileY * Tile_size} // 計算された y 座標
+                            x={data.tileX * Tile_size- cameraPosition.x} // 計算された x 座標
+                            y={data.tileY * Tile_size- cameraPosition.y} // 計算された y 座標
                             width={Tile_size}
                             height={Tile_size}
                             image={loadedImages[data.id]} // ロード済み画像

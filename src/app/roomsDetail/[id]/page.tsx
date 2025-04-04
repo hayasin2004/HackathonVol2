@@ -159,22 +159,22 @@ const RoomPage = ({params}: { params: { id: string } }) => {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">{room.name}</h1>
+            {/*<h1 className="text-2xl font-bold mb-4">{room.name}</h1>*/}
 
-            <div className="mb-6">
-                <button
-                    onClick={() => router.push('/rooms')}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded mr-2"
-                >
-                    ルーム一覧に戻る
-                </button>
+            {/*<div className="mb-6">*/}
+            {/*    <button*/}
+            {/*        onClick={() => router.push('/rooms')}*/}
+            {/*        className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded mr-2"*/}
+            {/*    >*/}
+            {/*        ルーム一覧に戻る*/}
+            {/*    </button>*/}
 
-                <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                        ルームID: {room.id} | プレイヤー数: {room.players.length}
-                    </p>
-                </div>
-            </div>
+            {/*    <div className="mt-2">*/}
+            {/*        <p className="text-sm text-gray-500">*/}
+            {/*            ルームID: {room.id} | プレイヤー数: {room.players.length}*/}
+            {/*        </p>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
             <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
             {/*<Game playerId={playerId} roomId={roomId}/>*/}
         </div>
