@@ -16,7 +16,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const [room, setRoom] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [playerId, setPlayerId] = useState<PlayerItem | null  >(null);
+    const [playerId, setPlayerId] = useState<PlayerItem | null|undefined >(null);
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
