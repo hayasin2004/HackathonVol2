@@ -64,7 +64,30 @@ const MapWithCharacter : React.FC<GameProps> = ({playerId, roomId}) => {
   }, [playerId]);
 
 
+  // アイテム取得イベントの処理
+  useEffect(() => {
+    if (itemEvents.length > 0) {
+      const latestEvent = itemEvents[itemEvents.length - 1];
+      if (latestEvent.player_id !== playerId.id) {
+        // 他のプレイヤーのイベント
+        setNotifications(prev => [
+          `プレイヤーID:${latestEvent.player_id}がアイテムを取得しました`,
+          ...prev.slice(0, 4)
+        ]);
+      } else {
+        // 自分のイベント
+        setNotifications(prev => [
+          `アイテムを取得しました`,
+          ...prev.slice(0, 4)
+        ]);
 
+        // プレイヤーのアイテムリストを更新
+        if (latestEvent.data && latestEvent.data.playerItems) {
+          setPlayerItems(latestEvent.data.playerItems);
+        }
+      }
+    }
+  }, [itemEvents, playerId]);
 
 
   const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
