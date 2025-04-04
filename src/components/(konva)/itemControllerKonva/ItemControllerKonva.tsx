@@ -3,9 +3,9 @@ import React, {useState, useEffect} from "react";
 import {CharacterPartsType} from "@/types/character";
 import {Circle, Layer, Rect, Stage, Image as KonvaImage} from "react-konva";
 import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
-import PlayerPlaceSaveButton from "@/components/playerPlaceSaveButton/page";
+// import PlayerPlaceSaveButton from "@/components/playerPlaceSaveButton/page";
 import {craftItem} from "@/repository/prisma/test/testRepositoy";
-import {successCraftItem, successPlayerData} from "@/repository/prisma/test/dummyData";
+// import {successCraftItem, successPlayerData} from "@/repository/prisma/test/dummyData";
 import Image from "next/image"
 
 const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {

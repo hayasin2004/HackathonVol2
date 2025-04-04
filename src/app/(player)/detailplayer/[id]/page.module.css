@@ -1,39 +1,41 @@
-.tab {
-    max-width: 800px;
-    margin: 0 auto;
-    margin-top: 120px;
+.mypage-container {
+    padding: 24px;
+    font-family: sans-serif;
 }
 
-/* タブメニュー */
-.tab__menu {
+.mypage-title {
+    font-size: 28px;
+    margin-bottom: 16px;
+}
+
+.mypage-section {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    background-color: #f9f9f9;
+}
+
+.section-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+}
+
+.user-card {
     display: flex;
-    align-items: flex-end; /* メニューを下揃え&高さを調整 */
-    justify-content: center;
-    min-height: 50px; /* メニュー切替時にタブがズレないように */
-    padding: 0;
-    margin: 0;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
 }
 
-.tab__menu-item {
-    list-style: none;
-    width: 200px;
-    padding: 8px 5px; /* メニューに高さを付ける */
-    text-align: center;
-    margin-right: 6px;
-    background-color: #cdcdcd;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+.update-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4CAF50;
+    color: white;
     cursor: pointer;
-    transition: all .3s; /* アニメーション */
-}
-
-.tab__menu-item:last-of-type {
-    margin-right: 0;
-}
-
-/* is-activeがついている時のスタイル */
-.tab__menu-item.is-active {
-    background-color: rgba(48, 172, 249);
-    color: #ffffff;
-    padding: 12px 5px;
 }
