@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import Game from "../../../components/(realTime)/game/Game";
 import {useSession} from "next-auth/react";
 import {PlayerItem} from "@/types/playerItem";
+import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
@@ -168,8 +169,8 @@ const RoomPage = ({params}: { params: { id: string } }) => {
                     </p>
                 </div>
             </div>
-
-            <Game playerId={playerId} roomId={roomId}/>
+            <MapWithCharacter playerId={playerId} roomId={roomId}/>
+            {/*<Game playerId={playerId} roomId={roomId}/>*/}
         </div>
     );
 };

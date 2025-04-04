@@ -9,11 +9,31 @@ import {
   Tile_list,
   Map_data,
 } from "./mapData";
+import {PlayerItem} from "@/types/playerItem";
 
 //プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 const initialPlayerPosition = { x: 10 * Tile_size, y: 10 * Tile_size };
 
-const MapWithCharacter = () => {
+interface GameProps {
+  playerId: PlayerItem;
+  roomId: number;
+}
+const MapWithCharacter : React.FC<GameProps> = ({playerId, roomId}) => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
   //最初は画像がないはずだからnullらしい
   const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
