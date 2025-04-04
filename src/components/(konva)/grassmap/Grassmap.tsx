@@ -46,6 +46,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
     const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
+    const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
+
 
     // プレイヤーアイテム情報の取得
 
@@ -231,6 +233,23 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
     };
 
 
+
+    useEffect(() => {
+        const loadImages = async () => {
+            const images: { [key: string]: HTMLImageElement } = {};
+            itemRandom.forEach((item) => {
+                const img = new window.Image();
+                img.src = item?.item?.itemIcon; // itemIconは画像URLと仮定
+                img.onload = () => {
+                    images[item.item.id] = img;
+                    // 状態を更新
+                    setLoadedImages((prevImages) => ({ ...prevImages, [item.item.id]: img }));
+                };
+            });
+        };
+        loadImages();
+    }, [itemRandom]);
+
     // Loading or Error UI
     if (!connected) {
         return <div className="loading">サーバーに接続中...</div>;
@@ -266,16 +285,28 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
                     {/*        />*/}
                     {/*    ))*/}
                     {/*)}*/}
-                    {itemRandom?.map((item) => (
-                        <Rect
-                            key={item?.item?.id}
+                    {itemRandom?.map((item , index) => (
+                        <Image
+                            key={item?.item?.id || index}
                             x={item?.tileX * Tile_size - cameraPosition.x}
                             y={item?.tileY * Tile_size - cameraPosition.y}
                             width={Tile_size}
                             height={Tile_size}
-                            fill={"red"}
+                            image={loadedImages[item?.item?.id]} // ロード済みの画像を渡す
                         />
                     ))}
+
+                    {/*{itemRandom?.map((item) => (*/}
+
+                    {/*    <Image*/}
+                    {/*        key={item?.item?.id}*/}
+                    {/*        x={item?.tileX * Tile_size - cameraPosition.x}*/}
+                    {/*        y={item?.tileY * Tile_size - cameraPosition.y}*/}
+                    {/*        width={Tile_size}*/}
+                    {/*        height={Tile_size}*/}
+                    {/*        image={playerImage}*/}
+                    {/*    />*/}
+                    {/*))}*/}
 
                     {playerImage && (
                         <Image
