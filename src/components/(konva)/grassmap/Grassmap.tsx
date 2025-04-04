@@ -6,7 +6,7 @@ import {
     Tile_size,
     Map_width,
     Map_height,
-    generateItemPositions, Map_data, Tile_list,
+    generateItemPositions, Map_data, Tile_list, generateMap,
 } from "./mapData";
 import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
@@ -52,7 +52,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     // プレイヤーアイテム情報の取得
 
     useEffect(() => {
-        const itemPositions = generateItemPositions(itemData ,4); // 座標を生成
+        const mapData = generateMap();
+        const itemPositions = generateItemPositions(itemData, mapData, 1); // 距離1以上空ける
         const result = itemData.map((data, index) => ({
             ...data, // 既存のプロパティを保持
             tileX: itemPositions[index]?.tileX, // tileX を追加

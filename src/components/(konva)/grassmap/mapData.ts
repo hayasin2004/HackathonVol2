@@ -26,7 +26,8 @@ export const Tile_list = {
 
 export const generateItemPositions = (
     items: defaultItem[],
-    minDistance: number = 1 // ← 1で「隣接」も含めてNG
+    map: string[][],
+    minDistance: number = 1
 ) => {
     const itemPositions: { tileX: number; tileY: number }[] = [];
 
@@ -42,19 +43,19 @@ export const generateItemPositions = (
         const tileX = Math.floor(item.x! / Tile_size);
         const tileY = Math.floor(item.y! / Tile_size);
 
-        if (
+        const isInBounds =
             tileX >= 0 && tileX < Map_width &&
-            tileY >= 0 && tileY < Map_height &&
-            !isTooClose(tileX, tileY)
-        ) {
+            tileY >= 0 && tileY < Map_height;
+
+        const isTileEmpty = map[tileY]?.[tileX] === "grass"; // ←ここポイント！
+
+        if (isInBounds && isTileEmpty && !isTooClose(tileX, tileY)) {
             itemPositions.push({ tileX, tileY });
         }
     });
 
     return itemPositions;
 };
-
-
 // マップ生成関数
 //ランダムマップ再生 Array.fromで一つ一つを"grass"に設定
 export const generateMap = () => {
