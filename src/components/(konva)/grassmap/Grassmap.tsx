@@ -7,12 +7,13 @@ import {
     Map_width,
     Map_height,
     Tile_list,
-    Map_data,
+    generateItemPositions,
 } from "./mapData";
 import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
+import {defaultItem} from "@/types/defaultItem";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 const initialPlayerPosition = {x: 10 * Tile_size, y: 10 * Tile_size};
@@ -23,14 +24,12 @@ interface GameProps {
 }
 
 const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
-    const {socket, connected, players, items, error, movePlayer} =
-        useSocketConnection(playerId.id, roomId);
-    console.log("playerIdplayerIdplayerIdplayerIdplayerIdplayerIdplayerIdplayerIdplayerIdplayerIdplayerId" + playerId)
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     // プレイヤー移動
     const remakeResult = playerId?.id
         ? useRemakeItemGet({
             userId: playerId.id,
-            initialPosition: { x: playerId.x, y: playerId.y },
+            initialPosition: {x: playerId.x, y: playerId.y},
             circleRadius: 30,
             rectPositions: items,
             speed: 10,
@@ -41,13 +40,24 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
     const [playerItems, setPlayerItems] = useState<any[]>([]);
+    const [itemRandom, setItemRandom] = useState<Array<{ item: defaultItem, tileX: number, tileY: number }> | []>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
 
     const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
-    const [cameraPosition, setCameraPosition] = useState({ x: 0, y: 0 });
+    const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
 
     // プレイヤーアイテム情報の取得
+
+    useEffect(() => {
+        const ItemRandomList = generateItemPositions(items)
+        setItemRandom(ItemRandomList);
+    }, [items]);
+
+    useEffect(() => {
+        console.log(itemRandom)
+    }, [itemRandom]);
+
     useEffect(() => {
         if (playerId) {
             fetch(`/api/player/getItems/${playerId.id}`)
@@ -59,8 +69,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
                 })
                 .catch((err) => console.error("Failed to fetch player items:", err));
         }
-    }, [playerId]);
 
+
+    }, [playerId]);
 
 
     // アイテム取得イベントの処理
@@ -150,73 +161,73 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
     };
 
     useEffect(() => {
-      const img = new window.Image();
-      img.src = "/character.png";
-      img.onload = () => setPlayerImage(img);
+        const img = new window.Image();
+        img.src = "/character.png";
+        img.onload = () => setPlayerImage(img);
     }, []);
 
     const getTilecolor = (list: string) => {
-      switch (list) {
-        case Tile_list.Grass:
-          return "#74C365";
-        case Tile_list.Path:
-          return "#E5C07B";
-        case Tile_list.Building:
-          return "#8B5E3C";
-        case Tile_list.Water:
-          return "#4F94CD";
-        case Tile_list.Tree:
-          return "#228B22";
-        case Tile_list.Leaves:
-          return "#327040";
-        case Tile_list.Stone:
-          return "#747474";
-        case Tile_list.Iron:
-          return "#D1D1D1";
-        case Tile_list.Coal:
-          return "#2D2D2D";
-        case Tile_list.Flower:
-          return "#fa52e3";
-        case Tile_list.Mushroom:
-          return "#846847";
-        case Tile_list.Insect:
-          return "#ef5e3f";
-        default:
-          return "#74C365";
-      }
+        switch (list) {
+            case Tile_list.Grass:
+                return "#74C365";
+            case Tile_list.Path:
+                return "#E5C07B";
+            case Tile_list.Building:
+                return "#8B5E3C";
+            case Tile_list.Water:
+                return "#4F94CD";
+            case Tile_list.Tree:
+                return "#228B22";
+            case Tile_list.Leaves:
+                return "#327040";
+            case Tile_list.Stone:
+                return "#747474";
+            case Tile_list.Iron:
+                return "#D1D1D1";
+            case Tile_list.Coal:
+                return "#2D2D2D";
+            case Tile_list.Flower:
+                return "#fa52e3";
+            case Tile_list.Mushroom:
+                return "#846847";
+            case Tile_list.Insect:
+                return "#ef5e3f";
+            default:
+                return "#74C365";
+        }
     };
 
     const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      let { x, y } = playerPosition;
+        e.preventDefault();
+        let {x, y} = playerPosition;
 
-      switch (e.key) {
-        case "ArrowUp":
-          y -= Tile_size;
-          break;
-        case "ArrowDown":
-          y += Tile_size;
-          break;
-        case "ArrowLeft":
-          x -= Tile_size;
-          break;
-        case "ArrowRight":
-          x += Tile_size;
-          break;
-      }
+        switch (e.key) {
+            case "ArrowUp":
+                y -= Tile_size;
+                break;
+            case "ArrowDown":
+                y += Tile_size;
+                break;
+            case "ArrowLeft":
+                x -= Tile_size;
+                break;
+            case "ArrowRight":
+                x += Tile_size;
+                break;
+        }
 
-      if (
-          x >= 0 &&
-          y >= 0 &&
-          x < Map_width * Tile_size &&
-          y < Map_height * Tile_size
-      ) {
-        setPlayerPosition({ x, y });
-        setCameraPosition({
-          x: Math.max(0, x - window.innerWidth / 2),
-          y: Math.max(0, y - window.innerHeight / 2),
-        });
-      }
+        if (
+            x >= 0 &&
+            y >= 0 &&
+            x < Map_width * Tile_size &&
+            y < Map_height * Tile_size
+        ) {
+            setPlayerPosition({x, y});
+            setCameraPosition({
+                x: Math.max(0, x - window.innerWidth / 2),
+                y: Math.max(0, y - window.innerHeight / 2),
+            });
+        }
     };
 
 
@@ -230,36 +241,54 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
     }
 
     return (
-        <div tabIndex={0} onKeyDown={handlekeyDown} style={{ outline: "none" }}>
-          <Stage
-              width={typeof window !== "undefined" ? window.innerWidth : 0}
-              height={typeof window !== "undefined" ? window.innerHeight : 0}
-          >
-            <Layer>
-              {Map_data.map((row, rowIndex) =>
-                  row.map((tile, colIndex) => (
-                      <Rect
-                          key={`${rowIndex}-${colIndex}`}
-                          x={colIndex * Tile_size - cameraPosition.x}
-                          y={rowIndex * Tile_size - cameraPosition.y}
-                          width={Tile_size}
-                          height={Tile_size}
-                          fill={getTilecolor(tile)}
-                      />
-                  ))
-              )}
-              {playerImage && (
-                  <Image
-                      image={playerImage}
-                      x={playerPosition.x - cameraPosition.x}
-                      y={playerPosition.y - cameraPosition.y}
-                      width={Tile_size}
-                      height={Tile_size}
-                      alt="プレイヤー写真"
-                  />
-              )}
-            </Layer>
-          </Stage>
+
+
+        <div tabIndex={0} onKeyDown={handlekeyDown} style={{outline: "none"}}>
+            <Stage
+                width={typeof window !== "undefined" ? window.innerWidth : 0}
+                height={typeof window !== "undefined" ? window.innerHeight : 0}
+            >
+                <Layer>
+                    {/*{itemRandom?.map((item, index) => (*/}
+                    {/*    <li key={index}>*/}
+                    {/*        アイテムID: {item.id}, X座標: {item.tileX}, Y座標: {item.tileY}*/}
+                    {/*    </li>*/}
+                    {/*))}*/}
+                    {/*{Map_data.map((row, rowIndex) =>*/}
+                    {/*    row.map((tile, colIndex) => (*/}
+                    {/*        <Rect*/}
+                    {/*            key={`${rowIndex}-${colIndex}`}*/}
+                    {/*            x={colIndex * Tile_size - cameraPosition.x}*/}
+                    {/*            y={rowIndex * Tile_size   - cameraPosition.y}*/}
+                    {/*            width={Tile_size}*/}
+                    {/*            height={Tile_size}*/}
+                    {/*            fill={getTilecolor(tile)}*/}
+                    {/*        />*/}
+                    {/*    ))*/}
+                    {/*)}*/}
+                    {itemRandom?.map((item) => (
+                        <Rect
+                            key={item?.item?.id}
+                            x={item?.tileX * Tile_size - cameraPosition.x}
+                            y={item?.tileY * Tile_size - cameraPosition.y}
+                            width={Tile_size}
+                            height={Tile_size}
+                            fill={"red"}
+                        />
+                    ))}
+
+                    {playerImage && (
+                        <Image
+                            image={playerImage}
+                            x={playerPosition.x - cameraPosition.x}
+                            y={playerPosition.y - cameraPosition.y}
+                            width={Tile_size}
+                            height={Tile_size}
+                            alt="プレイヤー写真"
+                        />
+                    )}
+                </Layer>
+            </Stage>
         </div>
     );
 };
