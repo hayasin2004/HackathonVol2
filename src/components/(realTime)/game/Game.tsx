@@ -1,10 +1,8 @@
 "use client"
 // components/Game.tsx
 import React, {useEffect, useState} from 'react';
-import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
-import {usePlayerMovement} from "@/hooks/(realTime)/playerMovement/usePlayerMovement";
-import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
-import {PlayerType} from "@/types/Player";
+import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";　
+import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";　
 import {PlayerItem} from "@/types/playerItem";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 

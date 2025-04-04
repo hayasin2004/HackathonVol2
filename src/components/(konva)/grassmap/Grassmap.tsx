@@ -10,6 +10,8 @@ import {
   Map_data,
 } from "./mapData";
 import {PlayerItem} from "@/types/playerItem";
+import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
+import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 
 //プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 const initialPlayerPosition = { x: 10 * Tile_size, y: 10 * Tile_size };
@@ -22,7 +24,16 @@ const MapWithCharacter : React.FC<GameProps> = ({playerId, roomId}) => {
 
 
 
-
+  const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
+  // プレイヤー移動
+  const {ECollisionPosition, ECollisionStatus, adjacentObstacles} = useRemakeItemGet({
+    userId: 1, // ユーザーID
+    initialPosition: {x: playerId.x, y: playerId.y}, // 初期位置
+    circleRadius: 30, // プレイヤーの範囲
+    rectPositions: items,
+    speed: 10, // 移動速度
+    movePlayer
+  });
 
 
 
