@@ -12,6 +12,7 @@ import {
 import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
+import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 
 //プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 const initialPlayerPosition = { x: 10 * Tile_size, y: 10 * Tile_size };
@@ -38,6 +39,11 @@ const MapWithCharacter : React.FC<GameProps> = ({playerId, roomId}) => {
 
 
 
+  // Supabaseリアルタイムイベント
+  const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
+
+  // 現在のプレイヤー情報
+  const currentPlayer = players.find(player => player.playerId === playerId.id);
 
 
 
