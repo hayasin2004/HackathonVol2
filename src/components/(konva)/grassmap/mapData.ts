@@ -6,20 +6,20 @@ export const Map_width = 50; // 横幅
 export const Map_height = 50; // 高さ
 
 // タイルの種類 辞書型に定義
-export const Tile_list = {
-    Grass: "grass",
-    Path: "path",
-    Building: "building",
-    Water: "water",
-    Leaves: "leaves",
-    Tree: "tree",
-    Stone: "stone",
-    Iron: "iron",
-    Coal: "coal",
-    Flower: "flower",
-    Mushroom: "mushroom",
-    Insect: "insect",
-};
+// export const Tile_list = {
+//     Grass: "grass",
+//     Path: "path",
+//     Building: "building",
+//     Water: "water",
+//     Leaves: "leaves",
+//     Tree: "tree",
+//     Stone: "stone",
+//     Iron: "iron",
+//     Coal: "coal",
+//     Flower: "flower",
+//     Mushroom: "mushroom",
+//     Insect: "insect",
+// };
 
 // データ型の定義
 

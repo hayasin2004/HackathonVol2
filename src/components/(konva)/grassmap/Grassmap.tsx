@@ -6,7 +6,7 @@ import {
     Tile_size,
     Map_width,
     Map_height,
-    Tile_list,
+    // Tile_list,
     generateItemPositions,
 } from "./mapData";
 import {PlayerItem} from "@/types/playerItem";
@@ -52,10 +52,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
     // プレイヤーアイテム情報の取得
 
-    useEffect(() => {
-        const ItemRandomList = generateItemPositions(itemData)
-        setItemRandom(ItemRandomList);
-    }, [itemData]);
+    // useEffect(() => {
+    //     const ItemRandomList = generateItemPositions(itemData)
+    //     setItemRandom(ItemRandomList);
+    // }, [itemData]);
 
     useEffect(() => {
         console.log(itemRandom)
@@ -168,42 +168,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
         img.src = "/character.png";
         img.onload = () => setPlayerImage(img);
     }, []);
-    useEffect(() => {
-        const loadImages = async () => {
-            const images: { [key: string]: HTMLImageElement } = {}; // ロードした画像を格納する
 
-            // 非同期処理で全ての画像をロード
-            await Promise.all(
-                itemRandom.map(async (data) => {
-                    const itemIcon = data.items?.item?.itemIcon; // itemIconを安全にアクセス
 
-                    if (itemIcon) { // URLが存在する場合に処理
-                        const img = new window.Image();
-                        img.src = itemIcon; // 画像のソースを設定
-
-                        // Promiseでロード完了を待つ
-                        await new Promise((resolve, reject) => {
-                            img.onload = () => {
-                                images[data.items.item.id] = img; // IDをキーにして画像を格納
-                                resolve(true); // 成功時
-                            };
-                            img.onerror = () => {
-                                console.error(`画像のロードに失敗しました: ${itemIcon}`);
-                                reject(false); // エラー時
-                            };
-                        });
-                    } else {
-                        console.warn(`無効なitemIcon: ${data.items?.item?.id}`);
-                    }
-                })
-            );
-
-            // ロードした画像を一括で更新
-            setLoadedImages(images);
-        };
-
-        loadImages();
-    }, [itemRandom]); // itemRandomが変化したときに再実行;
 
 
     const getTilecolor = (list: string) => {
@@ -319,7 +285,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
         imageElements = itemRandom.map((data, index) => (
             <Image
                 key={data.items?.id} // ユニークキーを設定
-                x={100 + 100} // X座標
+                x={100 + 100 * index} // X座標
                 y={100} // Y座標
                 width={100} // 幅
                 height={100} // 高さ
@@ -333,6 +299,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
         console.log("itemRandom:", itemRandom);
         console.log("loadedImages:", loadedImages);
         console.log("items",itemData.length);
+        itemRandom.map((item) => {console.log(item)})
     }, [loadedImages]);
 
 
@@ -371,14 +338,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
                     {/*        />*/}
                     {/*    ))*/}
                     {/*)}*/}
-                    {itemRandom.map((data) => (
-                        <Image
-                            key={data.items?.id} // ユニークなキーを指定
-                            x={data.tileX * Tile_size - cameraPosition.x}
-                            y={data.tileY * Tile_size - cameraPosition.y}
+                    {itemData.map((data ,index) => (
+                        <Rect
+                            key={data.id} // ユニークなキーを指定
+                            x={data.x! + Tile_size * index}
+                            y={data.y! + Tile_size *index}
                             width={Tile_size}
-                            height={Tile_size}
-                            image={loadedImages[data.items?.id]} // ロード済みの画像を設定
+                            height={Tile_size}  // ロード済みの画像を設定
+                            fill={"#f00"}
                         />
                     ))}
                     {/*{imageElements}*/}
