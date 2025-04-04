@@ -46,7 +46,6 @@ const CreateItem = () => {
                 throw new Error('画像が選択されていません')
             }
             console.log('ここまで来た！！！！あｓｄｆ！')
-
             const {data: imageData, error: imageError} = await supabase.storage
                 .from('hackathon2-picture-storage')
                 .upload(`public/${file.name}`, file)

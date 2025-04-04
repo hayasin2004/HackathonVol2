@@ -19,23 +19,13 @@ const initialPlayerPosition = {x: 10 * Tile_size, y: 10 * Tile_size};
 
 interface GameProps {
     playerId: PlayerItem;
-    itemData: defaultItem[] ;
+    itemData: defaultItem[];
     roomId: number;
 }
 
-const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) => {
+const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     // プレイヤー移動
-    const remakeResult = playerId?.id
-        ? useRemakeItemGet({
-            userId: playerId.id,
-            initialPosition: {x: playerId.x, y: playerId.y},
-            circleRadius: 30,
-            rectPositions: items,
-            speed: 10,
-            movePlayer,
-        })
-        : null;
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
@@ -50,6 +40,16 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
 
     // プレイヤーアイテム情報の取得
+
+
+    useRemakeItemGet({
+        userId: playerId.id,
+        initialPosition: {x: playerId.x, y: playerId.y},
+        circleRadius: 30,
+        rectPositions: randomPlacedItems,
+        speed: 10,
+        movePlayer,
+    })
 
     useEffect(() => {
         const mapData = generateMap();
@@ -101,7 +101,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
         const duplicatedItems = augmentedItemData.flatMap((item) => {
             const repeatCount = Math.floor(Math.random() * 5) + 1;
 
-            return Array.from({ length: repeatCount }, (_, i) => {
+            return Array.from({length: repeatCount}, (_, i) => {
                 let randomTileX, randomTileY;
                 do {
                     randomTileX = Math.floor(Math.random() * Map_width);
@@ -121,7 +121,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
         setRandomPlacedItems(duplicatedItems);
     }, [augmentedItemData]);
-;
+    ;
 
     useEffect(() => {
         if (playerId) {
@@ -232,8 +232,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     }, []);
 
 
-
-
     const getTilecolor = (list: string) => {
         switch (list) {
             case Tile_list.Grass:
@@ -299,10 +297,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     };
 
 
-
-
     useEffect(() => {
-        console.log("loadedImagesの更新:", );
+        console.log("loadedImagesの更新:",);
     }, [loadedImages]);
 
 
@@ -324,7 +320,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
     useEffect(() => {
         console.log("loadedImages:", loadedImages);
-        console.log("items",itemData.length);
+        console.log("items", itemData.length);
     }, [loadedImages]);
 
 
@@ -346,8 +342,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     })
 
 
-
-
     return (
 
 
@@ -367,7 +361,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
                             <Rect
                                 key={`${rowIndex}-${colIndex}`}
                                 x={colIndex * Tile_size - cameraPosition.x}
-                                y={rowIndex * Tile_size   - cameraPosition.y}
+                                y={rowIndex * Tile_size - cameraPosition.y}
                                 width={Tile_size}
                                 height={Tile_size}
                                 fill={getTilecolor(tile)}

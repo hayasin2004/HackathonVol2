@@ -3,7 +3,7 @@ import prisma from "@/lib/prismaClient";
 
 export async function craftItem(playerId: number | undefined, craftItem: number) 
 {
-    
+    console.log("Craft Item: ", playerId);
     // 1. プレイヤーデータを取得
     const player = await prisma.playerData.findUnique({
         where: { playerId },
