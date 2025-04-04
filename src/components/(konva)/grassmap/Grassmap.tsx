@@ -45,7 +45,23 @@ const MapWithCharacter : React.FC<GameProps> = ({playerId, roomId}) => {
   // 現在のプレイヤー情報
   const currentPlayer = players.find(player => player.playerId === playerId.id);
 
+  // ゲーム状態
+  const [playerItems, setPlayerItems] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<string[]>([]);
 
+  // プレイヤーアイテム情報の取得
+  useEffect(() => {
+    if (playerId) {
+      fetch(`/api/player/getItems/${playerId.id}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              setPlayerItems(data.items);
+            }
+          })
+          .catch(err => console.error('Failed to fetch player items:', err));
+    }
+  }, [playerId]);
 
 
 
