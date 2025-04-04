@@ -66,13 +66,13 @@ model Follow {
 //
 // model PlayerItem {
 //   id              Int              @id @default(autoincrement())
-//   itemList        Int
+//   Itemlist        Int
 //   quantity        Int              @default(1)
 //   createdAt       DateTime         @default(now())
 //   updatedAt       DateTime         @default(now())
 //   playerData      PlayerData       @relation("PlayerData", fields: [playerDataId], references: [playerId], onDelete: Cascade)
 //   playerDataId    Int
-//   DefaultItemList DefaultItemList? @relation(fields: [itemList], references: [id], onDelete: Cascade)
+//   DefaultItemList DefaultItemList? @relation(fields: [Itemlist], references: [id], onDelete: Cascade)
 //   PlayerData      PlayerData       @relation(fields: [playerDataId], references: [id])
 // }
 //

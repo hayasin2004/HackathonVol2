@@ -4,9 +4,9 @@ import DetailFollowButton from "@/components/followButton/detailfollowbutton/Det
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
 import {DetailPlayerTypes} from "@/types/Player";
-import UpdateUser from "@/app/(userAuth)/updateUser/page";
 import  styles from './page.module.css';
 import Tabs from "@/components/Tabs/Tabs";
+import Link from "next/link";
 
 
 
@@ -77,7 +77,7 @@ const ToShowMeDetail: React.FC<DetailPlayerTypes> = async ({
     return (
         <div>
             <h1>My page</h1>
-            <h2>Id : {detailPlayerData?.id}</h2>
+            {/*<h2>Id : {detailPlayerData?.id}</h2>*/}
             <h3>Username : {detailPlayerData?.username}</h3>
             <div>
                 <h1>ここでフォロー一覧</h1>
@@ -89,17 +89,18 @@ const ToShowMeDetail: React.FC<DetailPlayerTypes> = async ({
                 ))}
             </div>
             <div>
-                <h1>ここで個人情報の変更</h1>
-                <UpdateUser detailPlayer={detailPlayerData}/>
-                <h3>Username : {detailPlayerData?.username}</h3>
-            </div>
-            <div>
                 <h1>ここでフォロワー一覧</h1>
                 {detailPlayerDataFollowersList?.map((followerUserData, index) => (
                     <div key={followerUserData.followers.id}>
                         <h2>{index + 1}番目 :{followerUserData.followers.username}</h2>
                     </div>
                 ))}
+            </div>
+            <div>
+                <h1>ここで個人情報の変更</h1>
+                <Link href='/updateUser'>
+                    <button>情報更新</button>
+                </Link>
             </div>
         </div>
     )
