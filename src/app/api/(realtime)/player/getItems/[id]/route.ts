@@ -44,8 +44,10 @@ export async function GET(req: Request) {
     try {
         // データベースからプレイヤーアイテムを取得
         const items = await prisma.playerItem.findMany({
-            where: { playerDataId: NumPlayerId }
+            where: { playerDataId: NumPlayerId },include:{DefaultItemList:true}
         });
+        const itemIds = items.map(item => item.id); // 各アイテムの id を配列に変換
+
 
         return NextResponse.json(
             { status: "success", items },

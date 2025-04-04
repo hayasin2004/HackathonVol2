@@ -31,7 +31,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
-
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
@@ -347,6 +346,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     })
 
 
+    console.log(playerItems)
     return (
 
 
@@ -410,6 +410,29 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     )}
                 </Layer>
             </Stage>
+            {/* インベントリ */}
+            <div className="inventory">
+                <h3>インベントリ</h3>
+                <div className="items-grid"
+                     style={{display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px'}}>
+                    {playerItems.map((item) => (
+                        <div key={item.id} className="item-box" style={{border: '1px solid #ccc', padding: '5px'}}>
+                            <div>{item.DefaultItemList.itemName}</div>
+                            <div>個数: {item.quantity}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* クラフトメニュー */}
+            <div className="crafting" style={{marginTop: '20px'}}>
+                <h3>クラフトメニュー</h3>
+                <div className="craft-buttons">
+                    {/* 例として、クラフト可能なアイテムを表示 */}
+                    <button onClick={() => handleCraftItem(1)}>アイテム1をクラフト</button>
+                    <button onClick={() => handleCraftItem(2)}>アイテム2をクラフト</button>
+                </div>
+            </div>
         </div>
     );
 };
