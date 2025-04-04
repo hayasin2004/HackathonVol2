@@ -443,9 +443,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     {craftItems?.map((craftItem) => (
                         <div key={craftItem.id}>
                             <p>{craftItem.createdItem?.itemName}</p>
+                            <button onClick={() => handleCraftItem(craftItem.id)}>作成</button>
                         </div>
                     ))}
-                    <button onClick={() => handleCraftItem(1)}>アイテム1をクラフト</button>
+                    <button >アイテム1をクラフト</button>
                     <button onClick={() => handleCraftItem(2)}>アイテム2をクラフト</button>
                 </div>
             </div>
