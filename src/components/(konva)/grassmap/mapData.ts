@@ -27,14 +27,16 @@ export const generateMap = () => {
 
   const map2d: string[][] = []; //２次元配列を初期化
 
+
   for (let y = 0; y < Map_height; y++) {
-    map2d[y] = new Array(Map_width).fill("grass");
+    map2d[y] = new Array(Map_width).fill("grass"); // 各行を適切に初期化
   }
 
   //建物の設置
   for (let i = 0; i < 10; i++) {
     const x = Math.floor(Math.random() * Map_width);
     const y = Math.floor(Math.random() * Map_height);
+    map2d[y][x] = "building";
     map2d[y][x] = "building";
   }
 
