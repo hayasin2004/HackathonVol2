@@ -11,22 +11,23 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
+        console.log("ここまで来たかの話だ")
+        // const playerData = await prisma.playerData.update({
+        //     where: { playerId: playerId.id },
+        //     data: {
+        //         roomId: roomId ? roomId : null,
+        //         // ランダムな初期位置を設定
+        //         x: ,
+        //         y: ,
+        //     },
+        // });
 
-        const playerData = await prisma.playerData.update({
-            where: { playerId: playerId.id },
-            data: {
-                roomId: roomId ? roomId : null,
-                // ランダムな初期位置を設定
-                x: 100 + Math.floor(Math.random() * 100),
-                y: 100 + Math.floor(Math.random() * 100),
-            },
-        });
 
         return NextResponse.json(
             {
                 status: "success",
                 message: "プレイヤーのルームを更新しました",
-                playerData,
+                // playerData,
             },
             { status: 200 }
         );

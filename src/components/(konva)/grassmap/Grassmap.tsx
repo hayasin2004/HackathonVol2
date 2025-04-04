@@ -13,9 +13,9 @@ import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnec
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
+import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
-const initialPlayerPosition = {x: 10 * Tile_size, y: 10 * Tile_size};
 
 interface GameProps {
     playerId: PlayerItem;
@@ -32,26 +32,29 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
 
-    const [playerPosition, setPlayerPosition] = useState(initialPlayerPosition);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
     const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
+    const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
 
     // プレイヤーアイテム情報の取得
 
 
-    useRemakeItemGet({
+    const {ECollisionPosition, ECollisionStatus, adjacentObstacles, } = useRemakeItemGet({
         userId: playerId.id,
-        initialPosition: {x: playerId.x, y: playerId.y},
+        initialPosition: {x: playerPosition.x, y: playerPosition.y},
         circleRadius: 30,
         rectPositions: randomPlacedItems,
-        speed: 10,
         movePlayer,
-    })
+    });
+
 
     useEffect(() => {
+
+        const initialPlayerPosition = {x: playerId.x, y: playerId.y}
+        setPlayerPosition(initialPlayerPosition);
         const mapData = generateMap();
         const itemPositions = generateItemPositions(itemData, mapData, 1);
         const result = itemData.map((data, index) => ({
@@ -263,38 +266,40 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         }
     };
 
-    const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        let {x, y} = playerPosition;
-
-        switch (e.key) {
-            case "ArrowUp":
-                y -= Tile_size;
-                break;
-            case "ArrowDown":
-                y += Tile_size;
-                break;
-            case "ArrowLeft":
-                x -= Tile_size;
-                break;
-            case "ArrowRight":
-                x += Tile_size;
-                break;
-        }
-
-        if (
-            x >= 0 &&
-            y >= 0 &&
-            x < Map_width * Tile_size &&
-            y < Map_height * Tile_size
-        ) {
-            setPlayerPosition({x, y});
-            setCameraPosition({
-                x: Math.max(0, x - window.innerWidth / 2),
-                y: Math.max(0, y - window.innerHeight / 2),
-            });
-        }
-    };
+    // const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    //     e.preventDefault();
+    //     let {x, y} = playerPosition;
+    //
+    //     switch (e.key) {
+    //         case "ArrowUp":
+    //             y -= Tile_size;
+    //             break;
+    //         case "ArrowDown":
+    //             y += Tile_size;
+    //             break;
+    //         case "ArrowLeft":
+    //             x -= Tile_size;
+    //             break;
+    //         case "ArrowRight":
+    //             x += Tile_size;
+    //             break;
+    //     }
+    //     console.log(playerPosition.x)
+    //     console.log(playerPosition.y)
+    //
+    //     if (
+    //         x >= 0 &&
+    //         y >= 0 &&
+    //         x < Map_width * Tile_size &&
+    //         y < Map_height * Tile_size
+    //     ) {
+    //         setPlayerPosition({x, y});
+    //         setCameraPosition({
+    //             x: Math.max(0, x - window.innerWidth / 2),
+    //             y: Math.max(0, y - window.innerHeight / 2),
+    //         });
+    //     }
+    // };
 
 
     useEffect(() => {
@@ -345,7 +350,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     return (
 
 
-        <div tabIndex={0} onKeyDown={handlekeyDown} style={{outline: "none"}}>
+        <div tabIndex={0} style={{outline: "none"}}>
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -368,11 +373,12 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                             />
                         ))
                     )}
+
                     {randomPlacedItems.map((data) => (
                         <Image
                             key={data._uniqueId} // _uniqueId を key に使う（id 重複を避ける）
-                            x={data.tileX * Tile_size - cameraPosition.x}
-                            y={data.tileY * Tile_size - cameraPosition.y}
+                            x={data.x! - cameraPosition.x}
+                            y={data.y! - cameraPosition.y}
                             width={Tile_size}
                             height={Tile_size}
                             image={loadedImages[data.id]} // data.id で元の画像を参照
@@ -395,8 +401,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     {playerImage && (
                         <Image
                             image={playerImage}
-                            x={playerPosition.x - cameraPosition.x}
-                            y={playerPosition.y - cameraPosition.y}
+                            x={ECollisionPosition?.x - cameraPosition.x}
+                            y={ECollisionPosition?.y - cameraPosition.y}
                             width={Tile_size}
                             height={Tile_size}
                             alt="プレイヤー写真"

@@ -89,25 +89,25 @@ const RoomPage = ({params}: { params: { id: string } }) => {
                 const checkResponse = await fetch(`/api/player/check?playerId=${playerId.id}`, {method: "GET"});
                 const checkData = await checkResponse.json();
 
-                if (checkData.status === 'success' && checkData.exists) {
+                // if (checkData.status === 'success' && checkData.exists) {
                     // プレイヤーが存在する場合は、ルームを更新
-                    await fetch(`/api/player/updateRoom`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({playerId, roomId})
-                    });
-                } else {
-                    // プレイヤーが存在しない場合は、作成
-                    await fetch(`/api/player/create`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({playerId, roomId})
-                    });
-                }
+                //     await fetch(`/api/player/updateRoom`, {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json'
+                //         },
+                //         body: JSON.stringify({playerId, roomId})
+                //     });
+                // } else {
+                //     // プレイヤーが存在しない場合は、作成
+                //     await fetch(`/api/player/create`, {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json'
+                //         },
+                //         body: JSON.stringify({playerId, roomId})
+                //     });
+                // }
             } catch (error) {
                 console.error('Error initializing player data:', error);
                 setError('プレイヤーデータの初期化に失敗しました');

@@ -94,11 +94,10 @@ io.on('connection', (socket) => {
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
         try {
             // DBのプレイヤー位置を更新
-            const test = await prisma.playerData.update({
-                where: {playerId},
-                data: {x, y},
-            });
-            console.log(test)
+            // await prisma.playerData.update({
+            //     where: {playerId},
+            //     data: {x, y},
+            // });
 
             // 他のプレイヤーに移動通知
             socket.to(`room:${roomId}`).emit('player_moved', {playerId, x, y});
