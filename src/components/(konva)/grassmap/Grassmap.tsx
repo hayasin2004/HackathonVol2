@@ -314,6 +314,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
             return null; // ロードされていない場合は描画しない
         }
     })
+    const itemPositions = generateItemPositions(itemData); // 座標を生成
+    const augmentedItemData = itemData.map((data, index) => ({
+        ...data, // 既存のプロパティを保持
+        tileX: itemPositions[index]?.tileX, // tileX を追加
+        tileY: itemPositions[index]?.tileY, // tileY を追加
+    }));
+
     return (
 
 
@@ -340,17 +347,17 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
                     {/*        />*/}
                     {/*    ))*/}
                     {/*)}*/}
-                    {itemData.map((data ,index) => (
+                    {augmentedItemData.map((data) => (
                         <Image
-                            key={data.id} // ユニークなキーを指定
-                            x={400 + index * Tile_size} // x座標をずらす
-                            y={100} // 固定のy座標
+                            key={data.id} // ユニークなキー
+                            x={data.tileX * Tile_size} // 計算された x 座標
+                            y={data.tileY * Tile_size} // 計算された y 座標
                             width={Tile_size}
                             height={Tile_size}
-                            image={loadedImages[data.id]} // ロード済みの画像を設定
+                            image={loadedImages[data.id]} // ロード済み画像
                         />
                     ))}
-                    {/*{imageElements}*/}
+
 
                     {/*{itemRandom?.map((item) => (*/}
 
