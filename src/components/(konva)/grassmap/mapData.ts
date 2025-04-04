@@ -24,129 +24,96 @@ export const Tile_list = {
 // データ型の定義
 
 
-export const generateItemPositions = (items: defaultItem[]) => {
-    const itemPositions: { tileX: number; tileY: number}[] = [];
-    console.log(items)
-    // アイテムをタイル座標に変換してリスト化
+export const generateItemPositions = (
+    items: defaultItem[],
+    minDistance: number = 1 // ← 1で「隣接」も含めてNG
+) => {
+    const itemPositions: { tileX: number; tileY: number }[] = [];
+
+    const isTooClose = (x: number, y: number) => {
+        return itemPositions.some(pos => {
+            const dx = Math.abs(pos.tileX - x);
+            const dy = Math.abs(pos.tileY - y);
+            return Math.sqrt(dx * dx + dy * dy) <= minDistance;
+        });
+    };
+
     items.forEach((item) => {
-        const tileX = Math.floor(item.x! / Tile_size); // ピクセル座標をタイル座標に変換
+        const tileX = Math.floor(item.x! / Tile_size);
         const tileY = Math.floor(item.y! / Tile_size);
 
-        // 範囲内の座標のみを追加
-        if (tileX >= 0 && tileX < Map_width && tileY >= 0 && tileY < Map_height) {
-            itemPositions.push({
-                tileX,
-                tileY
-            });
+        if (
+            tileX >= 0 && tileX < Map_width &&
+            tileY >= 0 && tileY < Map_height &&
+            !isTooClose(tileX, tileY)
+        ) {
+            itemPositions.push({ tileX, tileY });
         }
     });
 
-    return itemPositions; // 座標リストを返す
+    return itemPositions;
 };
 
 
 // マップ生成関数
 //ランダムマップ再生 Array.fromで一つ一つを"grass"に設定
 export const generateMap = () => {
-    // const map2d = Array.from({ length: Map_height }, () =>
-    //   Array.from({ length: Map_width }, () => "grass")
-    // );
+    const map2d: string[][] = [];
 
-    const map2d: string[][] = []; //２次元配列を初期化
-
-
+    // 2D配列を grass で初期化
     for (let y = 0; y < Map_height; y++) {
-        map2d[y] = new Array(Map_width).fill("grass"); // 各行を適切に初期化
+        map2d[y] = new Array(Map_width).fill("grass");
     }
 
-    //建物の設置
+    // 建物の設置
     for (let i = 0; i < 10; i++) {
         const x = Math.floor(Math.random() * Map_width);
         const y = Math.floor(Math.random() * Map_height);
         map2d[y][x] = "building";
-        map2d[y][x] = "building";
     }
 
-    for (let i = 0; i < 30; i++) {
-        const x = Math.floor(Math.random() * Map_width);
-        const y = Math.floor(Math.random() * Map_height);
-        map2d[y][x] = "leaves";
-    }
-
-    for (let i = 0; i < 30; i++) {
-        const x = Math.floor(Math.random() * Map_width);
-        const y = Math.floor(Math.random() * Map_height);
-        map2d[y][x] = "flower";
-    }
-
-    for (let i = 0; i < 20; i++) {
-        const x = Math.floor(Math.random() * Map_width);
-        const y = Math.floor(Math.random() * Map_height);
-        map2d[y][x] = "mushroom";
-    }
-
-    for (let i = 0; i < 15; i++) {
-        const x = Math.floor(Math.random() * Map_width);
-        const y = Math.floor(Math.random() * Map_height);
-        map2d[y][x] = "insect";
-    }
-
-    for (let i = 0; i < 10; i++) {
-        const x = Math.floor(Math.random() * Map_width - 1);
-        const y = Math.floor(Math.random() * Map_height - 1);
-
-        if (x < Map_width - 1 && y < Map_height - 1) {
-            map2d[y][x] = "tree";
-            map2d[y][x + 1] = "tree";
-            map2d[y + 1][x] = "tree";
-            map2d[y + 1][x + 1] = "tree";
+    // アイテムランダム配置系
+    const placeRandom = (label: string, count: number) => {
+        for (let i = 0; i < count; i++) {
+            const x = Math.floor(Math.random() * Map_width);
+            const y = Math.floor(Math.random() * Map_height);
+            map2d[y][x] = label;
         }
-    }
+    };
 
-    for (let i = 0; i < 10; i++) {
-        const x = Math.floor(Math.random() * Map_width - 1);
-        const y = Math.floor(Math.random() * Map_height - 1);
+    placeRandom("leaves", 30);
+    placeRandom("flower", 30);
+    placeRandom("mushroom", 20);
+    placeRandom("insect", 15);
 
-        if (x < Map_width - 1 && y < Map_height - 1) {
-            map2d[y][x] = "stone";
-            map2d[y][x + 1] = "stone";
-            map2d[y + 1][x] = "stone";
-            map2d[y + 1][x + 1] = "stone";
+    // 2x2の資源設置（tree, stone, iron, coal）
+    const placeSquare = (label: string, count: number) => {
+        for (let i = 0; i < count; i++) {
+            const x = Math.floor(Math.random() * (Map_width - 1));
+            const y = Math.floor(Math.random() * (Map_height - 1));
+
+            if (x < Map_width - 1 && y < Map_height - 1) {
+                map2d[y][x] = label;
+                map2d[y][x + 1] = label;
+                map2d[y + 1][x] = label;
+                map2d[y + 1][x + 1] = label;
+            }
         }
-    }
+    };
 
-    for (let i = 0; i < 5; i++) {
-        const x = Math.floor(Math.random() * Map_width - 1);
-        const y = Math.floor(Math.random() * Map_height - 1);
+    placeSquare("tree", 10);
+    placeSquare("stone", 10);
+    placeSquare("iron", 5);
+    placeSquare("coal", 10);
 
-        if (x < Map_width - 1 && y < Map_height - 1) {
-            map2d[y][x] = "iron";
-            map2d[y][x + 1] = "iron";
-            map2d[y + 1][x] = "iron";
-            map2d[y + 1][x + 1] = "iron";
-        }
-    }
-
-    for (let i = 0; i < 10; i++) {
-        const x = Math.floor(Math.random() * Map_width - 1);
-        const y = Math.floor(Math.random() * Map_height - 1);
-
-        if (x < Map_width - 1 && y < Map_height - 1) {
-            map2d[y][x] = "coal";
-            map2d[y][x + 1] = "coal";
-            map2d[y + 1][x] = "coal";
-            map2d[y + 1][x + 1] = "coal";
-        }
-    }
-
-    //y=20の部分に水を作る
+    // 水を横一列に設置（y=20）
     for (let i = 5; i < 20; i++) {
         map2d[20][i] = "water";
     }
 
-    //ループ処理（iがイコールになるまで繰り返す）[i]は横幅を表す
+    // 横一直線の道（マップ中央）
+    const middle = Math.floor(Map_height / 2);
     for (let i = 0; i < Map_width; i++) {
-        const middle = Math.floor(Map_height / 2);
         map2d[middle][i] = "path";
     }
 

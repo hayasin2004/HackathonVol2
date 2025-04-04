@@ -12,7 +12,7 @@ import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
-import {defaultItem, RoomDefaultItem} from "@/types/defaultItem";
+import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 const initialPlayerPosition = {x: 10 * Tile_size, y: 10 * Tile_size};
@@ -47,12 +47,12 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
-
+    const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
 
     // プレイヤーアイテム情報の取得
 
     useEffect(() => {
-        const itemPositions = generateItemPositions(itemData); // 座標を生成
+        const itemPositions = generateItemPositions(itemData ,4); // 座標を生成
         const result = itemData.map((data, index) => ({
             ...data, // 既存のプロパティを保持
             tileX: itemPositions[index]?.tileX, // tileX を追加
@@ -93,7 +93,25 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
 
     }, [itemData]);
 
+    useEffect(() => {
+        const duplicatedItems = augmentedItemData.flatMap((item) => {
+            const repeatCount = Math.floor(Math.random() * 5) + 1;
 
+            return Array.from({ length: repeatCount }, (_, i) => {
+                const randomTileX = Math.floor(Math.random() * Map_width);
+                const randomTileY = Math.floor(Math.random() * Map_height);
+
+                return {
+                    ...item,
+                    tileX: randomTileX,
+                    tileY: randomTileY,
+                    _uniqueId: `${item.id}-${i}-${Math.random()}` // key 用
+                };
+            });
+        });
+
+        setRandomPlacedItems(duplicatedItems); // ← ここでstateに保存
+    }, [augmentedItemData]);
 
     useEffect(() => {
         if (playerId) {
@@ -318,6 +336,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     })
 
 
+
+
     return (
 
 
@@ -344,14 +364,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
                             />
                         ))
                     )}
-                    {augmentedItemData.map((data) => (
+                    {randomPlacedItems.map((data) => (
                         <Image
-                            key={data.id} // ユニークなキー
-                            x={data.tileX * Tile_size- cameraPosition.x} // 計算された x 座標
-                            y={data.tileY * Tile_size- cameraPosition.y} // 計算された y 座標
+                            key={data._uniqueId} // _uniqueId を key に使う（id 重複を避ける）
+                            x={data.tileX * Tile_size - cameraPosition.x}
+                            y={data.tileY * Tile_size - cameraPosition.y}
                             width={Tile_size}
                             height={Tile_size}
-                            image={loadedImages[data.id]} // ロード済み画像
+                            image={loadedImages[data.id]} // data.id で元の画像を参照
                         />
                     ))}
 
