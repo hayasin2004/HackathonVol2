@@ -123,6 +123,7 @@ async function route(playerId: number | undefined, craftItem: number) {
                 data: {quantity: {increment: 1}},
             });
         } else {
+
             await tx.playerItem.create({
                 data: {
                     playerDataId: player.id,
