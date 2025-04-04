@@ -1,3 +1,4 @@
+"use server"
 // api/player/route.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import {supabase} from "@/lib/supabase";
@@ -47,6 +48,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 export const playerGetItem = async (playerId: number | undefined, itemIds: number[]) => {
     try {
+        console.log("playerIdplayerIdplayerIdplayerId" + playerId , "itemIdsitemIdsitemIds "+ itemIds)
+        console.log("ここに来たのか？")
         if (playerId) {
             // findUniqueを使用して、itemIdに一致するアイテムを取得する
             const existingItems = await prisma.playerItem.findMany({
@@ -58,6 +61,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                 }
             });
 
+        console.log("ここに来たのか!")
             // 既存アイテムのIDリストを作成
             const existingItemIds = existingItems.map((item) => item.itemId);
 
@@ -73,6 +77,8 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
 
             // ルーム内のアイテムを非アクティブに設定
             if (roomItems.length > 0) {
+                console.log("!!ここに来たのか!")
+
                 await prisma.roomItem.updateMany({
                     where: {
                         id: { in: roomItems.map(item => item.id) }
@@ -84,6 +90,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
             }
 
             if (newItems.length > 0) {
+                console.log("!!ここに来たのか????")
                 // 新しいアイテムを作成
                 const savedItem = await prisma.playerItem.createMany({
                     data: newItems.map((itemId) => ({
@@ -96,6 +103,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
 
             // 既存アイテムの数量を増やす
             if (existingItemIds.length > 0 && playerId !== undefined) {
+                console.log("!!ここに来たのか????dsfsdfdsf")
                 const savedItem = await prisma.playerItem.updateMany({
                     where: {
                         itemId: { in: existingItemIds },
@@ -105,6 +113,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                         quantity: { increment: 1 },
                     },
                 });
+                console.log("!!ここに来たのか????dsfsdfdsf")
 
                 if (savedItem.count === 0) {
                     console.error("更新対象のデータが見つかりませんでした");

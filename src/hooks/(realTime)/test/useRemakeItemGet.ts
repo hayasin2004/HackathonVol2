@@ -66,12 +66,12 @@ const useRemakeItemGet = ({
         });
 
         // デバッグ用: 衝突が検出された場合のログ
-        if (colliding.length > 0) {
-            console.log("衝突検知!", {
-                プレイヤー: { x: newX, y: newY, 半径: circleRadius },
-                衝突アイテム: colliding
-            });
-        }
+        // if (colliding.length > 0) {
+        //     console.log("衝突検知!", {
+        //         プレイヤー: { x: newX, y: newY, 半径: circleRadius },
+        //         衝突アイテム: colliding
+        //     });
+        // }
 
         return colliding;
     }, [rectPositions, circleRadius]);
@@ -102,7 +102,7 @@ const useRemakeItemGet = ({
                     if (result?.status === "success") {
                         console.log("アイテム獲得成功:", result.savedItem);
                     } else {
-                        console.log("アイテム取得失敗:", result);
+                        console.log("アイテム取得失敗:", result?.message);
                     }
                 }
             } else {
