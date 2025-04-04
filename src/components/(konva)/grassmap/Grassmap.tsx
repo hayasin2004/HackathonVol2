@@ -20,10 +20,11 @@ const initialPlayerPosition = {x: 10 * Tile_size, y: 10 * Tile_size};
 
 interface GameProps {
     playerId: PlayerItem;
+    itemData: defaultItem[] ;
     roomId: number;
 }
 
-const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
+const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) => {
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     // プレイヤー移動
     const remakeResult = playerId?.id
@@ -47,14 +48,15 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
-    console.log(loadedImages)
+
 
     // プレイヤーアイテム情報の取得
 
     useEffect(() => {
-        const ItemRandomList = generateItemPositions(items)
-        setItemRandom(ItemRandomList);
-    }, [items]);
+        // const ItemRandomList = generateItemPositions(itemData)
+        // setItemRandom(ItemRandomList);
+        console.log(itemData)
+    }, [itemData]);
 
     useEffect(() => {
         console.log(itemRandom)
@@ -278,7 +280,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
             // 非同期処理で全画像をロード
             await Promise.all(
                 itemRandom.map(async (data) => {
-                    const itemIcon = data.item?.itemIcon; // アイコンURLを取得
+                    const itemIcon = data.items?.itemIcon; // アイコンURLを取得
 
                     if (itemIcon) {
                         const img = new window.Image();
@@ -287,7 +289,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
                         // ロード完了後に`images`に保存
                         await new Promise((resolve, reject) => {
                             img.onload = () => {
-                                images[data?.item?.id] = img; // IDをキーに画像を保存
+                                images[data?.items?.id] = img; // IDをキーに画像を保存
                                 resolve(true);
                             };
                             img.onerror = () => {
@@ -311,21 +313,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
         console.log("loadedImagesの更新:", loadedImages);
     }, [loadedImages]);
 
-    // Loading or Error UI
-    if (!connected) {
-        return <div className="loading">サーバーに接続中...</div>;
-    }
-
-    if (error) {
-        return <div className="error">エラー: {error}</div>;
-    }
 
     let imageElements = null;
 
     if (itemRandom.length > 0 && Object.keys(loadedImages).length > 0) {
         imageElements = itemRandom.map((data, index) => (
             <Image
-                key={data.item?.id} // ユニークキーを設定
+                key={data.items?.id} // ユニークキーを設定
                 x={100 + 100} // X座標
                 y={100} // Y座標
                 width={100} // 幅
@@ -336,7 +330,21 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
         ));
     }
 
+    useEffect(() => {
+        console.log("itemRandom:", itemRandom);
+        console.log("loadedImages:", loadedImages);
+        console.log("items",itemData.length);
+    }, [loadedImages]);
 
+
+    // Loading or Error UI
+    if (!connected) {
+        return <div className="loading">サーバーに接続中...</div>;
+    }
+
+    if (error) {
+        return <div className="error">エラー: {error}</div>;
+    }
 
     return (
 
@@ -364,9 +372,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId}) => {
                     {/*        />*/}
                     {/*    ))*/}
                     {/*)}*/}
-                    {itemRandom.map((data, index) => (
+                    {itemRandom.map((data) => (
                         <Image
-                            key={data.items?.id || index} // ユニークなキーを指定
+                            key={data.items?.id} // ユニークなキーを指定
                             x={data.tileX * Tile_size - cameraPosition.x}
                             y={data.tileY * Tile_size - cameraPosition.y}
                             width={Tile_size}

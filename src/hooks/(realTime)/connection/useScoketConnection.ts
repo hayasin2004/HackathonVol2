@@ -17,9 +17,6 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
             return;
         }
 
-        // デバッグ情報
-        console.log('Attempting socket connection with:', { playerId, roomId });
-
         // Socket.io接続 - フォールバック用ポーリングを含める
         const socketIo = io("http://localhost:5000", {
             transports: ['websocket', 'polling'], // フォールバックとしてpollingを追加

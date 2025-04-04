@@ -6,6 +6,7 @@ import Game from "../../../components/(realTime)/game/Game";
 import {useSession} from "next-auth/react";
 import {PlayerItem} from "@/types/playerItem";
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
+import {defaultItem} from "@/types/defaultItem";
 
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
@@ -17,6 +18,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<PlayerItem | null|undefined >(null);
+    const [itemData, setItemData] = useState<defaultItem[]>([]);
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
@@ -26,6 +28,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         if (userId) {
             const currentUserId = async () =>{
                 const response = await fetch(`/api/player/catch/${userId}`, {method: "GET"});
+                const ItemResponse = await fetch(`/api/item/fetchItem`, {method: "GET"});
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -33,13 +36,16 @@ const RoomPage = ({params}: { params: { id: string } }) => {
                 const text = await response.text(); // レスポンスをテキストとして取得
                 const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
                 const userData = JSON.parse(JSON.stringify(data.playerData))
+
+                const itemDataList = await ItemResponse.json()
                 console.log(userData)
                 setPlayerId(userData);
+                setItemData(itemDataList);
             }
             currentUserId()
         } else {
             // デモ用に仮のプレイヤーIDを生成
-            setPlayerId(session?.user?.id);
+            return ;
         }
     }, [id, session]);
 
@@ -169,7 +175,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
                     </p>
                 </div>
             </div>
-            <MapWithCharacter playerId={playerId} roomId={roomId}/>
+            <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
             {/*<Game playerId={playerId} roomId={roomId}/>*/}
         </div>
     );
