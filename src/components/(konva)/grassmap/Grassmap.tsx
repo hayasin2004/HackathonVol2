@@ -53,9 +53,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId , itemData}) =>
     // プレイヤーアイテム情報の取得
 
     useEffect(() => {
-        // const ItemRandomList = generateItemPositions(itemData)
-        // setItemRandom(ItemRandomList);
-        console.log(itemData)
+        const ItemRandomList = generateItemPositions(itemData)
+        setItemRandom(ItemRandomList);
     }, [itemData]);
 
     useEffect(() => {
