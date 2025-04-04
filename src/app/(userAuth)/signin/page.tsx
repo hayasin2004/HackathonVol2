@@ -14,9 +14,7 @@ const SignIn = () => {
         console.log(response)
     }
     return (
-        <div className={styles.outercontainer} style={{
-            backgroundImage: `url("public/IMG_4574.jpg")`
-        }}>
+        <div className={styles.outercontainer} style={{ backgroundImage: "url('/haikeiimages.jpeg')", backgroundSize: "cover", backgroundPosition: "center" }}>
 
             <form  action="">
                 <div className={styles.innercontainer}>

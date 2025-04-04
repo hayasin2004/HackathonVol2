@@ -18,10 +18,10 @@ const LogIn = () => {
         }
     }
     return (
-        <div className={styles.outercontainer}>
+        <div className={styles.outercontainer} style={{ backgroundImage: "url('/haikeiimages.jpeg')", backgroundSize: "cover", backgroundPosition: "center" }}>
             <form action="">
                 <div className={styles.innercontainer}>
-                    <h1 className={styles.h1}>ログイン</h1>
+                    <h1>ログイン</h1>
                     <br/>
                     <label htmlFor="email"  className={styles.label}>メールアドレス</label>
                     <input name={"email"} type="email"  className={styles.input } required onChange={(e) => setEmail(e.target.value)}/>
