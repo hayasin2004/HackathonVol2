@@ -4,6 +4,7 @@ import {updateUserRepository} from "@/repository/prisma/updateUserRepository";
 import {useRouter} from "next/navigation";
 import {propsPlayerType} from "@/types/Player";
 import userUpdateProfileValidator from "@/validator/userUpdateProfileValidator";
+import styles from "@/app/(userAuth)/signin/page.module.css";
 
 
 const UpdateUser: React.FC<propsPlayerType> = (props) => {
@@ -52,22 +53,25 @@ const UpdateUser: React.FC<propsPlayerType> = (props) => {
     }
 
     return (
-        <div>
+        <div  className={styles.outercontainer} style={{ backgroundImage: "url('/haikeiimages.jpeg')", backgroundSize: "cover", backgroundPosition: "center" }}>
             <form>
-                <h1>情報変更</h1>
-                <br/>
-                <label htmlFor="email">メールアドレス</label>
-                <input name={"email"} type="email" required onChange={(e) => setEmail(e.target.value)}/>
-                <br/>
-                <label htmlFor="username">ユーザー名</label>
-                <input name={"username"} type="text" required onChange={(e) => setUsername(e.target.value)}/>
-                <br/>
-                <label htmlFor={"description"}>自己紹介</label>
-                <input name={"description"} type="text" required onChange={(e) => setDescription(e.target.value)}/>
-                <br/>
-                <label htmlFor="password">パスワード</label>
-                <input name={"password"} type="password" required onChange={(e) => setPassword(e.target.value)}/>
-                <button type={"submit"} onClick={handleUpdateUser}>送信</button>
+                <div className={styles.innercontainer}>
+                    <h1 className={styles.h1}>情報変更</h1>
+                    <br/>
+                    <label htmlFor="email" className={styles.label}>メールアドレス</label>
+                    <input name={"email"} type="email" className={styles.input }  required onChange={(e) => setEmail(e.target.value)}/>
+                    <br/>
+                    <label htmlFor="username" className={styles.label}>ユーザー名</label>
+                    <input name={"username"} type="text" className={styles.input }  required onChange={(e) => setUsername(e.target.value)}/>
+                    <br/>
+                    <label htmlFor={"description"} className={styles.label}>自己紹介</label>
+                    <input name={"description"} type="text" className={styles.input }  required onChange={(e) => setDescription(e.target.value)}/>
+                    <br/>
+                    <label htmlFor="password" className={styles.label}>パスワード</label>
+                    <input name={"password"} type="password" className={styles.input }  required onChange={(e) => setPassword(e.target.value)}/>
+                    <br/>
+                    <button type={"submit"} className={styles.button} onClick={handleUpdateUser}>送信</button>
+                </div>
             </form>
         </div>
     );

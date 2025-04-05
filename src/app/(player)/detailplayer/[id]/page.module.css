@@ -1,0 +1,41 @@
+.mypage-container {
+    padding: 24px;
+    font-family: sans-serif;
+}
+
+.mypage-title {
+    font-size: 28px;
+    margin-bottom: 16px;
+}
+
+.mypage-section {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    background-color: #f9f9f9;
+}
+
+.section-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+}
+
+.user-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.update-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}

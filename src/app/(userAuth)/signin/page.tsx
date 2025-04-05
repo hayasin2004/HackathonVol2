@@ -1,7 +1,8 @@
 "use client"
 import React, {useState} from 'react';
-import {useRouter} from "next/navigation"
+import styles from  './page.module.css'
 import {signIn} from "@/repository/prisma/authRepository";
+
 
 const SignIn = () => {
     const router = useRouter()
@@ -15,21 +16,28 @@ const SignIn = () => {
         router.push("/login")
     }
     return (
-        <div>
-            <form action="">
+        <div className={styles.outercontainer} style={{ backgroundImage: "url('/canvahiru.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
 
-            <h1>新規登録</h1>
-            <br/>
-            <label htmlFor="email">メールアドレス</label>
-            <input name={"email"} type="email"  required onChange={(e) => setEmail(e.target.value)} />
-            <br/>
-            <label htmlFor="username">ユーザー名</label>
-            <input name={"username"} type="text" required onChange={(e) => setUsername(e.target.value)} />
-            <br/>
-            <label htmlFor="password">パスワード</label>
-            <input name={"password"} type="password" required onChange={(e) => setPassword(e.target.value)} />
-            <button type={"submit"} onClick={handleSignIn}>送信</button>
+            <form  action="">
+                <div className={styles.innercontainer}>
+                    <h1 className={styles.h1}>新規登録</h1>
+                    <br/>
+                    <label htmlFor="email" className={styles.label}>メールアドレス</label>
+                    <br/>
+                    <input name={"email"} type="email" className={styles.input }  required onChange={(e) => setEmail(e.target.value)}/>
+                    <br/>
+                    <label htmlFor="username" className={styles.label}>ユーザー名</label>
+                    <br/>
+                    <input name={"username"} type="text" className={styles.input } required onChange={(e) => setUsername(e.target.value)}/>
+                    <br/>
+                    <label htmlFor="password" className={styles.label}>パスワード</label>
+                    <br/>
+                    <input name={"password"} type="password"  className={styles.input } required onChange={(e) => setPassword(e.target.value)}/>
+                    <br/>
+                    <button type={"submit"} className={styles.button} onClick={handleSignIn}>送信</button>
+                </div>
             </form>
+
         </div>
     );
 }
