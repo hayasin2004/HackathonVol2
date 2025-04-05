@@ -1,8 +1,12 @@
 "use client";
 import { supabase } from "@/lib/supabase";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Page() {
+  const { data: session } = useSession();
+  const router = useRouter();
   // Head & Clothing features
   const [gender, setGender] = useState("女性");
   const [hairStyle, setHairStyle] = useState("ベリーショート");
@@ -318,7 +322,7 @@ export default function Page() {
       if (error) throw error;
 
       const publicUrl = supabase.storage
-        .from("'hackathon2-picture-storage")
+        .from("hackathon2-picture-storage")
         .getPublicUrl(storagePath).data.publicUrl;
       return publicUrl;
     } catch (err) {
@@ -331,9 +335,15 @@ export default function Page() {
   type ImageType = "static" | "motion" | "gif";
 
   const handleSaveAllImages = async () => {
+    const user = session?.user.id;
+    console.log(user);
     if (!finalImages) return;
 
+
     const characterId = frontFileName.replace(/\.[^/.]+$/, "");
+
+    const uploadedImageUrls: string[] = [];
+
 
     const imageTypes: ImageType[] = ["static", "motion", "gif"];
     const views: ViewType[] = ["front", "back", "right", "left"];
@@ -350,12 +360,30 @@ export default function Page() {
         const publicUrl = await uploadImageToSupabase(url, filePath); // base64 or Blob URL対応してる？
 
         if (publicUrl) {
+          uploadedImageUrls.push(publicUrl);
           console.log(`${type} ${view} uploaded:`, publicUrl);
         }
       }
     }
 
-    alert("画像をSupabaseに保存しました！");
+      // 👇 Characterを作成して画像URLを保存する
+  const res = await fetch("/api/character", {
+    method: "POST",
+    body: JSON.stringify({
+      userId: user,
+      iconImage: uploadedImageUrls,
+      parts: {}, // 必要に応じて
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (res.ok) {
+    alert("画像をSupabaseに保存して、DBに登録しました！");
+    router.push("/roomsDetail/2");
+  } else {
+    alert("保存に失敗しました");
+  }
   };
 
   return (
