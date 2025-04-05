@@ -763,6 +763,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                 console.error("Error loading item images:", error);
             }
         };
+
         loadImages();
     }, [itemData, ECollisionPosition.x, ECollisionPosition.y]);
 
