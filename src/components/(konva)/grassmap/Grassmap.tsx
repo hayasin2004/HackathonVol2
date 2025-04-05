@@ -622,6 +622,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                             width={Tile_size * 2}
                                             height={Tile_size * 2}
                                             alt="タイル画像"
+                                            shadowBlur={10}
+                                            shadowOffset={{ x: 10, y: 0 }}
+                                            shadowOpacity={0.5}
                                         />
                                     );
                                 }
@@ -658,6 +661,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                 width={Tile_size}
                                 height={Tile_size}
                                 alt="プレイヤー写真"
+                                shadowBlur={10}
+                                shadowOffset={{ x: 10, y: 0 }}
+                                shadowOpacity={0.5}
                             />
                         )}
                     </Layer>
@@ -715,6 +721,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                                             alt={craftItem.createdItem.itemName}
                                                             width={64}
                                                             height={64}
+                                                            
                                                         />
                                                         <span>{craftItem.createdItem.itemName}</span>
                                                     </div>
