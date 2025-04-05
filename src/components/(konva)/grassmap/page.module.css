@@ -1,0 +1,136 @@
+
+
+.fixedOpenButton {
+    position: fixed;
+    top: 95%; /* 上から50% */
+    left: 10px; /* 左端に近づける */
+    transform: translateY(-50%); /* 縦中央揃え */
+
+    padding: 12px 18px;
+    font-size: 16px;
+    border: none;
+    border-radius: 50px; /* 丸くする */
+    background-color: #68593a;
+    color: white;
+    cursor: pointer;
+    z-index: 1001; /* モーダルより上に */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease;
+}
+
+.fixedOpenButton:hover {
+    background-color: #4d3e29;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* ← 背景を暗くする */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.closeButton {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+    color: rgba(0, 0, 0, 0.5);
+}
+.closeButton:hover {
+    color: #000;
+}
+
+.openButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.inventory {
+    margin-top: 20px;
+}
+
+.itemsGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.itemBox {
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.crafting {
+    margin-top: 30px;
+}
+
+.craftButtons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.inventoryTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.inventoryTable th,
+.inventoryTable td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.inventoryTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.inventoryTable tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.button {
+    cursor: pointer;
+    padding: 8px 16px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    background-color: #68593a;
+    color: white;
+    transition: background-color 0.2s ease;
+}
+
+.button:hover {
+    background-color: #45a049;
+}

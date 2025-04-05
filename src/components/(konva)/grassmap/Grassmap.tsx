@@ -13,7 +13,7 @@ import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnec
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
-import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
+import styles from './page.module.css'
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -39,6 +39,20 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
     const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
     const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
+    const [selectedItemId, setSelectedItemId] = useState("");
+    const [isOpen,setIsOpen] = useState(false);
+
+    // クラフトをプルダウンメニュー化
+    const handleSelectChange = (e:any) => {
+        setSelectedItemId(e.target.value);
+    };
+
+    const handleCraftClick = () => {
+        if (selectedItemId) {
+            handleCraftItem(Number(selectedItemId));
+        }
+    };
+
 
     // プレイヤーアイテム情報の取得
 
@@ -385,10 +399,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                         ))
                     )}
 
+
                     {itemData.map((data) => (
                         <Image
                             key={data.id} // _uniqueId を key に使う（id 重複を避ける）
-                            x={data.x!  - cameraPosition.x}
+                            x={data.x! - cameraPosition.x}
                             y={data.y! - cameraPosition.y}
                             width={Tile_size}
                             height={Tile_size}
@@ -422,33 +437,58 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 </Layer>
             </Stage>
             {/* インベントリ */}
-            <div className="inventory">
-                <h3>インベントリ</h3>
-                <div className="items-grid"
-                     style={{display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px'}}>
-                    {playerItems.map((item) => (
-                        <div key={item.id} className="item-box" style={{border: '1px solid #ccc', padding: '5px'}}>
-                            <div>{item.DefaultItemList.itemName}</div>
-                            <div>個数: {item.quantity}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <div>
+                <button
+                    className={styles.fixedOpenButton}
+                    onClick={() => setIsOpen(true)}
+                >
+                    クリエイト
+                </button>
 
-            {/* クラフトメニュー */}
-            <div className="crafting" style={{marginTop: '20px'}}>
-                <h3>クラフトメニュー</h3>
-                <div className="craft-buttons">
-                    {/* 例として、クラフト可能なアイテムを表示 */}
-                    {craftItems?.map((craftItem) => (
-                        <div key={craftItem.id}>
-                            <p>{craftItem.createdItem?.itemName}</p>
-                            <button onClick={() => handleCraftItem(craftItem.id)}>作成</button>
+                {isOpen && (
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modalContent}>
+                        <button className={styles.closeButton} onClick={() => setIsOpen(false)}>×</button>
+
+                            <div className={styles.inventory}>
+                                <h3>インベントリ</h3>
+                                <table className={styles.inventoryTable}>
+                                    <thead>
+                                    <tr>
+                                        <th>アイテム名</th>
+                                        <th>個数</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {playerItems.map((item) => (
+                                        <tr key={item.id}>
+                                            <td>{item.DefaultItemList.itemName}</td>
+                                            <td>{item.quantity}</td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="crafting">
+                                <h3>クラフトメニュー</h3>
+                                <div className="craft-buttons">
+                                    <select value={selectedItemId} onChange={handleSelectChange}>
+                                        <option value="">-- アイテムを選択 --</option>
+                                        {craftItems?.map((craftItem) => (
+                                            <option key={craftItem.id} value={craftItem.id}>
+                                                {craftItem.createdItem?.itemName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button onClick={handleCraftClick} disabled={!selectedItemId}>
+                                        作成
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    ))}
-                    <button >アイテム1をクラフト</button>
-                    <button onClick={() => handleCraftItem(2)}>アイテム2をクラフト</button>
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );

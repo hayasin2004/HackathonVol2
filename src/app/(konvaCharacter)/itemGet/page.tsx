@@ -32,7 +32,6 @@ const ItemGet = async () => {
 
     return (
         <div>
-            <ExampleApp/>
             <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px'}}>
                 {itemArray?.map((defaultItem: defaultItem) => (
                     <div
