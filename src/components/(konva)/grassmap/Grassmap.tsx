@@ -16,7 +16,6 @@ import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
 import styles from './page.module.css'
-
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
 interface GameProps {
@@ -53,7 +52,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const handleCraftClick = () => {
         if (selectedItemId) {
-            handleCraftItem(Number(selectedItemId));
+            handleCraftItem(selectedItemId);
         }
     };
 
@@ -506,6 +505,35 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     useEffect(() => {
         console.log("loadedImagesの更新:");
     }, [loadedImages]);
+    // ----------------------------
+    // プレイヤー画像切り替え用のロジック（2枚のpngを交互に切替）
+    // ----------------------------
+
+    const [characterData, setCharacterData] = useState<any[]>([]);
+    console.log(characterData)
+    useEffect(() => {
+        const  userId = playerId.id
+        console.log("kokomadekitakanokakuni nnyamatatusann")
+        // Fetch character data from API
+        const fetchCharacterImages = async () => {
+            try {
+                const response = await fetch(`/api/character/image/${userId}`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setCharacterData(data);
+                } else {
+                    console.error("Failed to fetch character images");
+                }
+            } catch (error) {
+                console.error("Error fetching character images:", error);
+            }
+        };
+
+        fetchCharacterImages();
+    }, [playerId.id]);
 
 
     // Loading or Error UI
@@ -581,16 +609,16 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                             );
                         })
                     )}
-                    {itemData.map((data) => (
-                        <KonvaImage
-                            key={data.id} // _uniqueId を key に使う（id 重複を避ける）
-                            x={data.x! - cameraPosition.x}
-                            y={data.y! - cameraPosition.y}
-                            width={Tile_size}
-                            height={Tile_size}
-                            image={loadedImages[data.id]} // data.id で元の画像を参照
-                        />
-                    ))}
+                    {/*{itemData.map((data) => (*/}
+                    {/*    <KonvaImage*/}
+                    {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
+                    {/*        x={data.x! - cameraPosition.x}*/}
+                    {/*        y={data.y! - cameraPosition.y}*/}
+                    {/*        width={Tile_size}*/}
+                    {/*        height={Tile_size}*/}
+                    {/*        image={loadedImages[data.id]} // data.id で元の画像を参照*/}
+                    {/*    />*/}
+                    {/*))}*/}
 
                     {/* --- プレイヤー --- */}
                     {playerImage && (
@@ -650,7 +678,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                                 style={{
                                                     border: selectedItemId === craftItem.id ? '1px solid #000' : '1px solid transparent',
                                                 }}
-                                                onClick={() => handleSelectChange(craftItem.createdItem.id)}
+                                                onClick={() => handleSelectChange(craftItem.id)}
                                             >
                                                 <div className={styles.column}>
                                                     <Image
