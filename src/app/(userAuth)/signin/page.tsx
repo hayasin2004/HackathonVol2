@@ -4,6 +4,7 @@ import {useRouter} from "next/navigation"
 import {signIn} from "@/repository/prisma/authRepository";
 
 const SignIn = () => {
+    const router = useRouter()
     const [email, setEmail] = useState<string>("")
     const [username, setUsername] = useState<string>("")
     const [password, setPassword] = useState<string>("")
@@ -11,6 +12,7 @@ const SignIn = () => {
         e.preventDefault()
         const response = await  signIn(email, username, password)
         console.log(response)
+        router.push("/login")
     }
     return (
         <div>
