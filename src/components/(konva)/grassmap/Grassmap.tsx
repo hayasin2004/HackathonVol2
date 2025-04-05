@@ -69,12 +69,12 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     );
     const ObjectToItemMapping = {
         tree: "wood",
-        stone: "stone_material",
-        iron: "iron_ore",
+        stone: "stone",
+        iron: "iron",
         coal: "coal",
         flower: "flower",
-        mushroom: "mushroom_item",
-        insect: "insect_item",
+        mushroom: "mushroom",
+        insect: "insect",
         water: "water",
     };
     // マップオブジェクトからインタラクト可能なオブジェクト情報を抽出する関数
@@ -105,7 +105,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                         const isRightNeighborSame = mapData[rowIndex]?.[colIndex - 1] === objectType;
                         const isBottomNeighborSame = mapData[rowIndex - 1]?.[colIndex] === objectType;
                         const isBottomRightSame = mapData[rowIndex - 1]?.[colIndex - 1] === objectType;
-
                         if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) {
                             return; // 左上角以外はスキップ
                         }

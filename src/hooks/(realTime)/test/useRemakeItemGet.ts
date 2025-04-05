@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { defaultItem } from "@/types/defaultItem";
-import { playerGetItem } from "@/app/api/(realtime)/item/getItem/route";
+import {useState, useEffect, useRef, useCallback} from "react";
+import {defaultItem} from "@/types/defaultItem";
+import {playerGetItem} from "@/app/api/(realtime)/item/getItem/route";
 
 export interface MapObject {
     id: string;
@@ -66,15 +66,41 @@ export const useRemakeItemGet = ({
                 userId: userId
             };
 
+
             // ここでSupabaseにアイテムを保存するロジックを呼び出し
             // saveItemToDatabase(newItem);　
-            if (mapObject.type == "tree"){
-                const result = await playerGetItem(userId, [1]);
-                if (result?.status === "success" && result.savedItem) {
-                    console.log("Item acquisition success:", result.savedItem)
-                }　
+            let itemId = [];
+
+            if (mapObject.type === "tree") {
+                itemId = [1];
+            } else if (mapObject.type === "stone") {
+                itemId = [2];
+            } else if (mapObject.type === "coal") {
+                itemId = [3];
+            } else if (mapObject.type === "iron") {
+                itemId = [4];
+            } else if (mapObject.type === "flower") {
+                itemId = [3];
+            } else if (mapObject.type === "mushroom") {
+                itemId = [8];
+            } else if (mapObject.type === "insect") {
+                itemId = [10];
+            } else if (mapObject.type === "water") {
+                itemId = [11];
+            } else {
+                console.log(`${mapObject.type}は未対応のタイプです`);
+                return null;
             }
-            console.log(`${mapObject.type}から${mapObject.relatedItemId}を入手しました`);
+
+
+            if (itemId) {
+                console.log(mapObject.type);
+                const result = await playerGetItem(userId, itemId);
+                if (result?.status === "success" && result.savedItem) {
+                    console.log("koko")
+                    console.log("Item acquisition success:", result.savedItem)
+                }
+            }
             return newItem;
         } catch (error) {
             console.error("アイテム生成エラー:", error);
@@ -113,7 +139,7 @@ export const useRemakeItemGet = ({
     const handleEKeyPress = useCallback(() => {
         if (isProcessing) return;
         setIsProcessing(true);
-
+        console.log(rectPositions)
         // 1. 近くのアイテム（既存の素材アイテム）をチェック
         const nearbyItems = rectPositions!.filter(item => {
             const distance = Math.sqrt(
@@ -135,7 +161,7 @@ export const useRemakeItemGet = ({
             );
 
             // オブジェクトの大きさに応じて判定距離を調整
-            const interactionDistance = obj.width > TILE_SIZE ? TILE_SIZE * 2 : TILE_SIZE* 1.5;
+            const interactionDistance = obj.width > TILE_SIZE ? TILE_SIZE * 2 : TILE_SIZE * 1.5;
             return distance < interactionDistance;
         });
 
@@ -151,7 +177,7 @@ export const useRemakeItemGet = ({
 
             // 最も近いオブジェクトを取得
             const closestObject = nearbyMapObjects[0];
-
+            console.log(closestObject)
             // オブジェクトからアイテムを生成して保存
             createItemFromMapObject(closestObject).then(newItem => {
                 if (newItem) {
@@ -192,7 +218,7 @@ export const useRemakeItemGet = ({
             // --- 境界チェックここまで ---
 
             if (newX !== prev.x || newY !== prev.y) {
-                return { x: newX, y: newY };
+                return {x: newX, y: newY};
             }
             return prev; // 位置が変わらない場合は再レンダリングをスキップ
         });

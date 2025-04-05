@@ -48,6 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 export const playerGetItem = async (playerId: number | undefined, itemIds: number[]) => {
     try {
+
         console.log("playerIdplayerIdplayerIdplayerId" + playerId , "itemIdsitemIdsitemIds "+ itemIds)
         console.log("ここに来たのか？")
         if (playerId) {
