@@ -217,12 +217,6 @@ interface GameProps {
             ArrowLeft: "/character_left_walk.png",
         };
 
-        const loadPlayerImage = (src: string) => {
-            const img = new window.Image();
-            img.src = src;
-            console.log(img.src)
-            img.onload = () => setPlayerImage(img);
-        };
 
         useEffect(() => {
             const handleKeyDown = (event: KeyboardEvent) => {
