@@ -72,9 +72,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         stone: "stone_material",
         iron: "iron_ore",
         coal: "coal",
-        flower: "flower_item",
+        flower: "flower",
         mushroom: "mushroom_item",
-        insect: "insect_item"
+        insect: "insect_item",
+        water: "water",
     };
     // マップオブジェクトからインタラクト可能なオブジェクト情報を抽出する関数
     const extractInteractableObjects = (mapData: string[][]) => {
@@ -171,7 +172,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         handleEKeyPress
     } = useRemakeItemGet({
         userId: playerId.id,
-        initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
+        initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
         rectPositions: itemData,
         mapWidthInPixels: Map_width * Tile_size,
         mapHeightInPixels: Map_height * Tile_size,
@@ -209,7 +210,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             targetY = Math.max(0, Math.min(targetY, MAP_PIXEL_HEIGHT - windowHeight));
             targetX = windowWidth >= MAP_PIXEL_WIDTH ? 0 : targetX;
             targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
-            return { x: targetX, y: targetY };
+            return {x: targetX, y: targetY};
         };
 
         // ★ 変更: ECollisionPosition の初期値に基づいてカメラを設定
@@ -257,7 +258,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         loadImages();
 
         // ★ 変更: 依存配列に ECollisionPosition を追加して初期位置反映を確実にする
-    }, [itemData, ECollisionPosition.x, ECollisionPosition.y]);;
+    }, [itemData, ECollisionPosition.x, ECollisionPosition.y]);
+    ;
 
     // useEffect(() => {
     //     const occupiedPositions = new Set();
@@ -297,7 +299,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     }
                 })
                 .catch((err) => console.error("Failed to fetch player items:", err));
-            fetch(`/api/item/getCraftItems`,{method : "GET"})
+            fetch(`/api/item/getCraftItems`, {method: "GET"})
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.status === "success") {
@@ -462,7 +464,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             // 四捨五入して比較し、変化がある場合のみ新しいオブジェクトを返す
             if (Math.round(prevCameraPos.x) !== Math.round(targetX) || Math.round(prevCameraPos.y) !== Math.round(targetY)) {
                 // console.log(`Updating camera: (${prevCameraPos.x}, ${prevCameraPos.y}) -> (${targetX}, ${targetY})`);
-                return { x: targetX, y: targetY };
+                return {x: targetX, y: targetY};
             }
             // 変化がなければ前の状態オブジェクトをそのまま返す (参照を維持し、不要な再レンダリング抑制)
             return prevCameraPos;
@@ -498,7 +500,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     useEffect(() => {
         console.log("loadedImages:", loadedImages);
         console.log("items", itemData.length);
-    }, [loadedImages , itemData]);
+    }, [loadedImages, itemData]);
 
 
     // Loading or Error UI
@@ -515,7 +517,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
 
     return (
-        <div  style={{ outline: "none" }}>
+        <div style={{outline: "none"}}>
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -541,11 +543,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                         })
                     )}
 
-                    {/* --- 2. タイルの上書き描画（透明含む） --- */}
+                    {/*/!* --- 2. タイルの上書き描画（透明含む） --- *!/*/}
                     {Map_data.map((row, rowIndex) =>
                         row.map((tile, colIndex) => {
                             // grassはすでに描画されているのでスキップ
-                            if (tile === "grass") return null;
+                            if (tile === "grass") return null
 
                             const img = tileImages[tile];
                             if (!img) return null;
@@ -603,7 +605,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     {/*{itemData.map((data) => (*/}
                     {/*    <Image*/}
                     {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
-                    {/*        x={data.x!  - cameraPosition.x}*/}
+                    {/*        x={data.x! - cameraPosition.x}*/}
                     {/*        y={data.y! - cameraPosition.y}*/}
                     {/*        width={Tile_size}*/}
                     {/*        height={Tile_size}*/}

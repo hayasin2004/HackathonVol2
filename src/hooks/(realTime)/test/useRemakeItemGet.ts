@@ -67,8 +67,13 @@ export const useRemakeItemGet = ({
             };
 
             // ここでSupabaseにアイテムを保存するロジックを呼び出し
-            // saveItemToDatabase(newItem);
-
+            // saveItemToDatabase(newItem);　
+            if (mapObject.type == "tree"){
+                const result = await playerGetItem(userId, [1]);
+                if (result?.status === "success" && result.savedItem) {
+                    console.log("Item acquisition success:", result.savedItem)
+                }　
+            }
             console.log(`${mapObject.type}から${mapObject.relatedItemId}を入手しました`);
             return newItem;
         } catch (error) {
