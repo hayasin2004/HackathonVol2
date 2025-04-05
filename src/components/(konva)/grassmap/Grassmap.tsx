@@ -142,11 +142,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
 
     const {
         ECollisionPosition,
-        ECollisionStatus,
-        adjacentObstacles,
-        adjacentMapObjects,
-        ePressCount,
-        handleEKeyPress,
+
     } = useRemakeItemGet({
         userId: playerId.id,
         initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
@@ -182,6 +178,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
     const loadPlayerImage = (src: string) => {
         const img = new window.Image();
         img.src = src;
+        console.log(img.src)
         img.onload = () => setPlayerImage(img);
     };
 
@@ -420,12 +417,6 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
         }
     };
 
-    useEffect(() => {
-        const img = new window.Image();
-        img.src = "/character.png";
-        img.onload = () => setPlayerImage(img);
-    }, []);
-
 
     const getTilecolor = (list: string) => {
         switch (list) {
@@ -589,8 +580,9 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                             );
                         })
                     )}
+
                     {/* --- プレイヤー --- */}
-                    {playerImage && ECollisionPosition && (
+                    {playerImage && (
                         <Image
                             image={playerImage}
                             x={ECollisionPosition?.x - cameraPosition.x}
