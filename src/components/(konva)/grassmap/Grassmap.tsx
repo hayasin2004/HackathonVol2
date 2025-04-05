@@ -501,6 +501,7 @@ interface GameProps {
     roomId: number;
 }
 
+
 const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) => {
     const { socket, connected, players, items, error, movePlayer } = useSocketConnection(playerId.id, roomId);
     const MAP_PIXEL_WIDTH = Map_width * Tile_size;
