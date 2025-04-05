@@ -1,14 +1,12 @@
 import React from 'react';
-import prisma from "@/lib/prismaClient";
+import Image from "next/image";
+import {defaultItem} from "@/types/defaultItem";
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
-import ItemControllerKonva from "@/components/(konva)/itemControllerKonva/ItemControllerKonva";
+import prisma from "@/lib/prismaClient";
 import {allNeedCraftItem, itemList} from "@/repository/prisma/ClientItemRepository";
-import {defaultItem} from "@/types/defaultItem";
-import Image from "next/image";
 
-const ItemGet = async () => {
-
+const ItemList = async () => {
     const session = await getServerSession(authOptions)
 
     const userHaveCharacterData = await prisma.character.findFirst({
@@ -16,11 +14,7 @@ const ItemGet = async () => {
             userId: session?.user.id
         }
     })
-    const userHavePlayerData = await prisma.playerData.findFirst({
-        where: {
-            playerId: session?.user.id
-        }
-    })
+
     const itemArray = await itemList()
 
     const needCraftItem = await allNeedCraftItem()
@@ -32,12 +26,13 @@ const ItemGet = async () => {
 
     return (
         <div>
-            <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px'}}>
+
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px' , padding: '20px'}}>
                 {itemArray?.map((defaultItem: defaultItem) => (
                     <div
                         key={defaultItem.id}
                         style={{
-                            flex: '1 0 22%', // 1行に最大4個（約25%未満）
+                            flex: '1 0 22%',
                             border: '1px solid #ccc',
                             padding: '16px',
                             boxSizing: 'border-box',
@@ -47,23 +42,20 @@ const ItemGet = async () => {
                         <h3>アイテムID: {defaultItem.id}</h3>
                         <p>名前: {defaultItem.itemName}</p>
                         <p>説明: {defaultItem.itemDescription}</p>
-                        <Image
-                            src={defaultItem.itemIcon || "/"}
-                            alt="アイテムアイコン"
-                            width={150}
-                            height={0}
-                            style={{height: 'auto'}} // アスペクト比維持
-                        />
+                        <div style={{width: '150px', height: '150px', margin: '0 auto', overflow: 'hidden'}}>
+                            <Image
+                                src={defaultItem.itemIcon || "/"}
+                                alt="アイテムアイコン"
+                                width={150}
+                                height={150}
+                                style={{objectFit: 'contain'}} // アスペクト比を保って中に収める
+                            />
+                        </div>
                     </div>
                 ))}
             </div>
-
-
-            <h1>ここはユーザーの図形を操れるページ</h1>
-            <h2><ItemControllerKonva character={userHaveCharacterData} playerData={userHavePlayerData}
-                                     needCraftItem={needCraftItem} itemArray={itemArray}/></h2>
         </div>
     );
-}
+};
 
-export default ItemGet;
+export default ItemList;

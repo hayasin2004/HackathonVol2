@@ -4,7 +4,10 @@ import DetailFollowButton from "@/components/followButton/detailfollowbutton/Det
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
 import {DetailPlayerTypes} from "@/types/Player";
-import UpdateUser from "@/app/(userAuth)/updateUser/page";
+import  styles from './page.module.css';
+import Tabs from "@/components/Tabs/Tabs";
+import Link from "next/link";
+
 
 
 const DetailPlayer = async ({params}: { params: { id: string } }) => {
@@ -72,32 +75,47 @@ const ToShowMeDetail: React.FC<DetailPlayerTypes> = ({
                                                                detailPlayerDataFollowersList
                                                            }) => {
     return (
-        <div>
-            <h1>ここは自分のページです</h1>
-            <h2>Id : {detailPlayerData?.id}</h2>
-            <h3>Username : {detailPlayerData?.username}</h3>
-            <div>
-                <h1>ここでフォロー一覧</h1>
-                {detailPlayerDataFollowingsList.map((followingUserData, index) => (
-                    <div key={followingUserData.followings.id}>
-                        <h2>{index + 1}番目 :{followingUserData.followings.username}</h2>
-                        <DetailFollowButton detailPlayer={followingUserData}/>
-                    </div>
-                ))}
-            </div>
-            <div>
-                <h1>ここで個人情報の変更</h1>
-                <UpdateUser detailPlayer={detailPlayerData}/>
-                <h3>Username : {detailPlayerData?.username}</h3>
-            </div>
-            <div>
-                <h1>ここでフォロワー一覧</h1>
-                {detailPlayerDataFollowersList?.map((followerUserData, index) => (
-                    <div key={followerUserData.followers.id}>
-                        <h2>{index + 1}番目 :{followerUserData.followers.username}</h2>
-                    </div>
-                ))}
-            </div>
+        <div className="mypage-container">
+            <h1 className="mypage-title">My Page</h1>
+
+            <section className="mypage-section">
+                <h2 className="section-title">ユーザー情報</h2>
+                <p><strong>Username:</strong> {detailPlayerData?.username}</p>
+            </section>
+
+            <section className="mypage-section">
+                <h2 className="section-title">フォロー一覧</h2>
+                {detailPlayerDataFollowingsList.length > 0 ? (
+                    detailPlayerDataFollowingsList.map((followingUserData, index) => (
+                        <div key={followingUserData.followings.id} className="user-card">
+                            <span>{index + 1}. {followingUserData.followings.username}</span>
+                            <DetailFollowButton detailPlayer={followingUserData}/>
+                        </div>
+                    ))
+                ) : (
+                    <p>フォローしているユーザーはいません。</p>
+                )}
+            </section>
+
+            <section className="mypage-section">
+                <h2 className="section-title">フォロワー一覧</h2>
+                {detailPlayerDataFollowersList.length > 0 ? (
+                    detailPlayerDataFollowersList.map((followerUserData, index) => (
+                        <div key={followerUserData.followers.id} className="user-card">
+                            <span>{index + 1}. {followerUserData.followers.username}</span>
+                        </div>
+                    ))
+                ) : (
+                    <p>フォロワーはいません。</p>
+                )}
+            </section>
+
+            <section className="mypage-section">
+                <h2 className="section-title">アカウント設定</h2>
+                <Link href="/updateUser">
+                    <button className="update-button">情報更新</button>
+                </Link>
+            </section>
         </div>
     )
 }
@@ -109,10 +127,13 @@ const ToShowOtherDetail: React.FC<DetailPlayerTypes> =({
                                                                   detailPlayerDataFollowersList
                                                               }) => {
     return (
-        <div>
-            <h1>ここは他の人のページです</h1>
+        <div className={styles.tabs}>
+            <h1>{detailPlayerData?.username}さんのページです</h1>
             <h2>Id : {detailPlayerData?.id}</h2>
             <h3>Username : {detailPlayerData?.username}</h3>
+            <div>
+                <Tabs/>
+            </div>
             <div>
                 <h1>ここでフォロー一覧</h1>
                 {detailPlayerDataFollowingsList?.map((followingUserData, index) => (
