@@ -37,6 +37,7 @@ const LogIn = () => {
     }, [session]);
 
 
+
     if (status === "loading") {
         return <p>読み込み中...</p>;
     }
