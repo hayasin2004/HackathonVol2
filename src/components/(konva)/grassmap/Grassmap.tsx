@@ -168,6 +168,40 @@ interface GameProps {
         const animationIntervalRef = useRef<number | null>(null);
         const frameRef = useRef<number>(0); // 0: 静止画, 1: 歩行モーション
 
+        // const staticImages = {
+        //     default: "/character_front.png",
+        //     ArrowUp: "/character_back.png",
+        //     ArrowDown: "/character_front.png",
+        //     ArrowRight: "/character_right.png",
+        //     ArrowLeft: "/character_left.png",
+        // };
+        //
+        // const walkImages = {
+        //     ArrowUp: "/character_back_walk.png",
+        //     ArrowDown: "/character_front_walk.png",
+        //     ArrowRight: "/character_right_walk.png",
+        //     ArrowLeft: "/character_left_walk.png",
+        // };
+        const [characterImageData, setCharacterImageData] = useState<CharacterImageData | null>(null);
+        console.log(characterImageData)
+        const loadPlayerImage = (src: string | undefined) => {
+            const img = new window.Image();
+            img.src = src;
+            img.onload = () => setPlayerImage(img);
+        };
+        useEffect(() => {
+            // 初期表示用
+            if (characterImageData?.iconImage?.[0]) {
+                loadPlayerImage(characterImageData.iconImage[0]);
+            }
+        }, [characterImageData]);
+
+        const keyToIndexMap: Record<string, number> = {
+            ArrowDown: 0,
+            ArrowUp: 1,
+            ArrowRight: 2,
+            ArrowLeft: 3,
+        };
         const staticImages = {
             default: "/character_front.png",
             ArrowUp: "/character_back.png",
@@ -191,40 +225,37 @@ interface GameProps {
         };
 
         useEffect(() => {
-            // 初期は静止画像を表示
-            loadPlayerImage(staticImages.default);
-
             const handleKeyDown = (event: KeyboardEvent) => {
-                if (!(event.key in staticImages)) return;
+                const staticImages = characterImageData?.iconImage?.slice(0, 3);   // 静止
+                const walkImages = characterImageData?.iconImage?.slice(4, 7);    // 歩行
+                console.log(walkImages)
                 const direction = event.key;
                 const now = Date.now();
                 lastKeyPressTimeRef.current = now;
                 currentDirectionRef.current = direction;
 
-                // アニメーションが開始していなければ開始
+                const index = keyToIndexMap[direction];
+                if (index === undefined) return;
+
+                loadPlayerImage(staticImages?.[index]);
+
                 if (animationIntervalRef.current === null) {
                     frameRef.current = 0;
-                    // 最初は歩行モーションの画像で開始
-                    loadPlayerImage(walkImages[direction]);
-                    frameRef.current = 1; // 次は静止画へ
                     animationIntervalRef.current = window.setInterval(() => {
                         const currentTime = Date.now();
-                        // 500ms以内にキー入力がなければ停止して静止画像へ
+                        const currentDirection = currentDirectionRef.current;
+                        const idx = keyToIndexMap[currentDirection];
+
                         if (currentTime - lastKeyPressTimeRef.current > 600) {
-                            loadPlayerImage(staticImages[currentDirectionRef.current]);
-                            if (animationIntervalRef.current) {
-                                clearInterval(animationIntervalRef.current);
-                                animationIntervalRef.current = null;
-                            }
+                            // 入力が途切れたら静止画像に戻す
+                            loadPlayerImage(staticImages?.[idx]);
+                            clearInterval(animationIntervalRef.current!);
+                            animationIntervalRef.current = null;
                         } else {
-                            // 交互に画像を切替
-                            if (frameRef.current === 0) {
-                                loadPlayerImage(staticImages[currentDirectionRef.current]);
-                                frameRef.current = 1;
-                            } else {
-                                loadPlayerImage(walkImages[currentDirectionRef.current]);
-                                frameRef.current = 0;
-                            }
+                            // 静止画像と歩行画像を交互に
+                            const img = frameRef.current === 0 ? staticImages?.[idx] : walkImages?.[idx];
+                            loadPlayerImage(img);
+                            frameRef.current = 1 - frameRef.current;
                         }
                     }, 300);
                 }
@@ -238,11 +269,14 @@ interface GameProps {
                     animationIntervalRef.current = null;
                 }
             };
-        }, []);
+        }, [characterImageData]);
 
-        // ----------------------------
-        // タイル画像の読み込み
-        // ----------------------------
+
+
+
+// ----------------------------
+// タイル画像の読み込み
+// ----------------------------
         useEffect(() => {
             const tiles = Object.values(Tile_list);
             const loadedImagesObj: { [key: string]: HTMLImageElement } = {};
@@ -258,9 +292,9 @@ interface GameProps {
             });
         }, []);
 
-        // ----------------------------
-        // カメラ位置の計算とアイテム画像の読み込み
-        // ----------------------------
+// ----------------------------
+// カメラ位置の計算とアイテム画像の読み込み
+// ----------------------------
         useEffect(() => {
             const calculateInitialCameraPos = (playerX: number, playerY: number) => {
                 const windowWidth = typeof window !== "undefined" ? window.innerWidth : 0;
@@ -313,9 +347,9 @@ interface GameProps {
             loadImages();
         }, [itemData, ECollisionPosition.x, ECollisionPosition.y]);
 
-        // ----------------------------
-        // プレイヤーとクラフトアイテムの取得
-        // ----------------------------
+// ----------------------------
+// プレイヤーとクラフトアイテムの取得
+// ----------------------------
         useEffect(() => {
             if (playerId) {
                 fetch(`/api/player/getItems/${playerId.id}`)
@@ -340,11 +374,10 @@ interface GameProps {
         }, [playerId]);
 
 
-        // アイテム取得イベントの処理
+// アイテム取得イベントの処理
         useEffect(() => {
             if (itemEvents.length > 0) {
                 const latestEvent = itemEvents[itemEvents.length - 1]; // 最新のイベントを取得
-
                 setNotifications((prev) => {
                     const message =
                         latestEvent.player_id !== playerId.id
@@ -357,7 +390,7 @@ interface GameProps {
                     return [message, ...prev.slice(0, 4)];
                 });
 
-                // プレイヤーのアイテムリストも更新
+                // 最新のプレイヤーデータが存在する場合、アイテムリストを更新
                 if (
                     latestEvent.player_id === playerId.id &&
                     latestEvent.data &&
@@ -368,7 +401,7 @@ interface GameProps {
             }
         }, [itemEvents, playerId]);
 
-        // アイテムクラフトイベントの処理
+// アイテムクラフトイベントの処理
         useEffect(() => {
             if (craftEvents.length > 0) {
                 const latestEvent = craftEvents[craftEvents.length - 1];
@@ -393,7 +426,7 @@ interface GameProps {
             }
         }, [craftEvents, playerId]);
 
-        // アイテムクラフト関数
+// アイテムクラフト関数
         const handleCraftItem = async (craftItemId: number) => {
             try {
                 const playerDataId = playerId.id;
@@ -460,40 +493,40 @@ interface GameProps {
             }
         };
 
-        // const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-        //     e.preventDefault();
-        //     let {x, y} = playerPosition;
-        //
-        //     switch (e.key) {
-        //         case "ArrowUp":
-        //             y -= Tile_size;
-        //             break;
-        //         case "ArrowDown":
-        //             y += Tile_size;
-        //             break;
-        //         case "ArrowLeft":
-        //             x -= Tile_size;
-        //             break;
-        //         case "ArrowRight":
-        //             x += Tile_size;
-        //             break;
-        //     }
-        //     console.log(playerPosition.x)
-        //     console.log(playerPosition.y)
-        //
-        //     if (
-        //         x >= 0 &&
-        //         y >= 0 &&
-        //         x < Map_width * Tile_size &&
-        //         y < Map_height * Tile_size
-        //     ) {
-        //         setPlayerPosition({x, y});
-        //         setCameraPosition({
-        //             x: Math.max(0, x - window.innerWidth / 2),
-        //             y: Math.max(0, y - window.innerHeight / 2),
-        //         });
-        //     }
-        // };
+// const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+//     e.preventDefault();
+//     let {x, y} = playerPosition;
+//
+//     switch (e.key) {
+//         case "ArrowUp":
+//             y -= Tile_size;
+//             break;
+//         case "ArrowDown":
+//             y += Tile_size;
+//             break;
+//         case "ArrowLeft":
+//             x -= Tile_size;
+//             break;
+//         case "ArrowRight":
+//             x += Tile_size;
+//             break;
+//     }
+//     console.log(playerPosition.x)
+//     console.log(playerPosition.y)
+//
+//     if (
+//         x >= 0 &&
+//         y >= 0 &&
+//         x < Map_width * Tile_size &&
+//         y < Map_height * Tile_size
+//     ) {
+//         setPlayerPosition({x, y});
+//         setCameraPosition({
+//             x: Math.max(0, x - window.innerWidth / 2),
+//             y: Math.max(0, y - window.innerHeight / 2),
+//         });
+//     }
+// };
 
 
         useEffect(() => {
@@ -516,9 +549,43 @@ interface GameProps {
         useEffect(() => {
             console.log("loadedImagesの更新:");
         }, [loadedImages]);
+// ----------------------------
+// プレイヤー画像切り替え用のロジック（2枚のpngを交互に切替）
+// ----------------------------
+        interface CharacterImageData {
+            iconImage: string[]; // 画像URLの配列
+
+        }
+
+        console.log(characterImageData)
+        useEffect(() => {
+            const userId = playerId.id
+            console.log("kokomadekitakanokakuni nnyamatatusann")
+            // Fetch character data from API
+            const fetchCharacterImages = async () => {
+                try {
+                    const response = await fetch(`/api/character/image/${userId}`, {
+                        method: "GET",
+                        headers: {"Content-Type": "application/json"}
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log(data)
+                        setCharacterImageData(data.userData); // まとめて状態を更新
+
+                    } else {
+                        console.error("Failed to fetch character images");
+                    }
+                } catch (error) {
+                    console.error("Error fetching character images:", error);
+                }
+            };
+            fetchCharacterImages()
+
+        }, []);
 
 
-        // Loading or Error UI
+// Loading or Error UI
         if (!connected) {
             return <div className="loading">サーバーに接続中...</div>;
         }
@@ -526,9 +593,17 @@ interface GameProps {
         if (error) {
             return <div className="error">エラー: {error}</div>;
         }
-
         return (
             <div style={{outline: "none"}}>
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px'}}>
+                    {/*{characterImageData?.iconImage.slice(0, 8).map((url, index) => (*/}
+                    {/*    <div key={index} style={{textAlign: 'center'}}>*/}
+                    {/*        <Image src={url} alt={`Image ${index + 1}`} width={150} height={150}/>*/}
+                    {/*        <p>Image {index + 1}</p>*/}
+                    {/*    </div>*/}
+                    {/*))}*/}
+                </div>
+
                 <Stage
                     width={typeof window !== "undefined" ? window.innerWidth : 0}
                     height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -591,16 +666,16 @@ interface GameProps {
                                 );
                             })
                         )}
-                        {itemData.map((data) => (
-                            <KonvaImage
-                                key={data.id} // _uniqueId を key に使う（id 重複を避ける）
-                                x={data.x! - cameraPosition.x}
-                                y={data.y! - cameraPosition.y}
-                                width={Tile_size}
-                                height={Tile_size}
-                                image={loadedImages[data.id]} // data.id で元の画像を参照
-                            />
-                        ))}
+                        {/*{itemData.map((data) => (*/}
+                        {/*    <KonvaImage*/}
+                        {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
+                        {/*        x={data.x! - cameraPosition.x}*/}
+                        {/*        y={data.y! - cameraPosition.y}*/}
+                        {/*        width={Tile_size}*/}
+                        {/*        height={Tile_size}*/}
+                        {/*        image={loadedImages[data.id]} // data.id で元の画像を参照*/}
+                        {/*    />*/}
+                        {/*))}*/}
 
                         {/* --- プレイヤー --- */}
                         {playerImage && (
