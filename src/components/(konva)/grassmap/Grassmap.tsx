@@ -182,7 +182,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         const loadPlayerImage = (src: string | undefined) => {
             const img = new window.Image();
             img.src = src;
-            console.log(img.src)
             img.onload = () => setPlayerImage(img);
         };
         useEffect(() => {
@@ -192,32 +191,62 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             }
         }, [characterImageData]);
 
+        const keyToIndexMap: Record<string, number> = {
+            ArrowDown: 0,
+            ArrowUp: 1,
+            ArrowRight: 2,
+            ArrowLeft: 3,
+        };
+
         useEffect(() => {
             const handleKeyDown = (event: KeyboardEvent) => {
-                switch (event.key) {
-                    case "ArrowUp":
-                        loadPlayerImage(characterImageData?.iconImage?.[1]);
-                        break;
-                    case "ArrowDown":
-                        loadPlayerImage(characterImageData?.iconImage?.[0]);
-                        break;
-                    case "ArrowRight":
-                        loadPlayerImage(characterImageData?.iconImage?.[2]);
-                        break;
-                    case "ArrowLeft":
-                        loadPlayerImage(characterImageData?.iconImage?.[3]);
-                        break;
+                const staticImages = characterImageData?.iconImage?.slice(0, 4);   // 静止
+                const walkImages = characterImageData?.iconImage?.slice(8, 12);    // 歩行
+                console.log(walkImages)
+                const direction = event.key;
+                const now = Date.now();
+                lastKeyPressTimeRef.current = now;
+                currentDirectionRef.current = direction;
+
+                const index = keyToIndexMap[direction];
+                if (index === undefined) return;
+
+                loadPlayerImage(staticImages?.[index]);
+
+                if (animationIntervalRef.current === null) {
+                    frameRef.current = 0;
+                    animationIntervalRef.current = window.setInterval(() => {
+                        const currentTime = Date.now();
+                        const currentDirection = currentDirectionRef.current;
+                        const idx = keyToIndexMap[currentDirection];
+
+                        if (currentTime - lastKeyPressTimeRef.current > 600) {
+                            // 入力が途切れたら静止画像に戻す
+                            loadPlayerImage(staticImages?.[idx]);
+                            clearInterval(animationIntervalRef.current!);
+                            animationIntervalRef.current = null;
+                        } else {
+                            // 静止画像と歩行画像を交互に
+                            const img = frameRef.current === 0 ? staticImages?.[idx] : walkImages?.[idx];
+                            loadPlayerImage(img);
+                            frameRef.current = 1 - frameRef.current;
+                        }
+                    }, 300);
                 }
             };
 
             window.addEventListener("keydown", handleKeyDown);
             return () => {
                 window.removeEventListener("keydown", handleKeyDown);
+                if (animationIntervalRef.current) {
+                    clearInterval(animationIntervalRef.current);
+                    animationIntervalRef.current = null;
+                }
             };
         }, [characterImageData]);
+;
         ;
 
-        ;
 
 // ----------------------------
 // タイル画像の読み込み
