@@ -16,6 +16,7 @@ import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
 import styles from './page.module.css'
+import { ToastContainer, toast } from 'react-toastify';
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -622,9 +623,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                             width={Tile_size * 2}
                                             height={Tile_size * 2}
                                             alt="タイル画像"
-                                            shadowBlur={10}
-                                            shadowOffset={{ x: 10, y: 0 }}
-                                            shadowOpacity={0.5}
                                         />
                                     );
                                 }
@@ -661,9 +659,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                 width={Tile_size}
                                 height={Tile_size}
                                 alt="プレイヤー写真"
-                                shadowBlur={10}
-                                shadowOffset={{ x: 10, y: 0 }}
-                                shadowOpacity={0.5}
                             />
                         )}
                     </Layer>
@@ -702,54 +697,37 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                 </div>
 
                                 <div className={styles.crafting}>
-                                    <h3>クラフトメニュー</h3>
-                                    <div>
-                                        <p>選択中: {selectedItemId || '-- アイテムを選択 --'}</p>
-                                        <div>
-                                            {craftItems.map((craftItem) => (
-                                                <div
-                                                    className={styles.craftButtons}
-                                                    key={craftItem.id}
-                                                    style={{
-                                                        border: selectedItemId === craftItem.id ? '1px solid #000' : '1px solid transparent',
-                                                    }}
-                                                    onClick={() => handleSelectChange(craftItem.id)}
-                                                >
-                                                    <div className={styles.column}>
-                                                        <Image
-                                                            src={craftItem.createdItem.itemIcon}
-                                                            alt={craftItem.createdItem.itemName}
-                                                            width={64}
-                                                            height={64}
-                                                            
-                                                        />
-                                                        <span>{craftItem.createdItem.itemName}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            <button onClick={handleCraftClick} disabled={!selectedItemId}>
-                                                作成
-                                            </button>
-                                        </div>
+                                    <h3 className={styles.heading}>クラフトメニュー</h3>
+
+                                    <p className={styles.selectedInfo}>選択中: {selectedItemId || '-- アイテムを選択 --'}</p>
+
+                                    <div className={styles.craftButtonContainer}>
+                                        {craftItems.map((craftItem) => (
+                                            <div
+                                                className={`${styles.craftButtons} ${selectedItemId === craftItem.createdItem.id ? styles.selected : ''}`}
+                                                key={craftItem.id}
+                                                onClick={() => handleSelectChange(craftItem.createdItem.id)}
+                                            >
+                                                <span
+                                                    className={styles.itemName}>{craftItem.createdItem.itemName}</span>
+                                                <Image
+                                                    src={craftItem.createdItem.itemIcon}
+                                                    alt={craftItem.createdItem.itemName}
+                                                    width={64}
+                                                    height={64}
+                                                />
+                                            </div>
+                                        ))}
                                     </div>
 
-                                    {/*<div className={styles.craftButtons}>*/}
-                                    {/*    <select value={selectedItemId} onChange={handleSelectChange}>*/}
-                                    {/*        <option value="">-- アイテムを選択 --</option>*/}
-                                    {/*        {craftItems?.map((craftItem) => (*/}
-                                    {/*            <div key={craftItem.id}>*/}
-                                    {/*                <option value={craftItem.id}>*/}
-                                    {/*                    {craftItem.createdItem?.itemName}*/}
-                                    {/*                </option>*/}
-                                    {/*                <Image src={craftItem.createdItem?.itemIcon} alt={"test"} width={64}*/}
-                                    {/*                       height={64}/>*/}
-                                    {/*            </div>*/}
-                                    {/*        ))}*/}
-                                    {/*    </select>*/}
-                                    {/*    <button onClick={handleCraftClick} disabled={!selectedItemId}>*/}
-                                    {/*        作成*/}
-                                    {/*    </button>*/}
-                                    {/*</div>*/}
+                                    <button
+                                        className={styles.buttonCreate}
+                                        onClick={handleCraftClick}
+                                        disabled={!selectedItemId}
+                                    >
+                                        作成
+                                        <ToastContainer/>
+                                    </button>
                                 </div>
                             </div>
                         </div>

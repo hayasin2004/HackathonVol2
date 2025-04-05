@@ -395,18 +395,18 @@ export default function Page() {
         <table className={styles.characterEditorTable}>
           <tbody>
           <tr>
-            <td><label htmlFor="gender">性別:</label></td>
+            <td><label className={styles.characterEditorTableTr} htmlFor="gender">性別:</label></td>
             <td>
-              <select id="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
+              <select className={styles.characterEditorSelect } id="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
                 <option value="女性">女性</option>
                 <option value="男性">男性</option>
               </select>
             </td>
           </tr>
-          <tr>
-            <td><label htmlFor="hairStyle">髪型:</label></td>
+          <tr className={styles.characterEditorTableTr}>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="hairStyle">髪型:</label></td>
             <td>
-              <select id="hairStyle" value={hairStyle} onChange={(e) => setHairStyle(e.target.value)}>
+              <select className={styles.characterEditorSelect }  id="hairStyle" value={hairStyle} onChange={(e) => setHairStyle(e.target.value)}>
                 <option value="ベリーショート">ベリーショート</option>
                 <option value="ショート">ショート</option>
                 <option value="ミディアム">ミディアム</option>
@@ -416,9 +416,9 @@ export default function Page() {
             </td>
           </tr>
           <tr>
-            <td><label htmlFor="hairColor">髪色:</label></td>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="hairColor">髪色:</label></td>
             <td>
-              <select id="hairColor" value={hairColor} onChange={(e) => setHairColor(e.target.value)}>
+              <select className={styles.characterEditorSelect }  id="hairColor" value={hairColor} onChange={(e) => setHairColor(e.target.value)}>
                 {colorOptions.map((color) => (
                     <option key={color} value={color}>{color}</option>
                 ))}
@@ -426,9 +426,9 @@ export default function Page() {
             </td>
           </tr>
           <tr>
-            <td><label htmlFor="eyeType">目の形:</label></td>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="eyeType">目の形:</label></td>
             <td>
-              <select id="eyeType" value={eyeType} onChange={(e) => setEyeType(e.target.value)}>
+              <select className={styles.characterEditorSelect }  id="eyeType" value={eyeType} onChange={(e) => setEyeType(e.target.value)}>
                 <option value="丸目">丸目</option>
                 <option value="アーモンド目">アーモンド目</option>
                 <option value="つり目">つり目</option>
@@ -437,9 +437,9 @@ export default function Page() {
             </td>
           </tr>
           <tr>
-            <td><label htmlFor="eyeColor">目の色:</label></td>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="eyeColor">目の色:</label></td>
             <td>
-              <select id="eyeColor" value={eyeColor} onChange={(e) => setEyeColor(e.target.value)}>
+              <select className={styles.characterEditorSelect }  id="eyeColor" value={eyeColor} onChange={(e) => setEyeColor(e.target.value)}>
                 {colorOptions.map((color) => (
                     <option key={color} value={color}>{color}</option>
                 ))}
@@ -447,9 +447,10 @@ export default function Page() {
             </td>
           </tr>
           <tr>
-            <td><label htmlFor="additional">その他の特徴:</label></td>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="additional">その他の特徴:</label></td>
             <td>
         <textarea
+            className={styles.characterEditorSelect }
             id="additional"
             placeholder="例: 猫耳や特別なアクセサリーなど"
             value={additional}
@@ -466,9 +467,10 @@ export default function Page() {
         <table className={styles.characterEditorTable}>
           <tbody>
           <tr>
-            <td><label htmlFor="upperClothing">上半身:</label></td>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="upperClothing">上半身:</label></td>
             <td>
               <select
+                  className={styles.characterEditorSelect }
                   id="upperClothing"
                   value={upperClothing}
                   onChange={(e) => setUpperClothing(e.target.value)}
@@ -480,9 +482,10 @@ export default function Page() {
             </td>
           </tr>
           <tr>
-            <td><label htmlFor="upperClothingColor">上半身の色:</label></td>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="upperClothingColor">上半身の色:</label></td>
             <td>
               <select
+                  className={styles.characterEditorSelect }
                   id="upperClothingColor"
                   value={upperClothingColor}
                   onChange={(e) => setUpperClothingColor(e.target.value)}
@@ -497,9 +500,10 @@ export default function Page() {
           {upperClothing !== "ロングドレス" && (
               <>
                 <tr>
-                  <td><label htmlFor="lowerClothing">下半身:</label></td>
+                  <td className={styles.characterEditorTableTr} ><label htmlFor="lowerClothing">下半身:</label></td>
                   <td>
                     <select
+                        className={styles.characterEditorSelect }
                         id="lowerClothing"
                         value={lowerClothing}
                         onChange={(e) => setLowerClothing(e.target.value)}
@@ -511,9 +515,10 @@ export default function Page() {
                   </td>
                 </tr>
                 <tr>
-                  <td><label htmlFor="lowerClothingColor">下半身の色:</label></td>
+                  <td className={styles.characterEditorTableTr} ><label htmlFor="lowerClothingColor">下半身の色:</label></td>
                   <td>
                     <select
+                        className={styles.characterEditorSelect }
                         id="lowerClothingColor"
                         value={lowerClothingColor}
                         onChange={(e) => setLowerClothingColor(e.target.value)}
@@ -528,9 +533,10 @@ export default function Page() {
           )}
 
           <tr>
-            <td><label htmlFor="shoes">靴:</label></td>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="shoes">靴:</label></td>
             <td>
               <select
+                  className={styles.characterEditorSelect }
                   id="shoes"
                   value={shoes}
                   onChange={(e) => setShoes(e.target.value)}
@@ -542,9 +548,10 @@ export default function Page() {
             </td>
           </tr>
           <tr>
-            <td><label htmlFor="shoesColor">靴の色:</label></td>
+            <td className={styles.characterEditorTableTr} ><label htmlFor="shoesColor">靴の色:</label></td>
             <td>
               <select
+                  className={styles.characterEditorSelect }
                   id="shoesColor"
                   value={shoesColor}
                   onChange={(e) => setShoesColor(e.target.value)}
@@ -558,7 +565,7 @@ export default function Page() {
           </tbody>
         </table>
         <br/>
-        <button type="submit" disabled={loading}>
+        <button type="submit"  className={styles.button} disabled={loading}>
           {loading
               ? "生成中..."
               : frontImageUrl
