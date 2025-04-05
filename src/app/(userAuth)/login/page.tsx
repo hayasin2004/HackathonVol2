@@ -18,7 +18,7 @@ const LogIn = () => {
         }
     }
     return (
-        <div className={styles.outercontainer} style={{ backgroundImage: "url('/canvahiru.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+        <div className={styles.outercontainer} style={{ backgroundImage: "url('/canvayoru.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
             <form action="">
                 <div className={styles.innercontainer}>
                     <h1>ログイン</h1>
