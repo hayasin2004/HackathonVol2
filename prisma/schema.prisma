@@ -57,8 +57,8 @@ model PlayerData {
   playerId  Int?         @unique
   player    User?        @relation(fields: [playerId], references: [id], onDelete: Cascade)
   haveItems PlayerItem[] @relation("PlayerToItems")
-  x         Int          @default(100)
-  y         Int          @default(100)
+  x         Int          @default(64)
+  y         Int          @default(64)
   roomId    Int? // ルームID
   room      Room?        @relation("RoomPlayers", fields: [roomId], references: [id], map: "PlayerData_roomId_fkey_1")
   createdAt DateTime     @default(now())

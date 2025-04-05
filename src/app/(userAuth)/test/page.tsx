@@ -4,6 +4,7 @@ import {logout} from "@/lib/nextAuth-actions";
 import {logIn} from "@/repository/prisma/authRepository";
 import {useEffect} from "react";
 import {useRouter} from "next/navigation";
+import Link from "next/link";
 
 const LogIn = () => {
     const {data: session, status} = useSession();
@@ -58,6 +59,11 @@ const LogIn = () => {
                     ログアウト
                 </button>
             </form>
+            <Link href='/updateUser'>
+                <button>
+                    情報変更
+                </button>
+            </Link>
         </div>
     );
 }
