@@ -1,7 +1,7 @@
 //サイズ定義
 export const Tile_size = 64; //タイルのサイズ
-export const Map_width = 50; //横幅
-export const Map_height = 50; //高さ
+export const Map_width = 64; //横幅
+export const Map_height = 64; //高さ
 
 // タイルの種類 辞書型に定義
 export const Tile_list = {
@@ -29,6 +29,96 @@ export const generateMap = () => {
 
   for (let y = 0; y < Map_height; y++) {
     map2d[y] = new Array(Map_width).fill("grass");
+  }
+
+  for (let y = 0; y <= 11; y++) {
+    map2d[y][19] = "path"; // x20 y0~11 A-1 <=
+  }
+  for (let y = 0; y <= 11; y++) {
+    map2d[y][20] = "path"; // x20 y0~11 A <=
+  }
+  for (let y = 0; y <= 11; y++) {
+    map2d[y][21] = "path"; // x20 y0~11 A+1 <=
+  }
+
+  for (let x = 0; x < 64; x++) {
+    map2d[9][x] = "path"; // x0~64 y11 B-1 <
+  }
+  for (let x = 0; x < 64; x++) {
+    map2d[10][x] = "path"; // x0~64 y11 B <
+  }
+  for (let x = 0; x < 64; x++) {
+    map2d[11][x] = "path"; // x0~64 y11 B+1 <
+  }
+
+  for (let y = 11; y < 64; y++) {
+    map2d[y][7] = "path"; // x8 y11~64 C-1 <
+  }
+  for (let y = 11; y < 64; y++) {
+    map2d[y][8] = "path"; // x8 y11~64 C <
+  }
+  for (let y = 11; y < 64; y++) {
+    map2d[y][9] = "path"; // x8 y11~64 C+1 <
+  }
+
+  for (let y = 11; y <= 56; y++) {
+    map2d[y][53] = "path"; // x54 y11~56 D-1 <=
+  }
+  for (let y = 11; y <= 56; y++) {
+    map2d[y][54] = "path"; // x54 y11~56 D <=
+  }
+  for (let y = 11; y <= 56; y++) {
+    map2d[y][55] = "path"; // x54 y11~56 D+1 <=
+  }
+
+  for (let x = 38; x <= 54; x++) {
+    map2d[34][x] = "path"; // x38~54 y35 E-1 <=
+  }
+  for (let x = 38; x <= 54; x++) {
+    map2d[35][x] = "path"; // x38~54 y35 E <=
+  }
+  for (let x = 38; x <= 54; x++) {
+    map2d[36][x] = "path"; // x38~54 y35 E+1 <=
+  }
+
+  for (let y = 35; y <= 47; y++) {
+    map2d[y][37] = "path"; // x38 y35~47 F-1 <=
+  }
+  for (let y = 35; y <= 47; y++) {
+    map2d[y][38] = "path"; // x38 y35~47 F <=
+  }
+  for (let y = 35; y <= 47; y++) {
+    map2d[y][39] = "path"; // x38 y35~47 F+1 <=
+  }
+
+  for (let x = 8; x < 64; x++) {
+    map2d[46][x] = "path"; // x8~64 y47 G-1 <
+  }
+  for (let x = 8; x < 64; x++) {
+    map2d[47][x] = "path"; // x8~64 y47 G <
+  }
+  for (let x = 8; x < 64; x++) {
+    map2d[48][x] = "path"; // x8~64 y47 G+1 <
+  }
+
+  for (let y = 47; y <= 56; y++) {
+    map2d[y][22] = "path"; // x23 y47~56 H-1 <=
+  }
+  for (let y = 47; y <= 56; y++) {
+    map2d[y][23] = "path"; // x23 y47~56 H <=
+  }
+  for (let y = 47; y <= 56; y++) {
+    map2d[y][24] = "path"; // x23 y47~56 H+1 <=
+  }
+
+  for (let x = 23; x <= 54; x++) {
+    map2d[55][x] = "path"; // x23~54 y56 I-1 <=
+  }
+  for (let x = 23; x <= 54; x++) {
+    map2d[56][x] = "path"; // x23~54 y56 I <=
+  }
+  for (let x = 23; x <= 54; x++) {
+    map2d[57][x] = "path"; // x23~54 y56 I+1 <=
   }
 
   const placeTile = (tile: string, count: number, size = 1) => {
@@ -60,22 +150,21 @@ export const generateMap = () => {
     }
   };
   //y=20の部分に水を作る
-  for (let i = 5; i < 20; i++) {
+  for (let i = 10; i < 25; i++) {
     for (let y = 16; y <= 20; y++) {
       map2d[y][i] = "water";
     }
   }
 
-  //ループ処理（iがイコールになるまで繰り返す）[i]は横幅を表す
-  for (let i = 0; i < Map_width; i++) {
-    const middle = Math.floor(Map_height / 2);
-    map2d[middle][i] = "path";
-  }
+  // //ループ処理（iがイコールになるまで繰り返す）[i]は横幅を表す
+  // for (let i = 0; i < Map_width; i++) {
+  //   const middle = Math.floor(Map_height / 2);
+  //   map2d[middle][i] = "path";
+  // }
 
   // **各タイルを配置（1×1）**
   placeTile("building", 10);
   placeTile("leaves", 30);
-  placeTile("flower", 30);
   placeTile("mushroom", 20);
   placeTile("insect", 15);
 
@@ -84,6 +173,8 @@ export const generateMap = () => {
   placeTile("stone", 10, 2);
   placeTile("iron", 5, 2);
   placeTile("coal", 10, 2);
+
+  placeTile("flower", 100);
   //建物の設置
   // for (let i = 0; i < 10; i++) {
   //   const x = Math.floor(Math.random() * Map_width);
