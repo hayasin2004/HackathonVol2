@@ -50,16 +50,132 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         y: playerId?.y ?? 0  // playerId.y が変わらない限り参照は同じ
     }), [playerId?.x, playerId?.y]); // playerId の座標に依存
     // useRemakeItemGet フックの呼び出し
-    const { ECollisionPosition, ECollisionStatus, adjacentObstacles, ePressCount } = useRemakeItemGet({
+
+
+    const enhancedMapData = Map_data.map((row, rowIndex) =>
+        row.map((tile, colIndex) => {
+            // オブジェクトに変換して関連情報を追加
+            return {
+                type: tile,  // "tree", "stone" などのタイルタイプ
+                rowIndex,
+                colIndex,
+                // オブジェクトタイプに応じたアイテムIDを関連付け
+                relatedItemId: tile === "tree" ? "wood" :
+                    tile === "stone" ? "stone_material" :
+                        tile === "iron" ? "iron_ore" :
+                            tile === "coal" ? "coal" : null
+            };
+        })
+    );
+    const ObjectToItemMapping = {
+        tree: "wood",
+        stone: "stone_material",
+        iron: "iron_ore",
+        coal: "coal",
+        flower: "flower_item",
+        mushroom: "mushroom_item",
+        insect: "insect_item"
+    };
+    // マップオブジェクトからインタラクト可能なオブジェクト情報を抽出する関数
+    const extractInteractableObjects = (mapData: string[][]) => {
+        const interactableObjects: Array<{
+            id: string;
+            type: string;
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+            isMapObject: boolean;
+            relatedItemId: string;
+        }> = [];
+
+        mapData.forEach((row, rowIndex) => {
+            row.forEach((tile, colIndex) => {
+                // オブジェクトタイプを確認
+                const objectType = tile;
+
+                // マッピングに存在するオブジェクトのみ処理
+                if (objectType in ObjectToItemMapping) {
+                    // 大きなオブジェクト（2x2）の場合の処理
+                    const isLargeObject = ["tree", "stone", "iron", "coal"].includes(objectType);
+
+                    if (isLargeObject) {
+                        // 2x2の左上角のみ処理（重複を避けるため）
+                        const isRightNeighborSame = mapData[rowIndex]?.[colIndex - 1] === objectType;
+                        const isBottomNeighborSame = mapData[rowIndex - 1]?.[colIndex] === objectType;
+                        const isBottomRightSame = mapData[rowIndex - 1]?.[colIndex - 1] === objectType;
+
+                        if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) {
+                            return; // 左上角以外はスキップ
+                        }
+
+                        interactableObjects.push({
+                            id: `map-${objectType}-${rowIndex}-${colIndex}`,
+                            type: objectType,
+                            x: colIndex * Tile_size,
+                            y: rowIndex * Tile_size,
+                            width: Tile_size * 2, // 2x2サイズ
+                            height: Tile_size * 2,
+                            isMapObject: true,
+                            relatedItemId: ObjectToItemMapping[objectType as keyof typeof ObjectToItemMapping]
+                        });
+                    } else {
+                        // 通常サイズ（1x1）のオブジェクト
+                        interactableObjects.push({
+                            id: `map-${objectType}-${rowIndex}-${colIndex}`,
+                            type: objectType,
+                            x: colIndex * Tile_size,
+                            y: rowIndex * Tile_size,
+                            width: Tile_size,
+                            height: Tile_size,
+                            isMapObject: true,
+                            relatedItemId: ObjectToItemMapping[objectType as keyof typeof ObjectToItemMapping]
+                        });
+                    }
+                }
+            });
+        });
+
+        return interactableObjects;
+    };
+
+
+// 2. useRemakeItemGet に渡すデータを拡張する
+// マップオブジェクトの位置情報も追加
+    const allInteractiveElements = [
+        ...itemData,  // 既存の素材アイテム
+        ...enhancedMapData.flat().filter(tile =>
+            // tree, stone などの大きなオブジェクトのみ抽出
+            ["tree", "stone", "iron", "coal"].includes(tile.type)
+        ).map(tile => ({
+            id: `map-${tile.type}-${tile.rowIndex}-${tile.colIndex}`, // 一意のIDを生成
+            x: tile.colIndex * Tile_size,
+            y: tile.rowIndex * Tile_size,
+            width: Tile_size * 2,  // 大きなオブジェクトは2x2サイズ
+            height: Tile_size * 2,
+            isMapObject: true,     // マップオブジェクトであることを示すフラグ
+            objectType: tile.type, // オブジェクトタイプ
+            relatedItemId: tile.relatedItemId // 関連するアイテムID
+        }))
+    ];
+
+    const interactableMapObjects = extractInteractableObjects(Map_data);
+
+
+    const {
+        ECollisionPosition,
+        ECollisionStatus,
+        adjacentObstacles,
+        adjacentMapObjects,
+        ePressCount,
+        handleEKeyPress
+    } = useRemakeItemGet({
         userId: playerId.id,
-        // 初期位置を playerId から取得 (null/undefined の場合は 0 にフォールバック)
         initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
-        // rectPositions に itemData を渡す (itemData が defaultItem[] 型であることを確認)
         rectPositions: itemData,
-        // マップのピクセルサイズを渡す
-        mapWidthInPixels: MAP_PIXEL_WIDTH,
-        mapHeightInPixels: MAP_PIXEL_HEIGHT,
-        // speed: 100, // 必要なら速度を設定
+        mapWidthInPixels: Map_width * Tile_size,
+        mapHeightInPixels: Map_height * Tile_size,
+        mapObjects: interactableMapObjects // マップオブジェクト情報を渡す
     });
 
     useEffect(() => {
@@ -80,9 +196,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         });
     }, []);
 
-    useEffect    // アイテム画像読み込み & 初期カメラ位置設定
     useEffect(() => {
-        // ★ 削除: playerPosition 関連のコードは不要
         // generateMap(); // 呼び出しタイミングを確認
 
         // 初期カメラ位置計算関数 (変更なし)
@@ -290,41 +404,41 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, []);
 
 
-  //   ↑どｆｋどｆ
+    //   ↑どｆｋどｆ
 
-  // const getTilecolor = (list: string) => {
-  //   //switchはlistの値によって色を返している
-  //   switch (list) {
-  //     //Tile_listのGrassというケースの場合はreturnでカラーコードを返してあげる?
-  //     case Tile_list.Grass:
-  //       return "#74C365";
-  //     case Tile_list.Path:
-  //       return "#E5C07B";
-  //     case Tile_list.Building:
-  //       return "#8B5E3C";
-  //     case Tile_list.Water:
-  //       return "#4F94CD";
-  //     case Tile_list.Tree:
-  //       return "#228B22";
-  //     case Tile_list.Leaves:
-  //       return "#327040";
-  //     case Tile_list.Stone:
-  //       return "#747474";
-  //     case Tile_list.Iron:
-  //       return "#D1D1D1";
-  //     case Tile_list.Coal:
-  //       return "#2D2D2D";
-  //     case Tile_list.Flower:
-  //       return "#fa52e3";
-  //     case Tile_list.Mushroom:
-  //       return "#846847";
-  //     case Tile_list.Insect:
-  //       return "#ef5e3f";
-  //     //デフォルトも草を設置
-  //     default:
-  //       return "#74C365";
-  //   }
-  // };
+    // const getTilecolor = (list: string) => {
+    //   //switchはlistの値によって色を返している
+    //   switch (list) {
+    //     //Tile_listのGrassというケースの場合はreturnでカラーコードを返してあげる?
+    //     case Tile_list.Grass:
+    //       return "#74C365";
+    //     case Tile_list.Path:
+    //       return "#E5C07B";
+    //     case Tile_list.Building:
+    //       return "#8B5E3C";
+    //     case Tile_list.Water:
+    //       return "#4F94CD";
+    //     case Tile_list.Tree:
+    //       return "#228B22";
+    //     case Tile_list.Leaves:
+    //       return "#327040";
+    //     case Tile_list.Stone:
+    //       return "#747474";
+    //     case Tile_list.Iron:
+    //       return "#D1D1D1";
+    //     case Tile_list.Coal:
+    //       return "#2D2D2D";
+    //     case Tile_list.Flower:
+    //       return "#fa52e3";
+    //     case Tile_list.Mushroom:
+    //       return "#846847";
+    //     case Tile_list.Insect:
+    //       return "#ef5e3f";
+    //     //デフォルトも草を設置
+    //     default:
+    //       return "#74C365";
+    //   }
+    // };
 
     // --- カメラ追従ロジック ---
     useEffect(() => {
@@ -357,8 +471,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 // 依存配列は ECollisionPosition のみ！ cameraPosition を削除
     }, [ECollisionPosition]);
 
-        // プレイヤーの位置 (ECollisionPosition) が変わったらカメラを更新
-        // cameraPosition も依存配列に入れることで、target との比較が正しく行われる
+    // プレイヤーの位置 (ECollisionPosition) が変わったらカメラを更新
+    // cameraPosition も依存配列に入れることで、target との比較が正しく行われる
 
     useEffect(() => {
         console.log("loadedImagesの更新:",);
@@ -400,119 +514,119 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // console.log(craftItems)
 
 
-  return (
-    <div  style={{ outline: "none" }}>
-      <Stage
-        width={typeof window !== "undefined" ? window.innerWidth : 0}
-        height={typeof window !== "undefined" ? window.innerHeight : 0}
-      >
-        <Layer>
-          {/* --- 1. Grass背景を全マスに描画 --- */}
-          {Map_data.map((row, rowIndex) =>
-            row.map((_, colIndex) => {
-              const grassImg = tileImages["grass"];
-              if (!grassImg) return null;
+    return (
+        <div  style={{ outline: "none" }}>
+            <Stage
+                width={typeof window !== "undefined" ? window.innerWidth : 0}
+                height={typeof window !== "undefined" ? window.innerHeight : 0}
+            >
+                <Layer>
+                    {/* --- 1. Grass背景を全マスに描画 --- */}
+                    {Map_data.map((row, rowIndex) =>
+                        row.map((_, colIndex) => {
+                            const grassImg = tileImages["grass"];
+                            if (!grassImg) return null;
 
-              return (
-                <Image
-                  key={`grass-${rowIndex}-${colIndex}`}
-                  image={grassImg}
-                  x={colIndex * Tile_size - cameraPosition.x}
-                  y={rowIndex * Tile_size - cameraPosition.y}
-                  width={Tile_size}
-                  height={Tile_size}
-                  alt="タイル画像"
-                />
-              );
-            })
-          )}
+                            return (
+                                <Image
+                                    key={`grass-${rowIndex}-${colIndex}`}
+                                    image={grassImg}
+                                    x={colIndex * Tile_size - cameraPosition.x}
+                                    y={rowIndex * Tile_size - cameraPosition.y}
+                                    width={Tile_size}
+                                    height={Tile_size}
+                                    alt="タイル画像"
+                                />
+                            );
+                        })
+                    )}
 
-          {/* --- 2. タイルの上書き描画（透明含む） --- */}
-          {Map_data.map((row, rowIndex) =>
-            row.map((tile, colIndex) => {
-              // grassはすでに描画されているのでスキップ
-              if (tile === "grass") return null;
+                    {/* --- 2. タイルの上書き描画（透明含む） --- */}
+                    {Map_data.map((row, rowIndex) =>
+                        row.map((tile, colIndex) => {
+                            // grassはすでに描画されているのでスキップ
+                            if (tile === "grass") return null;
 
-              const img = tileImages[tile];
-              if (!img) return null;
+                            const img = tileImages[tile];
+                            if (!img) return null;
 
-              // 2x2サイズの判定（さっきのロジックと同じ）
-              const isLargeTile =
-                tile === "tree" ||
-                tile === "stone" ||
-                tile === "iron" ||
-                tile === "coal";
+                            // 2x2サイズの判定（さっきのロジックと同じ）
+                            const isLargeTile =
+                                tile === "tree" ||
+                                tile === "stone" ||
+                                tile === "iron" ||
+                                tile === "coal";
 
-              if (isLargeTile) {
-                const isRightNeighborSame =
-                  Map_data[rowIndex]?.[colIndex - 1] === tile;
-                const isBottomNeighborSame =
-                  Map_data[rowIndex - 1]?.[colIndex] === tile;
-                const isBottomRightSame =
-                  Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
+                            if (isLargeTile) {
+                                const isRightNeighborSame =
+                                    Map_data[rowIndex]?.[colIndex - 1] === tile;
+                                const isBottomNeighborSame =
+                                    Map_data[rowIndex - 1]?.[colIndex] === tile;
+                                const isBottomRightSame =
+                                    Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
 
-                if (
-                  isRightNeighborSame ||
-                  isBottomNeighborSame ||
-                  isBottomRightSame
-                ) {
-                  return null; // スキップ（左上のみ描画）
-                }
+                                if (
+                                    isRightNeighborSame ||
+                                    isBottomNeighborSame ||
+                                    isBottomRightSame
+                                ) {
+                                    return null; // スキップ（左上のみ描画）
+                                }
 
-                return (
-                  <Image
-                    key={`${tile}-${rowIndex}-${colIndex}`}
-                    image={img}
-                    x={colIndex * Tile_size - cameraPosition.x}
-                    y={rowIndex * Tile_size - cameraPosition.y}
-                    width={Tile_size * 2}
-                    height={Tile_size * 2}
-                    alt="タイル画像"
-                  />
-                );
-              }
+                                return (
+                                    <Image
+                                        key={`${tile}-${rowIndex}-${colIndex}`}
+                                        image={img}
+                                        x={colIndex * Tile_size - cameraPosition.x}
+                                        y={rowIndex * Tile_size - cameraPosition.y}
+                                        width={Tile_size * 2}
+                                        height={Tile_size * 2}
+                                        alt="タイル画像"
+                                    />
+                                );
+                            }
 
-              // 通常サイズのタイル
-              return (
-                <Image
-                  key={`${tile}-${rowIndex}-${colIndex}`}
-                  image={img}
-                  x={colIndex * Tile_size - cameraPosition.x}
-                  y={rowIndex * Tile_size - cameraPosition.y}
-                  width={Tile_size}
-                  height={Tile_size}
-                  alt="タイル画像"
-                />
-              );
-            })
-          )}
-            {itemData.map((data) => (
-                <Image
-                    key={data.id} // _uniqueId を key に使う（id 重複を避ける）
-                    x={data.x!  - cameraPosition.x}
-                    y={data.y! - cameraPosition.y}
-                    width={Tile_size}
-                    height={Tile_size}
-                    image={loadedImages[data.id]} // data.id で元の画像を参照
-                />
-            ))}
+                            // 通常サイズのタイル
+                            return (
+                                <Image
+                                    key={`${tile}-${rowIndex}-${colIndex}`}
+                                    image={img}
+                                    x={colIndex * Tile_size - cameraPosition.x}
+                                    y={rowIndex * Tile_size - cameraPosition.y}
+                                    width={Tile_size}
+                                    height={Tile_size}
+                                    alt="タイル画像"
+                                />
+                            );
+                        })
+                    )}
+                    {/*{itemData.map((data) => (*/}
+                    {/*    <Image*/}
+                    {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
+                    {/*        x={data.x!  - cameraPosition.x}*/}
+                    {/*        y={data.y! - cameraPosition.y}*/}
+                    {/*        width={Tile_size}*/}
+                    {/*        height={Tile_size}*/}
+                    {/*        image={loadedImages[data.id]} // data.id で元の画像を参照*/}
+                    {/*    />*/}
+                    {/*))}*/}
 
-          {/* --- プレイヤー --- */}
-            {playerImage && ECollisionPosition && (
-                <Image
-                    image={playerImage}
-                    x={ECollisionPosition.x - cameraPosition.x}
-                    y={ECollisionPosition.y - cameraPosition.y}
-                    width={Tile_size}
-                    height={Tile_size}
-                    alt="プレイヤー"
-                    listening={false}
-                />
-            )}
-        </Layer>
-      </Stage>
-    </div>
-  );
+                    {/* --- プレイヤー --- */}
+                    {playerImage && ECollisionPosition && (
+                        <Image
+                            image={playerImage}
+                            x={ECollisionPosition.x - cameraPosition.x}
+                            y={ECollisionPosition.y - cameraPosition.y}
+                            width={Tile_size}
+                            height={Tile_size}
+                            alt="プレイヤー"
+                            listening={false}
+                        />
+                    )}
+                </Layer>
+            </Stage>
+        </div>
+    );
 };
 
 export default MapWithCharacter;
