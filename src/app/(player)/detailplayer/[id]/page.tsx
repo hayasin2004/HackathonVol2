@@ -5,7 +5,6 @@ import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
 import {DetailPlayerTypes} from "@/types/Player";
 import  styles from './page.module.css';
-import Tabs from "@/components/Tabs/Tabs";
 import Link from "next/link";
 
 
@@ -131,9 +130,6 @@ const ToShowOtherDetail: React.FC<DetailPlayerTypes> =({
             <h1>{detailPlayerData?.username}さんのページです</h1>
             <h2>Id : {detailPlayerData?.id}</h2>
             <h3>Username : {detailPlayerData?.username}</h3>
-            <div>
-                <Tabs/>
-            </div>
             <div>
                 <h1>ここでフォロー一覧</h1>
                 {detailPlayerDataFollowingsList?.map((followingUserData, index) => (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect, KeyboardEvent} from "react";
+import React, {useState, useEffect} from "react";
 import {Stage, Layer, Rect, Image} from "react-konva";
 import {
     Tile_size,
@@ -24,7 +24,7 @@ interface GameProps {
 }
 
 const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
-    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
+    const { connected, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     // プレイヤー移動
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
@@ -57,7 +57,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // プレイヤーアイテム情報の取得
 
 
-    const {ECollisionPosition, ECollisionStatus, adjacentObstacles, } = useRemakeItemGet({
+    const {ECollisionPosition } = useRemakeItemGet({
         userId: playerId.id,
         initialPosition: {x: playerPosition.x, y: playerPosition.y},
         circleRadius: 30,
@@ -139,7 +139,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
         setRandomPlacedItems(duplicatedItems);
     }, [augmentedItemData]);
-    ;
+
 
     useEffect(() => {
         if (playerId) {
@@ -330,7 +330,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [loadedImages]);
 
 
-    let imageElements = null;
+    // let imageElements = null;
 
     // if (itemData.length > 0 && Object.keys(loadedImages).length > 0) {
     //     imageElements = itemData.map((data, index) => (
@@ -360,7 +360,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     if (error) {
         return <div className="error">エラー: {error}</div>;
     }
-    itemData.map((data, index) => {
+    itemData.map((data) => {
         const imageNode = loadedImages[data.id];
 
         if (!imageNode) {
@@ -448,8 +448,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {isOpen && (
                     <div className={styles.modalOverlay}>
                         <div className={styles.modalContent}>
-                        <button className={styles.closeButton} onClick={() => setIsOpen(false)}>×</button>
-
+                            <button className={styles.closeButton} onClick={() => setIsOpen(false)}>×</button>
                             <div className={styles.inventory}>
                                 <h3>インベントリ</h3>
                                 <table className={styles.inventoryTable}>
@@ -470,9 +469,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                 </table>
                             </div>
 
-                            <div className="crafting">
+                            <div className={styles.crafting}>
                                 <h3>クラフトメニュー</h3>
-                                <div className="craft-buttons">
+                                <div className={styles.craftButtons}>
                                     <select value={selectedItemId} onChange={handleSelectChange}>
                                         <option value="">-- アイテムを選択 --</option>
                                         {craftItems?.map((craftItem) => (
