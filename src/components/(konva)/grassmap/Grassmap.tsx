@@ -47,7 +47,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         userId: playerId.id,
         initialPosition: {x: playerPosition.x, y: playerPosition.y},
         circleRadius: 30,
-        rectPositions: randomPlacedItems,
+        rectPositions: itemData,
         movePlayer,
     });
 
@@ -385,10 +385,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                         ))
                     )}
 
-                    {randomPlacedItems.map((data) => (
+                    {itemData.map((data) => (
                         <Image
-                            key={data._uniqueId} // _uniqueId を key に使う（id 重複を避ける）
-                            x={data.x! - cameraPosition.x}
+                            key={data.id} // _uniqueId を key に使う（id 重複を避ける）
+                            x={data.x!  - cameraPosition.x}
                             y={data.y! - cameraPosition.y}
                             width={Tile_size}
                             height={Tile_size}
