@@ -21,12 +21,12 @@ export async function GET(req: Request) {
         const filePaths = userData.iconImage.slice(0, 8);
 
         // 各キャラの最初の8枚の画像URLを作成 (Promise.allで並列処理を待機)
-        const urls = filePaths.map((path) => {
-            const {data} = supabase.storage
-                .from('hackathon2-picture-storage')
-                .getPublicUrl(path);
-            return data?.publicUrl;
-        });
+        // const urls = filePaths.map((path) => {
+        //     const {data} = supabase.storage
+        //         .from('hackathon2-picture-storage')
+        //         .getPublicUrl(path);
+        //     return data?.publicUrl;
+        // });
         return NextResponse.json({status: 200, userData});
 
 

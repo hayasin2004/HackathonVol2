@@ -532,6 +532,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     const data = await response.json();
 
 
+
+
                     setCharacterImageData(data.userData);
                 } else {
                     console.error("Failed to fetch character images");
@@ -556,101 +558,100 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     return (
         <div style={{outline: "none"}}>
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px'}}>
-                {characterImageData?.iconImage.map((url, index) => (
-                    <div key={index} style={{textAlign: 'center'}}>
-                        <Image src={url} alt={`Image ${index + 1}`} width={150} height={150}/>
+                {characterImageData?.iconImage.slice(0, 8).map((url, index) => (
+                    <div key={index} style={{ textAlign: 'center' }}>
+                        <Image src={url} alt={`Image ${index + 1}`} width={150} height={150} />
                         <p>Image {index + 1}</p>
                     </div>
                 ))}
-
             </div>
 
-            {/*<Stage*/}
-            {/*    width={typeof window !== "undefined" ? window.innerWidth : 0}*/}
-            {/*    height={typeof window !== "undefined" ? window.innerHeight : 0}*/}
-            {/*>*/}
-            {/*    <Layer>*/}
-            {/*        /!* --- 1. Grass背景 --- *!/*/}
-            {/*        {Map_data.map((row, rowIndex) =>*/}
-            {/*            row.map((_, colIndex) => {*/}
-            {/*                const grassImg = tileImages["grass"];*/}
-            {/*                if (!grassImg) return null;*/}
-            {/*                return (*/}
-            {/*                    <KonvaImage*/}
-            {/*                        key={`grass-${rowIndex}-${colIndex}`}*/}
-            {/*                        image={grassImg}*/}
-            {/*                        x={colIndex * Tile_size - cameraPosition.x}*/}
-            {/*                        y={rowIndex * Tile_size - cameraPosition.y}*/}
-            {/*                        width={Tile_size}*/}
-            {/*                        height={Tile_size}*/}
-            {/*                        alt="タイル画像"*/}
-            {/*                    />*/}
-            {/*                );*/}
-            {/*            })*/}
-            {/*        )}*/}
-            {/*        /!* --- 2. その他のタイル --- *!/*/}
-            {/*        {Map_data.map((row, rowIndex) =>*/}
-            {/*            row.map((tile, colIndex) => {*/}
-            {/*                if (tile === "grass") return null;*/}
-            {/*                const img = tileImages[tile];*/}
-            {/*                if (!img) return null;*/}
-            {/*                const isLargeTile = tile === "tree" || tile === "stone" || tile === "iron" || tile === "coal";*/}
-            {/*                if (isLargeTile) {*/}
-            {/*                    const isRightNeighborSame = Map_data[rowIndex]?.[colIndex - 1] === tile;*/}
-            {/*                    const isBottomNeighborSame = Map_data[rowIndex - 1]?.[colIndex] === tile;*/}
-            {/*                    const isBottomRightSame = Map_data[rowIndex - 1]?.[colIndex - 1] === tile;*/}
-            {/*                    if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) {*/}
-            {/*                        return null;*/}
-            {/*                    }*/}
-            {/*                    return (*/}
-            {/*                        <KonvaImage*/}
-            {/*                            key={`${tile}-${rowIndex}-${colIndex}`}*/}
-            {/*                            image={img}*/}
-            {/*                            x={colIndex * Tile_size - cameraPosition.x}*/}
-            {/*                            y={rowIndex * Tile_size - cameraPosition.y}*/}
-            {/*                            width={Tile_size * 2}*/}
-            {/*                            height={Tile_size * 2}*/}
-            {/*                            alt="タイル画像"*/}
-            {/*                        />*/}
-            {/*                    );*/}
-            {/*                }*/}
-            {/*                return (*/}
-            {/*                    <KonvaImage*/}
-            {/*                        key={`${tile}-${rowIndex}-${colIndex}`}*/}
-            {/*                        image={img}*/}
-            {/*                        x={colIndex * Tile_size - cameraPosition.x}*/}
-            {/*                        y={rowIndex * Tile_size - cameraPosition.y}*/}
-            {/*                        width={Tile_size}*/}
-            {/*                        height={Tile_size}*/}
-            {/*                        alt="タイル画像"*/}
-            {/*                    />*/}
-            {/*                );*/}
-            {/*            })*/}
-            {/*        )}*/}
-            {/*        /!*{itemData.map((data) => (*!/*/}
-            {/*        /!*    <KonvaImage*!/*/}
-            {/*        /!*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*!/*/}
-            {/*        /!*        x={data.x! - cameraPosition.x}*!/*/}
-            {/*        /!*        y={data.y! - cameraPosition.y}*!/*/}
-            {/*        /!*        width={Tile_size}*!/*/}
-            {/*        /!*        height={Tile_size}*!/*/}
-            {/*        /!*        image={loadedImages[data.id]} // data.id で元の画像を参照*!/*/}
-            {/*        /!*    />*!/*/}
-            {/*        /!*))}*!/*/}
+            <Stage
+                width={typeof window !== "undefined" ? window.innerWidth : 0}
+                height={typeof window !== "undefined" ? window.innerHeight : 0}
+            >
+                <Layer>
+                    {/* --- 1. Grass背景 --- */}
+                    {Map_data.map((row, rowIndex) =>
+                        row.map((_, colIndex) => {
+                            const grassImg = tileImages["grass"];
+                            if (!grassImg) return null;
+                            return (
+                                <KonvaImage
+                                    key={`grass-${rowIndex}-${colIndex}`}
+                                    image={grassImg}
+                                    x={colIndex * Tile_size - cameraPosition.x}
+                                    y={rowIndex * Tile_size - cameraPosition.y}
+                                    width={Tile_size}
+                                    height={Tile_size}
+                                    alt="タイル画像"
+                                />
+                            );
+                        })
+                    )}
+                    {/* --- 2. その他のタイル --- */}
+                    {Map_data.map((row, rowIndex) =>
+                        row.map((tile, colIndex) => {
+                            if (tile === "grass") return null;
+                            const img = tileImages[tile];
+                            if (!img) return null;
+                            const isLargeTile = tile === "tree" || tile === "stone" || tile === "iron" || tile === "coal";
+                            if (isLargeTile) {
+                                const isRightNeighborSame = Map_data[rowIndex]?.[colIndex - 1] === tile;
+                                const isBottomNeighborSame = Map_data[rowIndex - 1]?.[colIndex] === tile;
+                                const isBottomRightSame = Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
+                                if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) {
+                                    return null;
+                                }
+                                return (
+                                    <KonvaImage
+                                        key={`${tile}-${rowIndex}-${colIndex}`}
+                                        image={img}
+                                        x={colIndex * Tile_size - cameraPosition.x}
+                                        y={rowIndex * Tile_size - cameraPosition.y}
+                                        width={Tile_size * 2}
+                                        height={Tile_size * 2}
+                                        alt="タイル画像"
+                                    />
+                                );
+                            }
+                            return (
+                                <KonvaImage
+                                    key={`${tile}-${rowIndex}-${colIndex}`}
+                                    image={img}
+                                    x={colIndex * Tile_size - cameraPosition.x}
+                                    y={rowIndex * Tile_size - cameraPosition.y}
+                                    width={Tile_size}
+                                    height={Tile_size}
+                                    alt="タイル画像"
+                                />
+                            );
+                        })
+                    )}
+                    {/*{itemData.map((data) => (*/}
+                    {/*    <KonvaImage*/}
+                    {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
+                    {/*        x={data.x! - cameraPosition.x}*/}
+                    {/*        y={data.y! - cameraPosition.y}*/}
+                    {/*        width={Tile_size}*/}
+                    {/*        height={Tile_size}*/}
+                    {/*        image={loadedImages[data.id]} // data.id で元の画像を参照*/}
+                    {/*    />*/}
+                    {/*))}*/}
 
-            {/*        /!* --- プレイヤー --- *!/*/}
-            {/*        {playerImage && (*/}
-            {/*            <KonvaImage*/}
-            {/*                image={playerImage}*/}
-            {/*                x={ECollisionPosition?.x - cameraPosition.x}*/}
-            {/*                y={ECollisionPosition?.y - cameraPosition.y}*/}
-            {/*                width={Tile_size}*/}
-            {/*                height={Tile_size}*/}
-            {/*                alt="プレイヤー写真"*/}
-            {/*            />*/}
-            {/*        )}*/}
-            {/*    </Layer>*/}
-            {/*</Stage>*/}
+                    {/* --- プレイヤー --- */}
+                    {playerImage && (
+                        <KonvaImage
+                            image={playerImage}
+                            x={ECollisionPosition?.x - cameraPosition.x}
+                            y={ECollisionPosition?.y - cameraPosition.y}
+                            width={Tile_size}
+                            height={Tile_size}
+                            alt="プレイヤー写真"
+                        />
+                    )}
+                </Layer>
+            </Stage>
             {/* インベントリ */}
             <div>
                 <button
