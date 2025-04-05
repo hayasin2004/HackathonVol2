@@ -13,7 +13,7 @@ const server = http.createServer(app); // HTTPサーバーを作成
 
 const PORT = 5000;
 
-server.listen(PORT, () => console.log(`Listening on port ${PORT}`)); // サーバーを起動
+server.listen(PORT, ()  => console.log(`Listening on port ${PORT}`)); // サーバーを起動
 //
 // io.on('connect', (socket) => {
 //     console.log("クライアントと接続")
@@ -39,7 +39,7 @@ if (process.env.NODE_ENV === 'production') {
 //
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000", // クライアントURLを許可
+        origin: ["http://localhost:3000"], // クライアントURLを許可
         methods: ["GET", "POST"], // サポートするHTTPメソッド
     },
 });

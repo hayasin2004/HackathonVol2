@@ -25,6 +25,8 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
             timeout: 20000, // タイムアウト時間を長くする
             path: '/socket.io/' // パスを明示的に指定
         });
+        const test = io("http://192.168.3.5:3000")
+
 
         // 接続イベント
         socketIo.on('connect', () => {
