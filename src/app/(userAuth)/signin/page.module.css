@@ -1,3 +1,57 @@
+.innercontainer{
+    color: #dddddd;
+}
+.outercontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: rgba(255,255,255,0.7);
+    font-family: 'Arial', sans-serif;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    backdrop-filter: blur(2px); /* 軽いぼかしで奥行きを演出（対応ブラウザ限定） */
+}
+
+.h1 {
+    text-align: center;
+    font-size: 28px;
+    color: #3b3b3b;
+    margin-bottom: 20px;
+}
+
+.input {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #00ffaf;
+}
+
+.button {
+    margin-top: 15px;
+    height: 45px;
+    width: 100%;
+    font-size: 16px;
+    background-color: #44aa55;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #3a914a;
+}
+
 
 
 .outercontainer {

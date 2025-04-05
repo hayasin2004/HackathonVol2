@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import styles from './page.module.css'
 
 export default function Page() {
   const { data: session } = useSession();
@@ -388,249 +389,260 @@ export default function Page() {
 
   return (
     <div>
-      <h1>Gemini Character Editor</h1>
-      <form onSubmit={handleGenerate}>
-        <h2>Head Features</h2>
-        <label>
-          性別:
-          <select value={gender} onChange={(e) => setGender(e.target.value)}>
-            <option value="女性">女性</option>
-            <option value="男性">男性</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          髪型:
-          <select
-            value={hairStyle}
-            onChange={(e) => setHairStyle(e.target.value)}
-          >
-            <option value="ベリーショート">ベリーショート</option>
-            <option value="ショート">ショート</option>
-            <option value="ミディアム">ミディアム</option>
-            <option value="セミロング">セミロング</option>
-            <option value="ロング">ロング</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          髪色:
-          <select
-            value={hairColor}
-            onChange={(e) => setHairColor(e.target.value)}
-          >
-            {colorOptions.map((color) => (
-              <option key={color} value={color}>
-                {color}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <label>
-          目の形:
-          <select value={eyeType} onChange={(e) => setEyeType(e.target.value)}>
-            <option value="丸目">丸目</option>
-            <option value="アーモンド目">アーモンド目</option>
-            <option value="つり目">つり目</option>
-            <option value="たれ目">たれ目</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          目の色:
-          <select
-            value={eyeColor}
-            onChange={(e) => setEyeColor(e.target.value)}
-          >
-            {colorOptions.map((color) => (
-              <option key={color} value={color}>
-                {color}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <label>
-          その他の特徴:
-          <textarea
+      <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
+      <form className={styles.characterEditorForm} onSubmit={handleGenerate}>
+        <h2 className={styles.characterEditorWrapper}>Head Features</h2>
+        <table className={styles.characterEditorTable}>
+          <tbody>
+          <tr>
+            <td><label htmlFor="gender">性別:</label></td>
+            <td>
+              <select id="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
+                <option value="女性">女性</option>
+                <option value="男性">男性</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label htmlFor="hairStyle">髪型:</label></td>
+            <td>
+              <select id="hairStyle" value={hairStyle} onChange={(e) => setHairStyle(e.target.value)}>
+                <option value="ベリーショート">ベリーショート</option>
+                <option value="ショート">ショート</option>
+                <option value="ミディアム">ミディアム</option>
+                <option value="セミロング">セミロング</option>
+                <option value="ロング">ロング</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label htmlFor="hairColor">髪色:</label></td>
+            <td>
+              <select id="hairColor" value={hairColor} onChange={(e) => setHairColor(e.target.value)}>
+                {colorOptions.map((color) => (
+                    <option key={color} value={color}>{color}</option>
+                ))}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label htmlFor="eyeType">目の形:</label></td>
+            <td>
+              <select id="eyeType" value={eyeType} onChange={(e) => setEyeType(e.target.value)}>
+                <option value="丸目">丸目</option>
+                <option value="アーモンド目">アーモンド目</option>
+                <option value="つり目">つり目</option>
+                <option value="たれ目">たれ目</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label htmlFor="eyeColor">目の色:</label></td>
+            <td>
+              <select id="eyeColor" value={eyeColor} onChange={(e) => setEyeColor(e.target.value)}>
+                {colorOptions.map((color) => (
+                    <option key={color} value={color}>{color}</option>
+                ))}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label htmlFor="additional">その他の特徴:</label></td>
+            <td>
+        <textarea
+            id="additional"
             placeholder="例: 猫耳や特別なアクセサリーなど"
             value={additional}
             onChange={(e) => setAdditional(e.target.value)}
-          />
-        </label>
-        <br />
-        <h2>Clothing</h2>
-        <label>
-          上半身:
-          <select
-            value={upperClothing}
-            onChange={(e) => setUpperClothing(e.target.value)}
-          >
-            {upperClothingOptions.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <label>
-          上半身の色:
-          <select
-            value={upperClothingColor}
-            onChange={(e) => setUpperClothingColor(e.target.value)}
-          >
-            {colorOptions.map((color) => (
-              <option key={color} value={color}>
-                {color}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        {upperClothing !== "ロングドレス" && (
-          <>
-            <label>
-              下半身:
+        />
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <br/>
+        <h2 className={styles.characterEditorTitle}>Clothing</h2>
+
+        <table className={styles.characterEditorTable}>
+          <tbody>
+          <tr>
+            <td><label htmlFor="upperClothing">上半身:</label></td>
+            <td>
               <select
-                value={lowerClothing}
-                onChange={(e) => setLowerClothing(e.target.value)}
+                  id="upperClothing"
+                  value={upperClothing}
+                  onChange={(e) => setUpperClothing(e.target.value)}
               >
-                {lowerClothingOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
+                {upperClothingOptions.map((item) => (
+                    <option key={item} value={item}>{item}</option>
                 ))}
               </select>
-            </label>
-            <br />
-            <label>
-              下半身の色:
+            </td>
+          </tr>
+          <tr>
+            <td><label htmlFor="upperClothingColor">上半身の色:</label></td>
+            <td>
               <select
-                value={lowerClothingColor}
-                onChange={(e) => setLowerClothingColor(e.target.value)}
+                  id="upperClothingColor"
+                  value={upperClothingColor}
+                  onChange={(e) => setUpperClothingColor(e.target.value)}
               >
                 {colorOptions.map((color) => (
-                  <option key={color} value={color}>
-                    {color}
-                  </option>
+                    <option key={color} value={color}>{color}</option>
                 ))}
               </select>
-            </label>
-            <br />
-          </>
-        )}
-        <label>
-          靴:
-          <select value={shoes} onChange={(e) => setShoes(e.target.value)}>
-            {shoesOptions.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <label>
-          靴の色:
-          <select
-            value={shoesColor}
-            onChange={(e) => setShoesColor(e.target.value)}
-          >
-            {colorOptions.map((color) => (
-              <option key={color} value={color}>
-                {color}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
+            </td>
+          </tr>
+
+          {upperClothing !== "ロングドレス" && (
+              <>
+                <tr>
+                  <td><label htmlFor="lowerClothing">下半身:</label></td>
+                  <td>
+                    <select
+                        id="lowerClothing"
+                        value={lowerClothing}
+                        onChange={(e) => setLowerClothing(e.target.value)}
+                    >
+                      {lowerClothingOptions.map((item) => (
+                          <option key={item} value={item}>{item}</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><label htmlFor="lowerClothingColor">下半身の色:</label></td>
+                  <td>
+                    <select
+                        id="lowerClothingColor"
+                        value={lowerClothingColor}
+                        onChange={(e) => setLowerClothingColor(e.target.value)}
+                    >
+                      {colorOptions.map((color) => (
+                          <option key={color} value={color}>{color}</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              </>
+          )}
+
+          <tr>
+            <td><label htmlFor="shoes">靴:</label></td>
+            <td>
+              <select
+                  id="shoes"
+                  value={shoes}
+                  onChange={(e) => setShoes(e.target.value)}
+              >
+                {shoesOptions.map((item) => (
+                    <option key={item} value={item}>{item}</option>
+                ))}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label htmlFor="shoesColor">靴の色:</label></td>
+            <td>
+              <select
+                  id="shoesColor"
+                  value={shoesColor}
+                  onChange={(e) => setShoesColor(e.target.value)}
+              >
+                {colorOptions.map((color) => (
+                    <option key={color} value={color}>{color}</option>
+                ))}
+              </select>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <br/>
         <button type="submit" disabled={loading}>
           {loading
-            ? "生成中..."
-            : frontImageUrl
-            ? "キャラクター再生成"
-            : "キャラクター生成"}
+              ? "生成中..."
+              : frontImageUrl
+                  ? "キャラクター再生成"
+                  : "キャラクター生成"}
         </button>
       </form>
 
       {frontImageUrl && (
-        <div>
-          <h2>生成された画像 (Front View):</h2>
-          <img
-            src={`${frontImageUrl}?t=${Date.now()}`}
-            alt="Front View"
-            style={{ imageRendering: "pixelated" }}
-          />
-          <br />
-          <button onClick={handleStaticGenerate} disabled={staticLoading}>
-            {staticLoading ? "別角度生成中..." : "キャラクター別角度生成"}
-          </button>
-        </div>
+          <div>
+            <h2>生成された画像 (Front View):</h2>
+            <img
+                src={`${frontImageUrl}?t=${Date.now()}`}
+                alt="Front View"
+                style={{imageRendering: "pixelated"}}
+            />
+            <br/>
+            <button onClick={handleStaticGenerate} disabled={staticLoading}>
+              {staticLoading ? "別角度生成中..." : "キャラクター別角度生成"}
+            </button>
+          </div>
       )}
 
       {staticImages.back && staticImages.right && staticImages.left && (
-        <div>
-          <h2>追加生成された画像 (静止画像):</h2>
           <div>
-            <h3>Back View:</h3>
-            <img
-              src={`${staticImages.back}?t=${Date.now()}`}
-              alt="Back View"
-              style={{ imageRendering: "pixelated" }}
-            />
+            <h2>追加生成された画像 (静止画像):</h2>
+            <div>
+              <h3>Back View:</h3>
+              <img
+                  src={`${staticImages.back}?t=${Date.now()}`}
+                  alt="Back View"
+                  style={{imageRendering: "pixelated"}}
+              />
+            </div>
+            <div>
+              <h3>Right View:</h3>
+              <img
+                  src={`${staticImages.right}?t=${Date.now()}`}
+                  alt="Right View"
+                  style={{imageRendering: "pixelated"}}
+              />
+            </div>
+            <div>
+              <h3>Left View:</h3>
+              <img
+                  src={`${staticImages.left}?t=${Date.now()}`}
+                  alt="Left View"
+                  style={{imageRendering: "pixelated"}}
+              />
+            </div>
           </div>
-          <div>
-            <h3>Right View:</h3>
-            <img
-              src={`${staticImages.right}?t=${Date.now()}`}
-              alt="Right View"
-              style={{ imageRendering: "pixelated" }}
-            />
-          </div>
-          <div>
-            <h3>Left View:</h3>
-            <img
-              src={`${staticImages.left}?t=${Date.now()}`}
-              alt="Left View"
-              style={{ imageRendering: "pixelated" }}
-            />
-          </div>
-        </div>
       )}
 
       {frontImageUrl &&
-        staticImages.back &&
-        staticImages.right &&
-        staticImages.left && (
-          <div>
-            <h2>モーション画像:</h2>
-            <button onClick={handleMotionGenerate} disabled={motionLoading}>
-              {motionLoading
-                ? "モーション生成中..."
-                : motionImages.front
-                ? "キャラクターモーション再生成"
-                : "キャラクターモーション生成"}
-            </button>
-            {motionImages.front &&
-              motionImages.back &&
-              motionImages.right &&
-              motionImages.left && (
-                <div>
-                  <h3>Front Walk:</h3>
-                  <img
-                    src={`${motionImages.front}?t=${Date.now()}`}
-                    alt="Front Walk"
-                    style={{ imageRendering: "pixelated" }}
-                  />
-                  <h3>Back Walk:</h3>
-                  <img
-                    src={`${motionImages.back}?t=${Date.now()}`}
-                    alt="Back Walk"
-                    style={{ imageRendering: "pixelated" }}
-                  />
-                  <h3>Right Walk:</h3>
+          staticImages.back &&
+          staticImages.right &&
+          staticImages.left && (
+              <div>
+                <h2>モーション画像:</h2>
+                <button onClick={handleMotionGenerate} disabled={motionLoading}>
+                  {motionLoading
+                      ? "モーション生成中..."
+                      : motionImages.front
+                          ? "キャラクターモーション再生成"
+                          : "キャラクターモーション生成"}
+                </button>
+                {motionImages.front &&
+                    motionImages.back &&
+                    motionImages.right &&
+                    motionImages.left && (
+                        <div>
+                          <h3>Front Walk:</h3>
+                          <img
+                              src={`${motionImages.front}?t=${Date.now()}`}
+                              alt="Front Walk"
+                              style={{imageRendering: "pixelated"}}
+                          />
+                          <h3>Back Walk:</h3>
+                          <img
+                              src={`${motionImages.back}?t=${Date.now()}`}
+                              alt="Back Walk"
+                              style={{imageRendering: "pixelated"}}
+                          />
+                          <h3>Right Walk:</h3>
                   <img
                     src={`${motionImages.right}?t=${Date.now()}`}
                     alt="Right Walk"

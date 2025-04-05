@@ -1,0 +1,15 @@
+.characterEditorWrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.characterEditorForm {
+    gap: 12px;
+    text-align: center;
+    align-items: center;
+    padding: 20px 0 10px 0;
+    flex-wrap: wrap;
+}
+.characterEditorLabel{
+
+}
