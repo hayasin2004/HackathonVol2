@@ -27,7 +27,9 @@ interface GameProps {
 }
 
 
-const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
+
+
+    const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
         const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
         const MAP_PIXEL_WIDTH = Map_width * Tile_size;
         const MAP_PIXEL_HEIGHT = Map_height * Tile_size;
@@ -36,8 +38,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
         const [playerItems, setPlayerItems] = useState<any[]>([]);
         const [craftItems, setCraftItems] = useState<any[]>([]);
-
-
         const [notifications, setNotifications] = useState<string[]>([]);
         const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
         const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
@@ -48,19 +48,23 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
         const [selectedItemId, setSelectedItemId] = useState("");
         const [isOpen, setIsOpen] = useState(false);
-
         // クラフトをプルダウンメニュー化
         const handleSelectChange = (e: any) => {
             setSelectedItemId(e);
         };
-
         const handleCraftClick = () => {
             if (selectedItemId) {
-                handleCraftItem(selectedItemId);
+                const selectedItem = craftItems.find(
+                    (item) => item.createdItem.id === Number(selectedItemId)
+                );
+
+                handleCraftItem(Number(selectedItemId));
+
+                if (selectedItem) {
+                    toast(`${selectedItem.createdItem.itemName} を獲得した！`);
+                }
             }
         };
-
-
         const stableInitialPosition = useMemo(() => ({
             x: playerId?.x ?? 0,
             y: playerId?.y ?? 0,
@@ -198,6 +202,21 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             ArrowRight: 2,
             ArrowLeft: 3,
         };
+        const staticImages = {
+            default: "/character_front.png",
+            ArrowUp: "/character_back.png",
+            ArrowDown: "/character_front.png",
+            ArrowRight: "/character_right.png",
+            ArrowLeft: "/character_left.png",
+        };
+
+        const walkImages = {
+            ArrowUp: "/character_back_walk.png",
+            ArrowDown: "/character_front_walk.png",
+            ArrowRight: "/character_right_walk.png",
+            ArrowLeft: "/character_left_walk.png",
+        };
+
 
         useEffect(() => {
             const handleKeyDown = (event: KeyboardEvent) => {
@@ -245,8 +264,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 }
             };
         }, [characterImageData]);
-;
-        ;
+
+
 
 
 // ----------------------------
@@ -353,13 +372,15 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         useEffect(() => {
             if (itemEvents.length > 0) {
                 const latestEvent = itemEvents[itemEvents.length - 1]; // 最新のイベントを取得
-
                 setNotifications((prev) => {
-                    // 他のプレイヤーのイベントかどうかに関わらず通知を設定
                     const message =
                         latestEvent.player_id !== playerId.id
                             ? `プレイヤーID:${latestEvent.player_id}がアイテムを取得しました`
                             : `アイテムを取得しました`;
+
+                    // ✅ toast で通知も表示
+                    toast(message);
+
                     return [message, ...prev.slice(0, 4)];
                 });
 
@@ -665,6 +686,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 </Stage>
                 {/* インベントリ */}
                 <div>
+
                     <button
                         className={styles.fixedOpenButton}
                         onClick={() => setIsOpen(true)}
@@ -674,6 +696,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
                     {isOpen && (
                         <div className={styles.modalOverlay}>
+
                             <div className={styles.modalContent}>
                                 <button className={styles.closeButton} onClick={() => setIsOpen(false)}>×</button>
                                 <div className={styles.inventory}>
@@ -735,7 +758,5 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 </div>
             </div>
         );
-    }
-;
-
+    };
 export default MapWithCharacter;
