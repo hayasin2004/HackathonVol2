@@ -59,6 +59,18 @@ export const generateMap = () => {
       }
     }
   };
+  //y=20の部分に水を作る
+  for (let i = 5; i < 20; i++) {
+    for (let y = 16; y <= 20; y++) {
+      map2d[y][i] = "water";
+    }
+  }
+
+  //ループ処理（iがイコールになるまで繰り返す）[i]は横幅を表す
+  for (let i = 0; i < Map_width; i++) {
+    const middle = Math.floor(Map_height / 2);
+    map2d[middle][i] = "path";
+  }
 
   // **各タイルを配置（1×1）**
   placeTile("building", 10);
@@ -150,17 +162,6 @@ export const generateMap = () => {
   //     map2d[y + 1][x + 1] = "coal";
   //   }
   // }
-
-  //y=20の部分に水を作る
-  for (let i = 5; i < 20; i++) {
-    map2d[20][i] = "water";
-  }
-
-  //ループ処理（iがイコールになるまで繰り返す）[i]は横幅を表す
-  for (let i = 0; i < Map_width; i++) {
-    const middle = Math.floor(Map_height / 2);
-    map2d[middle][i] = "path";
-  }
 
   return map2d;
 };
