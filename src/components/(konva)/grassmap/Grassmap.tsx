@@ -39,7 +39,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
     const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
     const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
-
+    const [tileImages, setTileImages] = useState<{
+        [key: string]: HTMLImageElement;
+    }>({});
     // プレイヤーアイテム情報の取得
 
 
@@ -50,20 +52,37 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         rectPositions: itemData,
         movePlayer,
     });
+    useEffect(() => {
+        const tiles = Object.values(Tile_list);
+        const loadedImages: { [key: string]: HTMLImageElement } = {};
 
+        tiles.forEach((tile) => {
+            const img = new window.Image();
+            img.src = `/tiles/${tile}.png`;
+            img.onload = () => {
+                loadedImages[tile] = img;
+
+                //全部読み込まれたら一気にリセット
+                if (Object.keys(loadedImages).length === tiles.length) {
+                    setTileImages(loadedImages);
+                }
+            };
+        });
+    }, []);
 
     useEffect(() => {
 
         const initialPlayerPosition = {x: playerId.x, y: playerId.y}
         setPlayerPosition(initialPlayerPosition);
-        const mapData = generateMap();
-        const itemPositions = generateItemPositions(itemData, mapData, 1);
-        const result = itemData.map((data, index) => ({
-            ...data,
-            tileX: itemPositions[index]?.tileX,
-            tileY: itemPositions[index]?.tileY,
-        }));
-        setAugmentedItemData(result);
+        generateMap();
+
+        // const itemPositions = generateItemPositions(itemData, mapData, 1);
+        // const result = itemData.map((data, index) => ({
+        //     ...data,
+        //     tileX: data?.x,
+        //     tileY: data?.y,
+        // }));
+        // setAugmentedItemData(result);
 
 
         const loadImages = async () => {
@@ -99,33 +118,33 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     }, [itemData]);
 
-    useEffect(() => {
-        const occupiedPositions = new Set();
+    // useEffect(() => {
+    //     const occupiedPositions = new Set();
 
-        const duplicatedItems = augmentedItemData.flatMap((item) => {
-            const repeatCount = Math.floor(Math.random() * 5) + 1;
+    //     const duplicatedItems = augmentedItemData.flatMap((item) => {
+    //         const repeatCount = Math.floor(Math.random() * 5) + 1;
+    //
+    //         return Array.from({length: repeatCount}, (_, i) => {
+    //             let randomTileX, randomTileY;
+    //             do {
+    //                 randomTileX = Math.floor(Math.random() * Map_width);
+    //                 randomTileY = Math.floor(Math.random() * Map_height);
+    //             } while (occupiedPositions.has(`${randomTileX}-${randomTileY}`));
+    //
+    //             occupiedPositions.add(`${randomTileX}-${randomTileY}`);
+    //
+    //             return {
+    //                 ...item,
+    //                 x: randomTileX,
+    //                 y: randomTileY,
+    //                 _uniqueId: `${item.id}-${i}-${Math.random()}`,
+    //             };
+    //         });
+    //     });
+    //
+    //     setRandomPlacedItems(duplicatedItems);
+    // }, [augmentedItemData]);
 
-            return Array.from({length: repeatCount}, (_, i) => {
-                let randomTileX, randomTileY;
-                do {
-                    randomTileX = Math.floor(Math.random() * Map_width);
-                    randomTileY = Math.floor(Math.random() * Map_height);
-                } while (occupiedPositions.has(`${randomTileX}-${randomTileY}`));
-
-                occupiedPositions.add(`${randomTileX}-${randomTileY}`);
-
-                return {
-                    ...item,
-                    tileX: randomTileX,
-                    tileY: randomTileY,
-                    _uniqueId: `${item.id}-${i}-${Math.random()}`,
-                };
-            });
-        });
-
-        setRandomPlacedItems(duplicatedItems);
-    }, [augmentedItemData]);
-    ;
 
     useEffect(() => {
         if (playerId) {
@@ -243,72 +262,74 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         img.onload = () => setPlayerImage(img);
     }, []);
 
+  // const getTilecolor = (list: string) => {
+  //   //switchはlistの値によって色を返している
+  //   switch (list) {
+  //     //Tile_listのGrassというケースの場合はreturnでカラーコードを返してあげる?
+  //     case Tile_list.Grass:
+  //       return "#74C365";
+  //     case Tile_list.Path:
+  //       return "#E5C07B";
+  //     case Tile_list.Building:
+  //       return "#8B5E3C";
+  //     case Tile_list.Water:
+  //       return "#4F94CD";
+  //     case Tile_list.Tree:
+  //       return "#228B22";
+  //     case Tile_list.Leaves:
+  //       return "#327040";
+  //     case Tile_list.Stone:
+  //       return "#747474";
+  //     case Tile_list.Iron:
+  //       return "#D1D1D1";
+  //     case Tile_list.Coal:
+  //       return "#2D2D2D";
+  //     case Tile_list.Flower:
+  //       return "#fa52e3";
+  //     case Tile_list.Mushroom:
+  //       return "#846847";
+  //     case Tile_list.Insect:
+  //       return "#ef5e3f";
+  //     //デフォルトも草を設置
+  //     default:
+  //       return "#74C365";
+  //   }
+  // };
 
-    const getTilecolor = (list: string) => {
-        switch (list) {
-            case Tile_list.Grass:
-                return "#74C365";
-            case Tile_list.Path:
-                return "#E5C07B";
-            case Tile_list.Building:
-                return "#8B5E3C";
-            case Tile_list.Water:
-                return "#4F94CD";
-            case Tile_list.Tree:
-                return "#228B22";
-            case Tile_list.Leaves:
-                return "#327040";
-            case Tile_list.Stone:
-                return "#747474";
-            case Tile_list.Iron:
-                return "#D1D1D1";
-            case Tile_list.Coal:
-                return "#2D2D2D";
-            case Tile_list.Flower:
-                return "#fa52e3";
-            case Tile_list.Mushroom:
-                return "#846847";
-            case Tile_list.Insect:
-                return "#ef5e3f";
-            default:
-                return "#74C365";
+    const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        let {x, y} = playerPosition;
+
+        switch (e.key) {
+            case "ArrowUp":
+                y -= Tile_size;
+                break;
+            case "ArrowDown":
+                y += Tile_size;
+                break;
+            case "ArrowLeft":
+                x -= Tile_size;
+                break;
+            case "ArrowRight":
+                x += Tile_size;
+                break;
+        }
+        console.log(playerPosition.x)
+        console.log(playerPosition.y)
+
+        if (
+            x >= 0 &&
+            y >= 0 &&
+            x < Map_width * Tile_size &&
+            y < Map_height * Tile_size
+        ) {
+            setPlayerPosition({x, y});
+            setCameraPosition({
+                x: Math.max(0, x - window.innerWidth / 2),
+                y: Math.max(0, y - window.innerHeight / 2),
+            });
         }
     };
-
-    // const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    //     e.preventDefault();
-    //     let {x, y} = playerPosition;
-    //
-    //     switch (e.key) {
-    //         case "ArrowUp":
-    //             y -= Tile_size;
-    //             break;
-    //         case "ArrowDown":
-    //             y += Tile_size;
-    //             break;
-    //         case "ArrowLeft":
-    //             x -= Tile_size;
-    //             break;
-    //         case "ArrowRight":
-    //             x += Tile_size;
-    //             break;
-    //     }
-    //     console.log(playerPosition.x)
-    //     console.log(playerPosition.y)
-    //
-    //     if (
-    //         x >= 0 &&
-    //         y >= 0 &&
-    //         x < Map_width * Tile_size &&
-    //         y < Map_height * Tile_size
-    //     ) {
-    //         setPlayerPosition({x, y});
-    //         setCameraPosition({
-    //             x: Math.max(0, x - window.innerWidth / 2),
-    //             y: Math.max(0, y - window.innerHeight / 2),
-    //         });
-    //     }
-    // };
 
 
     useEffect(() => {
@@ -355,103 +376,121 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         }
     })
 
-    console.log(craftItems)
+    // console.log(craftItems)
 
 
-    return (
+  return (
+    <div tabIndex={0} onKeyDown={handlekeyDown} style={{ outline: "none" }}>
+      <Stage
+        width={typeof window !== "undefined" ? window.innerWidth : 0}
+        height={typeof window !== "undefined" ? window.innerHeight : 0}
+      >
+        <Layer>
+          {/* --- 1. Grass背景を全マスに描画 --- */}
+          {Map_data.map((row, rowIndex) =>
+            row.map((_, colIndex) => {
+              const grassImg = tileImages["grass"];
+              if (!grassImg) return null;
 
+              return (
+                <Image
+                  key={`grass-${rowIndex}-${colIndex}`}
+                  image={grassImg}
+                  x={colIndex * Tile_size - cameraPosition.x}
+                  y={rowIndex * Tile_size - cameraPosition.y}
+                  width={Tile_size}
+                  height={Tile_size}
+                  alt="タイル画像"
+                />
+              );
+            })
+          )}
 
-        <div tabIndex={0} style={{outline: "none"}}>
-            <Stage
-                width={typeof window !== "undefined" ? window.innerWidth : 0}
-                height={typeof window !== "undefined" ? window.innerHeight : 0}
-            >
-                <Layer>
-                    {/*{itemRandom?.map((item, index) => (*/}
-                    {/*    <li key={index}>*/}
-                    {/*        アイテムID: {item.id}, X座標: {item.tileX}, Y座標: {item.tileY}*/}
-                    {/*    </li>*/}
-                    {/*))}*/}
-                    {Map_data.map((row, rowIndex) =>
-                        row.map((tile, colIndex) => (
-                            <Rect
-                                key={`${rowIndex}-${colIndex}`}
-                                x={colIndex * Tile_size - cameraPosition.x}
-                                y={rowIndex * Tile_size - cameraPosition.y}
-                                width={Tile_size}
-                                height={Tile_size}
-                                fill={getTilecolor(tile)}
-                            />
-                        ))
-                    )}
+          {/* --- 2. タイルの上書き描画（透明含む） --- */}
+          {Map_data.map((row, rowIndex) =>
+            row.map((tile, colIndex) => {
+              // grassはすでに描画されているのでスキップ
+              if (tile === "grass") return null;
 
-                    {itemData.map((data) => (
-                        <Image
-                            key={data.id} // _uniqueId を key に使う（id 重複を避ける）
-                            x={data.x!  - cameraPosition.x}
-                            y={data.y! - cameraPosition.y}
-                            width={Tile_size}
-                            height={Tile_size}
-                            image={loadedImages[data.id]} // data.id で元の画像を参照
-                        />
-                    ))}
+              const img = tileImages[tile];
+              if (!img) return null;
 
+              // 2x2サイズの判定（さっきのロジックと同じ）
+              const isLargeTile =
+                tile === "tree" ||
+                tile === "stone" ||
+                tile === "iron" ||
+                tile === "coal";
 
-                    {/*{itemRandom?.map((item) => (*/}
+              if (isLargeTile) {
+                const isRightNeighborSame =
+                  Map_data[rowIndex]?.[colIndex - 1] === tile;
+                const isBottomNeighborSame =
+                  Map_data[rowIndex - 1]?.[colIndex] === tile;
+                const isBottomRightSame =
+                  Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
 
-                    {/*    <Image*/}
-                    {/*        key={item?.item?.id}*/}
-                    {/*        x={item?.tileX * Tile_size - cameraPosition.x}*/}
-                    {/*        y={item?.tileY * Tile_size - cameraPosition.y}*/}
-                    {/*        width={Tile_size}*/}
-                    {/*        height={Tile_size}*/}
-                    {/*        image={playerImage}*/}
-                    {/*    />*/}
-                    {/*))}*/}
+                if (
+                  isRightNeighborSame ||
+                  isBottomNeighborSame ||
+                  isBottomRightSame
+                ) {
+                  return null; // スキップ（左上のみ描画）
+                }
 
-                    {playerImage && (
-                        <Image
-                            image={playerImage}
-                            x={ECollisionPosition?.x - cameraPosition.x}
-                            y={ECollisionPosition?.y - cameraPosition.y}
-                            width={Tile_size}
-                            height={Tile_size}
-                            alt="プレイヤー写真"
-                        />
-                    )}
-                </Layer>
-            </Stage>
-            {/* インベントリ */}
-            <div className="inventory">
-                <h3>インベントリ</h3>
-                <div className="items-grid"
-                     style={{display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px'}}>
-                    {playerItems.map((item) => (
-                        <div key={item.id} className="item-box" style={{border: '1px solid #ccc', padding: '5px'}}>
-                            <div>{item.DefaultItemList.itemName}</div>
-                            <div>個数: {item.quantity}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+                return (
+                  <Image
+                    key={`${tile}-${rowIndex}-${colIndex}`}
+                    image={img}
+                    x={colIndex * Tile_size - cameraPosition.x}
+                    y={rowIndex * Tile_size - cameraPosition.y}
+                    width={Tile_size * 2}
+                    height={Tile_size * 2}
+                    alt="タイル画像"
+                  />
+                );
+              }
 
-            {/* クラフトメニュー */}
-            <div className="crafting" style={{marginTop: '20px'}}>
-                <h3>クラフトメニュー</h3>
-                <div className="craft-buttons">
-                    {/* 例として、クラフト可能なアイテムを表示 */}
-                    {craftItems?.map((craftItem) => (
-                        <div key={craftItem.id}>
-                            <p>{craftItem.createdItem?.itemName}</p>
-                            <button onClick={() => handleCraftItem(craftItem.id)}>作成</button>
-                        </div>
-                    ))}
-                    <button >アイテム1をクラフト</button>
-                    <button onClick={() => handleCraftItem(2)}>アイテム2をクラフト</button>
-                </div>
-            </div>
-        </div>
-    );
+              // 通常サイズのタイル
+              return (
+                <Image
+                  key={`${tile}-${rowIndex}-${colIndex}`}
+                  image={img}
+                  x={colIndex * Tile_size - cameraPosition.x}
+                  y={rowIndex * Tile_size - cameraPosition.y}
+                  width={Tile_size}
+                  height={Tile_size}
+                  alt="タイル画像"
+                />
+              );
+            })
+          )}
+            {itemData.map((data) => (
+                <Image
+                    key={data.id} // _uniqueId を key に使う（id 重複を避ける）
+                    x={data.x!  - cameraPosition.x}
+                    y={data.y! - cameraPosition.y}
+                    width={Tile_size}
+                    height={Tile_size}
+                    image={loadedImages[data.id]} // data.id で元の画像を参照
+                />
+            ))}
+
+          {/* --- プレイヤー --- */}
+          {playerImage && (
+            <Image
+              image={playerImage}
+              x={playerPosition.x - cameraPosition.x}
+              y={playerPosition.y - cameraPosition.y}
+              width={Tile_size}
+              height={Tile_size}
+              alt="プレイヤー"
+            />
+          )}
+        </Layer>
+      </Stage>
+    </div>
+  );
 };
 
 export default MapWithCharacter;

@@ -73,16 +73,17 @@ export const generateMap = () => {
       const y = Math.floor(Math.random() * (Map_height - (size - 1)));
 
       if (size === 1) {
-        if (map2d[y]?.[x] === "grass") {
+        // 1タイルの時
+        if (map2d[y][x] === "grass") {
           map2d[y][x] = tile;
           placed++;
         }
       } else if (size === 2) {
         if (
-            map2d[y]?.[x] === "grass" &&
-            map2d[y]?.[x + 1] === "grass" &&
-            map2d[y + 1]?.[x] === "grass" &&
-            map2d[y + 1]?.[x + 1] === "grass"
+          map2d[y][x] === "grass" &&
+          map2d[y][x + 1] === "grass" &&
+          map2d[y + 1][x] === "grass" &&
+          map2d[y + 1][x + 1] === "grass"
         ) {
           map2d[y][x] = tile;
           map2d[y][x + 1] = tile;
@@ -93,30 +94,111 @@ export const generateMap = () => {
       }
     }
   };
+  //y=20の部分に水を作る
+  for (let i = 5; i < 20; i++) {
+    for (let y = 16; y <= 20; y++) {
+      map2d[y][i] = "water";
+    }
+  }
 
-  // 各タイルを配置
+  //ループ処理（iがイコールになるまで繰り返す）[i]は横幅を表す
+  for (let i = 0; i < Map_width; i++) {
+    const middle = Math.floor(Map_height / 2);
+    map2d[middle][i] = "path";
+  }
+
+  // **各タイルを配置（1×1）**
   placeTile("building", 10);
   placeTile("leaves", 30);
   placeTile("flower", 30);
   placeTile("mushroom", 20);
   placeTile("insect", 15);
 
+  // **各タイルを配置（2×2）**
   placeTile("tree", 10, 2);
   placeTile("stone", 10, 2);
   placeTile("iron", 5, 2);
   placeTile("coal", 10, 2);
+  //建物の設置
+  // for (let i = 0; i < 10; i++) {
+  //   const x = Math.floor(Math.random() * Map_width);
+  //   const y = Math.floor(Math.random() * Map_height);
+  //   map2d[y][x] = "building";
+  // }
 
-  // 水を横一列に設置（y=20）
-  for (let i = 5; i < 20; i++) {
-    map2d[20][i] = "water";
-  }
+  // for (let i = 0; i < 30; i++) {
+  //   const x = Math.floor(Math.random() * Map_width);
+  //   const y = Math.floor(Math.random() * Map_height);
+  //   map2d[y][x] = "leaves";
+  // }
 
-  // 横一直線の道（マップ中央）
-  const middle = Math.floor(Map_height / 2);
-  for (let i = 0; i < Map_width; i++) {
-    map2d[middle][i] = "path";
-  }
+  // for (let i = 0; i < 30; i++) {
+  //   const x = Math.floor(Math.random() * Map_width);
+  //   const y = Math.floor(Math.random() * Map_height);
+  //   map2d[y][x] = "flower";
+  // }
+
+  // for (let i = 0; i < 20; i++) {
+  //   const x = Math.floor(Math.random() * Map_width);
+  //   const y = Math.floor(Math.random() * Map_height);
+  //   map2d[y][x] = "mushroom";
+  // }
+
+  // for (let i = 0; i < 15; i++) {
+  //   const x = Math.floor(Math.random() * Map_width);
+  //   const y = Math.floor(Math.random() * Map_height);
+  //   map2d[y][x] = "insect";
+  // }
+
+  // for (let i = 0; i < 10; i++) {
+  //   const x = Math.floor(Math.random() * Map_width - 1);
+  //   const y = Math.floor(Math.random() * Map_height - 1);
+
+  //   if (x < Map_width - 1 && y < Map_height - 1) {
+  //     map2d[y][x] = "tree";
+  //     map2d[y][x + 1] = "tree";
+  //     map2d[y + 1][x] = "tree";
+  //     map2d[y + 1][x + 1] = "tree";
+  //   }
+  // }
+
+  // for (let i = 0; i < 10; i++) {
+  //   const x = Math.floor(Math.random() * Map_width - 1);
+  //   const y = Math.floor(Math.random() * Map_height - 1);
+
+  //   if (x < Map_width - 1 && y < Map_height - 1) {
+  //     map2d[y][x] = "stone";
+  //     map2d[y][x + 1] = "stone";
+  //     map2d[y + 1][x] = "stone";
+  //     map2d[y + 1][x + 1] = "stone";
+  //   }
+  // }
+
+  // for (let i = 0; i < 5; i++) {
+  //   const x = Math.floor(Math.random() * Map_width - 1);
+  //   const y = Math.floor(Math.random() * Map_height - 1);
+
+  //   if (x < Map_width - 1 && y < Map_height - 1) {
+  //     map2d[y][x] = "iron";
+  //     map2d[y][x + 1] = "iron";
+  //     map2d[y + 1][x] = "iron";
+  //     map2d[y + 1][x + 1] = "iron";
+  //   }
+  // }
+
+  // for (let i = 0; i < 10; i++) {
+  //   const x = Math.floor(Math.random() * Map_width - 1);
+  //   const y = Math.floor(Math.random() * Map_height - 1);
+
+  //   if (x < Map_width - 1 && y < Map_height - 1) {
+  //     map2d[y][x] = "coal";
+  //     map2d[y][x + 1] = "coal";
+  //     map2d[y + 1][x] = "coal";
+  //     map2d[y + 1][x + 1] = "coal";
+  //   }
+  // }
 
   return map2d;
 };
+
 export const Map_data = generateMap();

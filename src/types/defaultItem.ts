@@ -15,8 +15,8 @@ export interface RoomDefaultItem{
     itemIcon:string | null;
     x?: number | null
     y?: number| null
-    tileX : number
-    tileY : number
+    tileX? : number
+    tileY? : number
     width? : number  | null
     height? : number | null
     itemDescription:string;
