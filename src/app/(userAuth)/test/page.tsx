@@ -26,6 +26,7 @@ const LogIn = () => {
                         window.alert("ユーザー情報が見つかりませんでした。")
                     }
 
+
                 } catch (err) {
                     console.log(err)
                 }
