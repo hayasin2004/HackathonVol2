@@ -1,14 +1,14 @@
 "use client";
 
-    import React, { useState, useEffect, KeyboardEvent, useMemo, useRef } from "react";
-import { Stage, Layer, Rect, Image } from "react-konva";
+import React, {useState, useEffect, KeyboardEvent, useMemo, useRef} from "react";
+import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
 import {
     Tile_size,
     Map_width,
     Map_height,
     generateItemPositions, Map_data, Tile_list, generateMap,
 } from "./mapData";
-
+import Image from "next/image"
 import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
@@ -26,29 +26,29 @@ interface GameProps {
 }
 
 
-const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) => {
-    const { socket, connected, players, items, error, movePlayer } = useSocketConnection(playerId.id, roomId);
+const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     const MAP_PIXEL_WIDTH = Map_width * Tile_size;
     const MAP_PIXEL_HEIGHT = Map_height * Tile_size;
-    const { itemEvents, craftEvents } = useSupabaseRealtime(roomId, playerId.id);
+    const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
 
     const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
-    const [cameraPosition, setCameraPosition] = useState({ x: 0, y: 0 });
+    const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
     const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
     const [selectedItemId, setSelectedItemId] = useState("");
-    const [isOpen,setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     // クラフトをプルダウンメニュー化
-    const handleSelectChange = (e:any) => {
-        setSelectedItemId(e.target.value);
+    const handleSelectChange = (e: any) => {
+        setSelectedItemId(e);
     };
 
     const handleCraftClick = () => {
@@ -146,7 +146,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
 
     } = useRemakeItemGet({
         userId: playerId.id,
-        initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
+        initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
         rectPositions: itemData,
         mapWidthInPixels: Map_width * Tile_size,
         mapHeightInPixels: Map_height * Tile_size,
@@ -264,7 +264,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
             targetY = Math.max(0, Math.min(targetY, MAP_PIXEL_HEIGHT - windowHeight));
             targetX = windowWidth >= MAP_PIXEL_WIDTH ? 0 : targetX;
             targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
-            return { x: targetX, y: targetY };
+            return {x: targetX, y: targetY};
         };
 
         setCameraPosition(calculateInitialCameraPos(ECollisionPosition.x, ECollisionPosition.y));
@@ -319,7 +319,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                     }
                 })
                 .catch((err) => console.error("Failed to fetch player items:", err));
-            fetch(`/api/item/getCraftItems`, { method: "GET" })
+            fetch(`/api/item/getCraftItems`, {method: "GET"})
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.status === "success") {
@@ -497,7 +497,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
         targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
         setCameraPosition((prevCameraPos) => {
             if (Math.round(prevCameraPos.x) !== Math.round(targetX) || Math.round(prevCameraPos.y) !== Math.round(targetY)) {
-                return { x: targetX, y: targetY };
+                return {x: targetX, y: targetY};
             }
             return prevCameraPos;
         });
@@ -518,7 +518,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
     }
 
     return (
-        <div style={{ outline: "none" }}>
+        <div style={{outline: "none"}}>
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -530,7 +530,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                             const grassImg = tileImages["grass"];
                             if (!grassImg) return null;
                             return (
-                                <Image
+                                <KonvaImage
                                     key={`grass-${rowIndex}-${colIndex}`}
                                     image={grassImg}
                                     x={colIndex * Tile_size - cameraPosition.x}
@@ -557,7 +557,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                                     return null;
                                 }
                                 return (
-                                    <Image
+                                    <KonvaImage
                                         key={`${tile}-${rowIndex}-${colIndex}`}
                                         image={img}
                                         x={colIndex * Tile_size - cameraPosition.x}
@@ -569,7 +569,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                                 );
                             }
                             return (
-                                <Image
+                                <KonvaImage
                                     key={`${tile}-${rowIndex}-${colIndex}`}
                                     image={img}
                                     x={colIndex * Tile_size - cameraPosition.x}
@@ -582,7 +582,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                         })
                     )}
                     {itemData.map((data) => (
-                        <Image
+                        <KonvaImage
                             key={data.id} // _uniqueId を key に使う（id 重複を避ける）
                             x={data.x! - cameraPosition.x}
                             y={data.y! - cameraPosition.y}
@@ -594,7 +594,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
 
                     {/* --- プレイヤー --- */}
                     {playerImage && (
-                        <Image
+                        <KonvaImage
                             image={playerImage}
                             x={ECollisionPosition?.x - cameraPosition.x}
                             y={ECollisionPosition?.y - cameraPosition.y}
@@ -628,7 +628,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {playerItems.map((item) => (
+                                    {playerItems?.map((item) => (
                                         <tr key={item.id}>
                                             <td>{item.DefaultItemList.itemName}</td>
                                             <td>{item.quantity}</td>
@@ -640,19 +640,52 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
 
                             <div className={styles.crafting}>
                                 <h3>クラフトメニュー</h3>
-                                <div className={styles.craftButtons}>
-                                    <select value={selectedItemId} onChange={handleSelectChange}>
-                                        <option value="">-- アイテムを選択 --</option>
-                                        {craftItems?.map((craftItem) => (
-                                            <option key={craftItem.id} value={craftItem.id}>
-                                                {craftItem.createdItem?.itemName}
-                                            </option>
+                                <div>
+                                    <p>選択中: {selectedItemId || '-- アイテムを選択 --'}</p>
+                                    <div>
+                                        {craftItems.map((craftItem) => (
+                                            <div
+                                                className={styles.craftButtons}
+                                                key={craftItem.id}
+                                                style={{
+                                                    border: selectedItemId === craftItem.id ? '1px solid #000' : '1px solid transparent',
+                                                }}
+                                                onClick={() => handleSelectChange(craftItem.createdItem.id)}
+                                            >
+                                                <div className={styles.column}>
+                                                    <Image
+                                                        src={craftItem.createdItem.itemIcon}
+                                                        alt={craftItem.createdItem.itemName}
+                                                        width={64}
+                                                        height={64}
+                                                    />
+                                                    <span>{craftItem.createdItem.itemName}</span>
+                                                </div>
+                                            </div>
                                         ))}
-                                    </select>
-                                    <button onClick={handleCraftClick} disabled={!selectedItemId}>
-                                        作成
-                                    </button>
+                                        <button onClick={handleCraftClick} disabled={!selectedItemId}>
+                                            作成
+                                        </button>
+                                    </div>
                                 </div>
+
+                                {/*<div className={styles.craftButtons}>*/}
+                                {/*    <select value={selectedItemId} onChange={handleSelectChange}>*/}
+                                {/*        <option value="">-- アイテムを選択 --</option>*/}
+                                {/*        {craftItems?.map((craftItem) => (*/}
+                                {/*            <div key={craftItem.id}>*/}
+                                {/*                <option value={craftItem.id}>*/}
+                                {/*                    {craftItem.createdItem?.itemName}*/}
+                                {/*                </option>*/}
+                                {/*                <Image src={craftItem.createdItem?.itemIcon} alt={"test"} width={64}*/}
+                                {/*                       height={64}/>*/}
+                                {/*            </div>*/}
+                                {/*        ))}*/}
+                                {/*    </select>*/}
+                                {/*    <button onClick={handleCraftClick} disabled={!selectedItemId}>*/}
+                                {/*        作成*/}
+                                {/*    </button>*/}
+                                {/*</div>*/}
                             </div>
                         </div>
                     </div>
