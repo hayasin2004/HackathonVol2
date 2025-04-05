@@ -27,7 +27,7 @@ export async function GET(req: Request) {
                 .getPublicUrl(path);
             return data?.publicUrl;
         });
-        return NextResponse.json({status: 200, urls});
+        return NextResponse.json({status: 200, userData});
 
 
     } catch (error) {
