@@ -56,14 +56,15 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
         const initialPlayerPosition = {x: playerId.x, y: playerId.y}
         setPlayerPosition(initialPlayerPosition);
-        const mapData = generateMap();
-        const itemPositions = generateItemPositions(itemData, mapData, 1);
-        const result = itemData.map((data, index) => ({
-            ...data,
-            tileX: itemPositions[index]?.tileX,
-            tileY: itemPositions[index]?.tileY,
-        }));
-        setAugmentedItemData(result);
+        generateMap();
+
+        // const itemPositions = generateItemPositions(itemData, mapData, 1);
+        // const result = itemData.map((data, index) => ({
+        //     ...data,
+        //     tileX: data?.x,
+        //     tileY: data?.y,
+        // }));
+        // setAugmentedItemData(result);
 
 
         const loadImages = async () => {
@@ -99,33 +100,33 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     }, [itemData]);
 
-    useEffect(() => {
-        const occupiedPositions = new Set();
+    // useEffect(() => {
+    //     const occupiedPositions = new Set();
 
-        const duplicatedItems = augmentedItemData.flatMap((item) => {
-            const repeatCount = Math.floor(Math.random() * 5) + 1;
+    //     const duplicatedItems = augmentedItemData.flatMap((item) => {
+    //         const repeatCount = Math.floor(Math.random() * 5) + 1;
+    //
+    //         return Array.from({length: repeatCount}, (_, i) => {
+    //             let randomTileX, randomTileY;
+    //             do {
+    //                 randomTileX = Math.floor(Math.random() * Map_width);
+    //                 randomTileY = Math.floor(Math.random() * Map_height);
+    //             } while (occupiedPositions.has(`${randomTileX}-${randomTileY}`));
+    //
+    //             occupiedPositions.add(`${randomTileX}-${randomTileY}`);
+    //
+    //             return {
+    //                 ...item,
+    //                 x: randomTileX,
+    //                 y: randomTileY,
+    //                 _uniqueId: `${item.id}-${i}-${Math.random()}`,
+    //             };
+    //         });
+    //     });
+    //
+    //     setRandomPlacedItems(duplicatedItems);
+    // }, [augmentedItemData]);
 
-            return Array.from({length: repeatCount}, (_, i) => {
-                let randomTileX, randomTileY;
-                do {
-                    randomTileX = Math.floor(Math.random() * Map_width);
-                    randomTileY = Math.floor(Math.random() * Map_height);
-                } while (occupiedPositions.has(`${randomTileX}-${randomTileY}`));
-
-                occupiedPositions.add(`${randomTileX}-${randomTileY}`);
-
-                return {
-                    ...item,
-                    tileX: randomTileX,
-                    tileY: randomTileY,
-                    _uniqueId: `${item.id}-${i}-${Math.random()}`,
-                };
-            });
-        });
-
-        setRandomPlacedItems(duplicatedItems);
-    }, [augmentedItemData]);
-    ;
 
     useEffect(() => {
         if (playerId) {
@@ -355,7 +356,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         }
     })
 
-    console.log(craftItems)
+    // console.log(craftItems)
 
 
     return (

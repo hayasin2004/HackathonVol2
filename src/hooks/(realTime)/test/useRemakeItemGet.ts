@@ -29,6 +29,7 @@ const useRemakeItemGet = ({
     const [ePressCount, setEPressCount] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const [ECollisionStatus, setECollisionStatus] = useState(false);
+    console.log(rectPositions)
     // processedItemIds は削除済み (前回の修正)
     const keyPressedRef = useRef(false);
     const keysRef = useRef({
@@ -38,21 +39,21 @@ const useRemakeItemGet = ({
     const windowHeightRef = useRef(typeof window !== 'undefined' ? window.innerHeight : 0);
 
     // 重複のないアイテム配列を取得 (変更なし)
-    const getUniqueItems = useCallback((items?: Array<defaultItem> | null) => {
-        if (!items || items.length === 0) return [];
-        const uniqueItems = new Map<string, defaultItem>();
-        items.forEach(item => {
-            if (item._uniqueId) {
-                uniqueItems.set(item._uniqueId, item);
-            }
-        });
-        return Array.from(uniqueItems.values());
-    }, []);
+    // const getUniqueItems = useCallback((items?: Array<defaultItem> | null) => {
+    //     if (!items || items.length === 0) return [];
+    //     const uniqueItems = new Map<string, defaultItem>();
+    //     items.forEach(item => {
+    //         if (item._uniqueId) {
+    //             uniqueItems.set(item._uniqueId, item);
+    //         }
+    //     });
+    //     return Array.from(uniqueItems.values());
+    // }, []);
 
     // 衝突判定関数 (ロジック変更)
     const getCollidingObstacles = useCallback((playerX: number, playerY: number): defaultItem[] => {
-        const uniqueItems = getUniqueItems(rectPositions);
-        if (uniqueItems.length === 0) return [];
+        // const uniqueItems = getUniqueItems(rectPositions);
+        if (rectPositions!.length === 0) return [];
 
         // --- 修正箇所: 新しい衝突判定ロジック ---
         // プレイヤーの座標を基準としたマスを特定
@@ -63,7 +64,7 @@ const useRemakeItemGet = ({
 
         // console.log(`プレイヤー基準マス: (${playerTileX}, ${playerTileY}) at (${playerX}, ${playerY})`); // デバッグ用
 
-        const colliding = uniqueItems.filter((rect) => {
+        const colliding = rectPositions!.filter((rect) => {
             if (rect.x == null || rect.y == null || !rect.width || !rect.height) {
                 return false;
             }
@@ -91,7 +92,7 @@ const useRemakeItemGet = ({
 
         return colliding;
         // 依存関係: rectPositions (getUniqueItems経由で), getUniqueItems
-    }, [rectPositions, getUniqueItems]);
+    }, [rectPositions]);
 
     // Eキーが押されたときの処理 (変更なし、getCollidingObstacles の結果を使う)
     const handleEKeyPress = useCallback(async () => {
