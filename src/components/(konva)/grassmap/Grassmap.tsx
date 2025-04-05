@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect, KeyboardEvent} from "react";
+import React, {useState, useEffect, KeyboardEvent, useMemo} from "react";
 import {Stage, Layer, Rect, Image} from "react-konva";
 import {
     Tile_size,
@@ -27,6 +27,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     // プレイヤー移動
 
+    const MAP_PIXEL_WIDTH = Map_width * Tile_size;
+    const MAP_PIXEL_HEIGHT = Map_height * Tile_size;
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
 
@@ -38,20 +40,28 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
     const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
-    const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
+    // const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
     const [tileImages, setTileImages] = useState<{
         [key: string]: HTMLImageElement;
     }>({});
     // プレイヤーアイテム情報の取得
-
-
-    const {ECollisionPosition, ECollisionStatus, adjacentObstacles, } = useRemakeItemGet({
+    const stableInitialPosition = useMemo(() => ({
+        x: playerId?.x ?? 0, // playerId.x が変わらない限り参照は同じ
+        y: playerId?.y ?? 0  // playerId.y が変わらない限り参照は同じ
+    }), [playerId?.x, playerId?.y]); // playerId の座標に依存
+    // useRemakeItemGet フックの呼び出し
+    const { ECollisionPosition, ECollisionStatus, adjacentObstacles, ePressCount } = useRemakeItemGet({
         userId: playerId.id,
-        initialPosition: {x: playerPosition.x, y: playerPosition.y},
-        circleRadius: 30,
+        // 初期位置を playerId から取得 (null/undefined の場合は 0 にフォールバック)
+        initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
+        // rectPositions に itemData を渡す (itemData が defaultItem[] 型であることを確認)
         rectPositions: itemData,
-        movePlayer,
+        // マップのピクセルサイズを渡す
+        mapWidthInPixels: MAP_PIXEL_WIDTH,
+        mapHeightInPixels: MAP_PIXEL_HEIGHT,
+        // speed: 100, // 必要なら速度を設定
     });
+
     useEffect(() => {
         const tiles = Object.values(Tile_list);
         const loadedImages: { [key: string]: HTMLImageElement } = {};
@@ -70,53 +80,70 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         });
     }, []);
 
+    useEffect    // アイテム画像読み込み & 初期カメラ位置設定
     useEffect(() => {
+        // ★ 削除: playerPosition 関連のコードは不要
+        // generateMap(); // 呼び出しタイミングを確認
 
-        const initialPlayerPosition = {x: playerId.x, y: playerId.y}
-        setPlayerPosition(initialPlayerPosition);
-        generateMap();
-
-        // const itemPositions = generateItemPositions(itemData, mapData, 1);
-        // const result = itemData.map((data, index) => ({
-        //     ...data,
-        //     tileX: data?.x,
-        //     tileY: data?.y,
-        // }));
-        // setAugmentedItemData(result);
-
-
-        const loadImages = async () => {
-            const images: { [key: string]: HTMLImageElement } = {}; // ロード済み画像を一時保存するオブジェクト
-
-            // 非同期処理で全画像をロード
-            await Promise.all(
-                itemData.map(async (data) => {
-                    const itemIcon = data.itemIcon; // アイコンURLを取得
-
-                    if (itemIcon) {
-                        const img = new window.Image();
-                        img.src = itemIcon;
-
-                        // ロード完了後に`images`に保存
-                        await new Promise((resolve, reject) => {
-                            img.onload = () => {
-                                images[data?.id] = img; // IDをキーに画像を保存
-                                resolve(true);
-                            };
-                            img.onerror = () => {
-                                console.error(`画像のロード失敗: ${itemIcon}`);
-                                reject(false);
-                            };
-                        });
-                    }
-                })
-            );
-
-            setLoadedImages(images); // 状態に反映
+        // 初期カメラ位置計算関数 (変更なし)
+        const calculateInitialCameraPos = (playerX: number, playerY: number) => {
+            const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+            const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+            let targetX = playerX + Tile_size / 2 - windowWidth / 2;
+            let targetY = playerY + Tile_size / 2 - windowHeight / 2;
+            targetX = Math.max(0, Math.min(targetX, MAP_PIXEL_WIDTH - windowWidth));
+            targetY = Math.max(0, Math.min(targetY, MAP_PIXEL_HEIGHT - windowHeight));
+            targetX = windowWidth >= MAP_PIXEL_WIDTH ? 0 : targetX;
+            targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
+            return { x: targetX, y: targetY };
         };
-        loadImages()
 
-    }, [itemData]);
+        // ★ 変更: ECollisionPosition の初期値に基づいてカメラを設定
+        setCameraPosition(calculateInitialCameraPos(ECollisionPosition.x, ECollisionPosition.y));
+
+        // アイテム画像の読み込み (変更なし)
+        // アイテム画像の読み込み
+        const loadImages = async () => {
+            const images: { [key: string]: HTMLImageElement } = {};
+            // itemData が null や undefined でないことを確認
+            if (!itemData) {
+                console.warn("itemData is not available for loading images.");
+                setLoadedImages({}); // 空にするか、以前の状態を維持するか
+                return;
+            }
+            try {
+                await Promise.all(
+                    itemData.map(async (data) => {
+                        // data.id と data.itemIcon の存在を確認
+                        if (data?.id && data.itemIcon) {
+                            const img = new window.Image();
+                            img.src = data.itemIcon;
+                            await new Promise((resolve, reject) => {
+                                img.onload = () => {
+                                    // id が数値の場合、文字列キーとして使用
+                                    images[String(data.id)] = img;
+                                    resolve(true);
+                                };
+                                img.onerror = (err) => {
+                                    console.error(`Failed to load image: ${data.itemIcon}`, err);
+                                    resolve(false); // エラーでも Promise は解決させる
+                                };
+                            });
+                        } else {
+                            // console.warn("Item data missing id or itemIcon:", data);
+                        }
+                    })
+                );
+                setLoadedImages(images);
+                console.log("Item images loaded:", Object.keys(images).length); // ロードされた画像数
+            } catch (error) {
+                console.error("Error loading item images:", error);
+            }
+        };
+        loadImages();
+
+        // ★ 変更: 依存配列に ECollisionPosition を追加して初期位置反映を確実にする
+    }, [itemData, ECollisionPosition.x, ECollisionPosition.y]);;
 
     // useEffect(() => {
     //     const occupiedPositions = new Set();
@@ -258,9 +285,12 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     useEffect(() => {
         const img = new window.Image();
-        img.src = "/character.png";
+        img.src = "/character3.png";
         img.onload = () => setPlayerImage(img);
     }, []);
+
+
+  //   ↑どｆｋどｆ
 
   // const getTilecolor = (list: string) => {
   //   //switchはlistの値によって色を返している
@@ -296,41 +326,39 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
   //   }
   // };
 
-    const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        let {x, y} = playerPosition;
+    // --- カメラ追従ロジック ---
+    useEffect(() => {
+        const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+        const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
 
-        switch (e.key) {
-            case "ArrowUp":
-                y -= Tile_size;
-                break;
-            case "ArrowDown":
-                y += Tile_size;
-                break;
-            case "ArrowLeft":
-                x -= Tile_size;
-                break;
-            case "ArrowRight":
-                x += Tile_size;
-                break;
-        }
-        console.log(playerPosition.x)
-        console.log(playerPosition.y)
+        // 目標カメラ位置 (プレイヤーが中央に来るように)
+        let targetX = ECollisionPosition.x + Tile_size / 2 - windowWidth / 2;
+        let targetY = ECollisionPosition.y + Tile_size / 2 - windowHeight / 2;
 
-        if (
-            x >= 0 &&
-            y >= 0 &&
-            x < Map_width * Tile_size &&
-            y < Map_height * Tile_size
-        ) {
-            setPlayerPosition({x, y});
-            setCameraPosition({
-                x: Math.max(0, x - window.innerWidth / 2),
-                y: Math.max(0, y - window.innerHeight / 2),
-            });
-        }
-    };
+        // カメラ位置をマップ境界内にクランプ
+        targetX = Math.max(0, Math.min(targetX, MAP_PIXEL_WIDTH - windowWidth));
+        targetY = Math.max(0, Math.min(targetY, MAP_PIXEL_HEIGHT - windowHeight));
 
+        // ウィンドウがマップより大きい場合は 0 に固定
+        targetX = windowWidth >= MAP_PIXEL_WIDTH ? 0 : targetX;
+        targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
+
+        // setCameraPosition を関数形式で呼び出す
+        setCameraPosition(prevCameraPos => {
+            // 四捨五入して比較し、変化がある場合のみ新しいオブジェクトを返す
+            if (Math.round(prevCameraPos.x) !== Math.round(targetX) || Math.round(prevCameraPos.y) !== Math.round(targetY)) {
+                // console.log(`Updating camera: (${prevCameraPos.x}, ${prevCameraPos.y}) -> (${targetX}, ${targetY})`);
+                return { x: targetX, y: targetY };
+            }
+            // 変化がなければ前の状態オブジェクトをそのまま返す (参照を維持し、不要な再レンダリング抑制)
+            return prevCameraPos;
+        });
+
+// 依存配列は ECollisionPosition のみ！ cameraPosition を削除
+    }, [ECollisionPosition]);
+
+        // プレイヤーの位置 (ECollisionPosition) が変わったらカメラを更新
+        // cameraPosition も依存配列に入れることで、target との比較が正しく行われる
 
     useEffect(() => {
         console.log("loadedImagesの更新:",);
@@ -356,7 +384,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     useEffect(() => {
         console.log("loadedImages:", loadedImages);
         console.log("items", itemData.length);
-    }, [loadedImages]);
+    }, [loadedImages , itemData]);
 
 
     // Loading or Error UI
@@ -367,20 +395,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     if (error) {
         return <div className="error">エラー: {error}</div>;
     }
-    itemData.map((data, index) => {
-        const imageNode = loadedImages[data.id];
 
-        if (!imageNode) {
-            console.log(`画像がロードされていません: id=${data.id}`);
-            return null; // ロードされていない場合は描画しない
-        }
-    })
 
     // console.log(craftItems)
 
 
   return (
-    <div tabIndex={0} onKeyDown={handlekeyDown} style={{ outline: "none" }}>
+    <div  style={{ outline: "none" }}>
       <Stage
         width={typeof window !== "undefined" ? window.innerWidth : 0}
         height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -477,16 +498,17 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             ))}
 
           {/* --- プレイヤー --- */}
-          {playerImage && (
-            <Image
-              image={playerImage}
-              x={playerPosition.x - cameraPosition.x}
-              y={playerPosition.y - cameraPosition.y}
-              width={Tile_size}
-              height={Tile_size}
-              alt="プレイヤー"
-            />
-          )}
+            {playerImage && ECollisionPosition && (
+                <Image
+                    image={playerImage}
+                    x={ECollisionPosition.x - cameraPosition.x}
+                    y={ECollisionPosition.y - cameraPosition.y}
+                    width={Tile_size}
+                    height={Tile_size}
+                    alt="プレイヤー"
+                    listening={false}
+                />
+            )}
         </Layer>
       </Stage>
     </div>
