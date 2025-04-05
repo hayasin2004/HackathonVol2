@@ -113,20 +113,24 @@
 }
 
 .craftButtons {
-    display: flex;
+    cursor: pointer;
+    flex-direction: column;
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.craftButtons select {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    background-color: #fff;
-    flex-grow: 1;
+
+.columns {
+    cursor: pointer;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    display: none;
 }
+
+
 
 .craftButtons button {
     padding: 8px 16px;
