@@ -2,6 +2,17 @@
     display: flex;
     justify-content: center;
 }
+.characterEditorH2{
+    display: flex;
+    justify-content: center;
+    width: 48%;
+}
+.characterEditorRight{
+    display: flex;
+    justify-content: center;
+    width: 150%;
+}
+
 
 .characterEditorForm {
     gap: 12px;
@@ -10,6 +21,54 @@
     padding: 20px 0 10px 0;
     flex-wrap: wrap;
 }
-.characterEditorLabel{
+.characterEditorTable{
+    display: flex;
+    justify-content: center;
+}
+.characterEditorTableRight{
+    display: flex;
+    justify-content: center;
+    width: 150%;
 
 }
+
+.tablesContainer {
+    display: flex;
+    justify-content: space-between; /* テーブルの間にスペースを確保 */
+    gap: 20px; /* テーブル間の間隔を調整 */
+}
+.characterEditorTableTd{
+    padding-right: 200px;
+}
+.characterEditorTableTr{
+    padding-right: 100px;
+    color: #096c48;
+    font-size: 20px;
+
+}
+.characterEditorSelect {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
+
+
+.button {
+    margin-top: 15px;
+    height: 45px;
+    width: 25%;
+    font-size: 16px;
+    background-color: #44aa55;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #3a914a;
+}
+
