@@ -22,6 +22,7 @@ const LogIn = () => {
                     } else if (userData.status == 201) {
                         window.alert("ユーザー情報が見つかりませんでした。")
                     } else if (userData.status == "error") {
+
                         window.alert("ユーザー情報が見つかりませんでした。")
                     }
 
