@@ -14,7 +14,7 @@ const LogIn = () => {
         if (result?.error) {
             window.alert(result?.error)
         }else {
-            router.push("/test")
+            router.push("/createKonva")
         }
     }
     return (
