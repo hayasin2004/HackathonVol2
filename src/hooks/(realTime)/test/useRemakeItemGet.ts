@@ -5,17 +5,16 @@ import { playerGetItem } from "@/app/api/(realtime)/item/getItem/route";
 
 interface UseGetItemProps {
     userId?: number;
-    // initialPosition は null/undefined を許容しない方が扱いやすい
     initialPosition: { x: number; y: number };
     circleRadius?: number;
     rectPositions?: Array<defaultItem> | null;
     speed?: number;
-    mapWidthInPixels?: number; // マップの幅 (ピクセル単位) を受け取る
-    mapHeightInPixels?: number; // マップの高さ (ピクセル単位) を受け取る
+    mapWidthInPixels?: number;
+    mapHeightInPixels?: number;
 }
 
 const TILE_SIZE = 64;
-const DEFAULT_MOVE_INTERVAL = 150; // 移動間隔 (ミリ秒)
+const DEFAULT_MOVE_INTERVAL = 150; // Default movement speed in ms
 
 const useRemakeItemGet = ({
                               userId,
@@ -23,10 +22,10 @@ const useRemakeItemGet = ({
                               circleRadius = 0,
                               rectPositions,
                               speed,
-                              mapWidthInPixels, // props を受け取る
-                              mapHeightInPixels, // props を受け取る
+                              mapWidthInPixels,
+                              mapHeightInPixels,
                           }: UseGetItemProps) => {
-    const [ECollisionPosition, setECollisionPosition] = useState(initialPosition); // 初期位置を直接使う
+    const [ECollisionPosition, setECollisionPosition] = useState(initialPosition);
     const [adjacentObstacles, setAdjacentObstacles] = useState<defaultItem[] | null>(null);
     const [ePressCount, setEPressCount] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -34,15 +33,19 @@ const useRemakeItemGet = ({
 
     const eKeyPressedRef = useRef(false);
     const keysPressedRef = useRef({
-        ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+        ArrowUp: false,
+        ArrowDown: false,
+        ArrowLeft: false,
+        ArrowRight: false,
     });
     const moveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const lastMoveTimeRef = useRef<number>(0);
 
+    // Calculate movement interval based on speed
     const moveInterval = speed ? Math.max(50, 400 - speed) : DEFAULT_MOVE_INTERVAL;
 
-    // 衝突判定関数 (変更なし)
+    // Collision detection function
     const getCollidingObstacles = useCallback((playerX: number, playerY: number): defaultItem[] => {
-        // ... (元のロジック) ...
         if (!rectPositions || rectPositions.length === 0) return [];
 
         const playerTileX = Math.floor(playerX / TILE_SIZE);
@@ -66,114 +69,131 @@ const useRemakeItemGet = ({
         return colliding;
     }, [rectPositions]);
 
-    // Eキー処理 (変更なし)
+    // E key handler
     const handleEKeyPress = useCallback(async () => {
-        // ... (元のロジック、必要なら itemIdsToGet の型アサーションを確認) ...
         if (isProcessing) return;
         setIsProcessing(true);
-        console.log("Eキー処理開始", ECollisionPosition);
+
         try {
             const currentX = ECollisionPosition.x ?? 0;
             const currentY = ECollisionPosition.y ?? 0;
             const collidingObstacles = getCollidingObstacles(currentX, currentY);
 
-
             if (collidingObstacles.length > 0) {
                 setAdjacentObstacles(collidingObstacles);
-                // filter で undefined を除外し、number[] 型にキャスト
-                const itemIdsToGet = collidingObstacles.map((item) => item.id).filter((id): id is number => id !== undefined);
-                console.log("取得対象ItemIds:", itemIdsToGet);
+                const itemIdsToGet = collidingObstacles
+                    .map((item) => item.id)
+                    .filter((id): id is number => id !== undefined);
 
                 if (itemIdsToGet.length > 0 && userId !== undefined) {
                     const result = await playerGetItem(userId, itemIdsToGet);
                     if (result?.status === "success" && result.savedItem) {
-                        console.log("アイテム獲得成功:", result.savedItem);
-                        // TODO: 獲得成功時の追加処理
-                    } else {
-                        console.log("アイテム取得失敗 or 既に取得済み:", result);
+                        console.log("Item acquisition success:", result.savedItem);
                     }
                 }
             } else {
-                console.log("隣接マスに取得可能なアイテムはありません", { x: currentX, y: currentY });
                 setAdjacentObstacles(null);
             }
         } catch (err) {
-            console.error("アイテム取得中にエラーが発生しました", err);
+            console.error("Error occurred while getting item", err);
         } finally {
             setIsProcessing(false);
         }
-    }, [ECollisionPosition, getCollidingObstacles, userId,setIsProcessing]);
+    }, [ECollisionPosition, getCollidingObstacles, userId]);
 
-    // --- 移動処理のコアロジック ---
+    // Position update function - core logic for movement
     const updatePosition = useCallback(() => {
+        const now = Date.now();
+
+        // Throttle movement to respect moveInterval
+        if (now - lastMoveTimeRef.current < moveInterval) {
+            return;
+        }
+
+        lastMoveTimeRef.current = now;
+
         setECollisionPosition((prev) => {
             let newX = prev.x;
             let newY = prev.y;
             const moveAmount = TILE_SIZE;
 
+            // Check which direction keys are pressed and update position
             if (keysPressedRef.current.ArrowUp) newY -= moveAmount;
             if (keysPressedRef.current.ArrowDown) newY += moveAmount;
             if (keysPressedRef.current.ArrowLeft) newX -= moveAmount;
             if (keysPressedRef.current.ArrowRight) newX += moveAmount;
 
-            // --- 境界チェック: マップ境界を使用 ---
+            // Boundary check
             const minX = 0;
             const minY = 0;
-            // マップサイズが指定されていなければ Infinity を使う (実質境界なし)
-            // プレイヤーの右端・下端がマップの端を超えないように TILE_SIZE を引く
             const maxX = mapWidthInPixels !== undefined ? mapWidthInPixels - TILE_SIZE : Infinity;
             const maxY = mapHeightInPixels !== undefined ? mapHeightInPixels - TILE_SIZE : Infinity;
 
             newX = Math.max(minX, Math.min(newX, maxX));
             newY = Math.max(minY, Math.min(newY, maxY));
-            // --- 境界チェックここまで ---
 
+            // Only update if position changed
             if (newX !== prev.x || newY !== prev.y) {
                 return { x: newX, y: newY };
             }
-            return prev; // 位置が変わらない場合は再レンダリングをスキップ
+            return prev;
         });
-    }, [mapWidthInPixels, mapHeightInPixels]); // 依存配列にマップサイズを追加
+    }, [moveInterval, mapWidthInPixels, mapHeightInPixels]);
 
-    // --- 移動インターバルの管理 ---
+    // Set up movement animation using requestAnimationFrame instead of setInterval
+    const animateMovement = useCallback(() => {
+        updatePosition();
+
+        // Check if any movement keys are still pressed
+        const anyKeyPressed = Object.values(keysPressedRef.current).some(pressed => pressed);
+
+        if (anyKeyPressed) {
+            moveIntervalRef.current = requestAnimationFrame(animateMovement);
+        } else {
+            moveIntervalRef.current = null;
+        }
+    }, [updatePosition]);
+
+    // Start movement animation
     const startMoving = useCallback(() => {
-        if (moveIntervalRef.current) return; // 既に実行中なら何もしない
-        console.log("Starting movement interval"); // デバッグログ
-        updatePosition(); // 最初に1回即時実行
-        moveIntervalRef.current = setInterval(updatePosition, moveInterval);
-    }, [updatePosition, moveInterval]);
+        if (moveIntervalRef.current !== null) {
+            cancelAnimationFrame(moveIntervalRef.current);
+        }
 
+        moveIntervalRef.current = requestAnimationFrame(animateMovement);
+    }, [animateMovement]);
+
+    // Stop movement animation
     const stopMoving = useCallback(() => {
-        if (moveIntervalRef.current) {
-            console.log("Stopping movement interval"); // デバッグログ
-            clearInterval(moveIntervalRef.current);
+        if (moveIntervalRef.current !== null) {
+            cancelAnimationFrame(moveIntervalRef.current);
             moveIntervalRef.current = null;
         }
     }, []);
 
-    // --- キー入力イベントリスナー ---
+    // Set up keyboard event listeners
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const key = e.key;
-            // console.log("Key Down:", key); // デバッグ
 
+            // Handle E key press
             if (key === "e" || key === "E") {
                 if (!eKeyPressedRef.current) {
                     eKeyPressedRef.current = true;
                     setEPressCount((prevCount) => prevCount + 1);
                     handleEKeyPress();
                 }
-                return; // Eキーなら以降の移動処理はしない
+                return;
             }
 
+            // Handle arrow keys
             if (key in keysPressedRef.current) {
-                e.preventDefault(); // デフォルトのスクロール等を防ぐ
+                e.preventDefault();
                 const directionKey = key as keyof typeof keysPressedRef.current;
-                // キーがまだ押されていない状態だったら、状態を true にして移動開始
+
+                // Update key state and start movement if needed
                 if (!keysPressedRef.current[directionKey]) {
                     keysPressedRef.current[directionKey] = true;
-                    // 他のキーが押されているかどうかにかかわらず、startMoving を呼ぶ
-                    // (startMoving内で既に動いているかチェックしているので問題ない)
                     startMoving();
                 }
             }
@@ -181,94 +201,81 @@ const useRemakeItemGet = ({
 
         const handleKeyUp = (e: KeyboardEvent) => {
             const key = e.key;
-            // console.log("Key Up:", key); // デバッグ
 
+            // Handle E key release
             if (key === "e" || key === "E") {
                 eKeyPressedRef.current = false;
                 return;
             }
 
+            // Handle arrow key release
             if (key in keysPressedRef.current) {
                 e.preventDefault();
                 const directionKey = key as keyof typeof keysPressedRef.current;
-                keysPressedRef.current[directionKey] = false; // キーを離した状態にする
+                keysPressedRef.current[directionKey] = false;
 
-                // 他に押されている矢印キーがあるかチェック
+                // Check if any arrow keys are still pressed
                 const anyArrowKeyPressed = Object.values(keysPressedRef.current).some(pressed => pressed);
 
-                // どの矢印キーも押されていなければ、移動インターバルを停止
+                // If no arrow keys are pressed, stop movement
                 if (!anyArrowKeyPressed) {
                     stopMoving();
                 }
-                // 他のキーがまだ押されていれば stopMoving は呼ばれず、移動は継続される
             }
         };
 
-        // イベントリスナーを document に登録 (特定の要素にフォーカス不要)
-        document.addEventListener("keydown", handleKeyDown);
-        document.addEventListener("keyup", handleKeyUp);
+        // Add event listeners
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
 
-        // クリーンアップ関数
+        // Clean up event listeners
         return () => {
-            console.log("Removing key listeners and stopping movement"); // デバッグログ
-            document.removeEventListener("keydown", handleKeyDown);
-            document.removeEventListener("keyup", handleKeyUp);
-            stopMoving(); // コンポーネントアンマウント時にインターバルをクリア
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+            stopMoving();
         };
-    }, [handleEKeyPress, startMoving, stopMoving]); // 依存配列
+    }, [handleEKeyPress, startMoving, stopMoving]);
 
-    // 位置更新時の衝突状態判定 (変更なし)
+    // Update collision state when position changes
     useEffect(() => {
         if (ECollisionPosition.x != null && ECollisionPosition.y != null) {
             const collidingObstacles = getCollidingObstacles(ECollisionPosition.x, ECollisionPosition.y);
             const hasCollision = collidingObstacles.length > 0;
 
-            // 1. ECollisionStatus の更新 (関数形式で前の状態と比較)
+            // Update collision status
             setECollisionStatus(prevStatus => {
-                // 状態が実際に変化する場合のみ新しい値を返す
                 if (prevStatus !== hasCollision) {
                     return hasCollision;
                 }
-                // 変化がなければ、前の状態を維持 (再レンダリングを抑制)
                 return prevStatus;
             });
 
-            // 2. adjacentObstacles の更新 (関数形式で前の状態と比較)
+            // Update adjacent obstacles
             setAdjacentObstacles(prevObstacles => {
                 const newObstacles = hasCollision ? collidingObstacles : null;
 
-                // 厳密な比較が必要な場合があるが、ここではシンプルにnullチェックとlengthで比較
-                // （配列の中身まで比較するとコストがかかる）
-                // 目的: 不要な場合に同じ参照を返して再レンダリングを抑制する
                 const noChange =
                     (prevObstacles === null && newObstacles === null) ||
-                    (prevObstacles !== null && newObstacles !== null && prevObstacles.length === newObstacles.length &&
-                        // 必要ならさらに要素ごとのID比較などを行う
-                        prevObstacles.every((item, index) => item.id === newObstacles[index]?.id)); // 例: IDで比較
+                    (prevObstacles !== null && newObstacles !== null &&
+                        prevObstacles.length === newObstacles.length &&
+                        prevObstacles.every((item, index) => item.id === newObstacles[index]?.id));
 
                 if (noChange) {
-                    // 変化がない場合は前の状態を返す
                     return prevObstacles;
                 } else {
-                    // 変化がある場合は新しい配列 (または null) を返す
-                    // [...collidingObstacles] で常に新しい参照を作る
                     return hasCollision ? [...collidingObstacles] : null;
                 }
             });
-
         } else {
-            // 位置が無効なら両方クリア (ここでも関数形式を使うとより安全)
-            setECollisionStatus(prev => prev ? false : prev); // falseでなければfalseにする
-            setAdjacentObstacles(prev => prev !== null ? null : prev); // nullでなければnullにする
+            setECollisionStatus(prev => prev ? false : prev);
+            setAdjacentObstacles(prev => prev !== null ? null : prev);
         }
-// 依存配列は ECollisionPosition と getCollidingObstacles のまま
     }, [ECollisionPosition, getCollidingObstacles]);
 
-
     return {
-        ECollisionPosition, // プレイヤーの現在位置
-        ECollisionStatus,   // 隣接アイテム有無
-        adjacentObstacles,  // 隣接アイテムリスト
+        ECollisionPosition,
+        ECollisionStatus,
+        adjacentObstacles,
         ePressCount,
     };
 };
