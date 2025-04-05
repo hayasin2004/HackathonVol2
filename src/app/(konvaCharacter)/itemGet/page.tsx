@@ -32,6 +32,7 @@ const ItemGet = async () => {
 
     return (
         <div>
+            <ExampleApp/>
             <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px'}}>
                 {itemArray?.map((defaultItem: defaultItem) => (
                     <div
@@ -57,6 +58,7 @@ const ItemGet = async () => {
                     </div>
                 ))}
             </div>
+
 
 
             <h1>ここはユーザーの図形を操れるページ</h1>

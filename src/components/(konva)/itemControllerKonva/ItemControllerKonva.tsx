@@ -3,10 +3,7 @@ import React, {useState, useEffect} from "react";
 import {CharacterPartsType} from "@/types/character";
 import {Circle, Layer, Rect, Stage, Image as KonvaImage} from "react-konva";
 import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
-// import PlayerPlaceSaveButton from "@/components/playerPlaceSaveButton/page";
 import {craftItem} from "@/repository/prisma/test/testRepositoy";
-// import {successCraftItem, successPlayerData} from "@/repository/prisma/test/dummyData";
-import Image from "next/image"
 
 const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
     const generateRandomCoordinates = (maxWidth: number, maxHeight: number): { x: number; y: number } => {
@@ -79,25 +76,6 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
                     )}
                 </div>
 
-                <div>
-                    <h2>作成しないと入手できないアイテム</h2>
-                    {props?.needCraftItem?.map((craftItem) => (
-                        <div key={craftItem.id}>
-
-                            <h2>アイテム説明: {craftItem.itemDescription}</h2>
-                            <div onClick={(e) => {testCraft(craftItem.id)}}style={{ cursor: "pointer" }} >
-                            <h2>アイテム名: {craftItem.itemName}</h2>
-                                <Image
-                                    src={craftItem.itemIcon || "/"}
-                                    alt={"アイテムアイコン"}
-                                    height={800}
-                                    width={600}
-                                />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
                 <Stage
                     width={typeof window !== "undefined" ? window.innerWidth : 0}
                     height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -113,7 +91,7 @@ const ItemControllerKonva: React.FC<CharacterPartsType> = (props) => {
 
 
                         {/* 障害物 */}
-                        {itemsWithCoordinates?.map((rect, index) => (
+                        {itemsWithCoordinates?.map((rect) => (
                             <Rect
                                 key={rect.id}
                                 x={rect.x}
