@@ -196,10 +196,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             const handleKeyDown = (event: KeyboardEvent) => {
                 switch (event.key) {
                     case "ArrowUp":
-                        loadPlayerImage(characterImageData?.iconImage?.[0]);
+                        loadPlayerImage(characterImageData?.iconImage?.[1]);
                         break;
                     case "ArrowDown":
-                        loadPlayerImage(characterImageData?.iconImage?.[1]);
+                        loadPlayerImage(characterImageData?.iconImage?.[0]);
                         break;
                     case "ArrowRight":
                         loadPlayerImage(characterImageData?.iconImage?.[2]);
