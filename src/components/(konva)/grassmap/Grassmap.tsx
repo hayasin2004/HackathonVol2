@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, KeyboardEvent, useMemo, useRef } from "react";
+    import React, { useState, useEffect, KeyboardEvent, useMemo, useRef } from "react";
 import { Stage, Layer, Rect, Image } from "react-konva";
 import {
     Tile_size,
@@ -581,6 +581,16 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                             );
                         })
                     )}
+                    {itemData.map((data) => (
+                        <Image
+                            key={data.id} // _uniqueId を key に使う（id 重複を避ける）
+                            x={data.x! - cameraPosition.x}
+                            y={data.y! - cameraPosition.y}
+                            width={Tile_size}
+                            height={Tile_size}
+                            image={loadedImages[data.id]} // data.id で元の画像を参照
+                        />
+                    ))}
 
                     {/* --- プレイヤー --- */}
                     {playerImage && (
