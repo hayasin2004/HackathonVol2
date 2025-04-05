@@ -10,29 +10,29 @@ const LogIn = () => {
     console.log(JSON.stringify(session))
     const router = useRouter()
     useEffect(() => {
-        const  userId = session?.user.id
-        const userPlayerData = async ()=> {
-            if(status === 'authenticated' && userId){
-                try{
+        const userPlayerData = async () => {
+            const userId = session?.user.id
+            if (userId) {
+                try {
                     const userData = await logIn(userId);
                     console.log(userData)
-                    if (userData.status == "success"){
+                    if (userData.status == 200) {
+                        // window.alert("おかえりなさい" + userData?.loginUser?.playerData?.playerId)
                         router.push("/createKonva")
-                    }
-                    else if (userData.status == "error"){
+                    } else if (userData.status == 201) {
+                        window.alert("ユーザー情報が見つかりませんでした。")
+                    } else if (userData.status == "error") {
                         window.alert("ユーザー情報が見つかりませんでした。")
                     }
 
-                }catch(err){
+                } catch (err) {
                     console.log(err)
                 }
                 return logIn
             }
-            console.log(userPlayerData)
         }
+        userPlayerData()
     }, [session]);
-
-
 
 
     if (status === "loading") {
