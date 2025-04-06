@@ -19,6 +19,7 @@ export const Tile_list = {
     Flower: "flower",
     Mushroom: "mushroom",
     Insect: "insect",
+    Cobblestone:"cobblestone"
 };
 
 // データ型の定義
@@ -185,12 +186,133 @@ export const generateMap = () => {
         }
     };
     //y=20の部分に水を作る
-    for (let i = 15; i < 25; i++) {
-        for (let y = 16; y <= 20; y++) {
-            map2d[y][i] = "water";
-        }
+    for (let x = 20; x < 26; x++) {
+        map2d[18][x] = "water";
+    }
+    for (let x = 17; x < 27; x++) {
+        map2d[19][x] = "water";
+    }
+    for (let x = 17; x < 30; x++) {
+        map2d[20][x] = "water";
+    }
+    for (let x = 16; x < 31; x++) {
+        map2d[21][x] = "water";
+    }
+    for (let x = 15; x < 31; x++) {
+        map2d[22][x] = "water";
+    }
+    for (let x = 14; x < 32; x++) {
+        map2d[23][x] = "water";
+    }
+    for (let x = 15; x < 32; x++) {
+        map2d[24][x] = "water";
+    }
+    for (let x = 15; x < 33; x++) {
+        map2d[25][x] = "water";
+    }
+    for (let x = 17; x < 23; x++) {
+        map2d[26][x] = "water";
+    }
+    for (let x = 18; x < 22; x++) {
+        map2d[27][x] = "water";
+    }
+    for (let x = 19; x < 21; x++) {
+        map2d[28][x] = "water";
+    }
+    for (let x = 27; x < 33; x++) {
+        map2d[26][x] = "water";
+    }
+    for (let x = 28; x < 32; x++) {
+        map2d[27][x] = "water";
+    }
+    for (let x = 29; x < 31; x++) {
+        map2d[28][x] = "water";
     }
 
+    for (let x = 19; x < 27; x++) {
+        map2d[17][x] = "cobblestone";
+    }
+    for (let x = 17; x < 20; x++) {
+        map2d[18][x] = "cobblestone";
+    }
+    for (let y = 18; y < 21; y++) {
+        map2d[y][16] = "cobblestone";
+    }
+    for (let y = 20; y < 22; y++) {
+        map2d[y][15] = "cobblestone";
+    }
+    for (let y = 21; y < 23; y++) {
+        map2d[y][14] = "cobblestone";
+    }
+    for (let y = 22; y < 25; y++) {
+        map2d[y][13] = "cobblestone";
+    }
+    for (let y = 24; y < 27; y++) {
+        map2d[y][14] = "cobblestone";
+    }
+    for (let y = 26; y < 28; y++) {
+        map2d[y][15] = "cobblestone";
+    }
+    for (let y = 26; y < 28; y++) {
+        map2d[y][16] = "cobblestone";
+    }
+    for (let y = 27; y < 29; y++) {
+        map2d[y][17] = "cobblestone";
+    }
+    for (let y = 28; y < 30; y++) {
+        map2d[y][18] = "cobblestone";
+    }
+    for (let x = 19; x < 22; x++) {
+        map2d[29][x] = "cobblestone";
+    }
+    for (let x = 21; x < 23; x++) {
+        map2d[28][x] = "cobblestone";
+    }
+    for (let x = 22; x < 24; x++) {
+        map2d[27][x] = "cobblestone";
+    }
+    for (let x = 23; x < 27; x++) {
+        map2d[26][x] = "cobblestone";
+    }
+    for (let x = 26; x < 28; x++) {
+        map2d[27][x] = "cobblestone";
+    }
+    for (let x = 27; x < 29; x++) {
+        map2d[28][x] = "cobblestone";
+    }
+    for (let x = 28; x < 32; x++) {
+        map2d[29][x] = "cobblestone";
+    }
+    for (let x = 31; x < 33; x++) {
+        map2d[28][x] = "cobblestone";
+    }
+    for (let x = 32; x < 34; x++) {
+        map2d[27][x] = "cobblestone";
+    }
+    for (let x = 33; x < 35; x++) {
+        map2d[26][x] = "cobblestone";
+    }
+    for (let x = 33; x < 35; x++) {
+        map2d[25][x] = "cobblestone";
+    }
+    for (let x = 32; x < 34; x++) {
+        map2d[24][x] = "cobblestone";
+    }
+    for (let y = 22; y < 24; y++) {
+        map2d[y][32] = "cobblestone";
+    }
+    for (let y = 20; y < 23; y++) {
+        map2d[y][31] = "cobblestone";
+    }
+    for (let y = 19; y < 21; y++) {
+        map2d[y][30] = "cobblestone";
+    }
+    for (let x = 27; x < 30; x++) {
+        map2d[19][x] = "cobblestone";
+    }
+    for (let x = 26; x < 28; x++) {
+        map2d[18][x] = "cobblestone";
+    }
     //ループ処理（iがイコールになるまで繰り返す）[i]は横幅を表す
     // for (let i = 0; i < Map_width; i++) {
     //     const middle = Math.floor(Map_height / 2);
@@ -200,7 +322,6 @@ export const generateMap = () => {
     // **各タイルを配置（1×1）**
     placeTile("building", 10);
     placeTile("leaves", 30);
-    placeTile("flower", 30);
     placeTile("mushroom", 20);
     placeTile("insect", 15);
 
@@ -209,8 +330,9 @@ export const generateMap = () => {
     placeTile("stone", 10, 2);
     placeTile("iron", 5, 2);
     placeTile("coal", 10, 2);
+    placeTile("flower",60);
 
     return map2d;
 };
 
-export const Map_data = generateMap();
+export const    Map_data = generateMap();
