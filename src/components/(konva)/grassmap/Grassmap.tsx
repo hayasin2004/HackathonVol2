@@ -183,6 +183,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     };
 
 
+
     const loadPlayerImage = (src: string) => {
         const img = new window.Image();
         img.src = src;
