@@ -322,7 +322,6 @@ export const generateMap = () => {
     // **各タイルを配置（1×1）**
     placeTile("building", 10);
     placeTile("leaves", 30);
-    placeTile("flower", 30);
     placeTile("mushroom", 20);
     placeTile("insect", 15);
 
@@ -331,6 +330,7 @@ export const generateMap = () => {
     placeTile("stone", 10, 2);
     placeTile("iron", 5, 2);
     placeTile("coal", 10, 2);
+    placeTile("flower",60);
 
     return map2d;
 };
