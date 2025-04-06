@@ -1,3 +1,5 @@
+
+
 .innercontainer {
   color: #dddddd;
 }
@@ -33,7 +35,8 @@
 .label {
   font-weight: bold;
   margin-bottom: 5px;
-  color: #00ffaf;
+  font-size: 20px;
+  color: #03fbd8;
 }
 
 .button {
@@ -66,4 +69,43 @@
 
 .button2:hover {
   background-color: #ffffff40;
+}
+
+@media screen and (max-width: 768px) {
+
+  .innercontainer{
+    margin: 8%;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .input {
+    width: 70%;
+    font-size: 14px;
+  }
+ .h1{
+   font-size: 20px;
+   text-align: center;
+ }
+  .label {
+    display: block;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #00ffaf;
+    font-size: 18px;
+  }
+
+  .button,
+  .button2 {
+    margin-right: 30px;
+    width: 70%;
+    font-size: 14px;
+    margin-top: 30px;
+  }
+
+  .innercontainer {
+    width: 95%;
+    padding: 20px;
+  }
 }

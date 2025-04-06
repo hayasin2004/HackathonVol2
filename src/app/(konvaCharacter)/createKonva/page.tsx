@@ -462,7 +462,7 @@ export default function Page() {
         </table>
 
         <br/>
-        <h2 className={styles.characterEditorTitle}>Clothing</h2>
+        <h2>Clothing</h2>
 
         <table className={styles.characterEditorTable}>
           <tbody>
@@ -576,14 +576,15 @@ export default function Page() {
 
       {frontImageUrl && (
           <div>
-            <h2>生成された画像 (Front View):</h2>
+            <h2 className={styles.characterEditorTitle}>生成された画像 (Front View):</h2>
             <img
+                className={styles.imgCreate}
                 src={`${frontImageUrl}?t=${Date.now()}`}
                 alt="Front View"
                 style={{imageRendering: "pixelated"}}
             />
             <br/>
-            <button onClick={handleStaticGenerate} disabled={staticLoading}>
+            <button   className={styles.button}  onClick={handleStaticGenerate} disabled={staticLoading}>
               {staticLoading ? "別角度生成中..." : "キャラクター別角度生成"}
             </button>
           </div>
@@ -595,6 +596,7 @@ export default function Page() {
             <div>
               <h3>Back View:</h3>
               <img
+                  className={styles.imgCreate}
                   src={`${staticImages.back}?t=${Date.now()}`}
                   alt="Back View"
                   style={{imageRendering: "pixelated"}}
@@ -603,6 +605,7 @@ export default function Page() {
             <div>
               <h3>Right View:</h3>
               <img
+                  className={styles.imgCreate}
                   src={`${staticImages.right}?t=${Date.now()}`}
                   alt="Right View"
                   style={{imageRendering: "pixelated"}}
@@ -611,6 +614,7 @@ export default function Page() {
             <div>
               <h3>Left View:</h3>
               <img
+                  className={styles.imgCreate}
                   src={`${staticImages.left}?t=${Date.now()}`}
                   alt="Left View"
                   style={{imageRendering: "pixelated"}}
@@ -625,7 +629,7 @@ export default function Page() {
           staticImages.left && (
               <div>
                 <h2>モーション画像:</h2>
-                <button onClick={handleMotionGenerate} disabled={motionLoading}>
+                <button   className={styles.button}  onClick={handleMotionGenerate} disabled={motionLoading}>
                   {motionLoading
                       ? "モーション生成中..."
                       : motionImages.front
@@ -676,7 +680,7 @@ export default function Page() {
         motionImages.left && (
           <div>
             <h2>確定画像 (リサイズ済み & GIF化)：</h2>
-            <button onClick={handleConfirmCharacter} disabled={confirmLoading}>
+            <button   className={styles.button}  onClick={handleConfirmCharacter} disabled={confirmLoading}>
               {confirmLoading ? "確定中..." : "キャラクターを確定"}
             </button>
           </div>
@@ -755,7 +759,7 @@ export default function Page() {
             />
           </div>
           <div>
-            <button onClick={handleSaveAllImages}>Supabaseに画像保存</button>
+            <button  className={styles.button}  onClick={handleSaveAllImages}>Supabaseに画像保存</button>
           </div>
         </div>
       )}
