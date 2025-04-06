@@ -1,14 +1,14 @@
 "use client";
 
-    import React, { useState, useEffect, KeyboardEvent, useMemo, useRef } from "react";
-import { Stage, Layer, Rect, Image } from "react-konva";
+import React, {useState, useEffect, KeyboardEvent, useMemo, useRef} from "react";
+import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
 import {
     Tile_size,
     Map_width,
     Map_height,
     generateItemPositions, Map_data, Tile_list, generateMap,
 } from "./mapData";
-
+import Image from "next/image"
 import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
@@ -16,6 +16,7 @@ import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
 import styles from './page.module.css'
+import {ToastContainer, toast} from 'react-toastify';
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -26,34 +27,43 @@ interface GameProps {
 }
 
 
-const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) => {
-    const { socket, connected, players, items, error, movePlayer } = useSocketConnection(playerId.id, roomId);
+const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
     const MAP_PIXEL_WIDTH = Map_width * Tile_size;
     const MAP_PIXEL_HEIGHT = Map_height * Tile_size;
-    const { itemEvents, craftEvents } = useSupabaseRealtime(roomId, playerId.id);
+    const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
 
     const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
-    const [cameraPosition, setCameraPosition] = useState({ x: 0, y: 0 });
+    const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
     const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
     const [selectedItemId, setSelectedItemId] = useState("");
-    const [isOpen,setIsOpen] = useState(false);
+    const [getItemNames, seGetItemNames] = useState<string[]>([]);
 
+    console.log(getItemNames)
+    const [isOpen, setIsOpen] = useState(false);
     // クラフトをプルダウンメニュー化
-    const handleSelectChange = (e:any) => {
-        setSelectedItemId(e.target.value);
+    const handleSelectChange = (e: any) => {
+        console.log(e)
+        setSelectedItemId(e);
     };
 
     const handleCraftClick = () => {
         if (selectedItemId) {
+            const selectedItem = craftItems.find(
+                (item) => item.id === Number(selectedItemId)
+            );
             handleCraftItem(Number(selectedItemId));
+            if (selectedItem) {
+                toast.success(`${selectedItem.createdItem.itemName} を獲得した！`);
+            }
         }
     };
 
@@ -143,10 +153,11 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
 
     const {
         ECollisionPosition,
-
+        eCollisionGotItem,
+        clearGotItems
     } = useRemakeItemGet({
         userId: playerId.id,
-        initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
+        initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
         rectPositions: itemData,
         mapWidthInPixels: Map_width * Tile_size,
         mapHeightInPixels: Map_height * Tile_size,
@@ -161,6 +172,40 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
     const animationIntervalRef = useRef<number | null>(null);
     const frameRef = useRef<number>(0); // 0: 静止画, 1: 歩行モーション
 
+    // const staticImages = {
+    //     default: "/character_front.png",
+    //     ArrowUp: "/character_back.png",
+    //     ArrowDown: "/character_front.png",
+    //     ArrowRight: "/character_right.png",
+    //     ArrowLeft: "/character_left.png",
+    // };
+    //
+    // const walkImages = {
+    //     ArrowUp: "/character_back_walk.png",
+    //     ArrowDown: "/character_front_walk.png",
+    //     ArrowRight: "/character_right_walk.png",
+    //     ArrowLeft: "/character_left_walk.png",
+    // };
+    const [characterImageData, setCharacterImageData] = useState<CharacterImageData | null>(null);
+    console.log(characterImageData)
+    const loadPlayerImage = (src: string | undefined) => {
+        const img = new window.Image();
+        img.src = src;
+        img.onload = () => setPlayerImage(img);
+    };
+    useEffect(() => {
+        // 初期表示用
+        if (characterImageData?.iconImage?.[0]) {
+            loadPlayerImage(characterImageData.iconImage[0]);
+        }
+    }, [characterImageData]);
+
+    const keyToIndexMap: Record<string, number> = {
+        ArrowDown: 0,
+        ArrowUp: 1,
+        ArrowRight: 2,
+        ArrowLeft: 3,
+    };
     const staticImages = {
         default: "/character_front.png",
         ArrowUp: "/character_back.png",
@@ -188,36 +233,36 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
         loadPlayerImage(staticImages.default);
 
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (!(event.key in staticImages)) return;
+            const staticImages = characterImageData?.iconImage?.slice(0, 3);   // 静止
+            const walkImages = characterImageData?.iconImage?.slice(4, 7);    // 歩行
+            console.log(walkImages)
             const direction = event.key;
             const now = Date.now();
             lastKeyPressTimeRef.current = now;
             currentDirectionRef.current = direction;
 
-            // アニメーションが開始していなければ開始
+            const index = keyToIndexMap[direction];
+            if (index === undefined) return;
+
+            loadPlayerImage(staticImages?.[index]);
+
             if (animationIntervalRef.current === null) {
                 frameRef.current = 0;
-                // 最初は歩行モーションの画像で開始
-                loadPlayerImage(walkImages[direction]);
-                frameRef.current = 1; // 次は静止画へ
                 animationIntervalRef.current = window.setInterval(() => {
                     const currentTime = Date.now();
-                    // 500ms以内にキー入力がなければ停止して静止画像へ
+                    const currentDirection = currentDirectionRef.current;
+                    const idx = keyToIndexMap[currentDirection];
+
                     if (currentTime - lastKeyPressTimeRef.current > 600) {
-                        loadPlayerImage(staticImages[currentDirectionRef.current]);
-                        if (animationIntervalRef.current) {
-                            clearInterval(animationIntervalRef.current);
-                            animationIntervalRef.current = null;
-                        }
+                        // 入力が途切れたら静止画像に戻す
+                        loadPlayerImage(staticImages?.[idx]);
+                        clearInterval(animationIntervalRef.current!);
+                        animationIntervalRef.current = null;
                     } else {
-                        // 交互に画像を切替
-                        if (frameRef.current === 0) {
-                            loadPlayerImage(staticImages[currentDirectionRef.current]);
-                            frameRef.current = 1;
-                        } else {
-                            loadPlayerImage(walkImages[currentDirectionRef.current]);
-                            frameRef.current = 0;
-                        }
+                        // 静止画像と歩行画像を交互に
+                        const img = frameRef.current === 0 ? staticImages?.[idx] : walkImages?.[idx];
+                        loadPlayerImage(img);
+                        frameRef.current = 1 - frameRef.current;
                     }
                 }, 300);
             }
@@ -231,7 +276,8 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                 animationIntervalRef.current = null;
             }
         };
-    }, []);
+    }, [characterImageData]);
+
 
     // ----------------------------
     // タイル画像の読み込み
@@ -304,7 +350,44 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
         loadImages()
 
         loadImages();
-    }, [itemData, ECollisionPosition.x, ECollisionPosition.y]);
+    }, [itemData, ECollisionPosition.x, ECollisionPosition.y,]);
+
+    useEffect(() => {
+        if (Array.isArray(eCollisionGotItem) && eCollisionGotItem.length > 0) {
+            const getItemNameMap: { [key: string]: string } = {
+                tree: "木の棒",
+                stone: "石",
+                coal: "石炭",
+                iron: "鉄",
+                flower: "花",
+                mushroom: "キノコ",
+                insect: "虫",
+                water: "不思議な水"
+            };
+
+            eCollisionGotItem.forEach((item, index) => {
+                const getItemName = getItemNameMap[item];
+                if (!getItemName) return;
+
+                // 通知表示
+                toast.success(`アイテムを取得しました: ${getItemName}`, {
+                    toastId: `${item}-${index}`
+                });
+
+                console.log(`通知発生: ${item}`);
+            });
+
+            // 状態リセット（必要に応じて）
+            // setECollisionGotItem([]);
+            clearGotItems()
+        } else {
+
+            console.log("みかくほ");
+        }
+    }, [eCollisionGotItem]);
+
+
+
 
     // ----------------------------
     // プレイヤーとクラフトアイテムの取得
@@ -344,6 +427,9 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                     latestEvent.player_id !== playerId.id
                         ? `プレイヤーID:${latestEvent.player_id}がアイテムを取得しました`
                         : `アイテムを取得しました`;
+
+                toast(message);
+
                 return [message, ...prev.slice(0, 4)];
             });
 
@@ -506,6 +592,40 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
     useEffect(() => {
         console.log("loadedImagesの更新:");
     }, [loadedImages]);
+// ----------------------------
+// プレイヤー画像切り替え用のロジック（2枚のpngを交互に切替）
+// ----------------------------
+    interface CharacterImageData {
+        iconImage: string[]; // 画像URLの配列
+
+    }
+
+    console.log(characterImageData)
+    useEffect(() => {
+        const userId = playerId.id
+        console.log("kokomadekitakanokakuni nnyamatatusann")
+        // Fetch character data from API
+        const fetchCharacterImages = async () => {
+            try {
+                const response = await fetch(`/api/character/image/${userId}`, {
+                    method: "GET",
+                    headers: {"Content-Type": "application/json"}
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data)
+                    setCharacterImageData(data.userData); // まとめて状態を更新
+
+                } else {
+                    console.error("Failed to fetch character images");
+                }
+            } catch (error) {
+                console.error("Error fetching character images:", error);
+            }
+        };
+        fetchCharacterImages()
+
+    }, []);
 
 
     // Loading or Error UI
@@ -518,7 +638,16 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
     }
 
     return (
-        <div style={{ outline: "none" }}>
+        <div style={{outline: "none"}}>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px'}}>
+                {/*{characterImageData?.iconImage.slice(0, 8).map((url, index) => (*/}
+                {/*    <div key={index} style={{textAlign: 'center'}}>*/}
+                {/*        <Image src={url} alt={`Image ${index + 1}`} width={150} height={150}/>*/}
+                {/*        <p>Image {index + 1}</p>*/}
+                {/*    </div>*/}
+                {/*))}*/}
+            </div>
+
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -530,7 +659,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                             const grassImg = tileImages["grass"];
                             if (!grassImg) return null;
                             return (
-                                <Image
+                                <KonvaImage
                                     key={`grass-${rowIndex}-${colIndex}`}
                                     image={grassImg}
                                     x={colIndex * Tile_size - cameraPosition.x}
@@ -557,7 +686,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                                     return null;
                                 }
                                 return (
-                                    <Image
+                                    <KonvaImage
                                         key={`${tile}-${rowIndex}-${colIndex}`}
                                         image={img}
                                         x={colIndex * Tile_size - cameraPosition.x}
@@ -569,7 +698,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                                 );
                             }
                             return (
-                                <Image
+                                <KonvaImage
                                     key={`${tile}-${rowIndex}-${colIndex}`}
                                     image={img}
                                     x={colIndex * Tile_size - cameraPosition.x}
@@ -582,7 +711,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                         })
                     )}
                     {/*{itemData.map((data) => (*/}
-                    {/*    <Image*/}
+                    {/*    <KonvaImage*/}
                     {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
                     {/*        x={data.x! - cameraPosition.x}*/}
                     {/*        y={data.y! - cameraPosition.y}*/}
@@ -594,7 +723,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
 
                     {/* --- プレイヤー --- */}
                     {playerImage && (
-                        <Image
+                        <KonvaImage
                             image={playerImage}
                             x={ECollisionPosition?.x - cameraPosition.x}
                             y={ECollisionPosition?.y - cameraPosition.y}
@@ -628,7 +757,7 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {playerItems.map((item) => (
+                                    {playerItems?.map((item) => (
                                         <tr key={item.id}>
                                             <td>{item.DefaultItemList.itemName}</td>
                                             <td>{item.quantity}</td>
@@ -639,24 +768,52 @@ const MapWithCharacter: React.FC<GameProps> = ({ playerId, roomId, itemData }) =
                             </div>
 
                             <div className={styles.crafting}>
-                                <h3>クラフトメニュー</h3>
-                                <div className={styles.craftButtons}>
-                                    <select value={selectedItemId} onChange={handleSelectChange}>
-                                        <option value="">-- アイテムを選択 --</option>
-                                        {craftItems?.map((craftItem) => (
-                                            <option key={craftItem.id} value={craftItem.id}>
-                                                {craftItem.createdItem?.itemName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <button onClick={handleCraftClick} disabled={!selectedItemId}>
-                                        作成
-                                    </button>
+                                <h3 className={styles.heading}>クラフトメニュー</h3>
+
+                                <p className={styles.selectedInfo}>選択中: {selectedItemId || '-- アイテムを選択 --'}</p>
+
+                                <div className={styles.craftButtonContainer}>
+                                    {craftItems.map((craftItem) => (
+                                        <div
+                                            className={`${styles.craftButtons} ${selectedItemId === craftItem.createdItem.id ? styles.selected : ''}`}
+                                            key={craftItem.id}
+                                            onClick={() => handleSelectChange(craftItem.id)}
+                                        >
+                                                <span
+                                                    className={styles.itemName}>{craftItem.createdItem.itemName}</span>
+                                            <Image
+                                                src={craftItem.createdItem.itemIcon}
+                                                alt={craftItem.createdItem.itemName}
+                                                width={64}
+                                                height={64}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
+
+                                <button
+                                    className={styles.buttonCreate}
+                                    onClick={handleCraftClick}
+                                    disabled={!selectedItemId}
+                                >
+                                    作成
+                                </button>
                             </div>
                         </div>
                     </div>
                 )}
+                <ToastContainer
+                    position="top-right"          // 表示位置
+                    autoClose={1000}              // 自動で閉じるまでの時間
+                    hideProgressBar={false}
+                    newestOnTop={true}            // 新しい通知が上にくる
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    limit={5}                     // 最大同時表示数（これ大事！）
+                />
             </div>
         </div>
     );

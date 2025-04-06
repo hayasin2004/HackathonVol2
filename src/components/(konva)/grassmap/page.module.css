@@ -111,54 +111,91 @@
     font-size: 20px;
     color: #5b4b2b;
 }
+.crafting {
+    background-color: #fefefe;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 700px;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: #5b4b2b;
+    text-align: center;
+}
+
+.selectedInfo {
+    text-align: center;
+    margin-bottom: 16px;
+    font-weight: bold;
+    color: #444;
+}
+
+.craftButtonContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    justify-items: center;
+    margin-bottom: 20px;
+    max-height: 300px;
+    overflow-y: auto; /* スクロール追加 */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fffef8;
+}
 
 .craftButtons {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.craftButtons select {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
     background-color: #fff;
-    flex-grow: 1;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s;
+    width: 100px;
 }
 
-.craftButtons button {
-    padding: 8px 16px;
-    font-size: 16px;
+.craftButtons:hover {
+    background-color: #f9f9f9;
+    border-color: #ccc;
+}
+
+.selected {
+    border-color: #444 !important;
+    background-color: #f0f0f0;
+}
+
+.itemName {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+    color: #333;
+}
+
+.buttonCreate {
     background-color: #44aa55;
     color: white;
     border: none;
+    padding: 10px 24px;
+    font-size: 16px;
     border-radius: 8px;
     cursor: pointer;
+    display: block;
+    margin: 0 auto;
     transition: background-color 0.2s ease;
 }
 
-.craftButtons button:hover:enabled {
-    background-color: #45a049;
+.buttonCreate:hover:enabled {
+    background-color: #3b944a;
 }
 
-.craftButtons button:disabled {
+.buttonCreate:disabled {
     background-color: #aaa;
     cursor: not-allowed;
-}
-
-.button {
-    cursor: pointer;
-    padding: 8px 16px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: none;
-    background-color: #68593a;
-    color: white;
-    transition: background-color 0.2s ease;
-}
-
-.button:hover {
-    background-color: #4d3e29;
 }

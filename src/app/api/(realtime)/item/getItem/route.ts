@@ -49,8 +49,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 export const playerGetItem = async (playerId: number | undefined, itemIds: number[]) => {
     try {
 
-        console.log("playerIdplayerIdplayerIdplayerId" + playerId , "itemIdsitemIdsitemIds "+ itemIds)
-        console.log("ここに来たのか？")
         if (playerId) {
             // findUniqueを使用して、itemIdに一致するアイテムを取得する
             const existingItems = await prisma.playerItem.findMany({
@@ -62,7 +60,6 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                 }
             });
 
-        console.log("ここに来たのか!")
             // 既存アイテムのIDリストを作成
             const existingItemIds = existingItems.map((item) => item.itemId);
 
@@ -99,7 +96,9 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                         playerDataId: playerId
                     }))
                 });
-                return { status: "success", message: 'アイテムをプレイヤーに保存しました', savedItem };
+
+
+                return { status: "success", message: 'アイテムをプレイヤーに保存しました',savedItem};
             }
 
             // 既存アイテムの数量を増やす
@@ -120,7 +119,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                     console.error("更新対象のデータが見つかりませんでした");
                     return { status: 'error', message: 'アイテム保存中にエラーが発生しました' };
                 }
-                return { status: "success", message: 'アイテムをプレイヤーに保存しました', savedItem };
+                return { status: "success", message: 'アイテムをプレイヤーに保存しました', savedItem};
             } else {
                 return { status: 'error', message: 'ユーザーが存在しない可能性があります。' };
             }
