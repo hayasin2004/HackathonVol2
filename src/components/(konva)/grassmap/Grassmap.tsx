@@ -196,8 +196,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         loadPlayerImage(characterImageData?.iconImage?.[0]);
 
         const handleKeyDown = (event: KeyboardEvent) => {
-            const staticImages = characterImageData?.iconImage?.slice(0, 3);   // 静止
-            const walkImages = characterImageData?.iconImage?.slice(4, 7);    // 歩行
+            const staticImages = characterImageData?.iconImage?.slice(0, 4);   // 静止
+            const walkImages = characterImageData?.iconImage?.slice(4, 8);    // 歩行
             console.log(walkImages)
             const direction = event.key;
             const now = Date.now();
