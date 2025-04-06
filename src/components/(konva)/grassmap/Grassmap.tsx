@@ -45,8 +45,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
     const [selectedItemId, setSelectedItemId] = useState("");
-    const [getItemId, setGetItemId] = useState("");
-    console.log(getItemId)
+    const [getItemNames, seGetItemNames] = useState<string[]>([]);
+
+    console.log(getItemNames)
     const [isOpen, setIsOpen] = useState(false);
     // クラフトをプルダウンメニュー化
     const handleSelectChange = (e: any) => {
@@ -58,22 +59,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             const selectedItem = craftItems.find(
                 (item) => item.id === Number(selectedItemId)
             );
-
             handleCraftItem(Number(selectedItemId));
-            console.log(selectedItem);
             if (selectedItem) {
                 toast.success(`${selectedItem.createdItem.itemName} を獲得した！`);
             }
         }
     };
-    useEffect(() => {
-        if (getItemId == "") {
-            return;
-        }
-        console.log("getItemId : " + getItemId,);
-        toast.success(`${getItemId} を獲得した！`);
-        setGetItemId("")
-    }, [getItemId]);
+
 
     const stableInitialPosition = useMemo(() => ({
         x: playerId?.x ?? 0,
@@ -161,6 +153,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {
         ECollisionPosition,
         eCollisionGotItem,
+        clearGotItems
     } = useRemakeItemGet({
         userId: playerId.id,
         initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
@@ -351,14 +344,39 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [itemData, ECollisionPosition.x, ECollisionPosition.y,]);
 
     useEffect(() => {
-        if (eCollisionGotItem) {
-            setGetItemId(eCollisionGotItem);
-            toast.success(`アイテムを取得しました: ${eCollisionGotItem}`);
-            console.log(`通知発生: ${eCollisionGotItem}`);
+        if (Array.isArray(eCollisionGotItem) && eCollisionGotItem.length > 0) {
+            const getItemNameMap: { [key: string]: string } = {
+                tree: "木の棒",
+                stone: "石",
+                coal: "石炭",
+                iron: "鉄",
+                flower: "花",
+                mushroom: "キノコ",
+                insect: "虫",
+                water: "不思議な水"
+            };
+
+            eCollisionGotItem.forEach((item, index) => {
+                const getItemName = getItemNameMap[item];
+                if (!getItemName) return;
+
+                // 通知表示
+                toast.success(`アイテムを取得しました: ${getItemName}`, {
+                    toastId: `${item}-${index}`
+                });
+
+                console.log(`通知発生: ${item}`);
+            });
+
+            // 状態リセット（必要に応じて）
+            // setECollisionGotItem([]);
+            clearGotItems()
         } else {
+
             console.log("みかくほ");
         }
     }, [eCollisionGotItem]);
+
 
 
 
@@ -399,7 +417,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                         ? `プレイヤーID:${latestEvent.player_id}がアイテムを取得しました`
                         : `アイテムを取得しました`;
 
-                // ✅ toast で通知も表示
                 toast(message);
 
                 return [message, ...prev.slice(0, 4)];
@@ -770,17 +787,23 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                     disabled={!selectedItemId}
                                 >
                                     作成
-                                    <ToastContainer/>
                                 </button>
                             </div>
                         </div>
                     </div>
                 )}
-                <div>
-                    <div>
-                        <ToastContainer/>
-                    </div>
-                </div>
+                <ToastContainer
+                    position="top-right"          // 表示位置
+                    autoClose={1000}              // 自動で閉じるまでの時間
+                    hideProgressBar={false}
+                    newestOnTop={true}            // 新しい通知が上にくる
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    limit={5}                     // 最大同時表示数（これ大事！）
+                />
             </div>
         </div>
     );

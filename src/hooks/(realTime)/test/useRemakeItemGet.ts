@@ -46,8 +46,10 @@ export const useRemakeItemGet = ({
     const [adjacentMapObjects, setAdjacentMapObjects] = useState<MapObject[] | null>(null);
     const [ePressCount, setEPressCount] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [eCollisionGotItem, setECollisionGotItem] = useState<string>("");
+    const [eCollisionGotItem, setECollisionGotItem] = useState<string[]>([]);
     const [ECollisionStatus, setECollisionStatus] = useState(false);
+
+    const clearGotItems = () => setECollisionGotItem([]);
 
     const eKeyPressedRef = useRef(false);
     const keysPressedRef = useRef({
@@ -99,7 +101,7 @@ export const useRemakeItemGet = ({
                 console.log(mapObject.type);
                 const result = await playerGetItem(userId, itemId);
                 if (result?.status === "success" && result.savedItem) {
-                    setECollisionGotItem(mapObject.type)
+                    setECollisionGotItem(prev => [...prev, mapObject.type])
                     console.log("アイテム作成:", result.savedItem)
                 }
             }
@@ -364,6 +366,7 @@ export const useRemakeItemGet = ({
         ePressCount,
         handleEKeyPress,   // 外部から呼び出せるように
         eCollisionGotItem,
+        clearGotItems
     };
 };
 
