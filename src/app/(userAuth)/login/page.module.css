@@ -85,12 +85,12 @@
     font-size: 14px;
   }
  .h1{
-   font-size: 20px;
-   text-align: center;
+   font-size: 24px;
+    margin-right:40px ;
  }
   .label {
     display: block;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     font-weight: bold;
     color: #00ffaf;
     font-size: 18px;
@@ -98,14 +98,14 @@
 
   .button,
   .button2 {
-    margin-right: 30px;
+    margin-right: 3px;
     width: 70%;
     font-size: 14px;
     margin-top: 30px;
   }
 
   .innercontainer {
-    width: 95%;
+    width: 90%;
     padding: 20px;
   }
 }

@@ -36,7 +36,7 @@ const LogIn = () => {
     >
       <form action="">
         <div className={styles.innercontainer}>
-          <h1>ログイン</h1>
+          <h1 className={styles.h1}>ログイン</h1>
           <br />
           <label htmlFor="email" className={styles.label}>
             メールアドレス
