@@ -2,6 +2,7 @@
 import {useState, useEffect, useRef, useCallback} from "react";
 import {defaultItem} from "@/types/defaultItem";
 import {playerGetItem} from "@/app/api/(realtime)/item/getItem/route";
+import {ToastContainer, toast} from 'react-toastify';
 
 export interface MapObject {
     id: string;
@@ -45,7 +46,10 @@ export const useRemakeItemGet = ({
     const [adjacentMapObjects, setAdjacentMapObjects] = useState<MapObject[] | null>(null);
     const [ePressCount, setEPressCount] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [eCollisionGotItem, setECollisionGotItem] = useState<string[]>([]);
     const [ECollisionStatus, setECollisionStatus] = useState(false);
+
+    const clearGotItems = () => setECollisionGotItem([]);
 
     const eKeyPressedRef = useRef(false);
     const keysPressedRef = useRef({
@@ -97,8 +101,8 @@ export const useRemakeItemGet = ({
                 console.log(mapObject.type);
                 const result = await playerGetItem(userId, itemId);
                 if (result?.status === "success" && result.savedItem) {
-                    console.log("koko")
-                    console.log("Item acquisition success:", result.savedItem)
+                    setECollisionGotItem(prev => [...prev, mapObject.type])
+                    console.log("アイテム作成:", result.savedItem)
                 }
             }
             return newItem;
@@ -360,7 +364,9 @@ export const useRemakeItemGet = ({
         adjacentObstacles,
         adjacentMapObjects, // 新しく追加
         ePressCount,
-        handleEKeyPress    // 外部から呼び出せるように
+        handleEKeyPress,   // 外部から呼び出せるように
+        eCollisionGotItem,
+        clearGotItems
     };
 };
 
