@@ -36,7 +36,9 @@
   font-weight: bold;
   margin-bottom: 5px;
   font-size: 20px;
-  color: #03fbd8;
+
+  color: rgb(217, 238, 217);
+  text-shadow: #1c1c1b 2px 2px;
 }
 
 .button {
@@ -92,7 +94,6 @@
     display: block;
     margin-bottom: 20px;
     font-weight: bold;
-    color: #00ffaf;
     font-size: 18px;
   }
 
