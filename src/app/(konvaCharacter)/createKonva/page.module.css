@@ -54,12 +54,19 @@
     font-size: 16px;
     background-color: #f9f9f9;
 }
+.characterEditorTitle{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
 
 
 .button {
     margin-top: 15px;
     height: 45px;
     width: 25%;
+    text-align: center;
     font-size: 16px;
     background-color: #44aa55;
     color: white;
@@ -72,3 +79,12 @@
     background-color: #3a914a;
 }
 
+
+.imgCreate{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 300px;
+    height: 300px;
+    border-radius: 10px;
+}

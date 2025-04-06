@@ -19,7 +19,7 @@ const LogIn = () => {
                     console.log(userData)
                     if (userData.status == 200) {
                         // window.alert("おかえりなさい" + userData?.loginUser?.playerData?.playerId)
-                        router.push("/createKonva")
+                        // router.push("/createKonva")
                     } else if (userData.status == 201) {
                         window.alert("ユーザー情報が見つかりませんでした。")
                     } else if (userData.status == "error") {
