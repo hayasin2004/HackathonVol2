@@ -172,33 +172,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const animationIntervalRef = useRef<number | null>(null);
     const frameRef = useRef<number>(0); // 0: 静止画, 1: 歩行モーション
 
-    // const staticImages = {
-    //     default: "/character_front.png",
-    //     ArrowUp: "/character_back.png",
-    //     ArrowDown: "/character_front.png",
-    //     ArrowRight: "/character_right.png",
-    //     ArrowLeft: "/character_left.png",
-    // };
-    //
-    // const walkImages = {
-    //     ArrowUp: "/character_back_walk.png",
-    //     ArrowDown: "/character_front_walk.png",
-    //     ArrowRight: "/character_right_walk.png",
-    //     ArrowLeft: "/character_left_walk.png",
-    // };
     const [characterImageData, setCharacterImageData] = useState<CharacterImageData | null>(null);
     console.log(characterImageData)
-    const loadPlayerImage = (src: string | undefined) => {
-        const img = new window.Image();
-        img.src = src;
-        img.onload = () => setPlayerImage(img);
-    };
-    useEffect(() => {
-        // 初期表示用
-        if (characterImageData?.iconImage?.[0]) {
-            loadPlayerImage(characterImageData.iconImage[0]);
-        }
-    }, [characterImageData]);
 
     const keyToIndexMap: Record<string, number> = {
         ArrowDown: 0,
@@ -206,20 +181,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         ArrowRight: 2,
         ArrowLeft: 3,
     };
-    const staticImages = {
-        default: "/character_front.png",
-        ArrowUp: "/character_back.png",
-        ArrowDown: "/character_front.png",
-        ArrowRight: "/character_right.png",
-        ArrowLeft: "/character_left.png",
-    };
 
-    const walkImages = {
-        ArrowUp: "/character_back_walk.png",
-        ArrowDown: "/character_front_walk.png",
-        ArrowRight: "/character_right_walk.png",
-        ArrowLeft: "/character_left_walk.png",
-    };
 
     const loadPlayerImage = (src: string) => {
         const img = new window.Image();
@@ -230,7 +192,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     useEffect(() => {
         // 初期は静止画像を表示
-        loadPlayerImage(staticImages.default);
+        loadPlayerImage(characterImageData?.iconImage?.[0]);
 
         const handleKeyDown = (event: KeyboardEvent) => {
             const staticImages = characterImageData?.iconImage?.slice(0, 3);   // 静止
