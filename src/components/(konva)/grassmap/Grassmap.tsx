@@ -47,9 +47,17 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
     const [selectedItemId, setSelectedItemId] = useState("");
     const [getItemNames, seGetItemNames] = useState<string[]>([]);
-
+    const [isDark, setIsDark] = useState(false);
     console.log(getItemNames)
     const [isOpen, setIsOpen] = useState(false);
+
+
+    // 20パーの確立でマップを暗くする
+
+    useEffect(() => {
+        const shouldBeDark = Math.random() < 0.2; // 20%の確率
+        setIsDark(shouldBeDark);
+    }, []);
     // クラフトをプルダウンメニュー化
     const handleSelectChange = (e: any) => {
         console.log(e)
@@ -618,6 +626,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                         row.map((_, colIndex) => {
                             const grassImg = tileImages["grass"];
                             if (!grassImg) return null;
+
+
                             return (
                                 <KonvaImage
                                     key={`grass-${rowIndex}-${colIndex}`}
@@ -690,6 +700,16 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                             width={Tile_size}
                             height={Tile_size}
                             alt="プレイヤー写真"
+                        />
+                    )}
+                    {isDark && (
+                        <Rect
+                            x={0}
+                            y={0}
+                            width={typeof window !== "undefined" ? window.innerWidth : 0}
+                            height={typeof window !== "undefined" ? window.innerHeight : 0}
+                            fill="black"
+                            opacity={0.7}
                         />
                     )}
                 </Layer>

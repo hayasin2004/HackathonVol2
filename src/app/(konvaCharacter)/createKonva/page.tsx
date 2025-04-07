@@ -388,9 +388,14 @@ export default function Page() {
   };
 
   return (
-    <div>
-      {/*<h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>*/}
-      <h1 className={styles.characterEditorWrapper}>Foresta Character Editor</h1>
+      <div　className={styles.mainDiv}  style={{
+          backgroundImage: "url('/canvayoru.png')", // 背景画像のURL
+          backgroundSize: "cover", // 背景を全体にフィット
+          backgroundPosition: "center", // 画像の中央に配置
+          backgroundAttachment: "fixed", // 背景を固定
+
+      }}>
+      <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
       <form className={styles.characterEditorForm} onSubmit={handleGenerate}>
         <h2 className={styles.characterEditorWrapper}>キャラクター</h2>
         <table className={styles.characterEditorTable}>

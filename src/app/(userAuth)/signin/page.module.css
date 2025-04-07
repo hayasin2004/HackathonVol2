@@ -72,7 +72,6 @@
 @media screen and (max-width: 768px) {
   .innercontainer{
     margin: 0;
-    opacity: 1;
   }
   .input {
     width: 90%;
@@ -88,6 +87,7 @@
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    color: #00ffaf;
     font-size: 18px;
 
     color: rgb(217, 238, 217);
