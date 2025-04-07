@@ -4,6 +4,7 @@ import prisma from "@/lib/prismaClient";
 export async function GET(req: Request) {
     const playerId = req.url.split('/').pop(); // URLの最後の部分を取得
     const numberPlayerId = Number(playerId);
+    console.log(numberPlayerId)
     if (!playerId || isNaN(numberPlayerId)) {
         return NextResponse.json(
             {status: "error", message: "無効なルームIDです"},
@@ -13,7 +14,7 @@ export async function GET(req: Request) {
 
     try {
         const playerData = await prisma.playerData.findFirst({
-            where: {id: numberPlayerId},
+            where: {playerId: numberPlayerId},
         });
 
         if (!playerData) {

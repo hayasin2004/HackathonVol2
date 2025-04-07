@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useRouter } from 'next/navigation';
 
-export function useSocketConnection(playerId: number | undefined, roomId: number | undefined) {
+export function useSocketConnection(playerId: number | undefined | null, roomId: number | undefined) {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [connected, setConnected] = useState(false);
     const [players, setPlayers] = useState<any[]>([]);
@@ -34,6 +34,7 @@ export function useSocketConnection(playerId: number | undefined, roomId: number
             setConnected(true);
 　
             // ルームに参加
+            console.log('Socket joined with ID:', playerId , roomId);
             socketIo.emit('join_room', { playerId, roomId });
             console.log('Emitted join_room event:', { playerId, roomId });
         });

@@ -33,14 +33,12 @@ export const authOptions: NextAuthOptions = {
 
 
                 // ユーザーが存在する場合のみ値を返す
-                if (user) {
-                    await findPlayerData(user.id)
-                    return {
-                        id: user.id,
-                        email: user.email,
-                        username: user.username,
-                    };
-                }
+                await findPlayerData(user.id)
+                return {
+                    id: user.id,
+                    email: user.email,
+                    username: user.username,
+                };
             }
         })
     ]

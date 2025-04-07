@@ -14,6 +14,8 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const roomId = parseInt(id as string);
     const {data: session} = useSession()
 
+    console.log(roomId)
+
     const [room, setRoom] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -24,6 +26,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
         // クエリパラメータから取得する方法を示します
         const userId = session?.user.id
+        console.log(userId);
         // const NumUserId = Number(1)
         if (userId) {
             const currentUserId = async () =>{

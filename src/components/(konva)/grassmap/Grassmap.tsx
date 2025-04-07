@@ -17,6 +17,7 @@ import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupaba
 import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
 import styles from './page.module.css'
 import {ToastContainer, toast} from 'react-toastify';
+import {logout} from "@/lib/nextAuth-actions";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -28,7 +29,7 @@ interface GameProps {
 
 
 const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
-    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.id, roomId);
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
     const MAP_PIXEL_WIDTH = Map_width * Tile_size;
     const MAP_PIXEL_HEIGHT = Map_height * Tile_size;
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
@@ -183,11 +184,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     };
 
 
-
     const loadPlayerImage = (src: string) => {
         const img = new window.Image();
         img.src = src;
-        console.log(img.src)
         img.onload = () => setPlayerImage(img);
     };
 
@@ -273,7 +272,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             targetY = Math.max(0, Math.min(targetY, MAP_PIXEL_HEIGHT - windowHeight));
             targetX = windowWidth >= MAP_PIXEL_WIDTH ? 0 : targetX;
             targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
-            return { x: targetX, y: targetY };
+            return {x: targetX, y: targetY};
         };
 
         setCameraPosition(calculateInitialCameraPos(ECollisionPosition.x, ECollisionPosition.y));
@@ -350,8 +349,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [eCollisionGotItem]);
 
 
-
-
     // ----------------------------
     // プレイヤーとクラフトアイテムの取得
     // ----------------------------
@@ -365,7 +362,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     }
                 })
                 .catch((err) => console.error("Failed to fetch player items:", err));
-            fetch(`/api/item/getCraftItems`, { method: "GET" })
+            fetch(`/api/item/getCraftItems`, {method: "GET"})
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.status === "success") {
@@ -546,7 +543,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
         setCameraPosition((prevCameraPos) => {
             if (Math.round(prevCameraPos.x) !== Math.round(targetX) || Math.round(prevCameraPos.y) !== Math.round(targetY)) {
-                return { x: targetX, y: targetY };
+                return {x: targetX, y: targetY};
             }
             return prevCameraPos;
         });
@@ -565,7 +562,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     console.log(characterImageData)
     useEffect(() => {
-        const userId = playerId.id
+        const userId = playerId.playerId
         console.log("kokomadekitakanokakuni nnyamatatusann")
         // Fetch character data from API
         const fetchCharacterImages = async () => {
@@ -699,12 +696,15 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             </Stage>
             {/* インベントリ */}
             <div>
+
+
                 <button
                     className={styles.fixedOpenButton}
                     onClick={() => setIsOpen(true)}
                 >
                     クリエイト
                 </button>
+
 
                 {isOpen && (
                     <div className={styles.modalOverlay}>
@@ -720,8 +720,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                     </tr>
                                     </thead>
                                     <tbody>
-
-
 
 
                                     {playerItems?.map((item) => (
@@ -781,6 +779,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     pauseOnHover
                     limit={5}                     // 最大同時表示数（これ大事！）
                 />
+                <form action={logout}>
+                    <button className={styles.fixedLogOutButton} >
+                        ログアウト
+                    </button>
+                </form>
             </div>
         </div>
     );
