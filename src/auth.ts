@@ -1,6 +1,9 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prismaClient"
 import NextAuth, {NextAuthOptions} from "next-auth";
+import {toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {findPlayerData} from "@/repository/prisma/authRepository";
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -15,21 +18,29 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("メールアドレスが入力されていません");
                 }
 
-                const user = await prisma.user.findUnique({
-                    where: {email: credentials.email},
+                const user = await prisma.user.findFirst({
+                    where: {
+                        AND: [{
+                            email: credentials.email,
+                            password: credentials.password
+                        }]
+                    },
                 });
-                console.log("auth query : " + user)
+
                 if (!user) {
-                    console.log("ユーザーが見つかりません");
-                    return null; // ユーザーが見つからない場合はnullを返す
+                    throw new Error("ユーザーを見つけれませんでした。もう一度、メールアドレス、パスワードを入力してください")
                 }
 
+
                 // ユーザーが存在する場合のみ値を返す
-                return {
-                    id: user.id,
-                    email: user.email,
-                    username: user.username,
-                };
+                if (user) {
+                    await findPlayerData(user.id)
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        username: user.username,
+                    };
+                }
             }
         })
     ]
