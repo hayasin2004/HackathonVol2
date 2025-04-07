@@ -720,6 +720,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                     </tr>
                                     </thead>
                                     <tbody>
+
+
+
+
                                     {playerItems?.map((item) => (
                                         <tr key={item.id}>
                                             <td>{item.DefaultItemList.itemName}</td>

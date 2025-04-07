@@ -96,6 +96,7 @@ ${additional && additional.trim() !== "" ? `- Additional Features: ${additional}
         break;
       }
     }
+    console.log("generatedImageBuffer確認" + generatedImageBuffer)
     if (!generatedImageBuffer) throw new Error("No image data received from Gemini API.");
 
     const now = new Date();

@@ -389,9 +389,10 @@ export default function Page() {
 
   return (
     <div>
-      <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
+      {/*<h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>*/}
+      <h1 className={styles.characterEditorWrapper}>Foresta Character Editor</h1>
       <form className={styles.characterEditorForm} onSubmit={handleGenerate}>
-        <h2 className={styles.characterEditorWrapper}>Head Features</h2>
+        <h2 className={styles.characterEditorWrapper}>キャラクター</h2>
         <table className={styles.characterEditorTable}>
           <tbody>
           <tr>
@@ -462,7 +463,7 @@ export default function Page() {
         </table>
 
         <br/>
-        <h2>Clothing</h2>
+        <h2>お洋服</h2>
 
         <table className={styles.characterEditorTable}>
           <tbody>
