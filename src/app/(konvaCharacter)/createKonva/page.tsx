@@ -388,387 +388,396 @@ export default function Page() {
   };
 
   return (
-      <div　className={styles.mainDiv}  style={{
+      <div className={styles.mainDiv} style={{
           backgroundImage: "url('/canvayoru.png')", // 背景画像のURL
           backgroundSize: "cover", // 背景を全体にフィット
           backgroundPosition: "center", // 画像の中央に配置
           backgroundAttachment: "fixed", // 背景を固定
 
       }}>
-      <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
-      <form className={styles.characterEditorForm} onSubmit={handleGenerate}>
-        <h2 className={styles.characterEditorWrapper}>キャラクター</h2>
-        <table className={styles.characterEditorTable}>
-          <tbody>
-          <tr>
-            <td><label className={styles.characterEditorTableTr} htmlFor="gender">性別:</label></td>
-            <td>
-              <select className={styles.characterEditorSelect } id="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
-                <option value="女性">女性</option>
-                <option value="男性">男性</option>
-              </select>
-            </td>
-          </tr>
-          <tr className={styles.characterEditorTableTr}>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="hairStyle">髪型:</label></td>
-            <td>
-              <select className={styles.characterEditorSelect }  id="hairStyle" value={hairStyle} onChange={(e) => setHairStyle(e.target.value)}>
-                <option value="ベリーショート">ベリーショート</option>
-                <option value="ショート">ショート</option>
-                <option value="ミディアム">ミディアム</option>
-                <option value="セミロング">セミロング</option>
-                <option value="ロング">ロング</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="hairColor">髪色:</label></td>
-            <td>
-              <select className={styles.characterEditorSelect }  id="hairColor" value={hairColor} onChange={(e) => setHairColor(e.target.value)}>
-                {colorOptions.map((color) => (
-                    <option key={color} value={color}>{color}</option>
-                ))}
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="eyeType">目の形:</label></td>
-            <td>
-              <select className={styles.characterEditorSelect }  id="eyeType" value={eyeType} onChange={(e) => setEyeType(e.target.value)}>
-                <option value="丸目">丸目</option>
-                <option value="アーモンド目">アーモンド目</option>
-                <option value="つり目">つり目</option>
-                <option value="たれ目">たれ目</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="eyeColor">目の色:</label></td>
-            <td>
-              <select className={styles.characterEditorSelect }  id="eyeColor" value={eyeColor} onChange={(e) => setEyeColor(e.target.value)}>
-                {colorOptions.map((color) => (
-                    <option key={color} value={color}>{color}</option>
-                ))}
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="additional">その他の特徴:</label></td>
-            <td>
+          <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
+          <form className={styles.characterEditorForm} onSubmit={handleGenerate}>
+              <h2 className={styles.characterEditorWrapper}>キャラクター</h2>
+              <table className={styles.characterEditorTable}>
+                  <tbody>
+                  <tr>
+                      <td><label className={styles.characterEditorTableTr} htmlFor="gender">性別:</label></td>
+                      <td>
+                          <select className={styles.characterEditorSelect} id="gender" value={gender}
+                                  onChange={(e) => setGender(e.target.value)}>
+                              <option value="女性">女性</option>
+                              <option value="男性">男性</option>
+                          </select>
+                      </td>
+                  </tr>
+                  <tr className={styles.characterEditorTableTr}>
+                      <td className={styles.characterEditorTableTr}><label htmlFor="hairStyle">髪型:</label></td>
+                      <td>
+                          <select className={styles.characterEditorSelect} id="hairStyle" value={hairStyle}
+                                  onChange={(e) => setHairStyle(e.target.value)}>
+                              <option value="ベリーショート">ベリーショート</option>
+                              <option value="ショート">ショート</option>
+                              <option value="ミディアム">ミディアム</option>
+                              <option value="セミロング">セミロング</option>
+                              <option value="ロング">ロング</option>
+                          </select>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td className={styles.characterEditorTableTr}><label htmlFor="hairColor">髪色:</label></td>
+                      <td>
+                          <select className={styles.characterEditorSelect} id="hairColor" value={hairColor}
+                                  onChange={(e) => setHairColor(e.target.value)}>
+                              {colorOptions.map((color) => (
+                                  <option key={color} value={color}>{color}</option>
+                              ))}
+                          </select>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td className={styles.characterEditorTableTr}><label htmlFor="eyeType">目の形:</label></td>
+                      <td>
+                          <select className={styles.characterEditorSelect} id="eyeType" value={eyeType}
+                                  onChange={(e) => setEyeType(e.target.value)}>
+                              <option value="丸目">丸目</option>
+                              <option value="アーモンド目">アーモンド目</option>
+                              <option value="つり目">つり目</option>
+                              <option value="たれ目">たれ目</option>
+                          </select>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td className={styles.characterEditorTableTr}><label htmlFor="eyeColor">目の色:</label></td>
+                      <td>
+                          <select className={styles.characterEditorSelect} id="eyeColor" value={eyeColor}
+                                  onChange={(e) => setEyeColor(e.target.value)}>
+                              {colorOptions.map((color) => (
+                                  <option key={color} value={color}>{color}</option>
+                              ))}
+                          </select>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td className={styles.characterEditorTableTr}><label htmlFor="additional">その他の特徴:</label>
+                      </td>
+                      <td>
         <textarea
-            className={styles.characterEditorSelect }
+            className={styles.characterEditorSelect}
             id="additional"
             placeholder="例: 猫耳や特別なアクセサリーなど"
             value={additional}
             onChange={(e) => setAdditional(e.target.value)}
         />
-            </td>
-          </tr>
-          </tbody>
-        </table>
+                      </td>
+                  </tr>
+                  </tbody>
+              </table>
 
-        <br/>
-        <h2>お洋服</h2>
+              <br/>
+              <h2>お洋服</h2>
 
-        <table className={styles.characterEditorTable}>
-          <tbody>
-          <tr>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="upperClothing">上半身:</label></td>
-            <td>
-              <select
-                  className={styles.characterEditorSelect }
-                  id="upperClothing"
-                  value={upperClothing}
-                  onChange={(e) => setUpperClothing(e.target.value)}
-              >
-                {upperClothingOptions.map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="upperClothingColor">上半身の色:</label></td>
-            <td>
-              <select
-                  className={styles.characterEditorSelect }
-                  id="upperClothingColor"
-                  value={upperClothingColor}
-                  onChange={(e) => setUpperClothingColor(e.target.value)}
-              >
-                {colorOptions.map((color) => (
-                    <option key={color} value={color}>{color}</option>
-                ))}
-              </select>
-            </td>
-          </tr>
+              <table className={styles.characterEditorTable}>
+                  <tbody>
+                  <tr>
+                      <td className={styles.characterEditorTableTr}><label htmlFor="upperClothing">上半身:</label></td>
+                      <td>
+                          <select
+                              className={styles.characterEditorSelect}
+                              id="upperClothing"
+                              value={upperClothing}
+                              onChange={(e) => setUpperClothing(e.target.value)}
+                          >
+                              {upperClothingOptions.map((item) => (
+                                  <option key={item} value={item}>{item}</option>
+                              ))}
+                          </select>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td className={styles.characterEditorTableTr}><label
+                          htmlFor="upperClothingColor">上半身の色:</label></td>
+                      <td>
+                          <select
+                              className={styles.characterEditorSelect}
+                              id="upperClothingColor"
+                              value={upperClothingColor}
+                              onChange={(e) => setUpperClothingColor(e.target.value)}
+                          >
+                              {colorOptions.map((color) => (
+                                  <option key={color} value={color}>{color}</option>
+                              ))}
+                          </select>
+                      </td>
+                  </tr>
 
-          {upperClothing !== "ロングドレス" && (
-              <>
-                <tr>
-                  <td className={styles.characterEditorTableTr} ><label htmlFor="lowerClothing">下半身:</label></td>
-                  <td>
-                    <select
-                        className={styles.characterEditorSelect }
-                        id="lowerClothing"
-                        value={lowerClothing}
-                        onChange={(e) => setLowerClothing(e.target.value)}
-                    >
-                      {lowerClothingOptions.map((item) => (
-                          <option key={item} value={item}>{item}</option>
-                      ))}
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td className={styles.characterEditorTableTr} ><label htmlFor="lowerClothingColor">下半身の色:</label></td>
-                  <td>
-                    <select
-                        className={styles.characterEditorSelect }
-                        id="lowerClothingColor"
-                        value={lowerClothingColor}
-                        onChange={(e) => setLowerClothingColor(e.target.value)}
-                    >
-                      {colorOptions.map((color) => (
-                          <option key={color} value={color}>{color}</option>
-                      ))}
-                    </select>
-                  </td>
-                </tr>
-              </>
+                  {upperClothing !== "ロングドレス" && (
+                      <>
+                          <tr>
+                              <td className={styles.characterEditorTableTr}><label
+                                  htmlFor="lowerClothing">下半身:</label></td>
+                              <td>
+                                  <select
+                                      className={styles.characterEditorSelect}
+                                      id="lowerClothing"
+                                      value={lowerClothing}
+                                      onChange={(e) => setLowerClothing(e.target.value)}
+                                  >
+                                      {lowerClothingOptions.map((item) => (
+                                          <option key={item} value={item}>{item}</option>
+                                      ))}
+                                  </select>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td className={styles.characterEditorTableTr}><label
+                                  htmlFor="lowerClothingColor">下半身の色:</label></td>
+                              <td>
+                                  <select
+                                      className={styles.characterEditorSelect}
+                                      id="lowerClothingColor"
+                                      value={lowerClothingColor}
+                                      onChange={(e) => setLowerClothingColor(e.target.value)}
+                                  >
+                                      {colorOptions.map((color) => (
+                                          <option key={color} value={color}>{color}</option>
+                                      ))}
+                                  </select>
+                              </td>
+                          </tr>
+                      </>
+                  )}
+
+                  <tr>
+                      <td className={styles.characterEditorTableTr}><label htmlFor="shoes">靴:</label></td>
+                      <td>
+                          <select
+                              className={styles.characterEditorSelect}
+                              id="shoes"
+                              value={shoes}
+                              onChange={(e) => setShoes(e.target.value)}
+                          >
+                              {shoesOptions.map((item) => (
+                                  <option key={item} value={item}>{item}</option>
+                              ))}
+                          </select>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td className={styles.characterEditorTableTr}><label htmlFor="shoesColor">靴の色:</label></td>
+                      <td>
+                          <select
+                              className={styles.characterEditorSelect}
+                              id="shoesColor"
+                              value={shoesColor}
+                              onChange={(e) => setShoesColor(e.target.value)}
+                          >
+                              {colorOptions.map((color) => (
+                                  <option key={color} value={color}>{color}</option>
+                              ))}
+                          </select>
+                      </td>
+                  </tr>
+                  </tbody>
+              </table>
+              <br/>
+              <button type="submit" className={styles.button} disabled={loading}>
+                  {loading
+                      ? "生成中..."
+                      : frontImageUrl
+                          ? "キャラクター再生成"
+                          : "キャラクター生成"}
+              </button>
+          </form>
+
+          {frontImageUrl && (
+              <div>
+                  <h2 className={styles.characterEditorTitle}>生成された画像 (Front View):</h2>
+                  <img
+                      className={styles.imgCreate}
+                      src={`${frontImageUrl}?t=${Date.now()}`}
+                      alt="Front View"
+                      style={{imageRendering: "pixelated"}}
+                  />
+                  <br/>
+                  <button className={styles.button} onClick={handleStaticGenerate} disabled={staticLoading}>
+                      {staticLoading ? "別角度生成中..." : "キャラクター別角度生成"}
+                  </button>
+              </div>
           )}
 
-          <tr>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="shoes">靴:</label></td>
-            <td>
-              <select
-                  className={styles.characterEditorSelect }
-                  id="shoes"
-                  value={shoes}
-                  onChange={(e) => setShoes(e.target.value)}
-              >
-                {shoesOptions.map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td className={styles.characterEditorTableTr} ><label htmlFor="shoesColor">靴の色:</label></td>
-            <td>
-              <select
-                  className={styles.characterEditorSelect }
-                  id="shoesColor"
-                  value={shoesColor}
-                  onChange={(e) => setShoesColor(e.target.value)}
-              >
-                {colorOptions.map((color) => (
-                    <option key={color} value={color}>{color}</option>
-                ))}
-              </select>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-        <br/>
-        <button type="submit"  className={styles.button} disabled={loading}>
-          {loading
-              ? "生成中..."
-              : frontImageUrl
-                  ? "キャラクター再生成"
-                  : "キャラクター生成"}
-        </button>
-      </form>
-
-      {frontImageUrl && (
-          <div>
-            <h2 className={styles.characterEditorTitle}>生成された画像 (Front View):</h2>
-            <img
-                className={styles.imgCreate}
-                src={`${frontImageUrl}?t=${Date.now()}`}
-                alt="Front View"
-                style={{imageRendering: "pixelated"}}
-            />
-            <br/>
-            <button   className={styles.button}  onClick={handleStaticGenerate} disabled={staticLoading}>
-              {staticLoading ? "別角度生成中..." : "キャラクター別角度生成"}
-            </button>
-          </div>
-      )}
-
-      {staticImages.back && staticImages.right && staticImages.left && (
-          <div>
-            <h2>追加生成された画像 (静止画像):</h2>
-            <div>
-              <h3>Back View:</h3>
-              <img
-                  className={styles.imgCreate}
-                  src={`${staticImages.back}?t=${Date.now()}`}
-                  alt="Back View"
-                  style={{imageRendering: "pixelated"}}
-              />
-            </div>
-            <div>
-              <h3>Right View:</h3>
-              <img
-                  className={styles.imgCreate}
-                  src={`${staticImages.right}?t=${Date.now()}`}
-                  alt="Right View"
-                  style={{imageRendering: "pixelated"}}
-              />
-            </div>
-            <div>
-              <h3>Left View:</h3>
-              <img
-                  className={styles.imgCreate}
-                  src={`${staticImages.left}?t=${Date.now()}`}
-                  alt="Left View"
-                  style={{imageRendering: "pixelated"}}
-              />
-            </div>
-          </div>
-      )}
-
-      {frontImageUrl &&
-          staticImages.back &&
-          staticImages.right &&
-          staticImages.left && (
+          {staticImages.back && staticImages.right && staticImages.left && (
               <div>
-                <h2>モーション画像:</h2>
-                <button   className={styles.button}  onClick={handleMotionGenerate} disabled={motionLoading}>
-                  {motionLoading
-                      ? "モーション生成中..."
-                      : motionImages.front
-                          ? "キャラクターモーション再生成"
-                          : "キャラクターモーション生成"}
-                </button>
-                {motionImages.front &&
-                    motionImages.back &&
-                    motionImages.right &&
-                    motionImages.left && (
-                        <div>
-                          <h3>Front Walk:</h3>
-                          <img
-                              src={`${motionImages.front}?t=${Date.now()}`}
-                              alt="Front Walk"
-                              style={{imageRendering: "pixelated"}}
-                          />
-                          <h3>Back Walk:</h3>
-                          <img
-                              src={`${motionImages.back}?t=${Date.now()}`}
-                              alt="Back Walk"
-                              style={{imageRendering: "pixelated"}}
-                          />
-                          <h3>Right Walk:</h3>
-                  <img
-                    src={`${motionImages.right}?t=${Date.now()}`}
-                    alt="Right Walk"
-                    style={{ imageRendering: "pixelated" }}
-                  />
-                  <h3>Left Walk:</h3>
-                  <img
-                    src={`${motionImages.left}?t=${Date.now()}`}
-                    alt="Left Walk"
-                    style={{ imageRendering: "pixelated" }}
-                  />
-                </div>
+                  <h2>追加生成された画像 (静止画像):</h2>
+                  <div>
+                      <h3>Back View:</h3>
+                      <img
+                          className={styles.imgCreate}
+                          src={`${staticImages.back}?t=${Date.now()}`}
+                          alt="Back View"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                  </div>
+                  <div>
+                      <h3>Right View:</h3>
+                      <img
+                          className={styles.imgCreate}
+                          src={`${staticImages.right}?t=${Date.now()}`}
+                          alt="Right View"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                  </div>
+                  <div>
+                      <h3>Left View:</h3>
+                      <img
+                          className={styles.imgCreate}
+                          src={`${staticImages.left}?t=${Date.now()}`}
+                          alt="Left View"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                  </div>
+              </div>
+          )}
+
+          {frontImageUrl &&
+              staticImages.back &&
+              staticImages.right &&
+              staticImages.left && (
+                  <div>
+                      <h2>モーション画像:</h2>
+                      <button className={styles.button} onClick={handleMotionGenerate} disabled={motionLoading}>
+                          {motionLoading
+                              ? "モーション生成中..."
+                              : motionImages.front
+                                  ? "キャラクターモーション再生成"
+                                  : "キャラクターモーション生成"}
+                      </button>
+                      {motionImages.front &&
+                          motionImages.back &&
+                          motionImages.right &&
+                          motionImages.left && (
+                              <div>
+                                  <h3>Front Walk:</h3>
+                                  <img
+                                      src={`${motionImages.front}?t=${Date.now()}`}
+                                      alt="Front Walk"
+                                      style={{imageRendering: "pixelated"}}
+                                  />
+                                  <h3>Back Walk:</h3>
+                                  <img
+                                      src={`${motionImages.back}?t=${Date.now()}`}
+                                      alt="Back Walk"
+                                      style={{imageRendering: "pixelated"}}
+                                  />
+                                  <h3>Right Walk:</h3>
+                                  <img
+                                      src={`${motionImages.right}?t=${Date.now()}`}
+                                      alt="Right Walk"
+                                      style={{imageRendering: "pixelated"}}
+                                  />
+                                  <h3>Left Walk:</h3>
+                                  <img
+                                      src={`${motionImages.left}?t=${Date.now()}`}
+                                      alt="Left Walk"
+                                      style={{imageRendering: "pixelated"}}
+                                  />
+                              </div>
+                          )}
+                  </div>
               )}
-          </div>
-        )}
 
-      {frontImageUrl &&
-        staticImages.back &&
-        staticImages.right &&
-        staticImages.left &&
-        motionImages.front &&
-        motionImages.back &&
-        motionImages.right &&
-        motionImages.left && (
-          <div>
-            <h2>確定画像 (リサイズ済み & GIF化)：</h2>
-            <button   className={styles.button}  onClick={handleConfirmCharacter} disabled={confirmLoading}>
-              {confirmLoading ? "確定中..." : "キャラクターを確定"}
-            </button>
-          </div>
-        )}
+          {frontImageUrl &&
+              staticImages.back &&
+              staticImages.right &&
+              staticImages.left &&
+              motionImages.front &&
+              motionImages.back &&
+              motionImages.right &&
+              motionImages.left && (
+                  <div>
+                      <h2>確定画像 (リサイズ済み & GIF化)：</h2>
+                      <button className={styles.button} onClick={handleConfirmCharacter} disabled={confirmLoading}>
+                          {confirmLoading ? "確定中..." : "キャラクターを確定"}
+                      </button>
+                  </div>
+              )}
 
-      {finalImages && (
-        <div>
-          <h2>最終結果</h2>
-          <h3>静止画像 (64×64)：</h3>
-          <div>
-            <img
-              src={`${finalImages.static?.front}?t=${Date.now()}`}
-              alt="Front Resized"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.static?.back}?t=${Date.now()}`}
-              alt="Back Resized"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.static?.right}?t=${Date.now()}`}
-              alt="Right Resized"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.static?.left}?t=${Date.now()}`}
-              alt="Left Resized"
-              style={{ imageRendering: "pixelated" }}
-            />
-          </div>
-          <h3>モーション画像 (64×64)：</h3>
-          <div>
-            <img
-              src={`${finalImages.motion?.front}?t=${Date.now()}`}
-              alt="Front Walk Resized"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.motion?.back}?t=${Date.now()}`}
-              alt="Back Walk Resized"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.motion?.right}?t=${Date.now()}`}
-              alt="Right Walk Resized"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.motion?.left}?t=${Date.now()}`}
-              alt="Left Walk Resized"
-              style={{ imageRendering: "pixelated" }}
-            />
-          </div>
-          <h3>GIF アニメーション：</h3>
-          <div>
-            <img
-              src={`${finalImages.gif?.front}?t=${Date.now()}`}
-              alt="Front Motion GIF"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.gif?.back}?t=${Date.now()}`}
-              alt="Back Motion GIF"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.gif?.right}?t=${Date.now()}`}
-              alt="Right Motion GIF"
-              style={{ imageRendering: "pixelated" }}
-            />
-            <img
-              src={`${finalImages.gif?.left}?t=${Date.now()}`}
-              alt="Left Motion GIF"
-              style={{ imageRendering: "pixelated" }}
-            />
-          </div>
-          <div>
-            <button  className={styles.button}  onClick={handleSaveAllImages}>Supabaseに画像保存</button>
-          </div>
-        </div>
-      )}
-    </div>
+          {finalImages && (
+              <div>
+                  <h2>最終結果</h2>
+                  <h3>静止画像 (64×64)：</h3>
+                  <div>
+                      <img
+                          src={`${finalImages.static?.front}?t=${Date.now()}`}
+                          alt="Front Resized"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.static?.back}?t=${Date.now()}`}
+                          alt="Back Resized"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.static?.right}?t=${Date.now()}`}
+                          alt="Right Resized"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.static?.left}?t=${Date.now()}`}
+                          alt="Left Resized"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                  </div>
+                  <h3>モーション画像 (64×64)：</h3>
+                  <div>
+                      <img
+                          src={`${finalImages.motion?.front}?t=${Date.now()}`}
+                          alt="Front Walk Resized"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.motion?.back}?t=${Date.now()}`}
+                          alt="Back Walk Resized"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.motion?.right}?t=${Date.now()}`}
+                          alt="Right Walk Resized"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.motion?.left}?t=${Date.now()}`}
+                          alt="Left Walk Resized"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                  </div>
+                  <h3>GIF アニメーション：</h3>
+                  <div>
+                      <img
+                          src={`${finalImages.gif?.front}?t=${Date.now()}`}
+                          alt="Front Motion GIF"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.gif?.back}?t=${Date.now()}`}
+                          alt="Back Motion GIF"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.gif?.right}?t=${Date.now()}`}
+                          alt="Right Motion GIF"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                      <img
+                          src={`${finalImages.gif?.left}?t=${Date.now()}`}
+                          alt="Left Motion GIF"
+                          style={{imageRendering: "pixelated"}}
+                      />
+                  </div>
+                  <div>
+                      <button className={styles.button} onClick={handleSaveAllImages}>Supabaseに画像保存</button>
+                  </div>
+              </div>
+          )}
+      </div>
   );
 }
