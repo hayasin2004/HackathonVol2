@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismaClient";
+import {number} from "prop-types";
 
 export async function GET(req: Request) {
     const roomId = req.url.split('/').pop(); // URLの最後の部分を取得
@@ -43,8 +44,8 @@ export async function GET(req: Request) {
 export async function PUT(req: Request) {
     const { searchParams } = new URL(req.url);
     const roomId = searchParams.get("id");
-
-    if (!roomId || isNaN(roomId)) {
+    const numRoomId = Number(roomId)
+    if (!roomId || isNaN(numRoomId)) {
         return NextResponse.json(
             { status: "error", message: "無効なルームIDです" },
             { status: 400 }
@@ -74,7 +75,7 @@ export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const roomId = searchParams.get("id");
     const numRoomId = Number(roomId)
-    if (!roomId || isNaN(roomId)) {
+    if (!roomId || isNaN(numRoomId)) {
         return NextResponse.json(
             { status: "error", message: "無効なルームIDです" },
             { status: 400 }

@@ -88,7 +88,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
             }
 
             if (newItems.length > 0) {
-                console.log("!!ここに来たのか????")
+                console.log(playerId)
                 // 新しいアイテムを作成
                 const savedItem = await prisma.playerItem.createMany({
                     data: newItems.map((itemId) => ({
@@ -96,6 +96,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                         playerDataId: playerId
                     }))
                 });
+                console.log("!!ここに来たのか????")
 
 
                 return { status: "success", message: 'アイテムをプレイヤーに保存しました',savedItem};

@@ -37,7 +37,6 @@ export const logIn = async (userId: number | undefined) => {
         return {status: "error", message: "ユーザーが見つからなかった!"}
     }
 }
-console.log("logIn" + JSON.stringify(logIn))
 
 
 export const findPlayerData = async (userId: number | undefined) => {

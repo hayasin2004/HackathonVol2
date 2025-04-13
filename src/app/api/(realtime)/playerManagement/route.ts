@@ -125,6 +125,7 @@ export const joinRoom = async (req: NextApiRequest, res: NextApiResponse) => {
             return res.status(400).json({ error: 'プレイヤーIDとルームIDが必要です' });
         }
 
+
         // ルームの存在確認
         const room = await prisma.room.findUnique({
             where: { id: Number(roomId) }

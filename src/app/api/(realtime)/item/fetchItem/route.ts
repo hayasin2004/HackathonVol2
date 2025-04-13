@@ -25,6 +25,7 @@ export async function GET() {
 export const playerGetItem = async (playerId: number | undefined, itemIds: number[]) => {
     try {
         if (playerId) {
+
             // findUniqueを使用して、itemIdに一致するアイテムを取得する
             const existingItems = await prisma.playerItem.findMany({
                 where: {
@@ -61,7 +62,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
             }
 
             if (newItems.length > 0) {
-                // 新しいアイテムを作成
+
                 const savedItem = await prisma.playerItem.createMany({
                     data: newItems.map((itemId) => ({
                         itemId: itemId,

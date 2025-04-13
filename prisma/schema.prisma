@@ -63,7 +63,7 @@ model PlayerData {
   room      Room?        @relation("RoomPlayers", fields: [roomId], references: [id], map: "PlayerData_roomId_fkey_1")
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now())
-  Room      Room?        @relation(fields: [roomId], references: [id], map: "PlayerData_roomId_fkey_2")
+  Room      Room?        @relation(fields: [roomId], references: [id])
 }
 
 model PlayerItem {
@@ -73,7 +73,7 @@ model PlayerItem {
   quantity        Int              @default(1) // 所持数
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @default(now())
-  playerData      PlayerData       @relation("PlayerToItems", fields: [playerDataId], references: [playerId], onDelete: Cascade) // PlayerDataリレーション
+  playerData      PlayerData       @relation("PlayerToItems", fields: [playerDataId], references: [id], onDelete: Cascade)
   DefaultItemList DefaultItemList? @relation(fields: [itemId], references: [id], onDelete: Cascade) // DefaultItemListリレーション
 }
 

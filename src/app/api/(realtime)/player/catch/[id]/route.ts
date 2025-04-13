@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
     try {
         const playerData = await prisma.playerData.findFirst({
-            where: {playerId: numberPlayerId},
+            where: {playerId:numberPlayerId},
         });
 
         if (!playerData) {

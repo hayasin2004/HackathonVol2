@@ -1,7 +1,6 @@
-// hooks/useSocketConnection.ts
+
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useRouter } from 'next/navigation';
 
 export function useSocketConnection(playerId: number | undefined | null, roomId: number | undefined) {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -9,7 +8,6 @@ export function useSocketConnection(playerId: number | undefined | null, roomId:
     const [players, setPlayers] = useState<any[]>([]);
     const [items, setItems] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
 
     useEffect(() => {
         if (!playerId || !roomId) {

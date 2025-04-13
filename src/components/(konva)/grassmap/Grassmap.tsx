@@ -191,7 +191,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         ArrowLeft: 3,
     };
 
-
     const loadPlayerImage = (src: string) => {
         const img = new window.Image();
         img.src = src;
@@ -381,7 +380,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         }
 
 
-    }, [playerId]);
+    }, [playerId, eCollisionGotItem]);
 
 
     // アイテム取得イベントの処理

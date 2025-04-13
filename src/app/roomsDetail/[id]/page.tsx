@@ -11,10 +11,10 @@ import {defaultItem} from "@/types/defaultItem";
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
     const id = params?.id
-    const roomId = parseInt(id as string);
+    const roomId = Number(id);
     const {data: session} = useSession()
 
-    console.log(roomId)
+    console.log("これかな"+roomId)
 
     const [room, setRoom] = useState<any>(null);
     const [loading, setLoading] = useState(true);

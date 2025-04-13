@@ -56,7 +56,8 @@ const RoomsPage: React.FC = () => {
 
             if (data.status === 'success') {
                 // 作成したルームに遷移
-                router.push(`/roomDetail/${data.room.id}`);
+                console.log("個々の部屋が見つかっていない之亜gg根人" + data.room.id)
+                router.push(`/roomsDetail/${data.room.id}`);
             } else {
                 setError(data.message || 'ルームの作成に失敗しました');
             }
