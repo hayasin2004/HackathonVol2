@@ -22,8 +22,9 @@ import {craftItem, updatePlayerItems} from "@/repository/prisma/craftItemReposit
 import {extractInteractableObjects} from "@/script/extractInteractableObjects";
 import {MapTilesType} from "@/types/map";
 import {get_character} from "@/script/get_character";
-import useCameraPosition from "@/hooks/(realTime)/2Dcamera/initialCameraPosition/useCameraPosition";
-import useCharacterImage from "@/hooks/(realTime)/2Dcamera/getCharacterImage/useCharacterImage";
+import useCharacterImage from "@/hooks/(realTime)/2D/2Dcamera/getCharacterImage/useCharacterImage";
+import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
+import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -159,7 +160,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [characterImageData]);
 
 
-
     // ----------------------------
     // カメラ位置の計算とアイテム画像の読み込み
     // ----------------------------
@@ -177,6 +177,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // ----------------------------
     // タイル画像の読み込み
     // ----------------------------
+    const mapGenerate = useGenerateMap()
     useEffect(() => {
         // キャラクター生成
         const userId = playerId.playerId
@@ -188,20 +189,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 console.error("Error fetching character images:", error);
             }
         };
-        fetchCharacterImages()
 
-        const tiles = Object.values(Tile_list);
-        const loadedImagesObj: { [key: string]: HTMLImageElement } = {};
-        tiles.forEach((tile) => {
-            const img = new window.Image();
-            img.src = `/tiles/${tile}.png`;
-            img.onload = () => {
-                loadedImagesObj[tile] = img;
-                if (Object.keys(loadedImagesObj).length === tiles.length) {
-                    setTileImages(loadedImagesObj);
-                }
-            };
-        });
+        setTileImages(mapGenerate)
 
         // マップの初期設定
         const interactableMapObjects = extractInteractableObjects();
@@ -213,6 +202,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         // 20パーの確立でマップを暗くする
         const shouldBeDark = Math.random() < 0.2; // 20%の確率
         setIsDark(shouldBeDark);
+        fetchCharacterImages()
 
     }, [playerId]);
 
@@ -223,7 +213,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     useEffect(() => {
         setLoadedImages(LoadPlayerCharacterImage)
     }, [itemData]);
-
 
 
     useEffect(() => {
@@ -376,8 +365,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const addNotification = (message: string) => {
         setNotifications((prev) => [message, ...prev.slice(0, 4)]);
     };
-
-
 
 
     useEffect(() => {
