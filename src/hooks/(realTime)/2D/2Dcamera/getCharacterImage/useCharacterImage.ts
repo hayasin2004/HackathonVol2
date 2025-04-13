@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
+import {defaultItem} from "@/types/defaultItem";
 
-const useGetCharacterImage = (itemData) => {
+const useGetCharacterImage = (itemData : defaultItem[]) => {
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
 
     useEffect(() => {

@@ -35,3 +35,7 @@ export interface PlayerCoordinateProps  {
     y?: number;
 };
 
+
+export interface CharacterImageData {
+    iconImage: string[]; // 画像URLの配列
+}

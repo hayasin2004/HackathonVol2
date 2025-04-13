@@ -25,6 +25,8 @@ import {get_character} from "@/script/get_character";
 import useCharacterImage from "@/hooks/(realTime)/2D/2Dcamera/getCharacterImage/useCharacterImage";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
 import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
+import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
+import {CharacterImageData} from "@/types/character";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -55,7 +57,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     // クラフトをプルダウンメニュー化
     const handleSelectChange = (e: any) => {
-        console.log(e)
         setSelectedItemId(e);
     };
 
@@ -88,76 +89,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // ----------------------------
     // プレイヤー画像切り替え用のロジック（2枚のpngを交互に切替）
     // ----------------------------
-    const lastKeyPressTimeRef = useRef<number>(0);
-    const currentDirectionRef = useRef<string>("default");
-    const animationIntervalRef = useRef<number | null>(null);
-    const frameRef = useRef<number>(0); // 0: 静止画, 1: 歩行モーション
 
     const [characterImageData, setCharacterImageData] = useState<CharacterImageData | null>(null);
-    console.log(characterImageData)
 
-    const keyToIndexMap: Record<string, number> = {
-        ArrowDown: 0,
-        ArrowUp: 1,
-        ArrowRight: 2,
-        ArrowLeft: 3,
-    };
-
-    const loadPlayerImage = (src: string) => {
-        const img = new window.Image();
-        img.src = src;
-        img.onload = () => setPlayerImage(img);
-    };
-
-    useEffect(() => {
-        // 初期は静止画像を表示
-        loadPlayerImage(characterImageData?.iconImage?.[0]);
-
-        const handleKeyDown = (event: KeyboardEvent) => {
-            const staticImages = characterImageData?.iconImage?.slice(0, 4);   // 静止
-            const walkImages = characterImageData?.iconImage?.slice(4, 8);    // 歩行
-            console.log(walkImages)
-            const direction = event.key;
-            const now = Date.now();
-            lastKeyPressTimeRef.current = now;
-            currentDirectionRef.current = direction;
-
-            const index = keyToIndexMap[direction];
-            if (index === undefined) return;
-
-            loadPlayerImage(staticImages?.[index]);
-
-            if (animationIntervalRef.current === null) {
-                frameRef.current = 0;
-                animationIntervalRef.current = window.setInterval(() => {
-                    const currentTime = Date.now();
-                    const currentDirection = currentDirectionRef.current;
-                    const idx = keyToIndexMap[currentDirection];
-
-                    if (currentTime - lastKeyPressTimeRef.current > 600) {
-                        // 入力が途切れたら静止画像に戻す
-                        loadPlayerImage(staticImages?.[idx]);
-                        clearInterval(animationIntervalRef.current!);
-                        animationIntervalRef.current = null;
-                    } else {
-                        // 静止画像と歩行画像を交互に
-                        const img = frameRef.current === 0 ? staticImages?.[idx] : walkImages?.[idx];
-                        loadPlayerImage(img);
-                        frameRef.current = 1 - frameRef.current;
-                    }
-                }, 300);
-            }
-        };
-
-        window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-            if (animationIntervalRef.current) {
-                clearInterval(animationIntervalRef.current);
-                animationIntervalRef.current = null;
-            }
-        };
-    }, [characterImageData]);
+    // const motionCharacter = useMotionCharacter(characterImageData)
+    //
+    // useEffect(() => {
+    //     setPlayerImage(motionCharacter)
+    // }, [ECollisionPosition]);
 
 
     // ----------------------------
@@ -177,7 +116,12 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // ----------------------------
     // タイル画像の読み込み
     // ----------------------------
-    const mapGenerate = useGenerateMap()
+    const {tileImagesComplete , isLoading}= useGenerateMap()
+
+    useEffect(() => {
+        setTileImages(tileImagesComplete)
+    }, [tileImagesComplete, isLoading]);
+
     useEffect(() => {
         // キャラクター生成
         const userId = playerId.playerId
@@ -189,8 +133,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 console.error("Error fetching character images:", error);
             }
         };
-
-        setTileImages(mapGenerate)
 
         // マップの初期設定
         const interactableMapObjects = extractInteractableObjects();
@@ -374,10 +316,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 // ----------------------------
 // プレイヤー画像切り替え用のロジック（2枚のpngを交互に切替）
 // ----------------------------
-    interface CharacterImageData {
-        iconImage: string[]; // 画像URLの配列
 
-    }
 
     console.log(characterImageData)
 
@@ -428,7 +367,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                         })
                     )}
                     {/* --- 2. その他のタイル --- */}
-                    {Map_data.map((row, rowIndex) =>
+                    {tileImages && (Map_data.map((row, rowIndex) =>
                         row.map((tile, colIndex) => {
                             if (tile === "grass") return null;
                             const img = tileImages[tile];
@@ -465,7 +404,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                 />
                             );
                         })
-                    )}
+                    ))}
                     {/*{itemData.map((data) => (*/}
                     {/*    <KonvaImage*/}
                     {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
