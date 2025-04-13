@@ -34,7 +34,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const MAP_PIXEL_HEIGHT = Map_height * Tile_size;
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
-
     const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
@@ -361,26 +360,29 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // ----------------------------
     useEffect(() => {
         if (playerId) {
-            fetch(`/api/player/getItems/${playerId.id}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.status === "success") {
-                        setPlayerItems(data.items);
-                    }
-                })
-                .catch((err) => console.error("Failed to fetch player items:", err));
-            fetch(`/api/item/getCraftItems`, {method: "GET"})
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.status === "success") {
-                        setCraftItems(data.craftItems);
-                    }
-                })
-                .catch((err) => console.error("Failed to fetch player items:", err));
+            const ItemFunction = async () => {
+
+                await fetch(`/api/player/getItems/${playerId.id}`)
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.status === "success") {
+                            setPlayerItems(data.items);
+                        }
+                    })
+                    .catch((err) => console.error("アイテム取得に失敗しました！:", err));
+                await fetch(`/api/item/getCraftItems`, {method: "GET"})
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.status === "success") {
+                            setCraftItems(data.craftItems);
+                        }
+                    })
+                    .catch((err) => console.error("アイテム作成に失敗しました:", err));
+            }
+            ItemFunction()
         }
 
-
-    }, [playerId, eCollisionGotItem]);
+    }, [playerId, eCollisionGotItem,craftEvents]);
 
 
     // アイテム取得イベントの処理
@@ -439,7 +441,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // アイテムクラフト関数
     const handleCraftItem = async (craftItemId: number) => {
         try {
-            const playerDataId = playerId.id;
+            const playerDataId = playerId.playerId;
 
             const response = await fetch("/api/item/craftItem", {
                 method: "POST",
@@ -799,7 +801,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     limit={5}                     // 最大同時表示数（これ大事！）
                 />
                 <form action={logout}>
-                    <button className={styles.fixedLogOutButton} >
+                    <button className={styles.fixedLogOutButton}>
                         ログアウト
                     </button>
                 </form>

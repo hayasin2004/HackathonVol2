@@ -8,8 +8,8 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
         const {playerDataId, craftItemId} = body;
-        console.log(playerDataId , craftItemId)
-        if (!playerDataId|| !craftItemId) {
+        console.log(playerDataId, craftItemId)
+        if (!playerDataId || !craftItemId) {
             return NextResponse.json(
                 {status: 'error', message: 'Invalid input data'},
                 {status: 400}
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
         // クラフト後のアイテム情報を取得
         const playerData = await prisma.playerData.findUnique({
-            where: {playerId : playerDataId},
+            where: {playerId: playerDataId},
             include: {haveItems: true},
         });
 
@@ -55,6 +55,12 @@ export async function POST(req: Request) {
 
 // クラフトロジックを分離
 async function route(playerId: number | undefined, craftItem: number) {
+    if (playerId == undefined) {
+        console.log("クラフトアイテム時エラー" + playerId)
+        return;
+    }
+
+    console.log("playerId" + playerId +"これがぷれいやーId ")
 
     const player = await prisma.playerData.findUnique({
         where: {playerId},
