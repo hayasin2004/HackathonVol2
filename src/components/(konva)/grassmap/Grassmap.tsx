@@ -19,6 +19,8 @@ import styles from './page.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import {logout} from "@/lib/nextAuth-actions";
 import {craftItem, updatePlayerItems} from "@/repository/prisma/craftItemRepository";
+import {extractInteractableObjects} from "@/script/extractInteractableObjects";
+import {MapTilesType} from "@/types/map";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -46,6 +48,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
     const [selectedItemId, setSelectedItemId] = useState("");
+    const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
+
     const [getItemNames, seGetItemNames] = useState<string[]>([]);
     const [isDark, setIsDark] = useState(false);
     console.log(getItemNames)
@@ -98,67 +102,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             };
         })
     );
-    const ObjectToItemMapping = {
-        tree: "wood",
-        stone: "stone",
-        iron: "iron",
-        coal: "coal",
-        flower: "flower",
-        mushroom: "mushroom",
-        insect: "insect",
-        water: "water",
-    };
-    const extractInteractableObjects = (mapData: string[][]) => {
-        const interactableObjects: Array<{
-            id: string;
-            type: string;
-            x: number;
-            y: number;
-            width: number;
-            height: number;
-            isMapObject: boolean;
-            relatedItemId: string;
-        }> = [];
-        mapData.forEach((row, rowIndex) => {
-            row.forEach((tile, colIndex) => {
-                const objectType = tile;
-                if (objectType in ObjectToItemMapping) {
-                    const isLargeObject = ["tree", "stone", "iron", "coal"].includes(objectType);
-                    if (isLargeObject) {
-                        const isRightNeighborSame = mapData[rowIndex]?.[colIndex - 1] === objectType;
-                        const isBottomNeighborSame = mapData[rowIndex - 1]?.[colIndex] === objectType;
-                        const isBottomRightSame = mapData[rowIndex - 1]?.[colIndex - 1] === objectType;
-                        if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) {
-                            return;
-                        }
-                        interactableObjects.push({
-                            id: `map-${objectType}-${rowIndex}-${colIndex}`,
-                            type: objectType,
-                            x: colIndex * Tile_size,
-                            y: rowIndex * Tile_size,
-                            width: Tile_size * 2,
-                            height: Tile_size * 2,
-                            isMapObject: true,
-                            relatedItemId: ObjectToItemMapping[objectType as keyof typeof ObjectToItemMapping],
-                        });
-                    } else {
-                        interactableObjects.push({
-                            id: `map-${objectType}-${rowIndex}-${colIndex}`,
-                            type: objectType,
-                            x: colIndex * Tile_size,
-                            y: rowIndex * Tile_size,
-                            width: Tile_size,
-                            height: Tile_size,
-                            isMapObject: true,
-                            relatedItemId: ObjectToItemMapping[objectType as keyof typeof ObjectToItemMapping],
-                        });
-                    }
-                }
-            });
-        });
-        return interactableObjects;
-    };
-    const interactableMapObjects = extractInteractableObjects(Map_data);
+
 
     const {
         ECollisionPosition,
@@ -264,6 +208,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 }
             };
         });
+
+        // マップの初期設定
+        const interactableMapObjects = extractInteractableObjects();
+        if (interactableMapObjects){
+            setInteractableMapObjects(interactableMapObjects)
+        }
+
     }, []);
 
     // ----------------------------
@@ -472,72 +423,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         setNotifications((prev) => [message, ...prev.slice(0, 4)]);
     };
 
-    const getTilecolor = (list: string) => {
-        switch (list) {
-            case Tile_list.Grass:
-                return "#74C365";
-            case Tile_list.Path:
-                return "#E5C07B";
-            case Tile_list.Building:
-                return "#8B5E3C";
-            case Tile_list.Water:
-                return "#4F94CD";
-            case Tile_list.Tree:
-                return "#228B22";
-            case Tile_list.Leaves:
-                return "#327040";
-            case Tile_list.Stone:
-                return "#747474";
-            case Tile_list.Iron:
-                return "#D1D1D1";
-            case Tile_list.Coal:
-                return "#2D2D2D";
-            case Tile_list.Flower:
-                return "#fa52e3";
-            case Tile_list.Mushroom:
-                return "#846847";
-            case Tile_list.Insect:
-                return "#ef5e3f";
-            default:
-                return "#74C365";
-        }
-    };
-
-    // const handlekeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    //     e.preventDefault();
-    //     let {x, y} = playerPosition;
-    //
-    //     switch (e.key) {
-    //         case "ArrowUp":
-    //             y -= Tile_size;
-    //             break;
-    //         case "ArrowDown":
-    //             y += Tile_size;
-    //             break;
-    //         case "ArrowLeft":
-    //             x -= Tile_size;
-    //             break;
-    //         case "ArrowRight":
-    //             x += Tile_size;
-    //             break;
-    //     }
-    //     console.log(playerPosition.x)
-    //     console.log(playerPosition.y)
-    //
-    //     if (
-    //         x >= 0 &&
-    //         y >= 0 &&
-    //         x < Map_width * Tile_size &&
-    //         y < Map_height * Tile_size
-    //     ) {
-    //         setPlayerPosition({x, y});
-    //         setCameraPosition({
-    //             x: Math.max(0, x - window.innerWidth / 2),
-    //             y: Math.max(0, y - window.innerHeight / 2),
-    //         });
-    //     }
-    // };
-
 
     useEffect(() => {
         const windowWidth = typeof window !== "undefined" ? window.innerWidth : 0;
@@ -559,6 +444,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     useEffect(() => {
         console.log("loadedImagesの更新:");
     }, [loadedImages]);
+
 // ----------------------------
 // プレイヤー画像切り替え用のロジック（2枚のpngを交互に切替）
 // ----------------------------
