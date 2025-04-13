@@ -18,6 +18,7 @@ import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultIt
 import styles from './page.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import {logout} from "@/lib/nextAuth-actions";
+import {craftItem, updatePlayerItems} from "@/repository/prisma/craftItemRepository";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -383,7 +384,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             ItemFunction()
         }
 
-    }, [playerId, eCollisionGotItem,craftEvents]);
+    }, [playerId, eCollisionGotItem, craftEvents]);
 
 
     // アイテム取得イベントの処理
@@ -443,48 +444,33 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     // アイテムクラフト関数
     const handleCraftItem = async (craftItemId: number) => {
-        console.log("アイテムクラフト関数")
         try {
-            const playerDataId = playerId.playerId;
+            const playerDataId = playerId.playerId
+            if (playerDataId) {
+                const response = await craftItem(playerDataId, craftItemId);
+                if (response.status === "success") {
+                    const response = await updatePlayerItems(playerId.id);
+                    if (response) {
+                        setPlayerItems(response.item);
+                    }
 
-            const response = await fetch("/api/item/craftItem", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({playerDataId, craftItemId}),
-            });
-
-            const data = await response.json();
-
-            if (data.status === "success") {
-                await fetch(`/api/player/getItems/${playerId.id}`)
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (data.status === "success") {
-                            setPlayerItems(data.items);
-                        }
-                    })
-                    .catch((err) => console.error("アイテム取得に失敗しました！:", err));
-                setNotifications((prev) => [
-                    `アイテムをクラフトしました`,
-                    ...prev.slice(0, 4),
-                ]);
+                    addNotification("アイテムをクラフトしました");
+                } else {
+                    addNotification(`クラフト失敗: ${response.message}`);
+                }
             } else {
-                setNotifications((prev) => [
-                    `クラフト失敗: ${data.message}`,
-                    ...prev.slice(0, 4),
-                ]);
+                throw new Error("ユーザIDを取得することができませんでした")
             }
         } catch (error) {
             console.error("Craft error:", error);
-            setNotifications((prev) => [
-                "クラフト中にエラーが発生しました",
-                ...prev.slice(0, 4),
-            ]);
+            addNotification("クラフト中にエラーが発生しました");
         }
     };
 
+
+    const addNotification = (message: string) => {
+        setNotifications((prev) => [message, ...prev.slice(0, 4)]);
+    };
 
     const getTilecolor = (list: string) => {
         switch (list) {
