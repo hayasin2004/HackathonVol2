@@ -21,6 +21,7 @@ import {logout} from "@/lib/nextAuth-actions";
 import {craftItem, updatePlayerItems} from "@/repository/prisma/craftItemRepository";
 import {extractInteractableObjects} from "@/script/extractInteractableObjects";
 import {MapTilesType} from "@/types/map";
+import {get_character} from "@/script/get_character";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -55,13 +56,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     console.log(getItemNames)
     const [isOpen, setIsOpen] = useState(false);
 
-
-    // 20パーの確立でマップを暗くする
-
-    useEffect(() => {
-        const shouldBeDark = Math.random() < 0.2; // 20%の確率
-        setIsDark(shouldBeDark);
-    }, []);
     // クラフトをプルダウンメニュー化
     const handleSelectChange = (e: any) => {
         console.log(e)
@@ -196,6 +190,20 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // タイル画像の読み込み
     // ----------------------------
     useEffect(() => {
+        // キャラクター生成
+        const userId = playerId.playerId
+        if (userId !== null) {
+            const fetchCharacterImages = async () => {
+                try {
+                    const response = await get_character(userId)
+                    setCharacterImageData(response); // まとめて状態を更新
+                } catch (error) {
+                    console.error("Error fetching character images:", error);
+                }
+            };
+            fetchCharacterImages()
+        }
+
         const tiles = Object.values(Tile_list);
         const loadedImagesObj: { [key: string]: HTMLImageElement } = {};
         tiles.forEach((tile) => {
@@ -211,9 +219,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
         // マップの初期設定
         const interactableMapObjects = extractInteractableObjects();
-        if (interactableMapObjects){
+        if (interactableMapObjects) {
             setInteractableMapObjects(interactableMapObjects)
         }
+
+
+        // 20パーの確立でマップを暗くする
+        const shouldBeDark = Math.random() < 0.2; // 20%の確率
+        setIsDark(shouldBeDark);
 
     }, []);
 
@@ -454,31 +467,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }
 
     console.log(characterImageData)
-    useEffect(() => {
-        const userId = playerId.playerId
-        console.log("kokomadekitakanokakuni nnyamatatusann")
-        // Fetch character data from API
-        const fetchCharacterImages = async () => {
-            try {
-                const response = await fetch(`/api/character/image/${userId}`, {
-                    method: "GET",
-                    headers: {"Content-Type": "application/json"}
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(data)
-                    setCharacterImageData(data.userData); // まとめて状態を更新
-
-                } else {
-                    console.error("Failed to fetch character images");
-                }
-            } catch (error) {
-                console.error("Error fetching character images:", error);
-            }
-        };
-        fetchCharacterImages()
-
-    }, []);
 
 
     // Loading or Error UI
