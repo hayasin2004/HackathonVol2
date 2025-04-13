@@ -39,7 +39,6 @@ export async function GET() {
             include:{createdItem : true}
         });
 
-
         return NextResponse.json(
             { status: "success", craftItems },
             { status: 200 }

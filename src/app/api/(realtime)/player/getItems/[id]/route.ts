@@ -46,7 +46,7 @@ export async function GET(req: Request) {
         const items = await prisma.playerItem.findMany({
             where: { playerDataId: NumPlayerId },include:{DefaultItemList:true}
         });
-
+        console.log("なんでここにきてるのだ")
         return NextResponse.json(
             { status: "success", items },
             { status: 200 }

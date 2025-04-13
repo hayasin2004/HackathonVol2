@@ -359,6 +359,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // プレイヤーとクラフトアイテムの取得
     // ----------------------------
     useEffect(() => {
+        console.log("クラフト時なぜここが動かない")
         if (playerId) {
             const ItemFunction = async () => {
 
@@ -415,6 +416,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     // アイテムクラフトイベントの処理
     useEffect(() => {
+        console.log("これは来たのか・")
         if (craftEvents.length > 0) {
             const latestEvent = craftEvents[craftEvents.length - 1];
             if (latestEvent.player_id !== playerId.id) {
@@ -432,6 +434,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
                 // プレイヤーのアイテムリストを更新
                 if (latestEvent.data && latestEvent.data.playerItems) {
+
                     setPlayerItems(latestEvent.data.playerItems);
                 }
             }
@@ -440,6 +443,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     // アイテムクラフト関数
     const handleCraftItem = async (craftItemId: number) => {
+        console.log("アイテムクラフト関数")
         try {
             const playerDataId = playerId.playerId;
 
@@ -454,6 +458,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             const data = await response.json();
 
             if (data.status === "success") {
+                await fetch(`/api/player/getItems/${playerId.id}`)
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.status === "success") {
+                            setPlayerItems(data.items);
+                        }
+                    })
+                    .catch((err) => console.error("アイテム取得に失敗しました！:", err));
                 setNotifications((prev) => [
                     `アイテムをクラフトしました`,
                     ...prev.slice(0, 4),
