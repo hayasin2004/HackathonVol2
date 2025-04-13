@@ -1,5 +1,8 @@
-export const get_character = async (userId : number) => {
+export const get_character = async (userId : number | null) => {
     try {
+        if (userId == null) {
+            return ;
+        }
         console.log("これでキャラクター取得してる")
         const response = await fetch(`/api/character/image/${userId}`, {
             method: "GET",

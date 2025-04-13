@@ -22,6 +22,7 @@ import {craftItem, updatePlayerItems} from "@/repository/prisma/craftItemReposit
 import {extractInteractableObjects} from "@/script/extractInteractableObjects";
 import {MapTilesType} from "@/types/map";
 import {get_character} from "@/script/get_character";
+import useCameraPosition from "@/hooks/(realTime)/2Dcamera/initialCameraPosition/useCameraPosition";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -34,23 +35,17 @@ interface GameProps {
 
 const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
-    const MAP_PIXEL_WIDTH = Map_width * Tile_size;
-    const MAP_PIXEL_HEIGHT = Map_height * Tile_size;
-    const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
 
+    const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
     const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
-    const [augmentedItemData, setAugmentedItemData] = useState<RoomDefaultItem[]>([]);
-    const [randomPlacedItems, setRandomPlacedItems] = useState<RandomDefaultItem[]>([]);
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
-    const [playerPosition, setPlayerPosition] = useState({x: playerId.x, y: playerId.y});
     const [selectedItemId, setSelectedItemId] = useState("");
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
-
     const [getItemNames, seGetItemNames] = useState<string[]>([]);
     const [isDark, setIsDark] = useState(false);
     console.log(getItemNames)
@@ -73,29 +68,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             }
         }
     };
-
-
-    const stableInitialPosition = useMemo(() => ({
-        x: playerId?.x ?? 0,
-        y: playerId?.y ?? 0,
-    }), [playerId?.x, playerId?.y]);
-
-    // ----------------------------
-    // マップオブジェクト関連の処理
-    // ----------------------------
-    const enhancedMapData = Map_data.map((row, rowIndex) =>
-        row.map((tile, colIndex) => {
-            return {
-                type: tile,
-                rowIndex,
-                colIndex,
-                relatedItemId: tile === "tree" ? "wood" :
-                    tile === "stone" ? "stone_material" :
-                        tile === "iron" ? "iron_ore" :
-                            tile === "coal" ? "coal" : null,
-            };
-        })
-    );
 
 
     const {
@@ -186,23 +158,36 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [characterImageData]);
 
 
+
+    // ----------------------------
+    // カメラ位置の計算とアイテム画像の読み込み
+    // ----------------------------
+    const cameraPositionHook = useCameraPosition(
+        ECollisionPosition.x,
+        ECollisionPosition.y
+    );
+
+    useEffect(() => {
+        // cameraPositionの変更を検知して状態を更新
+        setCameraPosition(cameraPositionHook);
+    }, [cameraPosition, ECollisionPosition]);
+
+
     // ----------------------------
     // タイル画像の読み込み
     // ----------------------------
     useEffect(() => {
         // キャラクター生成
         const userId = playerId.playerId
-        if (userId !== null) {
-            const fetchCharacterImages = async () => {
-                try {
-                    const response = await get_character(userId)
-                    setCharacterImageData(response); // まとめて状態を更新
-                } catch (error) {
-                    console.error("Error fetching character images:", error);
-                }
-            };
-            fetchCharacterImages()
-        }
+        const fetchCharacterImages = async () => {
+            try {
+                const response = await get_character(userId)
+                setCharacterImageData(response); // まとめて状態を更新
+            } catch (error) {
+                console.error("Error fetching character images:", error);
+            }
+        };
+        fetchCharacterImages()
 
         const tiles = Object.values(Tile_list);
         const loadedImagesObj: { [key: string]: HTMLImageElement } = {};
@@ -228,25 +213,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         const shouldBeDark = Math.random() < 0.2; // 20%の確率
         setIsDark(shouldBeDark);
 
-    }, []);
+    }, [playerId]);
 
-    // ----------------------------
-    // カメラ位置の計算とアイテム画像の読み込み
-    // ----------------------------
+
+
     useEffect(() => {
-        const calculateInitialCameraPos = (playerX: number, playerY: number) => {
-            const windowWidth = typeof window !== "undefined" ? window.innerWidth : 0;
-            const windowHeight = typeof window !== "undefined" ? window.innerHeight : 0;
-            let targetX = playerX + Tile_size / 2 - windowWidth / 2;
-            let targetY = playerY + Tile_size / 2 - windowHeight / 2;
-            targetX = Math.max(0, Math.min(targetX, MAP_PIXEL_WIDTH - windowWidth));
-            targetY = Math.max(0, Math.min(targetY, MAP_PIXEL_HEIGHT - windowHeight));
-            targetX = windowWidth >= MAP_PIXEL_WIDTH ? 0 : targetX;
-            targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
-            return {x: targetX, y: targetY};
-        };
 
-        setCameraPosition(calculateInitialCameraPos(ECollisionPosition.x, ECollisionPosition.y));
+
 
         const loadImages = async () => {
             const images: { [key: string]: HTMLImageElement } = {};
@@ -282,7 +255,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         };
         loadImages()
 
-        loadImages();
     }, [itemData, ECollisionPosition.x, ECollisionPosition.y,]);
 
     useEffect(() => {
@@ -437,22 +409,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     };
 
 
-    useEffect(() => {
-        const windowWidth = typeof window !== "undefined" ? window.innerWidth : 0;
-        const windowHeight = typeof window !== "undefined" ? window.innerHeight : 0;
-        let targetX = ECollisionPosition.x + Tile_size / 2 - windowWidth / 2;
-        let targetY = ECollisionPosition.y + Tile_size / 2 - windowHeight / 2;
-        targetX = Math.max(0, Math.min(targetX, MAP_PIXEL_WIDTH - windowWidth));
-        targetY = Math.max(0, Math.min(targetY, MAP_PIXEL_HEIGHT - windowHeight));
-        targetX = windowWidth >= MAP_PIXEL_WIDTH ? 0 : targetX;
-        targetY = windowHeight >= MAP_PIXEL_HEIGHT ? 0 : targetY;
-        setCameraPosition((prevCameraPos) => {
-            if (Math.round(prevCameraPos.x) !== Math.round(targetX) || Math.round(prevCameraPos.y) !== Math.round(targetY)) {
-                return {x: targetX, y: targetY};
-            }
-            return prevCameraPos;
-        });
-    }, [ECollisionPosition]);
+
 
     useEffect(() => {
         console.log("loadedImagesの更新:");
