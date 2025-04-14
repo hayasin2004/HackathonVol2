@@ -9,7 +9,6 @@ import {
     generateItemPositions, Map_data, Tile_list, generateMap,
 } from "./mapData";
 import Image from "next/image"
-import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
@@ -26,6 +25,9 @@ import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosit
 import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
 import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
 import {CharacterImageData} from "@/types/character";
+import useFetchItem from "@/hooks/(realTime)/item/fetchItem/useFetchItem";
+import useCraftItem from "@/hooks/(realTime)/item/CraftANDFetchItem/useCraftItem";
+import {PlayerHaveItem, PlayerItem} from "@/types/playerItem";
 import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
@@ -43,23 +45,20 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
-    const [playerImage, setPlayerImage] = useState<defaultItem[] | null>(null);
-    const [playerItems, setPlayerItems] = useState<HTMLImageElement | null>(null);
+    const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
+    const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [selectedItemId, setSelectedItemId] = useState("");
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
-    const [getItemNames, seGetItemNames] = useState<string[]>([]);
     const [isDark, setIsDark] = useState(false);
-    console.log(getItemNames)
     const [isOpen, setIsOpen] = useState(false);
 
     // クラフトをプルダウンメニュー化
     const handleSelectChange = (e: any) => {
         setSelectedItemId(e);
     };
-
     const handleCraftClick = () => {
         if (selectedItemId) {
             const selectedItem = craftItems.find(
@@ -71,8 +70,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             }
         }
     };
-
-
     const {
         ECollisionPosition,
         eCollisionGotItem,
@@ -92,9 +89,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const [characterImageData, setCharacterImageData] = useState<CharacterImageData | null>(null);
 
-    const {playerCharacter,isLoadingCharacter} = useMotionCharacter(characterImageData)
+    const {playerCharacter, isLoadingCharacter} = useMotionCharacter(characterImageData)
 
-    if (isLoadingCharacter){
+    if (isLoadingCharacter) {
         console.log("キャラクター読み込み中")
     }
 
@@ -127,25 +124,21 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         const fetchCharacterImages = async () => {
             try {
                 const response = await get_character(userId)
-
                 setCharacterImageData(response); // まとめて状態を更新
             } catch (error) {
                 console.error("Error fetching character images:", error);
             }
         };
-
         // マップの初期設定
         const interactableMapObjects = extractInteractableObjects();
         if (interactableMapObjects) {
             setInteractableMapObjects(interactableMapObjects)
         }
 
-
         // 20パーの確立でマップを暗くする
         const shouldBeDark = Math.random() < 0.2; // 20%の確率
         setIsDark(shouldBeDark);
         fetchCharacterImages()
-
     }, [playerId]);
 
 
@@ -195,37 +188,23 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // ----------------------------
     // プレイヤーとクラフトアイテムの取得
     // ----------------------------
+    const {playerItemsData, isLoadingGet} = useFetchItem(playerId, eCollisionGotItem)
+    const GetCraftItem = useCraftItem(craftEvents)
+
     useEffect(() => {
         console.log("クラフト時なぜここが動かない")
-        if (playerId) {
-            const ItemFunction = async () => {
-
-                await fetch(`/api/player/getItems/${playerId.id}`)
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (data.status === "success") {
-                            setPlayerItems(data.items);
-                        }
-                    })
-                    .catch((err) => console.error("アイテム取得に失敗しました！:", err));
-                await fetch(`/api/item/getCraftItems`, {method: "GET"})
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (data.status === "success") {
-                            setCraftItems(data.craftItems);
-                        }
-                    })
-                    .catch((err) => console.error("アイテム作成に失敗しました:", err));
-            }
-            ItemFunction()
+        if (!isLoadingGet) {
+            setPlayerItems(playerItemsData)
+            setCraftItems(GetCraftItem)
         }
 
-    }, [playerId, eCollisionGotItem, craftEvents]);
+    }, [playerItemsData, isLoadingGet,eCollisionGotItem,craftEvents]);
 
 
     // アイテム取得イベントの処理
 
-    const {playerItemsHook} = useGetItem(itemEvents , playerId)
+    // 没アイテム取得　多分マルチプレイの時にまた使うと思う
+    const {playerItemsHook} = useGetItem(itemEvents, playerId)
     useEffect(() => {
         setPlayerImage(playerItemsHook)
     }, [itemEvents, playerId]);
@@ -291,9 +270,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     useEffect(() => {
         console.log("loadedImagesの更新:");
     }, [loadedImages]);
-　
-
-    console.log(characterImageData)
 
 
     // Loading or Error UI

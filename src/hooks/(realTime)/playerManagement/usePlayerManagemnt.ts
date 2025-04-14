@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import {supabase} from "@/lib/supabase";
+import {PlayerItem} from "@/types/playerItem";
 
 interface PlayerData {
     id: number;
@@ -13,18 +14,6 @@ interface PlayerData {
     updatedAt: string;
 }
 
-interface PlayerItem {
-    id: number;
-    playerDataId: number;
-    itemId: number;
-    quantity: number;
-    DefaultItemList: {
-        id: number;
-        itemName: string;
-        itemDescription: string;
-        itemIcon: string | null;
-    };
-}
 
 export const usePlayerManagement = (initialPlayerId?: number) => {
     const [player, setPlayer] = useState<PlayerData | null>(null);

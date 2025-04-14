@@ -5,7 +5,6 @@
 
         const [playerCharacter, setPlayerCharacter] = useState<HTMLImageElement | null>(null);
 
-        console.log(characterImageData)
         const lastKeyPressTimeRef = useRef<number>(0);
         const currentDirectionRef = useRef<string>("default");
         const animationIntervalRef = useRef<number | null>(null);

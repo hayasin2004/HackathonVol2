@@ -8,3 +8,17 @@ export interface PlayerItem {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface PlayerHaveItem {
+    id: number;
+    playerDataId: number;
+    playerId : number
+    itemId: number;
+    quantity: number;
+    DefaultItemList: {
+        id: number;
+        itemName: string;
+        itemDescription: string;
+        itemIcon: string | null;
+    };
+}
