@@ -12,7 +12,6 @@ import Image from "next/image"
 import {PlayerItem} from "@/types/playerItem";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
-import useGetItem from "@/hooks/(animation)/getItem/useGetItem";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
 import styles from './page.module.css'
@@ -27,6 +26,7 @@ import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosit
 import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
 import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
 import {CharacterImageData} from "@/types/character";
+import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -41,10 +41,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
-    const [playerItems, setPlayerItems] = useState<any[]>([]);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
-    const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
+    const [playerImage, setPlayerImage] = useState<defaultItem[] | null>(null);
+    const [playerItems, setPlayerItems] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
@@ -224,31 +224,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
 
     // アイテム取得イベントの処理
+
+    const {playerItemsHook} = useGetItem(itemEvents , playerId)
     useEffect(() => {
-        if (itemEvents.length > 0) {
-            const latestEvent = itemEvents[itemEvents.length - 1]; // 最新のイベントを取得
-
-            setNotifications((prev) => {
-                // 他のプレイヤーのイベントかどうかに関わらず通知を設定
-                const message =
-                    latestEvent.player_id !== playerId.id
-                        ? `プレイヤーID:${latestEvent.player_id}がアイテムを取得しました`
-                        : `アイテムを取得しました`;
-
-                toast(message);
-
-                return [message, ...prev.slice(0, 4)];
-            });
-
-            // 最新のプレイヤーデータが存在する場合、アイテムリストを更新
-            if (
-                latestEvent.player_id === playerId.id &&
-                latestEvent.data &&
-                latestEvent.data.playerItems
-            ) {
-                setPlayerItems(latestEvent.data.playerItems);
-            }
-        }
+        setPlayerImage(playerItemsHook)
     }, [itemEvents, playerId]);
 
     // アイテムクラフトイベントの処理
@@ -312,11 +291,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     useEffect(() => {
         console.log("loadedImagesの更新:");
     }, [loadedImages]);
-
-// ----------------------------
-// プレイヤー画像切り替え用のロジック（2枚のpngを交互に切替）
-// ----------------------------
-
+　
 
     console.log(characterImageData)
 
