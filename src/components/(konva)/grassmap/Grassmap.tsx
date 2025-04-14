@@ -92,12 +92,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const [characterImageData, setCharacterImageData] = useState<CharacterImageData | null>(null);
 
-    // const motionCharacter = useMotionCharacter(characterImageData)
-    //
-    // useEffect(() => {
-    //     setPlayerImage(motionCharacter)
-    // }, [ECollisionPosition]);
+    const {playerCharacter,isLoadingCharacter} = useMotionCharacter(characterImageData)
 
+    if (isLoadingCharacter){
+        console.log("キャラクター読み込み中")
+    }
 
     // ----------------------------
     // カメラ位置の計算とアイテム画像の読み込み
@@ -116,7 +115,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // ----------------------------
     // タイル画像の読み込み
     // ----------------------------
-    const {tileImagesComplete , isLoading}= useGenerateMap()
+    const {tileImagesComplete, isLoading} = useGenerateMap()
 
     useEffect(() => {
         setTileImages(tileImagesComplete)
@@ -128,6 +127,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         const fetchCharacterImages = async () => {
             try {
                 const response = await get_character(userId)
+
                 setCharacterImageData(response); // まとめて状態を更新
             } catch (error) {
                 console.error("Error fetching character images:", error);
@@ -417,9 +417,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     {/*))}*/}
 
                     {/* --- プレイヤー --- */}
-                    {playerImage && (
+                    {playerCharacter && (
                         <KonvaImage
-                            image={playerImage}
+                            image={playerCharacter}
                             x={ECollisionPosition?.x - cameraPosition.x}
                             y={ECollisionPosition?.y - cameraPosition.y}
                             width={Tile_size}
