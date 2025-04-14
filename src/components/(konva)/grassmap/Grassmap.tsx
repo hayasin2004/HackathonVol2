@@ -44,7 +44,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
     const [craftItems, setCraftItems] = useState<any[]>([]);
-    const [notifications, setNotifications] = useState<string[]>([]);
+    // const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
@@ -192,7 +192,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const GetCraftItem = useCraftItem(craftEvents)
 
     useEffect(() => {
-        console.log("クラフト時なぜここが動かない")
         if (!isLoadingGet) {
             setPlayerItems(playerItemsData)
             setCraftItems(GetCraftItem)
@@ -201,7 +200,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [playerItemsData, isLoadingGet,eCollisionGotItem,craftEvents]);
 
 
-    // アイテム取得イベントの処理
 
     // 没アイテム取得　多分マルチプレイの時にまた使うと思う
     const {playerItemsHook} = useGetItem(itemEvents, playerId)
@@ -210,31 +208,31 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [itemEvents, playerId]);
 
     // アイテムクラフトイベントの処理
-    useEffect(() => {
-        console.log("これは来たのか・")
-        if (craftEvents.length > 0) {
-            const latestEvent = craftEvents[craftEvents.length - 1];
-            if (latestEvent.player_id !== playerId.id) {
-                // 他のプレイヤーのイベント
-                setNotifications((prev) => [
-                    `プレイヤーID:${latestEvent.player_id}がアイテムをクラフトしました`,
-                    ...prev.slice(0, 4),
-                ]);
-            } else {
-                // 自分のイベント
-                setNotifications((prev) => [
-                    `アイテムをクラフトしました`,
-                    ...prev.slice(0, 4),
-                ]);
-
-                // プレイヤーのアイテムリストを更新
-                if (latestEvent.data && latestEvent.data.playerItems) {
-
-                    setPlayerItems(latestEvent.data.playerItems);
-                }
-            }
-        }
-    }, [craftEvents, playerId]);
+    // useEffect(() => {
+    //     console.log("これは来たのか・")
+    //     if (craftEvents.length > 0) {
+    //         const latestEvent = craftEvents[craftEvents.length - 1];
+    //         if (latestEvent.player_id !== playerId.id) {
+    //             // 他のプレイヤーのイベント
+    //             setNotifications((prev) => [
+    //                 `プレイヤーID:${latestEvent.player_id}がアイテムをクラフトしました`,
+    //                 ...prev.slice(0, 4),
+    //             ]);
+    //         } else {
+    //             // 自分のイベント
+    //             setNotifications((prev) => [
+    //                 `アイテムをクラフトしました`,
+    //                 ...prev.slice(0, 4),
+    //             ]);
+    //
+    //             // プレイヤーのアイテムリストを更新
+    //             if (latestEvent.data && latestEvent.data.playerItems) {
+    //
+    //                 setPlayerItems(latestEvent.data.playerItems);
+    //             }
+    //         }
+    //     }
+    // }, [craftEvents, playerId]);
 
     // アイテムクラフト関数
     const handleCraftItem = async (craftItemId: number) => {
@@ -248,28 +246,19 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                         setPlayerItems(response.item);
                     }
 
-                    addNotification("アイテムをクラフトしました");
+                    // addNotification("アイテムをクラフトしました");
                 } else {
-                    addNotification(`クラフト失敗: ${response.message}`);
+                    // addNotification(`クラフト失敗: ${response.message}`);
                 }
             } else {
                 throw new Error("ユーザIDを取得することができませんでした")
             }
         } catch (error) {
             console.error("Craft error:", error);
-            addNotification("クラフト中にエラーが発生しました");
+            // addNotification("クラフト中にエラーが発生しました");
         }
     };
 
-
-    const addNotification = (message: string) => {
-        setNotifications((prev) => [message, ...prev.slice(0, 4)]);
-    };
-
-
-    useEffect(() => {
-        console.log("loadedImagesの更新:");
-    }, [loadedImages]);
 
 
     // Loading or Error UI
@@ -291,7 +280,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*    </div>*/}
                 {/*))}*/}
             </div>
-
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
