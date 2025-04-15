@@ -159,7 +159,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                 pauseOnFocusLoss
                 draggable
                 pauseOnHover
-                limit={5}                     // 最大同時表示数（これ大事！）
+                limit={100}                     // 最大同時表示数（これ大事！）
             />
 
         </>

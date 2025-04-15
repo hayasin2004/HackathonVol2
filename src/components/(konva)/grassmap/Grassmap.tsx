@@ -31,6 +31,7 @@ import {PlayerHaveItem, PlayerItem} from "@/types/playerItem";
 import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 import PlayerInventory from "@/components/playerInventory/PlayerInventory";
 import MapVolOne from "@/components/mapVolOne/MapVolOne";
+import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -45,35 +46,18 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
-    const [craftItems, setCraftItems] = useState<any[]>([]);
     // const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
-    const [selectedItemId, setSelectedItemId] = useState("");
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
-    const [isDark, setIsDark] = useState(false);
 
-    // クラフトをプルダウンメニュー化
-    const handleSelectChange = (e: any) => {
-        setSelectedItemId(e);
-    };
-    const handleCraftClick = () => {
-        if (selectedItemId) {
-            const selectedItem = craftItems.find(
-                (item) => item.id === Number(selectedItemId)
-            );
-            handleCraftItem(Number(selectedItemId));
-            if (selectedItem) {
-                toast.success(`${selectedItem.createdItem.itemName} を獲得した！`);
-            }
-        }
-    };
+
     const {
         ECollisionPosition,
         eCollisionGotItem,
-        clearGotItems
+        clearGotItems,
     } = useRemakeItemGet({
         userId: playerId.id,
         initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
@@ -148,49 +132,27 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [itemData]);
 
 
+    const {setECollisionGotItem ,triggerToast} = useToastItem(clearGotItems);
+
+
     useEffect(() => {
         if (Array.isArray(eCollisionGotItem) && eCollisionGotItem.length > 0) {
-            const getItemNameMap: { [key: string]: string } = {
-                tree: "木の棒",
-                stone: "石",
-                coal: "石炭",
-                iron: "鉄",
-                flower: "花",
-                mushroom: "キノコ",
-                insect: "虫",
-                water: "不思議な水"
-            };
+            // 通知表示
+            triggerToast(eCollisionGotItem);
 
-            eCollisionGotItem.forEach((item, index) => {
-                const getItemName = getItemNameMap[item];
-                if (!getItemName) return;
-
-                // 通知表示
-                toast.success(`アイテムを取得しました: ${getItemName}`, {
-                    toastId: `${item}-${index}`
-                });
-
-                console.log(`通知発生: ${item}`);
-            });
-
-            // 状態リセット（必要に応じて）
-            // setECollisionGotItem([]);
-            clearGotItems()
-        } else {
-
-            console.log("みかくほ");
+            // 状態リセットを分離
+            setTimeout(() => {
+                setECollisionGotItem([]);
+            }, 0); // 状態リセットを非同期的に実行
         }
     }, [eCollisionGotItem]);
-
-
-
-
 
 
     // 没アイテム取得　多分マルチプレイの時にまた使うと思う
     const {playerItemsHook} = useGetItem(itemEvents, playerId)
     useEffect(() => {
         setPlayerImage(playerItemsHook)
+
     }, [itemEvents, playerId]);
 
     // アイテムクラフトイベントの処理
@@ -220,30 +182,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     //     }
     // }, [craftEvents, playerId]);
 
-    // アイテムクラフト関数
-    const handleCraftItem = async (craftItemId: number) => {
-        try {
-            const playerDataId = playerId.playerId
-            if (playerDataId) {
-                const response = await craftItem(playerDataId, craftItemId);
-                if (response.status === "success") {
-                    const response = await updatePlayerItems(playerId.id);
-                    if (response) {
-                        setPlayerItems(response.item);
-                    }
-
-                    // addNotification("アイテムをクラフトしました");
-                } else {
-                    // addNotification(`クラフト失敗: ${response.message}`);
-                }
-            } else {
-                throw new Error("ユーザIDを取得することができませんでした")
-            }
-        } catch (error) {
-            console.error("Craft error:", error);
-            // addNotification("クラフト中にエラーが発生しました");
-        }
-    };
 
 
 
@@ -270,7 +208,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             {/* インベントリ */}
             <div>
 
-                <PlayerInventory playerId={playerId} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents} />
+                <PlayerInventory playerId={playerId} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents}/>
                 <form action={logout}>
                     <button className={styles.fixedLogOutButton}>
                         ログアウト
