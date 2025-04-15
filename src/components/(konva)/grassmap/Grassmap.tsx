@@ -1,18 +1,18 @@
 "use client";
 
-import React, {useState, useEffect, KeyboardEvent, useMemo, useRef} from "react";
+import React, {useState, useEffect} from "react";
 import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
 import {
     Tile_size,
     Map_width,
     Map_height,
-    generateItemPositions, Map_data, Tile_list, generateMap,
+    Map_data
 } from "./mapData";
 import Image from "next/image"
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
-import {defaultItem, RandomDefaultItem, RoomDefaultItem} from "@/types/defaultItem";
+import {defaultItem} from "@/types/defaultItem";
 import styles from './page.module.css'
 import {ToastContainer, toast} from 'react-toastify';
 import {logout} from "@/lib/nextAuth-actions";
@@ -25,10 +25,9 @@ import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosit
 import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
 import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
 import {CharacterImageData} from "@/types/character";
-import useFetchItem from "@/hooks/(realTime)/item/fetchItem/useFetchItem";
-import useCraftItem from "@/hooks/(realTime)/item/CraftANDFetchItem/useCraftItem";
 import {PlayerHaveItem, PlayerItem} from "@/types/playerItem";
 import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
+import PlayerInventory from "@/components/playerInventory/PlayerInventory";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -43,33 +42,15 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
-    const [craftItems, setCraftItems] = useState<any[]>([]);
     // const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
-    const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
-    const [selectedItemId, setSelectedItemId] = useState("");
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [isDark, setIsDark] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
 
-    // クラフトをプルダウンメニュー化
-    const handleSelectChange = (e: any) => {
-        setSelectedItemId(e);
-    };
-    const handleCraftClick = () => {
-        if (selectedItemId) {
-            const selectedItem = craftItems.find(
-                (item) => item.id === Number(selectedItemId)
-            );
-            handleCraftItem(Number(selectedItemId));
-            if (selectedItem) {
-                toast.success(`${selectedItem.createdItem.itemName} を獲得した！`);
-            }
-        }
-    };
+
     const {
         ECollisionPosition,
         eCollisionGotItem,
@@ -186,19 +167,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [eCollisionGotItem]);
 
 
-    // ----------------------------
-    // プレイヤーとクラフトアイテムの取得
-    // ----------------------------
-    const {playerItemsData, isLoadingGet} = useFetchItem(playerId, eCollisionGotItem)
-    const GetCraftItem = useCraftItem(craftEvents)
 
-    useEffect(() => {
-        if (!isLoadingGet) {
-            setPlayerItems(playerItemsData)
-            setCraftItems(GetCraftItem)
-        }
-
-    }, [playerItemsData, isLoadingGet,eCollisionGotItem,craftEvents]);
 
 
 
@@ -234,32 +203,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     //         }
     //     }
     // }, [craftEvents, playerId]);
-
-    // アイテムクラフト関数
-    const handleCraftItem = async (craftItemId: number) => {
-        try {
-            const playerDataId = playerId.playerId
-            if (playerDataId) {
-                const response = await craftItem(playerDataId, craftItemId);
-                if (response.status === "success") {
-                    const response = await updatePlayerItems(playerId.id);
-                    if (response) {
-                        setPlayerItems(response.item);
-                    }
-
-                    // addNotification("アイテムをクラフトしました");
-                } else {
-                    // addNotification(`クラフト失敗: ${response.message}`);
-                }
-            } else {
-                throw new Error("ユーザIDを取得することができませんでした")
-            }
-        } catch (error) {
-            console.error("Craft error:", error);
-            // addNotification("クラフト中にエラーが発生しました");
-        }
-    };
-
 
 
     // Loading or Error UI
@@ -382,88 +325,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             {/* インベントリ */}
             <div>
 
-
-                <button
-                    className={styles.fixedOpenButton}
-                    onClick={() => setIsOpen(true)}
-                >
-                    クリエイト
-                </button>
-
-
-                {isOpen && (
-                    <div className={styles.modalOverlay}>
-                        <div className={styles.modalContent}>
-                            <button className={styles.closeButton} onClick={() => setIsOpen(false)}>×</button>
-                            <div className={styles.inventory}>
-                                <h3>インベントリ</h3>
-                                <table className={styles.inventoryTable}>
-                                    <thead>
-                                    <tr>
-                                        <th>アイテム名</th>
-                                        <th>個数</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-
-                                    {playerItems?.map((item) => (
-                                        <tr key={item.id}>
-                                            <td>{item.DefaultItemList.itemName}</td>
-                                            <td>{item.quantity}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div className={styles.crafting}>
-                                <h3 className={styles.heading}>クラフトメニュー</h3>
-
-                                <p className={styles.selectedInfo}>選択中: {selectedItemId || '-- アイテムを選択 --'}</p>
-
-                                <div className={styles.craftButtonContainer}>
-                                    {craftItems.map((craftItem) => (
-                                        <div
-                                            className={`${styles.craftButtons} ${selectedItemId === craftItem.createdItem.id ? styles.selected : ''}`}
-                                            key={craftItem.id}
-                                            onClick={() => handleSelectChange(craftItem.id)}
-                                        >
-                                                <span
-                                                    className={styles.itemName}>{craftItem.createdItem.itemName}</span>
-                                            <Image
-                                                src={craftItem.createdItem.itemIcon}
-                                                alt={craftItem.createdItem.itemName}
-                                                width={64}
-                                                height={64}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <button
-                                    className={styles.buttonCreate}
-                                    onClick={handleCraftClick}
-                                    disabled={!selectedItemId}
-                                >
-                                    作成
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                <ToastContainer
-                    position="top-right"          // 表示位置
-                    autoClose={1000}              // 自動で閉じるまでの時間
-                    hideProgressBar={false}
-                    newestOnTop={true}            // 新しい通知が上にくる
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                    limit={5}                     // 最大同時表示数（これ大事！）
-                />
+                <PlayerInventory playerId={playerId} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents} />
                 <form action={logout}>
                     <button className={styles.fixedLogOutButton}>
                         ログアウト

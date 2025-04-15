@@ -1,7 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prismaClient"
 import NextAuth, {NextAuthOptions} from "next-auth";
-import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {findPlayerData} from "@/repository/prisma/authRepository";
 
