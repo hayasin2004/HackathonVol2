@@ -103,6 +103,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         ECollisionPosition.y
     );
 
+
     useEffect(() => {
         // cameraPositionの変更を検知して状態を更新
         setCameraPosition(cameraPositionHook);
