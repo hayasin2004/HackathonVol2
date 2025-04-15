@@ -19,6 +19,8 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState("");
+
+
     // ----------------------------
     // プレイヤーとクラフトアイテムの取得
     // ----------------------------
@@ -159,11 +161,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                 pauseOnHover
                 limit={5}                     // 最大同時表示数（これ大事！）
             />
-            <div>
-                {playerItems
-                    ? playerItems.map((item, index) => <div key={index}>{item.id}</div>)
-                    : "アイテムを所持していません"}
-            </div>
+
         </>
     )
         ;

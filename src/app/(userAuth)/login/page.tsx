@@ -3,7 +3,6 @@ import React, {useState} from "react";
 import {useRouter} from "next/navigation";
 import {signIn} from "next-auth/react";
 import styles from "./page.module.css";
-import {createPlayerData, findPlayerData} from "@/repository/prisma/authRepository";
 
 const LogIn = () => {
     const router = useRouter();

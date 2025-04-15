@@ -25,9 +25,12 @@ import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosit
 import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
 import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
 import {CharacterImageData} from "@/types/character";
+import useFetchItem from "@/hooks/(realTime)/item/fetchItem/useFetchItem";
+import useCraftItem from "@/hooks/(realTime)/item/CraftANDFetchItem/useCraftItem";
 import {PlayerHaveItem, PlayerItem} from "@/types/playerItem";
 import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 import PlayerInventory from "@/components/playerInventory/PlayerInventory";
+import MapVolOne from "@/components/mapVolOne/MapVolOne";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -42,15 +45,31 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
+    const [craftItems, setCraftItems] = useState<any[]>([]);
     // const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
+    const [selectedItemId, setSelectedItemId] = useState("");
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [isDark, setIsDark] = useState(false);
 
-
+    // クラフトをプルダウンメニュー化
+    const handleSelectChange = (e: any) => {
+        setSelectedItemId(e);
+    };
+    const handleCraftClick = () => {
+        if (selectedItemId) {
+            const selectedItem = craftItems.find(
+                (item) => item.id === Number(selectedItemId)
+            );
+            handleCraftItem(Number(selectedItemId));
+            if (selectedItem) {
+                toast.success(`${selectedItem.createdItem.itemName} を獲得した！`);
+            }
+        }
+    };
     const {
         ECollisionPosition,
         eCollisionGotItem,
@@ -117,9 +136,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             setInteractableMapObjects(interactableMapObjects)
         }
 
-        // 20パーの確立でマップを暗くする
-        const shouldBeDark = Math.random() < 0.2; // 20%の確率
-        setIsDark(shouldBeDark);
         fetchCharacterImages()
     }, [playerId]);
 
@@ -204,6 +220,32 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     //     }
     // }, [craftEvents, playerId]);
 
+    // アイテムクラフト関数
+    const handleCraftItem = async (craftItemId: number) => {
+        try {
+            const playerDataId = playerId.playerId
+            if (playerDataId) {
+                const response = await craftItem(playerDataId, craftItemId);
+                if (response.status === "success") {
+                    const response = await updatePlayerItems(playerId.id);
+                    if (response) {
+                        setPlayerItems(response.item);
+                    }
+
+                    // addNotification("アイテムをクラフトしました");
+                } else {
+                    // addNotification(`クラフト失敗: ${response.message}`);
+                }
+            } else {
+                throw new Error("ユーザIDを取得することができませんでした")
+            }
+        } catch (error) {
+            console.error("Craft error:", error);
+            // addNotification("クラフト中にエラーが発生しました");
+        }
+    };
+
+
 
     // Loading or Error UI
     if (!connected) {
@@ -224,104 +266,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*    </div>*/}
                 {/*))}*/}
             </div>
-            <Stage
-                width={typeof window !== "undefined" ? window.innerWidth : 0}
-                height={typeof window !== "undefined" ? window.innerHeight : 0}
-            >
-                <Layer>
-                    {/* --- 1. Grass背景 --- */}
-                    {Map_data.map((row, rowIndex) =>
-                        row.map((_, colIndex) => {
-                            const grassImg = tileImages["grass"];
-                            if (!grassImg) return null;
-
-
-                            return (
-                                <KonvaImage
-                                    key={`grass-${rowIndex}-${colIndex}`}
-                                    image={grassImg}
-                                    x={colIndex * Tile_size - cameraPosition.x}
-                                    y={rowIndex * Tile_size - cameraPosition.y}
-                                    width={Tile_size}
-                                    height={Tile_size}
-                                    alt="タイル画像"
-                                />
-                            );
-                        })
-                    )}
-                    {/* --- 2. その他のタイル --- */}
-                    {tileImages && (Map_data.map((row, rowIndex) =>
-                        row.map((tile, colIndex) => {
-                            if (tile === "grass") return null;
-                            const img = tileImages[tile];
-                            if (!img) return null;
-                            const isLargeTile = tile === "tree" || tile === "stone" || tile === "iron" || tile === "coal";
-                            if (isLargeTile) {
-                                const isRightNeighborSame = Map_data[rowIndex]?.[colIndex - 1] === tile;
-                                const isBottomNeighborSame = Map_data[rowIndex - 1]?.[colIndex] === tile;
-                                const isBottomRightSame = Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
-                                if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) {
-                                    return null;
-                                }
-                                return (
-                                    <KonvaImage
-                                        key={`${tile}-${rowIndex}-${colIndex}`}
-                                        image={img}
-                                        x={colIndex * Tile_size - cameraPosition.x}
-                                        y={rowIndex * Tile_size - cameraPosition.y}
-                                        width={Tile_size * 2}
-                                        height={Tile_size * 2}
-                                        alt="タイル画像"
-                                    />
-                                );
-                            }
-                            return (
-                                <KonvaImage
-                                    key={`${tile}-${rowIndex}-${colIndex}`}
-                                    image={img}
-                                    x={colIndex * Tile_size - cameraPosition.x}
-                                    y={rowIndex * Tile_size - cameraPosition.y}
-                                    width={Tile_size}
-                                    height={Tile_size}
-                                    alt="タイル画像"
-                                />
-                            );
-                        })
-                    ))}
-                    {/*{itemData.map((data) => (*/}
-                    {/*    <KonvaImage*/}
-                    {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
-                    {/*        x={data.x! - cameraPosition.x}*/}
-                    {/*        y={data.y! - cameraPosition.y}*/}
-                    {/*        width={Tile_size}*/}
-                    {/*        height={Tile_size}*/}
-                    {/*        image={loadedImages[data.id]} // data.id で元の画像を参照*/}
-                    {/*    />*/}
-                    {/*))}*/}
-
-                    {/* --- プレイヤー --- */}
-                    {playerCharacter && (
-                        <KonvaImage
-                            image={playerCharacter}
-                            x={ECollisionPosition?.x - cameraPosition.x}
-                            y={ECollisionPosition?.y - cameraPosition.y}
-                            width={Tile_size}
-                            height={Tile_size}
-                            alt="プレイヤー写真"
-                        />
-                    )}
-                    {isDark && (
-                        <Rect
-                            x={0}
-                            y={0}
-                            width={typeof window !== "undefined" ? window.innerWidth : 0}
-                            height={typeof window !== "undefined" ? window.innerHeight : 0}
-                            fill="black"
-                            opacity={0.7}
-                        />
-                    )}
-                </Layer>
-            </Stage>
+            <MapVolOne playerId={playerId} ECollisionPosition={ECollisionPosition} playerCharacter={playerCharacter}/>
             {/* インベントリ */}
             <div>
 
