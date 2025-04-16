@@ -54,7 +54,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
-
+    const [notifications, setNotifications] = useState<string[]>([]);
+    console.log(notifications)
 
 
 
@@ -170,7 +171,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         setPlayerImage(playerItemsHook)
     }, [itemEvents, playerId]);
 
-    // アイテムクラフトイベントの処理
+    // // アイテムクラフトイベントの処理
     // useEffect(() => {
     //     console.log("これは来たのか・")
     //     if (craftEvents.length > 0) {

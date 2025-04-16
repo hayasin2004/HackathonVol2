@@ -14,12 +14,12 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const roomId = Number(id);
     const {data: session} = useSession()
 
-    console.log("これかな"+roomId)
+    console.log("これかな" + roomId)
 
     const [room, setRoom] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [playerId, setPlayerId] = useState<PlayerItem | null|undefined >(null);
+    const [playerId, setPlayerId] = useState<PlayerItem | null | undefined>(null);
     const [itemData, setItemData] = useState<defaultItem[]>([]);
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
@@ -29,9 +29,9 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         console.log(userId);
         // const NumUserId = Number(1)
         if (userId) {
-            const currentUserId = async () =>{
-                const response = await fetch(`/api/player/catch/${userId}`, {method: "GET"});
+            const currentUserId = async () => {
                 const ItemResponse = await fetch(`/api/item/fetchItem`, {method: "GET"});
+                const response = await fetch(`/api/player/catch/${userId}`, {method: "GET"});
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -48,7 +48,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             currentUserId()
         } else {
             // デモ用に仮のプレイヤーIDを生成
-            return ;
+            return;
         }
     }, [id, session]);
 
@@ -93,7 +93,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
                 const checkData = await checkResponse.json();
 
                 // if (checkData.status === 'success' && checkData.exists) {
-                    // プレイヤーが存在する場合は、ルームを更新
+                // プレイヤーが存在する場合は、ルームを更新
                 //     await fetch(`/api/player/updateRoom`, {
                 //         method: 'POST',
                 //         headers: {

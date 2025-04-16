@@ -149,7 +149,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                                             <Image
                                                 src={craftItem.createdItem.itemIcon}
                                                 alt={craftItem.createdItem.itemName}
-                                                wi dth={64}
+                                                width={64}
                                                 height={64}
                                             />
                                         </div>

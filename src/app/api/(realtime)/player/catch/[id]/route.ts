@@ -1,5 +1,6 @@
 import {NextResponse} from "next/server";
 import prisma from "@/lib/prismaClient";
+import {findPlayerData} from "@/repository/prisma/authRepository";
 
 export async function GET(req: Request) {
     const playerId = req.url.split('/').pop(); // URLの最後の部分を取得
@@ -14,14 +15,19 @@ export async function GET(req: Request) {
 
     try {
         const playerData = await prisma.playerData.findFirst({
-            where: {playerId:numberPlayerId},
+            where: {playerId: numberPlayerId},
         });
 
         if (!playerData) {
-            return NextResponse.json(
-                {status: "error", message: "ルームが見つかりません"},
-                {status: 404}
-            );
+            const createPlayerData = await findPlayerData(numberPlayerId)
+            if (createPlayerData) {
+
+                return NextResponse.json(
+                    {status: "ok", message: "プレイヤーデータがなかったため新規作成しました。"},
+                    {status: 200}
+                );
+            }
+
         }
 
         return NextResponse.json({status: "success", playerData});
