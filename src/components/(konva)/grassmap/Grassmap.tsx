@@ -87,12 +87,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     if (isLoadingCharacter) {
         console.log("キャラクター読み込み中")
     }
-    const {position} = usePlayerMovement({
-        initialX: ECollisionPosition.x,
-        initialY: ECollisionPosition.y,
-        speed: 64,
-        movePlayer
-    });
+
     useEffect(() => {
         movePlayer(ECollisionPosition.x ,ECollisionPosition.y)
     }, [ECollisionPosition]);
@@ -148,6 +143,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         setLoadedImages(LoadPlayerCharacterImage)
     }, [itemData]);
 
+
+    // アイテム取得処理
 
     const {setECollisionGotItem, triggerToast} = useToastItem(clearGotItems);
 
@@ -226,7 +223,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             {/* インベントリ */}
             <div>
 
-                <PlayerInventory playerId={playerId} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents}/>
+                <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents}/>
                 <form action={logout}>
                     <button className={styles.fixedLogOutButton}>
                         ログアウト

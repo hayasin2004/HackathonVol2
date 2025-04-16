@@ -95,78 +95,78 @@ io.on('connection', (socket) => {
     });
 
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
-        console.log("playerId" + playerId , roomId)
-        try {
-            // DBのプレイヤー位置を更新
-            await prisma.playerData.update({
-                where: {playerId: playerId},
-                data: {x, y},
-            });
 
-            // 他のプレイヤーに移動通知
-            socket.to(`room:${roomId}`).emit('player_moved', {playerId, x, y});
-            // 衝突判定とアイテム処理
-            const nearbyItems = await prisma.roomItem.findMany({
-                where: {roomId, isActive: true},
-                include: {item: true},
-            });
+        // DBを更新
+        const updatedPlayer = await prisma.playerData.update({
+            where: {playerId},
+            data: {x, y},
+        });
 
-            const collidedItems = nearbyItems.filter((item) => {
-                const itemX = item.x;
-                const itemY = item.y;
-                const itemWidth = item.item.width || 10;
-                const itemHeight = item.item.height || 10;
-                return (
-                    x >= itemX &&
-                    x <= itemX + itemWidth &&
-                    y >= itemY &&
-                    y <= itemY + itemHeight
+        // 他のプレイヤーに通知（最新のDBから座標を取得して通知）
+        socket.to(`room:${roomId}`).emit('player_moved', {
+            playerId: updatedPlayer.playerId,
+            x: updatedPlayer.x,
+            y: updatedPlayer.y,
+        });
+        const collidedItems = nearbyItems.filter((item) => {
+            const itemX = item.x;
+            const itemY = item.y;
+            const itemWidth = item.item.width || 10;
+            const itemHeight = item.item.height || 10;
+            return (
+                x >= itemX &&
+                x <= itemX + itemWidth &&
+                y >= itemY &&
+                y <= itemY + itemHeight
+            );
+        });
+
+        if (collidedItems.length > 0) {
+            const itemIds = collidedItems.map((item) => item.itemId);
+            const collectResult =
+                await import('../../HackathonVol2/src/app/api/(realtime)/item/getItem').then((module) =>
+                    module.playerGetItem(playerId, itemIds)
                 );
+
+            socket.emit('items_collected', {
+                itemIds,
+                result: collectResult,
             });
 
-            if (collidedItems.length > 0) {
-                const itemIds = collidedItems.map((item) => item.itemId);
-                const collectResult =
-                    await import('../../HackathonVol2/src/app/api/(realtime)/item/getItem').then((module) =>
-                        module.playerGetItem(playerId, itemIds)
-                    );
-
-                socket.emit('items_collected', {
-                    itemIds,
-                    result: collectResult,
-                });
-
-                socket.to(`room:${roomId}`).emit('items_collected_by_player', {
-                    playerId,
-                    itemIds,
-                });
-            }
-        } catch (error) {
-            console.error('Error handling player movement:', error);
-        }
-    });
-    // プレイヤーの移動を処理
-
-    // プレイヤーがルームから退出
-    socket.on('leave_room', async ({playerId, roomId}) => {
-        try {
-            await prisma.playerData.update({
-                where: {id: playerId},
-                data: {roomId: null},
+            socket.to(`room:${roomId}`).emit('items_collected_by_player', {
+                playerId,
+                itemIds,
             });
-
-            socket.leave(`room:${roomId}`);
-            socket.to(`room:${roomId}`).emit('player_left', {playerId});
-
-            console.log(`Player ${playerId} left room ${roomId}`);
-        } catch (error) {
-            console.error('Error leaving room:', error);
         }
-    });
+    }
+catch
+    (error)
+    {
+        console.error('Error handling player movement:', error);
+    }
+});
+// プレイヤーの移動を処理
 
-    // 切断時の処理
-    socket.on('disconnect', () => {
-        console.log('Client disconnected:', socket.id);
-        // });
-    })
+// プレイヤーがルームから退出
+socket.on('leave_room', async ({playerId, roomId}) => {
+    try {
+        await prisma.playerData.update({
+            where: {id: playerId},
+            data: {roomId: null},
+        });
+
+        socket.leave(`room:${roomId}`);
+        socket.to(`room:${roomId}`).emit('player_left', {playerId});
+
+        console.log(`Player ${playerId} left room ${roomId}`);
+    } catch (error) {
+        console.error('Error leaving room:', error);
+    }
+});
+
+// 切断時の処理
+socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+    // });
+})
 })

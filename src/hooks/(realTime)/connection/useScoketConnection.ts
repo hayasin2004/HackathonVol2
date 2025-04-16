@@ -59,11 +59,10 @@ export function useSocketConnection(playerId: number | undefined | null, roomId:
 
         // プレイヤー移動イベント
         socketIo.on('player_moved', ({ playerId, x, y }) => {
-            console.log("個々が動くはず ")
-            setPlayers(prev =>
-                prev.map(player =>
+            setPlayers((prev) =>
+                prev.map((player) =>
                     player.playerId === playerId
-                        ? { ...player, x, y }
+                        ? { ...player, x: Math.round(x), y: Math.round(y) } // データを丸める
                         : player
                 )
             );
@@ -107,19 +106,18 @@ export function useSocketConnection(playerId: number | undefined | null, roomId:
     }, [playerId, roomId]);
 
     // プレイヤー移動関数
-    const movePlayer = (x: number, y: number) => {　
-
+    const movePlayer = (x : number, y :number) => {
         if (!socket || !connected || !playerId || !roomId) {
             console.log('Cannot move player - conditions not met:', {
                 socket: !!socket,
                 connected,
                 playerId,
-                roomId
+                roomId,
             });
             return;
         }
-        console.log("移動データを送信")
-        socket.emit('player_move', { playerId, roomId, x, y });
+        console.log('移動データを送信');
+        socket.emit('player_move', { playerId, roomId, x, y }); // サーバーが一元的に通知
     };
 
     return {

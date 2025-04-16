@@ -94,11 +94,10 @@ export const useRemakeItemGet = ({
                 console.log(`${mapObject.type}は未対応のタイプです`);
                 return null;
             }
-
-
             if (itemId) {
                 console.log(mapObject.type);
                 const result = await playerGetItem(userId, itemId);
+
                 if (result?.status === "success" && result.savedItem) {
                     setECollisionGotItem(prev => [...prev, mapObject.type])
                     console.log("アイテム作成:", result.savedItem)

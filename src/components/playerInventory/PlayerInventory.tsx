@@ -12,6 +12,7 @@ interface PlayerInventoryProps {
     playerId: PlayerItem
     eCollisionGotItem: string[]
     craftEvents: any[]
+
 }
 
 
@@ -64,6 +65,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
     const handleSelectChange = (e: any) => {
         setSelectedItemId(e);
     };
+
     const handleCraftClick = () => {
         if (selectedItemId) {
             const selectedItem = craftItems.find(
