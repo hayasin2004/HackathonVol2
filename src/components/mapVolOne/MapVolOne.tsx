@@ -55,8 +55,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
                         row.map((_, colIndex) => {
                             const grassImg = tileImages["grass"];
                             if (!grassImg) return null;
-
-
                             return (
                                 <KonvaImage
                                     key={`grass-${rowIndex}-${colIndex}`}
@@ -84,6 +82,22 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
                                 if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) {
                                     return null;
                                 }
+
+                                // キー押されたら
+                                const handleTileClick() => {
+                                    
+                                }
+                                // const test = async () =>{
+                                // const getItemId = `${tile}-${rowIndex}-${colIndex}`
+                                //     const spofhszhfld = await catchItem(getItemId , playerId)
+                                //     if (spofhszhfld){
+                                //         if (${tile}-${rowIndex}-${colIndex} == データベースカラ返ってきた${tile}-${rowIndex}-${colIndex}){
+                                //             ${tile}-${rowIndex}-${colIndex}は消える
+                                //         }
+                                //
+                                //     }
+                                // }
+                                console.log(`${tile}-${rowIndex}-${colIndex}`)
                                 return (
                                     <KonvaImage
                                         key={`${tile}-${rowIndex}-${colIndex}`}

@@ -11,10 +11,10 @@ import {toast, ToastContainer} from "react-toastify";
 interface PlayerInventoryProps {
     playerId: PlayerItem
     eCollisionGotItem: string[]
-    craftEvents : any[]
+    craftEvents: any[]
 }
 
-const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGotItem , craftEvents}) => {
+const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGotItem, craftEvents}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
@@ -75,6 +75,24 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
         }
     };
 
+    // 拓がやること
+    // testRepositoryの中にあるcraftItem参考にして
+    // inventoryでアイテム選択した状態で設置 or 破壊ボタンをクリックするとマイナスされる機能　
+    // →　非同期でinventoryにあるアイテムの個数も減らして
+    // これができたら画面下側にマイクラみたいなアイテム一覧を作成して
+    // Break(itemId , PlayerId)
+    const ItemBreak　 = async (playerId:number|undefined) => {
+
+        const player = await prisma.playerData.findUnique({
+            where: { playerId },
+            include: { haveItems: true }, // プレイヤーの所持アイテムも取得
+        });
+        if (!player) {
+            throw new Error("プレイヤーが見つかりません");
+        }
+
+    }
+
     return (
 
         <>
@@ -130,12 +148,13 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                                             <Image
                                                 src={craftItem.createdItem.itemIcon}
                                                 alt={craftItem.createdItem.itemName}
-                                                width={64}
+                                                wi dth={64}
                                                 height={64}
                                             />
                                         </div>
                                     ))}
                                 </div>
+
 
                                 <button
                                     className={styles.buttonCreate}
@@ -145,6 +164,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                                     作成
                                 </button>
                             </div>
+                            {/*<button onClick={() => ItemBreak}>破壊</button>*/}
                         </div>
                     </div>
                 )

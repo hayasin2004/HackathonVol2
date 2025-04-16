@@ -94,12 +94,12 @@ io.on('connection', (socket) => {
         }
     });
 
-    // プレイヤーの移動を処理
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
+        console.log("playerId" + playerId , roomId)
         try {
             // DBのプレイヤー位置を更新
             await prisma.playerData.update({
-                where: {id: playerId},
+                where: {playerId: playerId},
                 data: {x, y},
             });
 
@@ -145,6 +145,7 @@ io.on('connection', (socket) => {
             console.error('Error handling player movement:', error);
         }
     });
+    // プレイヤーの移動を処理
 
     // プレイヤーがルームから退出
     socket.on('leave_room', async ({playerId, roomId}) => {

@@ -119,7 +119,8 @@ export function useSocketConnection(playerId: number | undefined | null, roomId:
             return;
         }
 
-        // 移動データを送信
+
+        console.log("移動データを送信")
         socket.emit('player_move', { playerId, roomId, x, y });
     };
 

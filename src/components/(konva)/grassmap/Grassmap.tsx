@@ -32,6 +32,7 @@ import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 import PlayerInventory from "@/components/playerInventory/PlayerInventory";
 import MapVolOne from "@/components/mapVolOne/MapVolOne";
 import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
+import {usePlayerMovement} from "@/hooks/(realTime)/playerMovement/usePlayerMovement";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -78,6 +79,15 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     if (isLoadingCharacter) {
         console.log("キャラクター読み込み中")
     }
+    const test = usePlayerMovement({
+        initialX: ECollisionPosition.x,
+        initialY: ECollisionPosition.y,
+        speed: 64,
+        movePlayer
+    });
+    useEffect(() => {
+        console.log(test)
+    }, [ECollisionPosition]);
 
     // ----------------------------
     // カメラ位置の計算とアイテム画像の読み込み
@@ -86,7 +96,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         ECollisionPosition.x,
         ECollisionPosition.y
     );
-
 
     useEffect(() => {
         // cameraPositionの変更を検知して状態を更新
@@ -132,7 +141,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }, [itemData]);
 
 
-    const {setECollisionGotItem ,triggerToast} = useToastItem(clearGotItems);
+    const {setECollisionGotItem, triggerToast} = useToastItem(clearGotItems);
 
 
     useEffect(() => {
@@ -182,8 +191,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // }, [craftEvents, playerId]);
 
 
-
-
     // Loading or Error UI
     if (!connected) {
         return <div className="loading">サーバーに接続中...</div>;
@@ -203,7 +210,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*    </div>*/}
                 {/*))}*/}
             </div>
-            <MapVolOne playerId={playerId} ECollisionPosition={ECollisionPosition} playerCharacter={playerCharacter}/>
+            <MapVolOne
+                playerId={playerId}
+                ECollisionPosition={ECollisionPosition}
+                playerCharacter={playerCharacter}
+            />
             {/* インベントリ */}
             <div>
 
@@ -231,7 +242,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                             backgroundColor: 'red',
                             zIndex: 10,
                         }}
-                    />
+                    >
+                        {player.playerId}
+
+                    </div>
                 ))}
         </div>
     );

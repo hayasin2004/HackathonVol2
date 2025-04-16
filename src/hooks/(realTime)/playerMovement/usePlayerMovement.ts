@@ -11,10 +11,11 @@ interface UsePlayerMovementProps {
 export function usePlayerMovement({
                                       initialX,
                                       initialY,
-                                      speed = 5,
+                                      speed ,
                                       movePlayer
                                   }: UsePlayerMovementProps = {}) {
     const [position, setPosition] = useState({x: initialX, y: initialY});
+    console.log("koreうごいたよ！！！！！！！！！！！！！！")
     const [keys, setKeys] = useState({
         ArrowUp: false,
         ArrowDown: false,
