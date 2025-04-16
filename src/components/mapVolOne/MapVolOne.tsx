@@ -5,14 +5,21 @@ import {PlayerItem} from "@/types/playerItem";
 import {Map_data, Tile_size} from "@/components/(konva)/grassmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
 import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
+import {MapObject} from "@/hooks/(realTime)/test/useRemakeItemGet";
 
 interface mapVolOneTypes {
     playerId: PlayerItem
     ECollisionPosition: { x: number, y: number }
     playerCharacter: HTMLImageElement | null
+    eCollisionGotItemStatus: MapObject | null
 }
 
-const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,playerCharacter}) => {
+const MapVolOne: React.FC<mapVolOneTypes> = ({
+                                                 playerId,
+                                                 ECollisionPosition,
+                                                 playerCharacter,
+                                                 eCollisionGotItemStatus
+                                             }) => {
 
 
     const {tileImagesComplete, isLoading} = useGenerateMap()
@@ -56,11 +63,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
                             const grassImg = tileImages["grass"];
                             if (!grassImg) return null;
                             return (
+
                                 <KonvaImage
                                     key={`grass-${rowIndex}-${colIndex}`}
                                     image={grassImg}
-                                    x={960 !== colIndex * Tile_size - cameraPosition.x ? colIndex * Tile_size - cameraPosition.x : ""}
-                                    y={1088 !== rowIndex * Tile_size - cameraPosition.y ? rowIndex * Tile_size - cameraPosition.y : ""}
+                                    x={colIndex * Tile_size - cameraPosition.x}
+                                    y={rowIndex * Tile_size - cameraPosition.y}
                                     width={Tile_size}
                                     height={Tile_size}
                                     alt="タイル画像"
@@ -84,7 +92,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
                                 }
 
                                 // キー押されたら
-                                const handleTileClick =async (row:number, col:number) => {
+                                const handleTileClick = async (row: number, col: number) => {
                                     const getItemId = `${tile}-${rowIndex}-${colIndex}`
                                     // const breakItem = await catchItem(getItemId , playerId)
 
@@ -111,8 +119,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
                                     <KonvaImage
                                         key={`${tile}-${rowIndex}-${colIndex}`}
                                         image={img}
-                                        x={colIndex * Tile_size - cameraPosition.x}
-                                        y={rowIndex * Tile_size - cameraPosition.y}
+                                        x={eCollisionGotItemStatus?.x && colIndex * Tile_size - cameraPosition.x ? 128 : 128}
+                                        y={eCollisionGotItemStatus?.y && rowIndex * Tile_size - cameraPosition.y ? 128 : 128}
                                         width={Tile_size * 2}
                                         height={Tile_size * 2}
                                         alt="タイル画像"

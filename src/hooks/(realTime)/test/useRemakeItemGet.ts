@@ -46,6 +46,7 @@ export const useRemakeItemGet = ({
     const [ePressCount, setEPressCount] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const [eCollisionGotItem, setECollisionGotItem] = useState<string[]>([]);
+    const [eCollisionGotItemStatus, setECollisionGotItemStatus] = useState<MapObject | null>(null);
     const [ECollisionStatus, setECollisionStatus] = useState(false);
     console.log(initialPosition)
     const clearGotItems = () => setECollisionGotItem([]);
@@ -86,8 +87,8 @@ export const useRemakeItemGet = ({
                 itemId = [8];
             } else if (mapObject.type === "insect") {
                 itemId = [10];
+
             } else if (mapObject.type === "water") {
-                console.log(mapObject)
                 itemId = [11];
             } else {
                 console.log(`${mapObject.type}は未対応のタイプです`);
@@ -99,6 +100,7 @@ export const useRemakeItemGet = ({
                 const result = await playerGetItem(userId, itemId);
 
                 if (result?.status === "success" && result.savedItem) {
+                    setECollisionGotItemStatus(mapObject)
                     setECollisionGotItem(prev => [...prev, mapObject.type])
                     console.log("アイテム作成:", result.savedItem)
                 }
@@ -364,7 +366,8 @@ export const useRemakeItemGet = ({
         ePressCount,
         handleEKeyPress,   // 外部から呼び出せるように
         eCollisionGotItem,
-        clearGotItems
+        clearGotItems,
+        eCollisionGotItemStatus
     };
 };
 

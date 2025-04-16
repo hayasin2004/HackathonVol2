@@ -63,6 +63,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         ECollisionPosition,
         eCollisionGotItem,
         clearGotItems,
+        eCollisionGotItemStatus
     } = useRemakeItemGet({
         userId: playerId.id,
         initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
@@ -74,6 +75,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
+    useEffect(() => {
+        console.log(eCollisionGotItemStatus)
+        alert(JSON.stringify(eCollisionGotItemStatus))
+    }, [eCollisionGotItem]);
 
 
     // ----------------------------
@@ -219,6 +224,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 playerId={playerId}
                 ECollisionPosition={ECollisionPosition}
                 playerCharacter={playerCharacter}
+                eCollisionGotItemStatus={eCollisionGotItemStatus}
             />
             {/* インベントリ */}
             <div>
