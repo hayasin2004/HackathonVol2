@@ -19,7 +19,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [isDark, setIsDark] = useState(false);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
-
+    const [mapData, setMapData] = useState(Map_data);
 
     const cameraPositionHook = useCameraPosition(
         ECollisionPosition.x,
@@ -84,9 +84,18 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
                                 }
 
                                 // キー押されたら
-                                const handleTileClick() => {
-                                    
+                                const handleTileClick =async (row:number, col:number) => {
+                                    const getItemId = `${tile}-${rowIndex}-${colIndex}`
+                                    // const breakItem = await catchItem(getItemId , playerId)
+
                                 }
+
+                                // setMapData(prev => {
+                                //     const newMap = [...prev];//元の配列のcopy
+                                //     newMap[row] = [...newMap[row]];//ここで 2次元目（列＝行の中の配列）をコピー。colは値なのでコピーしなくても重複することがない
+                                //     newMap[row][col] = "grass"; // grass に置き換え = 削除扱い
+                                //     return newMap;
+                                // });
                                 // const test = async () =>{
                                 // const getItemId = `${tile}-${rowIndex}-${colIndex}`
                                 //     const spofhszhfld = await catchItem(getItemId , playerId)

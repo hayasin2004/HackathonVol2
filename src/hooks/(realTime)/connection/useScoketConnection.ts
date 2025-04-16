@@ -16,7 +16,7 @@ export function useSocketConnection(playerId: number | undefined | null, roomId:
         }
 
         // Socket.io接続 - フォールバック用ポーリングを含める
-        const socketIo = io("http://localhost:5000", {
+        const socketIo = io("https://socket.loca.lt", {
             transports: ['websocket', 'polling'], // フォールバックとしてpollingを追加
             reconnectionAttempts: 3,
             reconnectionDelay: 1000,

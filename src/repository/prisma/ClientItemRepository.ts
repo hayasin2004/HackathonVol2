@@ -139,10 +139,7 @@ export const playerDeleteItem = async (playerId: number, itemId: number) => {
         if (!playerItem) {
             return {status: 'error', message: '削除するアイテムが存在しません'}
         }
-        const deleteItem = await prisma.playerItem.delete({
-            where: {id: playerItem.itemId}
-        })
-        return {status: 'success', message: 'アイテムを削除しました', deleteItem}
+
     } catch (err) {
         console.log(err)
         return {status: 'error', message: 'アイテム削除中にエラーが発生しました'}

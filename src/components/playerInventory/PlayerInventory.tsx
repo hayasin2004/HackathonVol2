@@ -6,6 +6,7 @@ import useCraftItem from "@/hooks/(realTime)/item/CraftANDFetchItem/useCraftItem
 import styles from "@/components/(konva)/grassmap/page.module.css";
 import Image from "next/image";
 import {toast, ToastContainer} from "react-toastify";
+import prisma from "@/lib/prismaClient";
 
 // Propsの型を定義する
 interface PlayerInventoryProps {

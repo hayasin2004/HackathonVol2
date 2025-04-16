@@ -39,7 +39,7 @@ if (process.env.NODE_ENV === 'production') {
 //
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000"], // クライアントURLを許可
+        origin: ["*"], // クライアントURLを許可
         methods: ["GET", "POST"], // サポートするHTTPメソッド
     },
 });
@@ -108,65 +108,59 @@ io.on('connection', (socket) => {
             x: updatedPlayer.x,
             y: updatedPlayer.y,
         });
-        const collidedItems = nearbyItems.filter((item) => {
-            const itemX = item.x;
-            const itemY = item.y;
-            const itemWidth = item.item.width || 10;
-            const itemHeight = item.item.height || 10;
-            return (
-                x >= itemX &&
-                x <= itemX + itemWidth &&
-                y >= itemY &&
-                y <= itemY + itemHeight
-            );
-        });
+        // const collidedItems = nearbyItems.filter((item) => {
+        //     const itemX = item.x;
+        //     const itemY = item.y;
+        //     const itemWidth = item.item.width || 10;
+        //     const itemHeight = item.item.height || 10;
+        //     return (
+        //         x >= itemX &&
+        //         x <= itemX + itemWidth &&
+        //         y >= itemY &&
+        //         y <= itemY + itemHeight
+        //     );
+        // });
 
-        if (collidedItems.length > 0) {
-            const itemIds = collidedItems.map((item) => item.itemId);
-            const collectResult =
-                await import('../../HackathonVol2/src/app/api/(realtime)/item/getItem').then((module) =>
-                    module.playerGetItem(playerId, itemIds)
-                );
-
-            socket.emit('items_collected', {
-                itemIds,
-                result: collectResult,
-            });
-
-            socket.to(`room:${roomId}`).emit('items_collected_by_player', {
-                playerId,
-                itemIds,
-            });
-        }
-    }
-catch
-    (error)
-    {
-        console.error('Error handling player movement:', error);
-    }
-});
+        // if (collidedItems.length > 0) {
+        //     const itemIds = collidedItems.map((item) => item.itemId);
+        //     const collectResult =
+        //         await import('../../HackathonVol2/src/app/api/(realtime)/item/getItem').then((module) =>
+        //             module.playerGetItem(playerId, itemIds)
+        //         );
+        //
+        //     socket.emit('items_collected', {
+        //         itemIds,
+        //         result: collectResult,
+        //     });
+        //
+        //     socket.to(`room:${roomId}`).emit('items_collected_by_player', {
+        //         playerId,
+        //         itemIds,
+        //     });
+        // }
+    });
 // プレイヤーの移動を処理
 
 // プレイヤーがルームから退出
-socket.on('leave_room', async ({playerId, roomId}) => {
-    try {
-        await prisma.playerData.update({
-            where: {id: playerId},
-            data: {roomId: null},
-        });
+    socket.on('leave_room', async ({playerId, roomId}) => {
+        try {
+            await prisma.playerData.update({
+                where: {id: playerId},
+                data: {roomId: null},
+            });
 
-        socket.leave(`room:${roomId}`);
-        socket.to(`room:${roomId}`).emit('player_left', {playerId});
+            socket.leave(`room:${roomId}`);
+            socket.to(`room:${roomId}`).emit('player_left', {playerId});
 
-        console.log(`Player ${playerId} left room ${roomId}`);
-    } catch (error) {
-        console.error('Error leaving room:', error);
-    }
-});
+            console.log(`Player ${playerId} left room ${roomId}`);
+        } catch (error) {
+            console.error('Error leaving room:', error);
+        }
+    });
 
 // 切断時の処理
-socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-    // });
-})
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+        // });
+    })
 })
