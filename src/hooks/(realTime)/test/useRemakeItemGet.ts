@@ -14,7 +14,6 @@ export interface MapObject {
     relatedItemId: string;
 }
 
-
 interface UseGetItemProps {
     userId?: number;
     // initialPosition は null/undefined を許容しない方が扱いやすい
@@ -46,7 +45,7 @@ export const useRemakeItemGet = ({
     const [ePressCount, setEPressCount] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const [eCollisionGotItem, setECollisionGotItem] = useState<string[]>([]);
-    const [eCollisionGotItemStatus, setECollisionGotItemStatus] = useState<MapObject | null>(null);
+    const [eCollisionGotItemStatus, setECollisionGotItemStatus] = useState<MapObject[] | null>([]);
     const [ECollisionStatus, setECollisionStatus] = useState(false);
     console.log(initialPosition)
     const clearGotItems = () => setECollisionGotItem([]);

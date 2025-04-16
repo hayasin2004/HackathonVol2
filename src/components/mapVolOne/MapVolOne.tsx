@@ -77,79 +77,63 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         })
                     )}
                     {/* --- 2. その他のタイル --- */}
-                    {tileImages && (Map_data.map((row, rowIndex) =>
-                        row.map((tile, colIndex) => {
-                            if (tile === "grass") return null;
-                            const img = tileImages[tile];
-                            if (!img) return null;
-                            const isLargeTile = tile === "tree" || tile === "stone" || tile === "iron" || tile === "coal";
-                            if (isLargeTile) {
-                                const isRightNeighborSame = Map_data[rowIndex]?.[colIndex - 1] === tile;
-                                const isBottomNeighborSame = Map_data[rowIndex - 1]?.[colIndex] === tile;
-                                const isBottomRightSame = Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
-                                if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) {
+                    {tileImages &&
+                        Map_data.map((row, rowIndex) =>
+                            row.map((tile, colIndex) => {
+                                // tileId を生成
+                                if (!tile || rowIndex === undefined || colIndex === undefined) {
+                                    console.error("必要なデータが未定義です: tile, rowIndex, colIndex");
                                     return null;
                                 }
 
-                                // キー押されたら
-                                const handleTileClick = async (row: number, col: number) => {
-                                    const getItemId = `${tile}-${rowIndex}-${colIndex}`
-                                    // const breakItem = await catchItem(getItemId , playerId)
+                                const tileId = `${tile}-${rowIndex}-${colIndex}`;
 
+                                // eCollisionGotItemStatus の id と tileId を比較し、一致すれば除外
+                                if (tile === "grass" || eCollisionGotItemStatus?.id === tileId) return null;
+
+                                const img = tileImages[tile];
+                                if (!img) return null;
+
+                                const isLargeTile = ["tree", "stone", "iron", "coal"].includes(tile);
+                                if (isLargeTile) {
+                                    const isRightNeighborSame = Map_data[rowIndex]?.[colIndex - 1] === tile;
+                                    const isBottomNeighborSame = Map_data[rowIndex - 1]?.[colIndex] === tile;
+                                    const isBottomRightSame = Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
+                                    if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) return null;
+
+                                    const handleTileClick = async () => {
+                                        const itemId = `${tile}-${rowIndex}-${colIndex}`;
+                                        // アイテム取得処理
+                                        // 例: await catchItem(itemId, playerId);
+                                    };
+
+                                    return (
+                                        <KonvaImage
+                                            key={tileId}
+                                            image={img}
+                                            x={colIndex * Tile_size - cameraPosition.x}
+                                            y={rowIndex * Tile_size - cameraPosition.y}
+                                            width={Tile_size * 2}
+                                            height={Tile_size * 2}
+                                            alt="タイル画像"
+                                            onClick={handleTileClick}
+                                        />
+                                    );
                                 }
 
-                                // setMapData(prev => {
-                                //     const newMap = [...prev];//元の配列のcopy
-                                //     newMap[row] = [...newMap[row]];//ここで 2次元目（列＝行の中の配列）をコピー。colは値なのでコピーしなくても重複することがない
-                                //     newMap[row][col] = "grass"; // grass に置き換え = 削除扱い
-                                //     return newMap;
-                                // });
-                                // const test = async () =>{
-                                // const getItemId = `${tile}-${rowIndex}-${colIndex}`
-                                //     const spofhszhfld = await catchItem(getItemId , playerId)
-                                //     if (spofhszhfld){
-                                //         if (${tile}-${rowIndex}-${colIndex} == データベースカラ返ってきた${tile}-${rowIndex}-${colIndex}){
-                                //             ${tile}-${rowIndex}-${colIndex}は消える
-                                //         }
-                                //
-                                //     }
-                                // }
-                                // console.log(`${tile}-${rowIndex}-${colIndex}`)
                                 return (
                                     <KonvaImage
-                                        key={`${tile}-${rowIndex}-${colIndex}`}
+                                        key={tileId}
                                         image={img}
-                                        x={eCollisionGotItemStatus?.x && colIndex * Tile_size - cameraPosition.x ? 128 : 128}
-                                        y={eCollisionGotItemStatus?.y && rowIndex * Tile_size - cameraPosition.y ? 128 : 128}
-                                        width={Tile_size * 2}
-                                        height={Tile_size * 2}
+                                        x={colIndex * Tile_size - cameraPosition.x}
+                                        y={rowIndex * Tile_size - cameraPosition.y}
+                                        width={Tile_size}
+                                        height={Tile_size}
                                         alt="タイル画像"
                                     />
                                 );
-                            }
-                            return (
-                                <KonvaImage
-                                    key={`${tile}-${rowIndex}-${colIndex}`}
-                                    image={img}
-                                    x={colIndex * Tile_size - cameraPosition.x}
-                                    y={rowIndex * Tile_size - cameraPosition.y}
-                                    width={Tile_size}
-                                    height={Tile_size}
-                                    alt="タイル画像"
-                                />
-                            );
-                        })
-                    ))}
-                    {/*{itemData.map((data) => (*/}
-                    {/*    <KonvaImage*/}
-                    {/*        key={data.id} // _uniqueId を key に使う（id 重複を避ける）*/}
-                    {/*        x={data.x! - cameraPosition.x}*/}
-                    {/*        y={data.y! - cameraPosition.y}*/}
-                    {/*        width={Tile_size}*/}
-                    {/*        height={Tile_size}*/}
-                    {/*        image={loadedImages[data.id]} // data.id で元の画像を参照*/}
-                    {/*    />*/}
-                    {/*))}*/}
+                            })
+                        )}
 
                     {/* --- プレイヤー --- */}
                     {playerCharacter && (

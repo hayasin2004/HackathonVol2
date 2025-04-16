@@ -136,6 +136,7 @@ model RoomItem {
   itemId    Int
   x         Int
   y         Int
+  iconImage String
   isActive  Boolean         @default(true)
   room      Room            @relation("RoomItems", fields: [roomId], references: [id], onDelete: Cascade)
   item      DefaultItemList @relation(fields: [itemId], references: [id])

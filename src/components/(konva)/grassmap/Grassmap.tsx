@@ -1,22 +1,16 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
-import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
+import React, {useState, useEffect, useRef} from "react";
+import {Stage, Layer, Image as KonvaImage} from "react-konva";
 import {
     Tile_size,
     Map_width,
     Map_height,
-    Map_data
 } from "./mapData";
-import Image from "next/image"
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {useSupabaseRealtime} from "@/hooks/(realTime)/supabaseRealTime/useSupabaseRealTime";
 import {defaultItem} from "@/types/defaultItem";
-import styles from './page.module.css'
-import {ToastContainer, toast} from 'react-toastify';
-import {logout} from "@/lib/nextAuth-actions";
-import {craftItem, updatePlayerItems} from "@/repository/prisma/craftItemRepository";
 import {extractInteractableObjects} from "@/script/extractInteractableObjects";
 import {MapTilesType} from "@/types/map";
 import {get_character} from "@/script/get_character";
@@ -25,14 +19,10 @@ import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosit
 import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
 import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
 import {CharacterImageData} from "@/types/character";
-import useFetchItem from "@/hooks/(realTime)/item/fetchItem/useFetchItem";
-import useCraftItem from "@/hooks/(realTime)/item/CraftANDFetchItem/useCraftItem";
-import {PlayerHaveItem, PlayerItem} from "@/types/playerItem";
+import { PlayerItem} from "@/types/playerItem";
 import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
-import PlayerInventory from "@/components/playerInventory/PlayerInventory";
 import MapVolOne from "@/components/mapVolOne/MapVolOne";
 import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
-import {usePlayerMovement} from "@/hooks/(realTime)/playerMovement/usePlayerMovement";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -56,7 +46,36 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
     console.log(notifications)
+    const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
 
+
+    // 試験的なデータ
+
+    const [objectItemImage, setObjectItemImage] = useState<
+        { id: string; x: number; y: number; iconImage:   HTMLImageElement }[] | null
+    >([]);
+
+
+
+    useEffect(() => {
+        const itemIconFetch = async () => {
+            try {
+                const response = await fetch(`/api/item/getObjectItem/${roomId}`, {
+                    method: "GET",
+                    headers: {"Content-Type": "application/json"}
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json(); // `await` を追加
+                console.log(data.roomItems);
+                setObjectItemImage(data.roomItems); // 状態更新
+            } catch (error) {
+                console.error("データ取得に失敗しました:", error);
+            }
+        };
+        itemIconFetch();
+    }, [roomId]);
 
 
     const {
@@ -77,7 +96,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     useEffect(() => {
         console.log(eCollisionGotItemStatus)
-        alert(JSON.stringify(eCollisionGotItemStatus))
+        // alert(JSON.stringify(eCollisionGotItemStatus))
     }, [eCollisionGotItem]);
 
 
@@ -94,7 +113,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     }
 
     useEffect(() => {
-        movePlayer(ECollisionPosition.x ,ECollisionPosition.y)
+        movePlayer(ECollisionPosition.x, ECollisionPosition.y)
     }, [ECollisionPosition]);
 
     // ----------------------------
@@ -201,6 +220,31 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // }, [craftEvents, playerId]);
 
 
+
+
+
+
+         // 画像の参照を保持するための useRef
+
+        useEffect(() => {
+            // アイテムごとに画像をプリロード
+            objectItemImage?.forEach((item) => {
+                if (!imagesRef.current[item.id]) {
+                    const img = new Image();
+                    img.src = item.iconImage; // 各アイテムの画像URL
+                    img.onload = () => {
+                        imagesRef.current[item.id] = img; // ロードした画像を参照に保存
+                    };
+                }
+            });
+        }, [objectItemImage]);
+
+
+
+
+
+
+
     // Loading or Error UI
     if (!connected) {
         return <div className="loading">サーバーに接続中...</div>;
@@ -209,6 +253,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     if (error) {
         return <div className="error">エラー: {error}</div>;
     }
+
 
     return (
         <div style={{outline: "none"}}>
@@ -220,6 +265,26 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*    </div>*/}
                 {/*))}*/}
             </div>
+            <Stage width={800} height={600}>
+                <Layer>
+                    {objectItemImage?.map((item) => {
+                        const img = imagesRef.current[item.id];
+                        return (
+                            img && (
+                                <KonvaImage
+                                    key={item.id}
+                                    image={img} // プリロードされた HTMLImageElement を渡す
+                                    x={item.x}
+                                    y={item.y}
+                                    width={64}
+                                    height={64}
+                                    alt="タイル画像"
+                                />
+                            )
+                        );
+                    })}
+                </Layer>
+            </Stage>
             <MapVolOne
                 playerId={playerId}
                 ECollisionPosition={ECollisionPosition}
@@ -227,15 +292,15 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 eCollisionGotItemStatus={eCollisionGotItemStatus}
             />
             {/* インベントリ */}
-            <div>
+            {/*<div>*/}
 
-                <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents}/>
-                <form action={logout}>
-                    <button className={styles.fixedLogOutButton}>
-                        ログアウト
-                    </button>
-                </form>
-            </div>
+            {/*    <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents}/>*/}
+            {/*    <form action={logout}>*/}
+            {/*        <button className={styles.fixedLogOutButton}>*/}
+            {/*            ログアウト*/}
+            {/*        </button>*/}
+            {/*    </form>*/}
+            {/*</div>*/}
             {/* 他のプレイヤー */}
             {players
                 .filter(player => player.playerId !== playerId)
