@@ -44,15 +44,18 @@ interface GameProps {
 
 
 const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
-    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
     // const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
+    const [cameraPositionTest, setCameraPositionTest] = useState({x: 0, y: 0});
+    console.log(cameraPositionTest)
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
+
+
 
 
     const {
@@ -68,6 +71,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         mapObjects: interactableMapObjects,
     });
 
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
+
+
+
     // ----------------------------
     // プレイヤー画像切り替え用のロジック（2枚のpngを交互に切替）
     // ----------------------------
@@ -79,14 +86,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     if (isLoadingCharacter) {
         console.log("キャラクター読み込み中")
     }
-    const test = usePlayerMovement({
+    const {position} = usePlayerMovement({
         initialX: ECollisionPosition.x,
         initialY: ECollisionPosition.y,
         speed: 64,
         movePlayer
     });
     useEffect(() => {
-        console.log(test)
+        movePlayer(ECollisionPosition.x ,ECollisionPosition.y)
     }, [ECollisionPosition]);
 
     // ----------------------------

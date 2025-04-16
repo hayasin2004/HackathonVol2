@@ -14,12 +14,13 @@ interface PlayerInventoryProps {
     craftEvents: any[]
 }
 
+
+
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGotItem, craftEvents}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState("");
-
 
     // ----------------------------
     // プレイヤーとクラフトアイテムの取得

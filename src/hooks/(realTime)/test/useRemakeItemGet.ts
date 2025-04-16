@@ -47,7 +47,7 @@ export const useRemakeItemGet = ({
     const [isProcessing, setIsProcessing] = useState(false);
     const [eCollisionGotItem, setECollisionGotItem] = useState<string[]>([]);
     const [ECollisionStatus, setECollisionStatus] = useState(false);
-
+    console.log(initialPosition)
     const clearGotItems = () => setECollisionGotItem([]);
 
     const eKeyPressedRef = useRef(false);

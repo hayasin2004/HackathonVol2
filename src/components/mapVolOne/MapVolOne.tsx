@@ -97,7 +97,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
                                 //
                                 //     }
                                 // }
-                                console.log(`${tile}-${rowIndex}-${colIndex}`)
+                                // console.log(`${tile}-${rowIndex}-${colIndex}`)
                                 return (
                                     <KonvaImage
                                         key={`${tile}-${rowIndex}-${colIndex}`}
