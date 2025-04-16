@@ -16,13 +16,13 @@ export function useSocketConnection(playerId: number | undefined | null, roomId:
         }
 
         // Socket.io接続 - フォールバック用ポーリングを含める
-        const socketIo = io("https://socket.loca.lt", {
+        const socketIo = io("http://localhost:5000", {
             transports: ['websocket', 'polling'], // フォールバックとしてpollingを追加
             reconnectionAttempts: 3,
             reconnectionDelay: 1000,
             timeout: 20000, // タイムアウト時間を長くする
             path: '/socket.io/' // パスを明示的に指定
-        });
+        })
 
         const test = io("http://192.168.3.5:3000")
 

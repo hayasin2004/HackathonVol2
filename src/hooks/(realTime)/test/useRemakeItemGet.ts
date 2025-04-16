@@ -68,8 +68,6 @@ export const useRemakeItemGet = ({
                 y: ECollisionPosition.y,
                 userId: userId
             };
-
-
             // ここでSupabaseにアイテムを保存するロジックを呼び出し
             // saveItemToDatabase(newItem);　
             let itemId = [];
@@ -89,11 +87,13 @@ export const useRemakeItemGet = ({
             } else if (mapObject.type === "insect") {
                 itemId = [10];
             } else if (mapObject.type === "water") {
+                console.log(mapObject)
                 itemId = [11];
             } else {
                 console.log(`${mapObject.type}は未対応のタイプです`);
                 return null;
             }
+
             if (itemId) {
                 console.log(mapObject.type);
                 const result = await playerGetItem(userId, itemId);

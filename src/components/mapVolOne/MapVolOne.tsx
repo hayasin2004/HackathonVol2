@@ -59,8 +59,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({playerId, ECollisionPosition ,play
                                 <KonvaImage
                                     key={`grass-${rowIndex}-${colIndex}`}
                                     image={grassImg}
-                                    x={colIndex * Tile_size - cameraPosition.x}
-                                    y={rowIndex * Tile_size - cameraPosition.y}
+                                    x={960 !== colIndex * Tile_size - cameraPosition.x ? colIndex * Tile_size - cameraPosition.x : ""}
+                                    y={1088 !== rowIndex * Tile_size - cameraPosition.y ? rowIndex * Tile_size - cameraPosition.y : ""}
                                     width={Tile_size}
                                     height={Tile_size}
                                     alt="タイル画像"

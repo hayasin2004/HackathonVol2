@@ -18,7 +18,6 @@ const useToastItem = (clearGotItems: () => void) => {
         items.forEach((item, index) => {
             const getItemName = getItemNameMap[item];
             if (!getItemName) return;
-
             toast.success(`アイテムを取得しました: ${getItemName}`, {
                 toastId: `${item}-${index}`,
             });
