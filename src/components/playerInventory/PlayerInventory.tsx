@@ -85,6 +85,11 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
     // →　非同期でinventoryにあるアイテムの個数も減らして
     // これができたら画面下側にマイクラみたいなアイテム一覧を作成して
     // Break(itemId , PlayerId)
+    // わからないこと
+    // プレイヤーの位置情報の持ってくる方法
+    // まずおかれているアイテム(defaultItem)がマップ配置されているがそれを取得したときに消すとなるとdefaultItemを消すことにならないか
+    // ユーザーがアイテムを獲得した状態をどのようにして新しい関数に入れていけばいいかわからない
+    // ランダムに動くアイテムの座標をどのようにして使うのか
     const ItemBreak　 = async (playerId:number|undefined) => {
 
         const player = await prisma.playerData.findUnique({
