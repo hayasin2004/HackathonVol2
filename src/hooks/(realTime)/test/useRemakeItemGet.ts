@@ -2,7 +2,6 @@
 import {useState, useEffect, useRef, useCallback} from "react";
 import {defaultItem} from "@/types/defaultItem";
 import {playerGetItem} from "@/app/api/(realtime)/item/getItem/route";
-import {ToastContainer, toast} from 'react-toastify';
 
 export interface MapObject {
     id: string;

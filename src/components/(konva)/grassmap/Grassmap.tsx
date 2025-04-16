@@ -152,7 +152,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {playerItemsHook} = useGetItem(itemEvents, playerId)
     useEffect(() => {
         setPlayerImage(playerItemsHook)
-
     }, [itemEvents, playerId]);
 
     // アイテムクラフトイベントの処理
@@ -215,6 +214,25 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     </button>
                 </form>
             </div>
+            {/* 他のプレイヤー */}
+            {players
+                .filter(player => player.playerId !== playerId)
+                .map((player, index) => (
+                    <div
+                        key={player.playerId || `player-${index}`}
+                        className="other-player"
+                        style={{
+                            position: 'absolute',
+                            left: `${player.x}px`,
+                            top: `${player.y}px`,
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '50%',
+                            backgroundColor: 'red',
+                            zIndex: 10,
+                        }}
+                    />
+                ))}
         </div>
     );
 };
