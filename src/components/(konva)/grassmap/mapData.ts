@@ -322,12 +322,12 @@ export const generateMap = () => {
     // **各タイルを配置（1×1）**
     placeTile("building", 10);
     placeTile("leaves", 30);
-    placeTile("mushroom", 20);
+    placeTile("mushroom", 10);
     placeTile("insect", 15);
 
     // **各タイルを配置（2×2）**
-    placeTile("tree", 10, 2);
-    placeTile("stone", 10, 2);
+    placeTile("tree", 20, 2);
+    placeTile("stone", 15, 2);
     placeTile("iron", 5, 2);
     placeTile("coal", 10, 2);
     placeTile("flower",60);
