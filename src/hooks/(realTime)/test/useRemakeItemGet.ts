@@ -60,7 +60,7 @@ export const useRemakeItemGet = ({
             const closestItem = nearbyItems[0];
             console.log("取得対象アイテム:", closestItem);
 
-            playerGetItem(userId, [closestItem.id]).then(result => {
+            playerGetItem(userId, [closestItem.itemId]).then(result => {
                 if (result?.status === "success") {
                     setECollisionGotItem(prev => [...prev, closestItem.id.toString()]);
                     setECollisionGotItemStatus(closestItem);
