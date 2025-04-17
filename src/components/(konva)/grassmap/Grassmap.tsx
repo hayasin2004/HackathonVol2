@@ -23,6 +23,7 @@ import { PlayerItem} from "@/types/playerItem";
 import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 import MapVolOne from "@/components/mapVolOne/MapVolOne";
 import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
+import PlayerInventory from "@/components/playerInventory/PlayerInventory";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -265,7 +266,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*    </div>*/}
                 {/*))}*/}
             </div>
-            <Stage width={800} height={600}>
+
+            <Stage
+                width={typeof window !== "undefined" ? window.innerWidth : 0}
+                height={typeof window !== "undefined" ? window.innerHeight : 0}
+            >
                 <Layer>
                     {objectItemImage?.map((item) => {
                         const img = imagesRef.current[item.id];
@@ -285,16 +290,16 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     })}
                 </Layer>
             </Stage>
-            <MapVolOne
-                playerId={playerId}
-                ECollisionPosition={ECollisionPosition}
-                playerCharacter={playerCharacter}
-                eCollisionGotItemStatus={eCollisionGotItemStatus}
-            />
+            {/*<MapVolOne*/}
+            {/*    playerId={playerId}*/}
+            {/*    ECollisionPosition={ECollisionPosition}*/}
+            {/*    playerCharacter={playerCharacter}*/}
+            {/*    eCollisionGotItemStatus={eCollisionGotItemStatus}*/}
+            {/*/>*/}
             {/* インベントリ */}
             {/*<div>*/}
 
-            {/*    <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents}/>*/}
+                <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents}/>
             {/*    <form action={logout}>*/}
             {/*        <button className={styles.fixedLogOutButton}>*/}
             {/*            ログアウト*/}
