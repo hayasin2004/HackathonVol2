@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { defaultItem } from "@/types/defaultItem";
 import { playerGetItem } from "@/app/api/(realtime)/item/getItem/route";
 
-interface objectItemIconImage {
+export interface objectItemIconImage {
     id : number,
     roomId : number,
     itemId : number,

@@ -19,7 +19,7 @@ import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosit
 import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
 import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
 import {CharacterImageData} from "@/types/character";
-import { PlayerItem} from "@/types/playerItem";
+import {PlayerItem} from "@/types/playerItem";
 import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 import MapVolOne from "@/components/mapVolOne/MapVolOne";
 import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
@@ -47,15 +47,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
     console.log(notifications)
-    const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
 
 
     // 試験的なデータ
 
     const [objectItemImage, setObjectItemImage] = useState<
-        { id: string; x: number; y: number; iconImage:   HTMLImageElement }[] | null
+        { id: string; x: number; y: number; iconImage: HTMLImageElement }[] | null
     >([]);
-
 
 
     useEffect(() => {
@@ -87,7 +85,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         clearGotItems
     } = useRemakeItemGet({
         userId: playerId.id,
-        initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
+        initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
         rectPositions: objectItemImage, // ← ここにDBから取得したアイテム
         mapWidthInPixels: Map_width * Tile_size,
         mapHeightInPixels: Map_height * Tile_size
@@ -222,31 +220,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // }, [craftEvents, playerId]);
 
 
-
-
-
-
-         // 画像の参照を保持するための useRef
-
-        useEffect(() => {
-            // アイテムごとに画像をプリロード
-            objectItemImage?.forEach((item) => {
-                if (!imagesRef.current[item.id]) {
-                    const img = new Image();
-                    img.src = item.iconImage; // 各アイテムの画像URL
-                    img.onload = () => {
-                        imagesRef.current[item.id] = img; // ロードした画像を参照に保存
-                    };
-                }
-            });
-        }, [objectItemImage]);
-
-
-
-
-
-
-
     // Loading or Error UI
     if (!connected) {
         return <div className="loading">サーバーに接続中...</div>;
@@ -268,77 +241,47 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*))}*/}
             </div>
 
-            <Stage
-                width={typeof window !== "undefined" ? window.innerWidth : 0}
-                height={typeof window !== "undefined" ? window.innerHeight : 0}
-            >
-                <Layer>
-                    {objectItemImage?.map((item) => {
-                        const img = imagesRef.current[item.id];
-                        return (
-                            img && (
-                                <KonvaImage
-                                    key={item.id}
-                                    image={img} // プリロードされた HTMLImageElement を渡す
-                                    x={item.x}
-                                    y={item.y}
-                                    width={64}
-                                    height={64}
-                                    alt="タイル画像"
-                                />
-                            )
-                        );
-                    })}
-                    {playerCharacter && (
-                        <KonvaImage
-                            image={playerCharacter}
-                            x={ECollisionPosition?.x - cameraPosition.x}
-                            y={ECollisionPosition?.y - cameraPosition.y}
-                            width={Tile_size}
-                            height={Tile_size}
-                            alt="プレイヤー写真"
-                        />
-                    )}
-                </Layer>
-            </Stage>
-            {/*<MapVolOne*/}
-            {/*    playerId={playerId}*/}
-            {/*    ECollisionPosition={ECollisionPosition}*/}
-            {/*    playerCharacter={playerCharacter}*/}
-            {/*    eCollisionGotItemStatus={eCollisionGotItemStatus}*/}
-            {/*/>*/}
-            {/* インベントリ */}
-            {/*<div>*/}
+            <MapVolOne
+                playerId={playerId}
+                ECollisionPosition={ECollisionPosition}
+                playerCharacter={playerCharacter}
+                eCollisionGotItemStatus={eCollisionGotItemStatus}
+                objectItemImage={objectItemImage}
+            />
+            インベントリ
+            <div>
 
-                <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem} craftEvents={craftEvents}/>
-            {/*    <form action={logout}>*/}
-            {/*        <button className={styles.fixedLogOutButton}>*/}
-            {/*            ログアウト*/}
-            {/*        </button>*/}
-            {/*    </form>*/}
-            {/*</div>*/}
-            {/* 他のプレイヤー */}
-            {players
-                .filter(player => player.playerId !== playerId)
-                .map((player, index) => (
-                    <div
-                        key={player.playerId || `player-${index}`}
-                        className="other-player"
-                        style={{
-                            position: 'absolute',
-                            left: `${player.x}px`,
-                            top: `${player.y}px`,
-                            width: '20px',
-                            height: '20px',
-                            borderRadius: '50%',
-                            backgroundColor: 'red',
-                            zIndex: 10,
-                        }}
-                    >
-                        {player.playerId}
+                <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem}
+                                 craftEvents={craftEvents}/>
+                {/*    <form action={logout}>*/}
+                {/*        <button className={styles.fixedLogOutButton}>*/}
+                {/*            ログアウト*/}
+                {/*        </button>*/}
+                {/*    </form>*/}
+                {/*</div>*/}
+                {/* 他のプレイヤー */}
+                {players
+                    .filter(player => player.playerId !== playerId)
+                    .map((player, index) => (
+                        <div
+                            key={player.playerId || `player-${index}`}
+                            className="other-player"
+                            style={{
+                                position: 'absolute',
+                                left: `${player.x}px`,
+                                top: `${player.y}px`,
+                                width: '20px',
+                                height: '20px',
+                                borderRadius: '50%',
+                                backgroundColor: 'red',
+                                zIndex: 10,
+                            }}
+                        >
+                            {player.playerId}
 
-                    </div>
-                ))}
+                        </div>
+                    ))}
+            </div>
         </div>
     );
 };

@@ -1,24 +1,24 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 
 import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
 import {PlayerItem} from "@/types/playerItem";
 import {Map_data, Tile_size} from "@/components/(konva)/grassmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
 import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
-import {MapObject} from "@/hooks/(realTime)/test/useRemakeItemGet";
+import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
 
 interface mapVolOneTypes {
     playerId: PlayerItem
     ECollisionPosition: { x: number, y: number }
     playerCharacter: HTMLImageElement | null
-    eCollisionGotItemStatus: MapObject | null
+    objectItemImage: objectItemIconImage[] | null
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerId,
                                                  ECollisionPosition,
                                                  playerCharacter,
-                                                 eCollisionGotItemStatus
+                                                 objectItemImage
                                              }) => {
 
 
@@ -27,6 +27,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [isDark, setIsDark] = useState(false);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [mapData, setMapData] = useState(Map_data);
+    const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
 
     const cameraPositionHook = useCameraPosition(
         ECollisionPosition.x,
@@ -49,6 +50,23 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         const shouldBeDark = Math.random() < 0.2; // 20%の確率
         setIsDark(shouldBeDark);
     }, [playerId]);
+
+
+    // 画像の参照を保持するための useRef
+
+    useEffect(() => {
+        // アイテムごとに画像をプリロード
+        objectItemImage?.forEach((item) => {
+            if (!imagesRef.current[item.id]) {
+                const img = new Image();
+                img.src = item.iconImage; // 各アイテムの画像URL
+                img.onload = () => {
+                    imagesRef.current[item.id] = img; // ロードした画像を参照に保存
+                };
+            }
+        });
+    }, [objectItemImage]);
+
 
     return (
         <div>
@@ -89,7 +107,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                 const tileId = `${tile}-${rowIndex}-${colIndex}`;
 
                                 // eCollisionGotItemStatus の id と tileId を比較し、一致すれば除外
-                                if (tile === "grass" || eCollisionGotItemStatus?.id === tileId) return null;
 
                                 const img = tileImages[tile];
                                 if (!img) return null;
@@ -107,18 +124,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                         // 例: await catchItem(itemId, playerId);
                                     };
 
-                                    return (
-                                        <KonvaImage
-                                            key={tileId}
-                                            image={img}
-                                            x={colIndex * Tile_size - cameraPosition.x}
-                                            y={rowIndex * Tile_size - cameraPosition.y}
-                                            width={Tile_size * 2}
-                                            height={Tile_size * 2}
-                                            alt="タイル画像"
-                                            onClick={handleTileClick}
-                                        />
-                                    );
+
                                 }
 
                                 return (
@@ -136,6 +142,22 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         )}
 
                     {/* --- プレイヤー --- */}
+                    {objectItemImage?.map((item) => {
+                        const img = imagesRef.current[item.id];
+                        return (
+                            img && (
+                                <KonvaImage
+                                    key={item.id}
+                                    image={img} // プリロードされた HTMLImageElement を渡す
+                                    x={item.x - cameraPosition.x}
+                                    y={item.y - cameraPosition.y}
+                                    width={64}
+                                    height={64}
+                                    alt="タイル画像"
+                                />
+                            )
+                        );
+                    })}
                     {playerCharacter && (
                         <KonvaImage
                             image={playerCharacter}
