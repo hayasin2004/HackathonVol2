@@ -56,6 +56,7 @@ export const useRemakeItemGet = ({
             return distance < TILE_SIZE * 1.5;
         });
 
+
         if (nearbyItems.length > 0) {
             const closestItem = nearbyItems[0];
             console.log("取得対象アイテム:", closestItem);
