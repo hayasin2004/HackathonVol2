@@ -20,6 +20,7 @@ interface UseGetItemProps {
     speed?: number;
     mapWidthInPixels?: number;
     mapHeightInPixels?: number;
+    waterTiles?: { x: number; y: number }[]; // ← 追加
 }
 
 const TILE_SIZE = 64;
@@ -31,7 +32,8 @@ export const useRemakeItemGet = ({
                                      rectPositions,
                                      speed,
                                      mapWidthInPixels,
-                                     mapHeightInPixels
+                                     mapHeightInPixels,
+                                     waterTiles
                                  }: UseGetItemProps) => {
     const [ECollisionPosition, setECollisionPosition] = useState(initialPosition);
     const [eCollisionGotItem, setECollisionGotItem] = useState<string[]>([]);
@@ -46,34 +48,58 @@ export const useRemakeItemGet = ({
     const moveInterval = speed ? Math.max(50, 400 - speed) : DEFAULT_MOVE_INTERVAL;
 
     const handleEKeyPress = useCallback(() => {
-        if (isProcessing || !rectPositions) return;
+        if (isProcessing) return;
         setIsProcessing(true);
 
-        const nearbyItems = rectPositions.filter(item => {
-            const dx = (item.x || 0) - ECollisionPosition.x;
-            const dy = (item.y || 0) - ECollisionPosition.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < TILE_SIZE * 1.5;
-        });
+        let foundItem: objectItemIconImage | null = null;
 
+        // ① 通常アイテムの近接チェック
+        if (rectPositions) {
+            const nearby = rectPositions.find(item => {
+                const dx = (item.x || 0) - ECollisionPosition.x;
+                const dy = (item.y || 0) - ECollisionPosition.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance < TILE_SIZE * 1.5;
+            });
 
-        if (nearbyItems.length > 0) {
-            const closestItem = nearbyItems[0];
-            console.log("取得対象アイテム:", closestItem);
+            if (nearby) {
+                foundItem = nearby;
+            }
+        }
 
-            playerGetItem(userId, [closestItem.itemId]).then(result => {
+        if (!foundItem && waterTiles) {
+            const nearWater = waterTiles.find(tile => {
+                const dx = tile.x - ECollisionPosition.x;
+                const dy = tile.y - ECollisionPosition.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance < TILE_SIZE * 1.5;
+            });
+
+            if (nearWater) {
+                foundItem = {
+                    id: 11, // 水
+                    x: nearWater.x,
+                    y: nearWater.y,
+                    userId: userId,
+                };
+            }
+        }
+
+        // アイテム取得処理
+        if (foundItem) {
+            playerGetItem(userId, [foundItem.id]).then(result => {
                 if (result?.status === "success") {
-                    setECollisionGotItem(prev => [...prev, closestItem.id.toString()]);
-                    setECollisionGotItemStatus(closestItem);
+                    setECollisionGotItem(prev => [...prev, foundItem!.id.toString()]);
+                    setECollisionGotItemStatus(foundItem!);
                     console.log("取得成功:", result.savedItem);
                 }
             }).catch(err => {
-                console.error("アイテム取得失敗:", err);
+                console.error("取得失敗:", err);
             });
         }
 
         setIsProcessing(false);
-    }, [ECollisionPosition, rectPositions, userId, isProcessing]);
+    }, [ECollisionPosition, rectPositions, waterTiles, userId, isProcessing]);
 
     const updatePosition = useCallback(() => {
         setECollisionPosition(prev => {

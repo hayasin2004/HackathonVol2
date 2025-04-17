@@ -94,6 +94,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             );
                         })
                     )}
+
                     {/* --- 2. その他のタイル --- */}
                     {tileImages &&
                         Map_data.map((row, rowIndex) =>
@@ -123,8 +124,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                         // アイテム取得処理
                                         // 例: await catchItem(itemId, playerId);
                                     };
-
-
                                 }
 
                                 return (

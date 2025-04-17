@@ -5,7 +5,7 @@ import {Stage, Layer, Image as KonvaImage} from "react-konva";
 import {
     Tile_size,
     Map_width,
-    Map_height,
+    Map_height, Map_data,
 } from "./mapData";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
@@ -76,6 +76,16 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         itemIconFetch();
     }, [roomId]);
 
+    const waterTiles: { x: number; y: number }[] = [];
+
+    Map_data.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            if (cell === "water") {
+                waterTiles.push({ x: x * Tile_size, y: y * Tile_size });
+            }
+        });
+    });
+
 
     const {
         ECollisionPosition,
@@ -85,12 +95,12 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         clearGotItems
     } = useRemakeItemGet({
         userId: playerId.id,
-        initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
-        rectPositions: objectItemImage, // ← ここにDBから取得したアイテム
+        initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
+        rectPositions: objectItemImage,
+        waterTiles: waterTiles, // ← ここ！
         mapWidthInPixels: Map_width * Tile_size,
         mapHeightInPixels: Map_height * Tile_size
     });
-
 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
