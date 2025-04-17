@@ -82,16 +82,17 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const {
         ECollisionPosition,
         eCollisionGotItem,
-        clearGotItems,
-        eCollisionGotItemStatus
+        eCollisionGotItemStatus,
+        handleEKeyPress,
+        clearGotItems
     } = useRemakeItemGet({
         userId: playerId.id,
-        initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
-        rectPositions: itemData,
+        initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
+        rectPositions: objectItemImage, // ← ここにDBから取得したアイテム
         mapWidthInPixels: Map_width * Tile_size,
-        mapHeightInPixels: Map_height * Tile_size,
-        mapObjects: interactableMapObjects,
+        mapHeightInPixels: Map_height * Tile_size
     });
+
 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
@@ -288,6 +289,16 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                             )
                         );
                     })}
+                    {playerCharacter && (
+                        <KonvaImage
+                            image={playerCharacter}
+                            x={ECollisionPosition?.x - cameraPosition.x}
+                            y={ECollisionPosition?.y - cameraPosition.y}
+                            width={Tile_size}
+                            height={Tile_size}
+                            alt="プレイヤー写真"
+                        />
+                    )}
                 </Layer>
             </Stage>
             {/*<MapVolOne*/}
