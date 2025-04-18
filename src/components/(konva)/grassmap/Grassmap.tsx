@@ -101,6 +101,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     console.log(nearbyItemPosition)
 
+
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     useEffect(() => {
