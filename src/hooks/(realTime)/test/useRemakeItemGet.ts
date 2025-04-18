@@ -1,26 +1,28 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { defaultItem } from "@/types/defaultItem";
-import { playerGetItem } from "@/app/api/(realtime)/item/getItem/route";
+import {useState, useEffect, useRef, useCallback} from "react";
+import {defaultItem} from "@/types/defaultItem";
+import {playerGetItem} from "@/app/api/(realtime)/item/getItem/route";
 
 export interface objectItemIconImage {
-    id : number,
-    roomId : number,
-    itemId : number,
-    x : number
-    y : number
-    isActive : boolean
-    iconImage : string
+    id: number,
+    roomId: number,
+    itemId: number,
+    x: number
+    y: number
+    width: number
+    height: number
+    isActive: boolean
+    iconImage: string
 }
 
 interface UseGetItemProps {
     userId?: number;
     initialPosition: { x: number; y: number };
-    rectPositions?: objectItemIconImage[]; // ← ここが objectItemImage
+    rectPositions?: objectItemIconImage[];
     speed?: number;
     mapWidthInPixels?: number;
     mapHeightInPixels?: number;
-    waterTiles?: { x: number; y: number }[]; // ← 追加
+    waterTiles?: { x: number; y: number }[];
 }
 
 const TILE_SIZE = 64;
@@ -47,13 +49,9 @@ export const useRemakeItemGet = ({
 
     const moveInterval = speed ? Math.max(50, 400 - speed) : DEFAULT_MOVE_INTERVAL;
 
-    const handleEKeyPress = useCallback(() => {
-        if (isProcessing) return;
-        setIsProcessing(true);
-
+    const findNearbyItem = useCallback(() => {
         let foundItem: objectItemIconImage | null = null;
 
-        // ① 通常アイテムの近接チェック
         if (rectPositions) {
             const nearby = rectPositions.find(item => {
                 const dx = (item.x || 0) - ECollisionPosition.x;
@@ -77,7 +75,7 @@ export const useRemakeItemGet = ({
 
             if (nearWater) {
                 foundItem = {
-                    id: 11, // 水
+                    id: 11,
                     x: nearWater.x,
                     y: nearWater.y,
                     userId: userId,
@@ -85,13 +83,29 @@ export const useRemakeItemGet = ({
             }
         }
 
-        // アイテム取得処理
+        return foundItem;
+    }, [ECollisionPosition, rectPositions, waterTiles, userId]);
+
+    const handleEKeyPress = useCallback(() => {
+        if (isProcessing) return;
+        setIsProcessing(true);
+
+        const foundItem = findNearbyItem();
+
         if (foundItem) {
             playerGetItem(userId, [foundItem.id]).then(result => {
                 if (result?.status === "success") {
-                    setECollisionGotItem(prev => [...prev, foundItem!.id.toString()]);
-                    setECollisionGotItemStatus(foundItem!);
-                    console.log("取得成功:", result.savedItem);
+                    // result.savedItemDataを格納する
+                    if (result.savedItemData) {
+                        setECollisionGotItem(prev => [...prev, ...result.savedItemData]);
+                        setECollisionGotItemStatus(foundItem);
+                        console.log("取得成功:", result.savedItemData);
+                    } else {
+                        // savedItemDataがない場合は従来通りIDを格納
+                        setECollisionGotItem(prev => [...prev, foundItem.id.toString()]);
+                        setECollisionGotItemStatus(foundItem);
+                        console.log("取得成功（データなし）:", foundItem.id);
+                    }
                 }
             }).catch(err => {
                 console.error("取得失敗:", err);
@@ -99,7 +113,7 @@ export const useRemakeItemGet = ({
         }
 
         setIsProcessing(false);
-    }, [ECollisionPosition, rectPositions, waterTiles, userId, isProcessing]);
+    }, [findNearbyItem, userId, isProcessing]);
 
     const updatePosition = useCallback(() => {
         setECollisionPosition(prev => {
@@ -121,7 +135,7 @@ export const useRemakeItemGet = ({
             newY = Math.max(minY, Math.min(newY, maxY));
 
             if (newX !== prev.x || newY !== prev.y) {
-                return { x: newX, y: newY };
+                return {x: newX, y: newY};
             }
             return prev;
         });
@@ -140,44 +154,44 @@ export const useRemakeItemGet = ({
         }
     }, []);
 
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+        const key = e.key;
+        if (key === "e" || key === "E") {
+            if (!eKeyPressedRef.current) {
+                eKeyPressedRef.current = true;
+                handleEKeyPress();
+            }
+            return;
+        }
+
+        if (key in keysPressedRef.current) {
+            e.preventDefault();
+            const directionKey = key as keyof typeof keysPressedRef.current;
+            if (!keysPressedRef.current[directionKey]) {
+                keysPressedRef.current[directionKey] = true;
+                startMoving();
+            }
+        }
+    }, [handleEKeyPress, startMoving]);
+
+    const handleKeyUp = useCallback((e: KeyboardEvent) => {
+        const key = e.key;
+        if (key === "e" || key === "E") {
+            eKeyPressedRef.current = false;
+            return;
+        }
+
+        if (key in keysPressedRef.current) {
+            e.preventDefault();
+            const directionKey = key as keyof typeof keysPressedRef.current;
+            keysPressedRef.current[directionKey] = false;
+
+            const anyKeyPressed = Object.values(keysPressedRef.current).some(val => val);
+            if (!anyKeyPressed) stopMoving();
+        }
+    }, [stopMoving]);
+
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const key = e.key;
-            if (key === "e" || key === "E") {
-                if (!eKeyPressedRef.current) {
-                    eKeyPressedRef.current = true;
-                    handleEKeyPress();
-                }
-                return;
-            }
-
-            if (key in keysPressedRef.current) {
-                e.preventDefault();
-                const directionKey = key as keyof typeof keysPressedRef.current;
-                if (!keysPressedRef.current[directionKey]) {
-                    keysPressedRef.current[directionKey] = true;
-                    startMoving();
-                }
-            }
-        };
-
-        const handleKeyUp = (e: KeyboardEvent) => {
-            const key = e.key;
-            if (key === "e" || key === "E") {
-                eKeyPressedRef.current = false;
-                return;
-            }
-
-            if (key in keysPressedRef.current) {
-                e.preventDefault();
-                const directionKey = key as keyof typeof keysPressedRef.current;
-                keysPressedRef.current[directionKey] = false;
-
-                const anyKeyPressed = Object.values(keysPressedRef.current).some(val => val);
-                if (!anyKeyPressed) stopMoving();
-            }
-        };
-
         document.addEventListener("keydown", handleKeyDown);
         document.addEventListener("keyup", handleKeyUp);
 
@@ -186,7 +200,7 @@ export const useRemakeItemGet = ({
             document.removeEventListener("keyup", handleKeyUp);
             stopMoving();
         };
-    }, [handleEKeyPress, startMoving, stopMoving]);
+    }, [handleKeyDown, handleKeyUp, stopMoving]);
 
     const clearGotItems = () => {
         setECollisionGotItem([]);

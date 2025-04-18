@@ -151,8 +151,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                     image={img} // プリロードされた HTMLImageElement を渡す
                                     x={item.x - cameraPosition.x}
                                     y={item.y - cameraPosition.y}
-                                    width={64}
-                                    height={64}
+                                    width={item.width}
+                                    height={item.height}
                                     alt="タイル画像"
                                 />
                             )

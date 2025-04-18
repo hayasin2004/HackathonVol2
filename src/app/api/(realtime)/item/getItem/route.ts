@@ -96,14 +96,20 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                         playerDataId: playerId
                     }))
                 });
-                console.log("!!ここに来たのか????")
 
 
-                return { status: "success", message: 'アイテムをプレイヤーに保存しました',savedItem};
+
+                return { status: "success", message: 'アイテムをプレイヤーに保存しました',savedItemData: savedItem };
             }
 
             // 既存アイテムの数量を増やす
             if (existingItemIds.length > 0 && playerId !== undefined) {
+
+                const savedItemData = await prisma.defaultItemList.findMany({
+                    where: {
+                        id: { in: itemIds },
+                    }
+                });
                 console.log("!!ここに来たのか????dsfsdfdsf")
                 const savedItem = await prisma.playerItem.updateMany({
                     where: {
@@ -120,7 +126,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                     console.error("更新対象のデータが見つかりませんでした");
                     return { status: 'error', message: 'アイテム保存中にエラーが発生しました' };
                 }
-                return { status: "success", message: 'アイテムをプレイヤーに保存しました', savedItem};
+                return { status: "success", message: 'アイテムをプレイヤーに保存しました', savedItemData: savedItemData};
             } else {
                 return { status: 'error', message: 'ユーザーが存在しない可能性があります。' };
             }
