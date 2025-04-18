@@ -13,16 +13,13 @@ interface PlayerInventoryProps {
     playerId: PlayerItem
     eCollisionGotItem: string[]
     craftEvents: any[]
-
 }
-
 
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGotItem, craftEvents}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-
 
     const handleItemClick = (itemId) => {
         if (selectedItemId === itemId) {
@@ -34,15 +31,37 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
         }
     };
 
-    const handleItemRightClick = (event, itemId) => {
-        event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
-        if (selectedItemId) {
-            console.log(`アイテムを置いたよ: ${selectedItemId}`);
-            // アイテムを配置するロジック
-            setSelectedItemId(null); // 配置後に選択を解除する
-        }
+    // 右クリックハンドラを修正
+    const handleItemRightClick = (event : React.MouseEvent<HTMLDivElement>, itemId) => {
+        // コンテキストメニューを防止
+        event.preventDefault();
+        event.stopPropagation();
+        console.log(`右クリックでアイテムを置いたよ: ${itemId}`);
+        // アイテムを配置するロジック
+        // ここに配置ロジックを実装
+
+        // 選択を解除
+        setSelectedItemId(null);
+        return false; // イベントの伝播を止める
     };
 
+    // コンテキストメニューを完全に無効化するためのグローバルハンドラ
+    useEffect(() => {
+        const disableContextMenu = (e) => {
+            if (e.target.closest(`.${styles.inventoryUnderItem}`)) {
+                e.preventDefault();
+                return false;
+            }
+        };
+
+        // コンポーネントがマウントされたときにイベントリスナーを追加
+        document.addEventListener('contextmenu', disableContextMenu);
+
+        // クリーンアップ関数
+        return () => {
+            document.removeEventListener('contextmenu', disableContextMenu);
+        };
+    }, []);
     useEffect(() => {
         const handleKeyPress = (event) => {
             if (event.key === 'p' && selectedItemId !== null) {
@@ -116,28 +135,8 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
         }
     };
 
-    // 拓がやること
-    // testRepositoryの中にあるcraftItem参考にして
-    // inventoryでアイテム選択した状態で設置 or 破壊ボタンをクリックするとマイナスされる機能　
-    // →　非同期でinventoryにあるアイテムの個数も減らして
-    // これができたら画面下側にマイクラみたいなアイテム一覧を作成して
-    // Break(itemId , PlayerId)
-
-    // わからないこと
-    // プレイヤーの位置情報の持ってくる方法
-    // まずおかれているアイテム(defaultItem)がマップ配置されているがそれを取得したときに消すとなるとdefaultItemを消すことにならないか
-    // →取得したアイテムのキーを消すイメージ。
-    // storageに保存されている前提。　→　画像を置かれている座標と保存することで取得されるたびにランダムに座標を生成する必要がある。
-
-    // ユーザーがアイテムを獲得した状態をどのようにして新しい関数に入れていけばいいかわからない
-    // アイテムの関数に取得したアイテムIdをキーから割り出して、プレイヤーIDも持ってくきてそれを渡す必要
-
-    // ランダムに動くアイテムの座標をどのようにして使うのか
-    // →publicフォルダー画像を呼び出してその画像をランダムに座標を生成してるから配置してるから座標を扱うのは無理。
-
     // 最優先 オブジェクトをstorageに保存するようにするしかない
     const ItemBreak = async (playerId: number | undefined) => {
-
         const player = await prisma.playerData.findUnique({
             where: {playerId},
             include: {haveItems: true}, // プレイヤーの所持アイテムも取得
@@ -145,11 +144,16 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
         if (!player) {
             throw new Error("プレイヤーが見つかりません");
         }
-
     }
 
-    return (
+    // アイテムを配置する関数
+    const placeItem = (itemId) => {
+        // ここにアイテム配置のロジックを実装
+        console.log(`アイテム ${itemId} を配置しました`);
+        // 必要に応じてサーバーと通信したり、状態を更新したりする
+    };
 
+    return (
         <>
             <div className={styles.inventoryUnder}>
                 {playerItems?.map((item) => (
@@ -158,12 +162,20 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                         className={`${styles.inventoryUnderItem} ${selectedItemId === item.itemId ? styles.inventorySelected : ''}`}
                         onClick={() => handleItemClick(item.itemId)}
                         onContextMenu={(event) => handleItemRightClick(event, item.itemId)}
+                        onMouseDown={(event) => {
+                            // 右クリック（button=2）の場合、追加の処理
+                            if (event.button === 2) {
+                                event.preventDefault();
+                                handleItemRightClick(event, item.itemId);
+                            }
+                        }}
                     >
                         <Image
                             src={item.DefaultItemList.itemIcon || ""}
                             alt={item.DefaultItemList.itemName}
                             width={40}
                             height={40}
+                            draggable={false}
                         />
                         <span className={styles.inventoryItemUnderQuantity}>{item.quantity}</span>
                     </div>
@@ -172,7 +184,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                     className={styles.inventoryUnderItem}
                     onClick={() => setIsOpen(true)}
                 >
-                ク
+                    ク
                 </button>
             </div>
 
@@ -191,8 +203,6 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                                     </tr>
                                     </thead>
                                     <tbody>
-
-
                                     {playerItems?.map((item) => (
                                         <tr key={item.id}>
                                             <td>{item.DefaultItemList.itemName}</td>
@@ -215,8 +225,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                                             key={craftItem.id}
                                             onClick={() => handleSelectChange(craftItem.id)}
                                         >
-                                                <span
-                                                    className={styles.itemName}>{craftItem.createdItem.itemName}</span>
+                                            <span className={styles.itemName}>{craftItem.createdItem.itemName}</span>
                                             <Image
                                                 src={craftItem.createdItem.itemIcon}
                                                 alt={craftItem.createdItem.itemName}
@@ -226,7 +235,6 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                                         </div>
                                     ))}
                                 </div>
-
 
                                 <button
                                     className={styles.buttonCreate}
@@ -251,12 +259,10 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                 pauseOnFocusLoss
                 draggable
                 pauseOnHover
-                limit={100}                     // 最大同時表示数（これ大事！）
+                limit={100}                   // 最大同時表示数
             />
-
         </>
-    )
-        ;
+    );
 };
 
 export default PlayerInventory;

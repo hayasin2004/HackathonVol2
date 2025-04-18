@@ -67,12 +67,16 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         });
     }, [objectItemImage]);
 
+    const handleStageContextMenu = (event) => {
+        event.evt.preventDefault();
+    };
 
     return (
         <div>
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
+                onContextMenu={handleStageContextMenu}
             >
                 <Layer>
                     {/* --- 1. Grass背景 --- */}
