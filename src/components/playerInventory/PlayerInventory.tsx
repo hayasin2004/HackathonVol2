@@ -17,12 +17,49 @@ interface PlayerInventoryProps {
 }
 
 
-
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGotItem, craftEvents}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
-    const [selectedItemId, setSelectedItemId] = useState("");
+    const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+
+
+    const handleItemClick = (itemId) => {
+        if (selectedItemId === itemId) {
+            console.log(`Place item with ID: ${selectedItemId}`);
+            // アイテムを配置するロジック
+            setSelectedItemId(null); // 配置後に選択を解除する
+        } else {
+            setSelectedItemId(itemId);
+        }
+    };
+
+    const handleItemRightClick = (event, itemId) => {
+        event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
+        if (selectedItemId) {
+            console.log(`アイテムを置いたよ: ${selectedItemId}`);
+            // アイテムを配置するロジック
+            setSelectedItemId(null); // 配置後に選択を解除する
+        }
+    };
+
+    useEffect(() => {
+        const handleKeyPress = (event) => {
+            if (event.key === 'p' && selectedItemId !== null) {
+                console.log(`アイテムを置いたよ: ${selectedItemId}`);
+
+                // // アイテムを配置するロジック
+                // setSelectedItemId(null); // 配置後に選択を解除する
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+
+        // クリーンアップ関数
+        return () => {
+            window.removeEventListener('keydown', handleKeyPress);
+        };
+    }, [selectedItemId]);
 
     // ----------------------------
     // プレイヤーとクラフトアイテムの取得
@@ -99,11 +136,11 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
     // →publicフォルダー画像を呼び出してその画像をランダムに座標を生成してるから配置してるから座標を扱うのは無理。
 
     // 最優先 オブジェクトをstorageに保存するようにするしかない
-    const ItemBreak　 = async (playerId:number|undefined) => {
+    const ItemBreak = async (playerId: number | undefined) => {
 
         const player = await prisma.playerData.findUnique({
-            where: { playerId },
-            include: { haveItems: true }, // プレイヤーの所持アイテムも取得
+            where: {playerId},
+            include: {haveItems: true}, // プレイヤーの所持アイテムも取得
         });
         if (!player) {
             throw new Error("プレイヤーが見つかりません");
@@ -114,13 +151,30 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
     return (
 
         <>
-            <button
-                className={styles.fixedOpenButton}
-                onClick={() => setIsOpen(true)}
-            >
-                クリエイト
-            </button>
-
+            <div className={styles.inventoryUnder}>
+                {playerItems?.map((item) => (
+                    <div
+                        key={item.id}
+                        className={`${styles.inventoryUnderItem} ${selectedItemId === item.itemId ? styles.inventorySelected : ''}`}
+                        onClick={() => handleItemClick(item.itemId)}
+                        onContextMenu={(event) => handleItemRightClick(event, item.itemId)}
+                    >
+                        <Image
+                            src={item.DefaultItemList.itemIcon || ""}
+                            alt={item.DefaultItemList.itemName}
+                            width={40}
+                            height={40}
+                        />
+                        <span className={styles.inventoryItemUnderQuantity}>{item.quantity}</span>
+                    </div>
+                ))}
+                <button
+                    className={styles.inventoryUnderItem}
+                    onClick={() => setIsOpen(true)}
+                >
+                ク
+                </button>
+            </div>
 
             {
                 isOpen && (

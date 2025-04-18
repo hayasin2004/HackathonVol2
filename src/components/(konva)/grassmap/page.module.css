@@ -215,3 +215,47 @@
     background-color: #aaa;
     cursor: not-allowed;
 }
+
+.inventoryUnder {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 10px;
+    width: 90%;
+    max-width: 600px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-top: 2px solid #333;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.inventoryUnderItem {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #eee;
+}
+
+.inventorySelected {
+    background-color: #c0e4ff;
+}
+
+.inventoryItemUnderQuantity {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    color: #000;
+    font-weight: bold;
+    font-size: 12px;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 2px 4px;
+    border-radius: 3px;
+}

@@ -93,13 +93,12 @@ export const useRemakeItemGet = ({
         const foundItem = findNearbyItem();
 
         if (foundItem) {
-            playerGetItem(userId, [foundItem.id]).then(result => {
+            playerGetItem(userId, [foundItem.itemId]).then(result => {
                 if (result?.status === "success") {
                     // result.savedItemDataを格納する
-                    if (result.savedItemData) {
+                    if (Array.isArray(result.savedItemData)) {
                         setECollisionGotItem(prev => [...prev, ...result.savedItemData]);
-                        setECollisionGotItemStatus(foundItem);
-                        console.log("取得成功:", result.savedItemData);
+                        setECollisionGotItemStatus(foundItem);　
                     } else {
                         // savedItemDataがない場合は従来通りIDを格納
                         setECollisionGotItem(prev => [...prev, foundItem.id.toString()]);

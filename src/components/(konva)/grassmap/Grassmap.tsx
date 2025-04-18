@@ -1,7 +1,6 @@
 "use client";
 
-import React, {useState, useEffect, useRef} from "react";
-import {Stage, Layer, Image as KonvaImage} from "react-konva";
+import React, {useState, useEffect} from "react";
 import {
     Tile_size,
     Map_width,
@@ -258,7 +257,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 eCollisionGotItemStatus={eCollisionGotItemStatus}
                 objectItemImage={objectItemImage}
             />
-            インベントリ
             <div>
 
                 <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem}
@@ -270,27 +268,27 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*    </form>*/}
                 {/*</div>*/}
                 {/* 他のプレイヤー */}
-                {players
-                    .filter(player => player.playerId !== playerId)
-                    .map((player, index) => (
-                        <div
-                            key={player.playerId || `player-${index}`}
-                            className="other-player"
-                            style={{
-                                position: 'absolute',
-                                left: `${player.x}px`,
-                                top: `${player.y}px`,
-                                width: '20px',
-                                height: '20px',
-                                borderRadius: '50%',
-                                backgroundColor: 'red',
-                                zIndex: 10,
-                            }}
-                        >
-                            {player.playerId}
+                {/*{players*/}
+                {/*    .filter(player => player.playerId !== playerId)*/}
+                {/*    .map((player, index) => (*/}
+                {/*        <div*/}
+                {/*            key={player.playerId || `player-${index}`}*/}
+                {/*            className="other-player"*/}
+                {/*            style={{*/}
+                {/*                position: 'absolute',*/}
+                {/*                left: `${player.x}px`,*/}
+                {/*                top: `${player.y}px`,*/}
+                {/*                width: '20px',*/}
+                {/*                height: '20px',*/}
+                {/*                borderRadius: '50%',*/}
+                {/*                backgroundColor: 'red',*/}
+                {/*                zIndex: 10,*/}
+                {/*            }}*/}
+                {/*        >*/}
+                {/*            {player.playerId}*/}
 
-                        </div>
-                    ))}
+                {/*        </div>*/}
+                {/*    ))}*/}
             </div>
         </div>
     );
