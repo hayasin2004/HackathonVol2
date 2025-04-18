@@ -9,6 +9,8 @@ export interface objectItemIconImage {
     itemId : number,
     x : number
     y : number
+    width : number
+    height : number
     isActive : boolean
     iconImage : string
 }

@@ -14,13 +14,14 @@ interface mapVolOneTypes {
     objectItemImage: objectItemIconImage[] | null
 }
 
+
+
 const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerId,
                                                  ECollisionPosition,
                                                  playerCharacter,
                                                  objectItemImage
                                              }) => {
-
 
     const {tileImagesComplete, isLoading} = useGenerateMap()
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
@@ -94,7 +95,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             );
                         })
                     )}
-
                     {/* --- 2. その他のタイル --- */}
                     {tileImages &&
                         Map_data.map((row, rowIndex) =>
@@ -140,7 +140,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             })
                         )}
 
-                    {/* --- プレイヤー --- */}
                     {objectItemImage?.map((item) => {
                         const img = imagesRef.current[item.id];
                         return (
@@ -150,13 +149,14 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                     image={img} // プリロードされた HTMLImageElement を渡す
                                     x={item.x - cameraPosition.x}
                                     y={item.y - cameraPosition.y}
-                                    width={64}
-                                    height={64}
+                                    width={item.width}
+                                    height={item.height}
                                     alt="タイル画像"
                                 />
                             )
                         );
                     })}
+                    {/* --- プレイヤー --- */}
                     {playerCharacter && (
                         <KonvaImage
                             image={playerCharacter}
