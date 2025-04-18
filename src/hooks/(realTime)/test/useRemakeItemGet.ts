@@ -1,7 +1,7 @@
 "use client";
 import {useState, useEffect, useRef, useCallback, useMemo} from "react";
-import { defaultItem } from "@/types/defaultItem";
-import { playerGetItem } from "@/app/api/(realtime)/item/getItem/route";
+import {defaultItem} from "@/types/defaultItem";
+import {playerGetItem} from "@/app/api/(realtime)/item/getItem/route";
 
 export interface objectItemIconImage {
     id: number,
@@ -49,21 +49,56 @@ export const useRemakeItemGet = ({
 
     const moveInterval = speed ? Math.max(50, 400 - speed) : DEFAULT_MOVE_INTERVAL;
 
+
     const findNearbyItem = useCallback(() => {
         let foundItem: objectItemIconImage | null = null;
 
+        // プレイヤーの位置を中心にした矩形を定義
+        const playerBounds = {
+            x: ECollisionPosition.x,
+            y: ECollisionPosition.y,
+            width: TILE_SIZE,
+            height: TILE_SIZE
+        };
+
+
+        const positionsToCheck = [
+            {name: "上", x: ECollisionPosition.x, y: ECollisionPosition.y - TILE_SIZE}, // 上
+            {name: "下", x: ECollisionPosition.x, y: ECollisionPosition.y + TILE_SIZE}, // 下
+            {name: "左", x: ECollisionPosition.x - TILE_SIZE, y: ECollisionPosition.y}, // 左
+            {name: "右", x: ECollisionPosition.x + TILE_SIZE, y: ECollisionPosition.y}  // 右
+        ];
+
+// 各位置に対して判定を行う
+        positionsToCheck.forEach(pos => {
+            const tile = waterTiles?.find(tile => tile.x === pos.x && tile.y === pos.y);
+            if (tile) {
+                // 必要に応じて処理を追加
+            }
+        });
+
         // ① 通常アイテムの近接チェック
         if (rectPositions) {
-            const nearby = rectPositions.find(item => {
-                const dx = (item.x || 0) - ECollisionPosition.x;
-                const dy = (item.y || 0) - ECollisionPosition.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                return distance < TILE_SIZE * 1.5;
-            });
+            const padding = 10
+            let found = false;
+            rectPositions.forEach(item => {
+                const itemBounds = {
+                    x: item.x,
+                    y: item.y,
+                    width: item.width,
+                    height: item.height
+                };
 
-            if (nearby) {
-                foundItem = nearby;
-            }
+                if (
+                    playerBounds.x - padding < itemBounds.x + itemBounds.width &&
+                    playerBounds.x + padding + playerBounds.width > itemBounds.x &&
+                    playerBounds.y - padding < itemBounds.y + itemBounds.height &&
+                    playerBounds.y + padding + playerBounds.height > itemBounds.y
+                ) {
+                    console.log(`見つかった(${item.x}, ${item.y})`);
+                    foundItem = item;
+                }
+            });
         }
 
         if (!foundItem && waterTiles) {
@@ -94,14 +129,13 @@ export const useRemakeItemGet = ({
         const foundItem = findNearbyItem();
 
         if (foundItem) {
-            console.log("mizuが近い" + JSON.stringify(foundItem))
 
             playerGetItem(userId, [foundItem.itemId]).then(result => {
                 if (result?.status === "success") {
                     // result.savedItemDataを格納する
                     if (Array.isArray(result.savedItemData)) {
                         setECollisionGotItem(prev => [...prev, ...result.savedItemData]);
-                        setECollisionGotItemStatus(foundItem);　
+                        setECollisionGotItemStatus(foundItem);
                     } else {
                         // savedItemDataがない場合は従来通りIDを格納
                         setECollisionGotItem(prev => [...prev, foundItem.id.toString()]);
@@ -137,7 +171,7 @@ export const useRemakeItemGet = ({
             newY = Math.max(minY, Math.min(newY, maxY));
 
             if (newX !== prev.x || newY !== prev.y) {
-                return { x: newX, y: newY };
+                return {x: newX, y: newY};
             }
             return prev;
         });
@@ -212,10 +246,11 @@ export const useRemakeItemGet = ({
     const nearbyItemPosition = useMemo(() => {
         const foundItem = findNearbyItem();
         if (foundItem) {
-            return { x: foundItem.x, y: foundItem.y };
+            return {x: foundItem.x, y: foundItem.y};
         }
         return null;
     }, [findNearbyItem]);
+
 
     return {
         ECollisionPosition,
