@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
+import {useState, useEffect, useRef, useCallback, useMemo} from "react";
 import { defaultItem } from "@/types/defaultItem";
 import { playerGetItem } from "@/app/api/(realtime)/item/getItem/route";
 
@@ -207,12 +207,21 @@ export const useRemakeItemGet = ({
         setECollisionGotItemStatus(null);
     };
 
+    const nearbyItemPosition = useMemo(() => {
+        const foundItem = findNearbyItem();
+        if (foundItem) {
+            return { x: foundItem.x, y: foundItem.y };
+        }
+        return null;
+    }, [findNearbyItem]);
+
     return {
         ECollisionPosition,
         eCollisionGotItem,
         eCollisionGotItemStatus,
         handleEKeyPress,
-        clearGotItems
+        clearGotItems,
+        nearbyItemPosition
     };
 };
 

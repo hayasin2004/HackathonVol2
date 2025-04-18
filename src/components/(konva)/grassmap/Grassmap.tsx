@@ -36,16 +36,13 @@ interface GameProps {
 const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
-    // const [notifications, setNotifications] = useState<string[]>([]);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
-    const [cameraPositionTest, setCameraPositionTest] = useState({x: 0, y: 0});
-    console.log(cameraPositionTest)
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
-    console.log(notifications)
+
 
 
     // 試験的なデータ
@@ -87,6 +84,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
 
     const {
+        nearbyItemPosition,
         ECollisionPosition,
         eCollisionGotItem,
         eCollisionGotItemStatus,
@@ -100,6 +98,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         mapWidthInPixels: Map_width * Tile_size,
         mapHeightInPixels: Map_height * Tile_size
     });
+
+    console.log(nearbyItemPosition)
 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
@@ -249,7 +249,19 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*    </div>*/}
                 {/*))}*/}
             </div>
-
+            {nearbyItemPosition && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: nearbyItemPosition.x,
+                        top: nearbyItemPosition.y,
+                        width: 64,
+                        height: 64,
+                        backgroundColor: 'rgba(255, 0, 0, 0.5)', // 半透明の赤
+                        pointerEvents: 'none', // クリックを無視
+                    }}
+                />
+            )}
             <MapVolOne
                 playerId={playerId}
                 ECollisionPosition={ECollisionPosition}
@@ -290,6 +302,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*        </div>*/}
                 {/*    ))}*/}
             </div>
+
         </div>
     );
 };

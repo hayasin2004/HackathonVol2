@@ -34,31 +34,41 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
         }
     };
 
-    // 右クリックで同じアイテムを二回選択すると動くら
-    const handleItemRightClick = (event: React.MouseEvent<HTMLDivElement>, itemId: number) => {
-        console.log("ここに来てるの")
-        event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
-        alert(`アイテムを置いたよ: ${itemId}`);
-        console.log(`アイテムを置いたよ: ${itemId}`);
-        // アイテムを配置するロジック
-        setSelectedItemId(null); // 配置後に選択を解除する
-    };
+
+    // const handleOutsideRightClick = (event) => {
+    //     event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
+    //     if (selectedItemId !== null) {
+    //         console.log(selectedItemId)
+    //         console.log(`アイテム置かれたがな: ${selectedItemId}`);
+    //         // アイテムを配置するロジック
+    //     }
+    //     setSelectedItemId(null); // 配置後に選択を解除する
+    // };
 
     useEffect(() => {
         const handleKeyPress = (event) => {
             if (event.key === 'p' && selectedItemId !== null) {
                 console.log(`アイテムを置いたよ: ${selectedItemId}`);
+                // アイテムを配置するロジック
+                setSelectedItemId(null); // 配置後に選択を解除する
+            }
+        };
 
-                // // アイテムを配置するロジック
-                // setSelectedItemId(null); // 配置後に選択を解除する
+        const handleMouseDown = (event) => {
+            if (event.button === 2 && selectedItemId !== null) {
+                event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
+                console.log(`アイテムを置いたよ!!!: ${selectedItemId}`);
+                // アイテムを配置するロジック
             }
         };
 
         window.addEventListener('keydown', handleKeyPress);
+        window.addEventListener('mousedown', handleMouseDown);
 
         // クリーンアップ関数
         return () => {
             window.removeEventListener('keydown', handleKeyPress);
+            window.removeEventListener('mousedown', handleMouseDown);
         };
     }, [selectedItemId]);
 
@@ -158,7 +168,6 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                         key={item.id}
                         className={`${styles.inventoryUnderItem} ${selectedItemId === item.itemId ? styles.inventorySelected : ''}`}
                         onClick={() => handleItemClick(item.itemId)}
-                        onContextMenu={(event) => handleItemRightClick(event, item.itemId)}
                     >
                         <Image
                             src={item.DefaultItemList.itemIcon || ""}
