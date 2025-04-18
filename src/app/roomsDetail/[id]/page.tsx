@@ -160,6 +160,8 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         return <div className="flex justify-center items-center h-screen">プレイヤー情報を読み込み中...</div>;
     }
 
+
+
     return (
         <div className="container mx-auto p-4">
             {/*<h1 className="text-2xl font-bold mb-4">{room.name}</h1>*/}
@@ -178,7 +180,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             {/*        </p>*/}
             {/*    </div>*/}
             {/*</div>*/}
-            <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
+                <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
             {/*<Game playerId={playerId} roomId={roomId}/>*/}
         </div>
     );

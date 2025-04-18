@@ -14,7 +14,6 @@ interface mapVolOneTypes {
     objectItemImage: objectItemIconImage[] | null
 }
 
-
 const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerId,
                                                  ECollisionPosition,

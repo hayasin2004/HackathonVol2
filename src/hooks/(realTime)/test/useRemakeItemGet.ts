@@ -1,7 +1,7 @@
 "use client";
-import {useState, useEffect, useRef, useCallback} from "react";
-import {defaultItem} from "@/types/defaultItem";
-import {playerGetItem} from "@/app/api/(realtime)/item/getItem/route";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { defaultItem } from "@/types/defaultItem";
+import { playerGetItem } from "@/app/api/(realtime)/item/getItem/route";
 
 export interface objectItemIconImage {
     id: number,
@@ -52,6 +52,7 @@ export const useRemakeItemGet = ({
     const findNearbyItem = useCallback(() => {
         let foundItem: objectItemIconImage | null = null;
 
+        // ① 通常アイテムの近接チェック
         if (rectPositions) {
             const nearby = rectPositions.find(item => {
                 const dx = (item.x || 0) - ECollisionPosition.x;
@@ -75,7 +76,7 @@ export const useRemakeItemGet = ({
 
             if (nearWater) {
                 foundItem = {
-                    id: 11,
+                    id: 11, // 水
                     x: nearWater.x,
                     y: nearWater.y,
                     userId: userId,
@@ -134,7 +135,7 @@ export const useRemakeItemGet = ({
             newY = Math.max(minY, Math.min(newY, maxY));
 
             if (newX !== prev.x || newY !== prev.y) {
-                return {x: newX, y: newY};
+                return { x: newX, y: newY };
             }
             return prev;
         });
