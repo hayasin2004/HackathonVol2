@@ -10,6 +10,7 @@ import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
 interface mapVolOneTypes {
     playerId: PlayerItem
     ECollisionPosition: { x: number, y: number }
+    nearbyItemPosition : { x: number, y: number } | null,
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
 }
@@ -18,7 +19,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerId,
                                                  ECollisionPosition,
                                                  playerCharacter,
-                                                 objectItemImage
+                                                 objectItemImage,
+                                                 nearbyItemPosition
                                              }) => {
 
 
@@ -85,7 +87,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             const grassImg = tileImages["grass"];
                             if (!grassImg) return null;
                             return (
-
                                 <KonvaImage
                                     key={`grass-${rowIndex}-${colIndex}`}
                                     image={grassImg}
@@ -103,16 +104,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     {tileImages &&
                         Map_data.map((row, rowIndex) =>
                             row.map((tile, colIndex) => {
-                                // tileId を生成
                                 if (!tile || rowIndex === undefined || colIndex === undefined) {
                                     console.error("必要なデータが未定義です: tile, rowIndex, colIndex");
                                     return null;
                                 }
 
                                 const tileId = `${tile}-${rowIndex}-${colIndex}`;
-
-                                // eCollisionGotItemStatus の id と tileId を比較し、一致すれば除外
-
                                 const img = tileImages[tile];
                                 if (!img) return null;
 
@@ -122,12 +119,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                     const isBottomNeighborSame = Map_data[rowIndex - 1]?.[colIndex] === tile;
                                     const isBottomRightSame = Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
                                     if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) return null;
-
-                                    const handleTileClick = async () => {
-                                        const itemId = `${tile}-${rowIndex}-${colIndex}`;
-                                        // アイテム取得処理
-                                        // 例: await catchItem(itemId, playerId);
-                                    };
                                 }
 
                                 return (
@@ -151,7 +142,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             img && (
                                 <KonvaImage
                                     key={item.id}
-                                    image={img} // プリロードされた HTMLImageElement を渡す
+                                    image={img}
                                     x={item.x - cameraPosition.x}
                                     y={item.y - cameraPosition.y}
                                     width={item.width}
@@ -171,6 +162,19 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             alt="プレイヤー写真"
                         />
                     )}
+
+                    {/* --- 黒い四角形を最後に追加 --- */}
+                    {nearbyItemPosition && (
+                        <Rect
+                            x={nearbyItemPosition.x - cameraPosition.x}
+                            y={nearbyItemPosition.y - cameraPosition.y}
+                            width={64}
+                            height={64}
+                            fill="rgba(0, 0, 0, 0.5)" // 半透明の黒
+                            listening={false} // クリックを無視
+                        />
+                    )}
+
                     {isDark && (
                         <Rect
                             x={0}
@@ -178,14 +182,13 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             width={typeof window !== "undefined" ? window.innerWidth : 0}
                             height={typeof window !== "undefined" ? window.innerHeight : 0}
                             fill="black"
-                            opacity={0.7}
+                            opacity={0.2}
                         />
                     )}
                 </Layer>
             </Stage>
         </div>
-    );
-}
+    );}
 
 
 export default MapVolOne;

@@ -76,7 +76,7 @@ export const useRemakeItemGet = ({
 
             if (nearWater) {
                 foundItem = {
-                    id: 11, // 水
+                    itemId: 11, // 水
                     x: nearWater.x,
                     y: nearWater.y,
                     userId: userId,
@@ -94,6 +94,8 @@ export const useRemakeItemGet = ({
         const foundItem = findNearbyItem();
 
         if (foundItem) {
+            console.log("mizuが近い" + JSON.stringify(foundItem))
+
             playerGetItem(userId, [foundItem.itemId]).then(result => {
                 if (result?.status === "success") {
                     // result.savedItemDataを格納する

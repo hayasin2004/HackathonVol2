@@ -241,7 +241,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
 
     return (
-        <div style={{outline: "none"}}>
+        <div style={{outline: "none" ,
+            position: 'relative'}}>
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px'}}>
                 {/*{characterImageData?.iconImage.slice(0, 8).map((url, index) => (*/}
                 {/*    <div key={index} style={{textAlign: 'center'}}>*/}
@@ -250,25 +251,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*    </div>*/}
                 {/*))}*/}
             </div>
-            {nearbyItemPosition && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: nearbyItemPosition.x,
-                        top: nearbyItemPosition.y,
-                        width: 64,
-                        height: 64,
-                        backgroundColor: 'rgba(255, 0, 0, 0.5)', // 半透明の赤
-                        pointerEvents: 'none', // クリックを無視
-                    }}
-                />
-            )}
+
             <MapVolOne
                 playerId={playerId}
                 ECollisionPosition={ECollisionPosition}
                 playerCharacter={playerCharacter}
                 eCollisionGotItemStatus={eCollisionGotItemStatus}
                 objectItemImage={objectItemImage}
+                nearbyItemPosition={nearbyItemPosition}
             />
             <div>
 
