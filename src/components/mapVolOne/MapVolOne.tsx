@@ -39,8 +39,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
 
     useEffect(() => {
-        socket?.on('itemPlaced', (itemData) => {
-            alert("多分これ受け取る貯めの依存配列が間違えてる気がする")
+        socket?.on('itemPlaced', (itemData) => {　
             console.log('New item placed:', itemData);
             // 新しいアイテムをマップに追加
             console.log(itemData)

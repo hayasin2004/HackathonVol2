@@ -72,8 +72,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     useEffect(() => {
         const handleKeyPress = (event) => {
             if (event.key === 'p' && selectedItemId !== null) {
-                console.log(`アイテムを置いたよ: ${selectedItemId}`);
-                alert(currentDirectionRef.current)
+                console.log(`アイテムを置いたよ: ${selectedItemId}`);　
                 // アイテムを配置するロジック
                 setSelectedItemId(null); // 配置後に選択を解除する
             }
@@ -85,7 +84,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                 console.log(`アイテムを置いたよ!!!: ${selectedItemId}`);
                 // 置かれたアイテムを保存するロジック
                 const putItem = async () => {
-                    const playerDataId = playerId.playerId
+
                     const result = await fetch("/api/item/putItem", {
                         method: "POST",
                         headers: {"content-type": "application/json"},
@@ -95,7 +94,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                             playerDirection,
                             currentDirectionRef,
                             ECollisionPosition,
-                            playerDataId
+                            playerId
                         }),
                     })
                     if (result.ok && socket) {
@@ -109,7 +108,6 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                             playerDirection,
                             currentDirectionRef,
                             ECollisionPosition,
-                            playerDataId,
                             id: putItemData.data.id,
                             x: putItemData.data.x,
                             y: putItemData.data.y,
@@ -118,8 +116,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                             iconImage: putItemData.data.iconImage,
                         };
                         // サーバーにアイテム配置を通知
-                        socket.emit('placeItem', itemData);
-                        alert("アイテムのリアルタイム送信完了")
+                        socket.emit('placeItem', itemData);　
                     }
                 }
                 putItem()

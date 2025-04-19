@@ -1,4 +1,7 @@
 import {NextResponse} from "next/server";
+import prisma from "@/lib/prismaClient";
+
+import {PlayerItem} from "@/types/playerItem";
 
 interface putItemType {
     roomId: number,
@@ -6,7 +9,7 @@ interface putItemType {
     playerDirection: { current: string },
     currentDirectionRef: { current: string },
     ECollisionPosition: { x: number, y: number },
-    playerDataId: number
+    playerId: PlayerItem,
 }
 
 export async function POST(req: Request,) {
@@ -16,11 +19,11 @@ export async function POST(req: Request,) {
         const {
             selectedItemId,
             ECollisionPosition,
-            playerDataId
+            playerId
         } = body
 
-        console.log("中身" + playerDataId);
-        if (!playerDataId || !selectedItemId || !ECollisionPosition) {
+        console.log("中身" + playerId);
+        if (!playerId || !selectedItemId || !ECollisionPosition) {
             return NextResponse.json(
                 {status: 'error', message: 'ユーザーの情報もしくはアイテムに関するエラーです。'},
                 {status: 400}
@@ -50,16 +53,16 @@ async function route(itemData: putItemType) {
         playerDirection,
         currentDirectionRef,
         ECollisionPosition,
-        playerDataId
+        playerId
     } = itemData;
-　
+
 
     // 向いている方向の調整
     let XPosition = 0
-  　
+
     let YPosition = 0
-    console.log("こっち見てる"+currentDirectionRef.current)
-    console.log("こっち見てる"+playerDataId)
+    console.log("こっち見てる" + currentDirectionRef.current)
+    console.log("こっち見てる" + playerId)
     if (currentDirectionRef.current == "ArrowLeft") {
         XPosition = -64
     }
@@ -74,18 +77,58 @@ async function route(itemData: putItemType) {
     }
 
 
-
-
-    const updateRoomItemData = await prisma?.roomItem.create({
-        data: {
-            roomId: roomId,
-            x: ECollisionPosition.x + XPosition,
-            y: ECollisionPosition.y + YPosition,
+    const findDecrementItem = await prisma.playerItem.findFirst({
+        where: {
             itemId: selectedItemId,
-            userId: playerDataId,
-            iconImage: "https://bfkeedzqlqqsaluqxplz.supabase.co/storage/v1/object/public/hackathon2-picture-storage/public/tree.png"
+            playerDataId: playerId.id,
         }
     })
 
-    return updateRoomItemData
+    if (!findDecrementItem || findDecrementItem?.quantity! > 0){
+        console.log("アイテムを所持していないです。")
+    }
+
+    if (findDecrementItem?.quantity! > 0) {
+        const updateDecrementItem = await prisma.playerItem.update({
+            where: {
+                id : findDecrementItem?.id
+            }, data: {
+                quantity : {decrement : 1}
+            }
+
+
+        })
+
+    console.log(updateDecrementItem)
+
+    // 画像を探す用
+    const foundItemData = await prisma.defaultItemList.findFirst({
+        where: {
+            id: selectedItemId
+        }
+    })
+
+    if (!foundItemData) {
+        console.log("アイテムが見つかりませんでした、")
+        return;
+    }
+
+    const iconImage = foundItemData.itemIcon
+
+    if (iconImage) {
+
+        const updateRoomItemData = await prisma.roomItem.create({
+            data: {
+                roomId: roomId,
+                x: ECollisionPosition.x + XPosition,
+                y: ECollisionPosition.y + YPosition,
+                itemId: selectedItemId,
+                userId: playerId.playerId,
+                iconImage: iconImage
+            }
+        })
+
+        return updateRoomItemData
+    }
+    }
 }
