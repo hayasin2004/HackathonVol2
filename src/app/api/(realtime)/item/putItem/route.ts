@@ -52,11 +52,14 @@ async function route(itemData: putItemType) {
         ECollisionPosition,
         playerDataId
     } = itemData;
+　
 
     // 向いている方向の調整
     let XPosition = 0
+  　
     let YPosition = 0
-
+    console.log("こっち見てる"+currentDirectionRef.current)
+    console.log("こっち見てる"+playerDataId)
     if (currentDirectionRef.current == "ArrowLeft") {
         XPosition = -64
     }
@@ -64,11 +67,13 @@ async function route(itemData: putItemType) {
         XPosition = 64
     }
     if (currentDirectionRef.current == "ArrowUp") {
-        YPosition = 64
-    }
-    if (currentDirectionRef.current == "ArrowDown") {
         YPosition = -64
     }
+    if (currentDirectionRef.current == "ArrowDown") {
+        YPosition = 64
+    }
+
+
 
 
     const updateRoomItemData = await prisma?.roomItem.create({

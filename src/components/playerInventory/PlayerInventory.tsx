@@ -47,6 +47,9 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
     //     }
     //     setSelectedItemId(null); // 配置後に選択を解除する
     // };
+    useEffect(() => {
+        console.log("ECollisionPosition updated:", ECollisionPosition);
+    }, [ECollisionPosition]);
 
     useEffect(() => {
         const handleKeyPress = (event) => {
@@ -93,7 +96,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
             window.removeEventListener('keydown', handleKeyPress);
             window.removeEventListener('mousedown', handleMouseDown);
         };
-    }, [selectedItemId]);
+    }, [selectedItemId ,ECollisionPosition]);
 
     // ----------------------------
     // プレイヤーとクラフトアイテムの取得

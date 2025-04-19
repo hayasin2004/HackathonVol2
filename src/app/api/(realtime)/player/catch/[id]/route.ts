@@ -19,19 +19,21 @@ export async function GET(req: Request) {
         });
 
         if (!playerData) {
-            const createPlayerData = await findPlayerData(numberPlayerId)
+            const createPlayerData = await findPlayerData(numberPlayerId);
             if (createPlayerData) {
-
                 return NextResponse.json(
                     {status: "ok", message: "プレイヤーデータがなかったため新規作成しました。"},
                     {status: 200}
                 );
+            } else {
+                return NextResponse.json(
+                    {status: "error", message: "プレイヤーデータの作成に失敗しました。"},
+                    {status: 500}
+                );
             }
-
         }
 
         return NextResponse.json({status: "success", playerData});
-
 
     } catch (error) {
         console.error("Error fetching numberPlayerId:", error);
@@ -41,7 +43,6 @@ export async function GET(req: Request) {
         );
     }
 }
-
 export async function PUT(req: Request) {
     const {searchParams} = new URL(req.url);
     const playerId = searchParams.get("id");
