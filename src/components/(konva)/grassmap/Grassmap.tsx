@@ -259,14 +259,20 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 eCollisionGotItemStatus={eCollisionGotItemStatus}
                 objectItemImage={objectItemImage}
                 nearbyItemPosition={nearbyItemPosition}
+                socket={socket}
             />
             <div>
 
-                <PlayerInventory roomId={roomId} playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem}
+                <PlayerInventory roomId={roomId} playerId={playerId}
+                                 players={players}
+                                 eCollisionGotItem={eCollisionGotItem}
+                                 objectItemImage={objectItemImage}
                                  ECollisionPosition={ECollisionPosition}
                                  craftEvents={craftEvents}
                                  currentDirectionRef={currentDirectionRef}
                                  playerDirection={playerDirection}
+                                 socket={socket}
+
                 />
                 {/*    <form action={logout}>*/}
                 {/*        <button className={styles.fixedLogOutButton}>*/}

@@ -7,6 +7,8 @@ import styles from "@/components/(konva)/grassmap/page.module.css";
 import Image from "next/image";
 import {toast, ToastContainer} from "react-toastify";
 import prisma from "@/lib/prismaClient";
+import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
+import {io, Socket} from "socket.io-client";
 
 // Propsの型を定義する
 interface PlayerInventoryProps {
@@ -17,7 +19,9 @@ interface PlayerInventoryProps {
     ECollisionPosition: { x: number, y: number }
     currentDirectionRef:{current : string}
     playerDirection : {current : number }
+    socket : Socket | null
 }
+const socket = io('http://localhost:5000'); // サーバーのURLを指定
 
 
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eCollisionGotItem,ECollisionPosition,
@@ -36,6 +40,17 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
             setSelectedItemId(itemId);
         }
     };
+
+    useEffect(() => {
+        socket.on('itemPlaced', (itemData) => {
+            console.log('New item placed:', itemData);
+            // 新しいアイテムをマップに追加
+        });
+
+        return () => {
+            socket.off('itemPlaced');
+        };
+    }, []);
 
 
     // const handleOutsideRightClick = (event) => {
@@ -81,6 +96,19 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
                         }),
                     })
                     console.log(result)
+                    if (result.ok && socket) {
+                        const itemData = {
+                            roomId,
+                            selectedItemId,
+                            playerDirection,
+                            currentDirectionRef,
+                            ECollisionPosition,
+                            playerDataId
+                        };
+                        // サーバーにアイテム配置を通知
+                        socket.emit('placeItem', itemData);
+                        alert("アイテムのリアルタイム送信完了")
+                    }
                 }
                 putItem()
 

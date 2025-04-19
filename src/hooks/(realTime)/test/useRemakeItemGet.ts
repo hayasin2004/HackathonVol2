@@ -12,7 +12,7 @@ export interface objectItemIconImage {
     width: number
     height: number
     isActive: boolean
-    iconImage: string
+    iconImage: HTMLImageElement
 }
 
 interface UseGetItemProps {

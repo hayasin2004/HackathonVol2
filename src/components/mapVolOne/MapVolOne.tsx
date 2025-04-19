@@ -6,14 +6,15 @@ import {Map_data, Tile_size} from "@/components/(konva)/grassmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
 import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
 import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
+import {io, Socket} from "socket.io-client";
 
+const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
     playerId: PlayerItem
     ECollisionPosition: { x: number, y: number }
-    nearbyItemPosition : { x: number, y: number } | null,
+    nearbyItemPosition: { x: number, y: number } | null,
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
-
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -21,7 +22,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  ECollisionPosition,
                                                  playerCharacter,
                                                  objectItemImage,
-                                                 nearbyItemPosition
+                                                 nearbyItemPosition,
                                              }) => {
 
 
@@ -31,6 +32,21 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
     const [mapData, setMapData] = useState(Map_data);
     const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
+    const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
+
+
+
+    useEffect(() => {
+        socket.on('itemPlaced', (itemData) => {
+            console.log('New item placed:', itemData);
+            // 新しいアイテムをマップに追加
+            setItems(prevItems => [...(prevItems || []), itemData]);
+        });
+
+        return () => {
+            socket.off('itemPlaced');
+        };
+    }, [socket , items]);
 
     const cameraPositionHook = useCameraPosition(
         ECollisionPosition.x,
@@ -136,6 +152,17 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             })
                         )}
 
+                    {items?.map((item) => (
+                        <KonvaImage
+                            key={item.id}
+                            image={item.iconImage ? item.iconImage : undefined}
+                            x={item.x}
+                            y={item.y}
+                            width={item.width}
+                            height={item.height}
+                            alt="タイル画像"
+                        />
+                    ))}
                     {/* --- プレイヤー --- */}
                     {objectItemImage?.map((item) => {
                         const img = imagesRef.current[item.id];
@@ -189,7 +216,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 </Layer>
             </Stage>
         </div>
-    );}
+    );
+}
 
 
 export default MapVolOne;

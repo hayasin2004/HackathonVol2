@@ -94,6 +94,14 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('placeItem', (itemData) => {
+        console.log( "クライアントからのアイテム設置イベントをリッスン");
+
+
+        // 他のクライアントにアイテム設置をブロードキャスト
+        socket.broadcast.emit('itemPlaced', itemData);
+    });
+
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
 
         // DBを更新

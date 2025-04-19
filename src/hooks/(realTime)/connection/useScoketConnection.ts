@@ -81,6 +81,13 @@ export function useSocketConnection(playerId: number | undefined | null, roomId:
             setItems(prev => prev.filter(item => !itemIds.includes(item.itemId)));
         });
 
+        socket?.on('itemPlaced', (itemData) => {
+            console.log('New item placed:', itemData);
+            // 新しいアイテムをマップに追加
+            setItems(prevItems => [...(prevItems || []), itemData]);
+        });
+
+
         // エラーイベント
         socketIo.on('error', ({ message }) => {
             console.error('Socket error event:', message);
