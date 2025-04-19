@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import {useCallback} from "react";
+import {Socket} from "socket.io-client";
 
-const useDestroyAndRandom = () => {
+const useDestroyAndRandom = (socket: Socket | null) => {
     const maxWidth = 2200;
     const maxHeight = 2200;
     const tileSize = 64;
@@ -10,7 +11,7 @@ const useDestroyAndRandom = () => {
         do {
             const x = Math.floor(Math.random() * (maxWidth / tileSize)) * tileSize;
             const y = Math.floor(Math.random() * (maxHeight / tileSize)) * tileSize;
-            position = { x, y };
+            position = {x, y};
         } while (existingPositions.some(pos => pos.x === position.x && pos.y === position.y));
         return position;
     }, [maxWidth, maxHeight, tileSize]);
@@ -18,6 +19,10 @@ const useDestroyAndRandom = () => {
     // アイテムを引数として受け取るように変更
     const handleItemCollection = useCallback(async (item) => {
         try {
+            if (item.itemId === 11) { // 11が水のIDであると仮定
+                console.log('Water item detected, not moving.');
+                return;
+            }
             const existingPositions = []; // Fetch existing positions if needed
             const newPosition = getRandomPosition(existingPositions);
 
@@ -38,12 +43,13 @@ const useDestroyAndRandom = () => {
 
             const updatedItem = await response.json();
             console.log('Updated item position:', updatedItem);
+            socket?.emit('itemPlaced', {...item, x: newPosition.x, y: newPosition.y});
         } catch (error) {
             console.error("Failed to update item position:", error);
         }
     }, [getRandomPosition]);
 
-    return { handleItemCollection };
+    return {handleItemCollection};
 };
 
 export default useDestroyAndRandom;

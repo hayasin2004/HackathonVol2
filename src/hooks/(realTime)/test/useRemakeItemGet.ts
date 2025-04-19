@@ -3,6 +3,7 @@ import {useState, useEffect, useRef, useCallback, useMemo} from "react";
 import {defaultItem} from "@/types/defaultItem";
 import {playerGetItem} from "@/app/api/(realtime)/item/getItem/route";
 import useDestroyANDRandom from "@/hooks/(realTime)/item/destroyANDRandom/useDestroyANDRandom";
+import {Socket} from "socket.io-client";
 
 export interface objectItemIconImage {
     id: number,
@@ -24,6 +25,7 @@ interface UseGetItemProps {
     mapWidthInPixels?: number;
     mapHeightInPixels?: number;
     waterTiles?: { x: number; y: number }[];
+    socket: Socket | null;
 }
 
 const TILE_SIZE = 64;
@@ -36,7 +38,8 @@ export const useRemakeItemGet = ({
                                      speed,
                                      mapWidthInPixels,
                                      mapHeightInPixels,
-                                     waterTiles
+                                     waterTiles,
+                                     socket
                                  }: UseGetItemProps) => {
     const [ECollisionPosition, setECollisionPosition] = useState(initialPosition);
     const [eCollisionGotItem, setECollisionGotItem] = useState<string[]>([]);
@@ -49,7 +52,7 @@ export const useRemakeItemGet = ({
     const moveIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const moveInterval = speed ? Math.max(50, 400 - speed) : DEFAULT_MOVE_INTERVAL;
-    const { handleItemCollection } = useDestroyANDRandom();
+    const {handleItemCollection} = useDestroyANDRandom(socket);
 
 
     const findNearbyItem = useCallback(() => {
@@ -140,6 +143,8 @@ export const useRemakeItemGet = ({
 
                         // 取得したアイテムをランダム(64ピクセル単位)な座標に飛ばす
                         await handleItemCollection(foundItem);
+                        setECollisionGotItem(prev => prev.filter(item => item !== foundItem.id.toString()));
+
                     } else {
                         setECollisionGotItem(prev => [...prev, foundItem.id.toString()]);
                         setECollisionGotItemStatus(foundItem);

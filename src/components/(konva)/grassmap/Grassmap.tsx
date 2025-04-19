@@ -84,6 +84,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     });
 
 
+    // console.log(nearbyItemPosition)
+
+
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
+
     const {
         nearbyItemPosition,
         ECollisionPosition,
@@ -92,6 +97,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         handleEKeyPress,
         clearGotItems
     } = useRemakeItemGet({
+        socket : socket,
         userId: playerId.id,
         initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
         rectPositions: objectItemImage,
@@ -99,11 +105,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         mapWidthInPixels: Map_width * Tile_size,
         mapHeightInPixels: Map_height * Tile_size
     });
-
-    // console.log(nearbyItemPosition)
-
-
-    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     useEffect(() => {
         console.log(eCollisionGotItemStatus)
