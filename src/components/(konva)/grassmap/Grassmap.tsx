@@ -23,6 +23,7 @@ import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 import MapVolOne from "@/components/mapVolOne/MapVolOne";
 import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
 import PlayerInventory from "@/components/playerInventory/PlayerInventory";
+import useDestroyANDRandom from "@/hooks/(realTime)/item/destroyANDRandom/useDestroyANDRandom";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -106,6 +107,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     useEffect(() => {
         console.log(eCollisionGotItemStatus)
+
         // alert(JSON.stringify(eCollisionGotItemStatus))
     }, [eCollisionGotItem]);
 
