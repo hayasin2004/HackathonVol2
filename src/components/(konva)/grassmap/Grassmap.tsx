@@ -99,7 +99,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         mapHeightInPixels: Map_height * Tile_size
     });
 
-    console.log(nearbyItemPosition)
+    // console.log(nearbyItemPosition)
 
 
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
@@ -116,7 +116,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const [characterImageData, setCharacterImageData] = useState<CharacterImageData | null>(null);
 
-    const {playerCharacter, isLoadingCharacter} = useMotionCharacter(characterImageData)
+    const {playerCharacter, isLoadingCharacter ,currentDirectionRef , playerDirection} = useMotionCharacter(characterImageData)
 
     if (isLoadingCharacter) {
         console.log("キャラクター読み込み中")
@@ -263,7 +263,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             <div>
 
                 <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem}
-                                 craftEvents={craftEvents}/>
+                                 craftEvents={craftEvents}
+                                 currentDirectionRef={currentDirectionRef}
+                                 playerDirection={playerDirection}
+                />
                 {/*    <form action={logout}>*/}
                 {/*        <button className={styles.fixedLogOutButton}>*/}
                 {/*            ログアウト*/}

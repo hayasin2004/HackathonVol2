@@ -13,6 +13,7 @@ interface mapVolOneTypes {
     nearbyItemPosition : { x: number, y: number } | null,
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
+
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({

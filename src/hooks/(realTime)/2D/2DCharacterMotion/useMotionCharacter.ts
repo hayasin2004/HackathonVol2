@@ -10,7 +10,7 @@
         const animationIntervalRef = useRef<number | null>(null);
         const frameRef = useRef<number>(0); // 0: 静止画, 1: 歩行モーション
         const [isLoadingCharacter, setIsLoadingCharacter] = useState(true)
-
+        const playerDirection = useRef<number>(0);
 
         const keyToIndexMap: Record<string, number> = {
             ArrowDown: 0,
@@ -28,6 +28,8 @@
             };
         };
 
+
+
         useEffect(() => {
             // 初期は静止画像を表示
             console.log(characterImageData?.iconImage?.[0])
@@ -40,10 +42,10 @@
                 const now = Date.now();
                 lastKeyPressTimeRef.current = now;
                 currentDirectionRef.current = direction;
-
+                console.log(`Current direction: ${currentDirectionRef.current}`);
                 const index = keyToIndexMap[direction];
                 if (index === undefined) return;
-
+                playerDirection.current = index;
                 loadPlayerImage(staticImages?.[index]);
 
                 if (animationIntervalRef.current === null) {
@@ -78,7 +80,7 @@
             };
         }, [characterImageData]);
 
-        return {playerCharacter , isLoadingCharacter}
+        return {playerCharacter , isLoadingCharacter ,currentDirectionRef ,playerDirection}
     };
 
     export default useMotionCharacter;

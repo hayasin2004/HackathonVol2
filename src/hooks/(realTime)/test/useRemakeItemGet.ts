@@ -95,7 +95,7 @@ export const useRemakeItemGet = ({
                     playerBounds.y - padding < itemBounds.y + itemBounds.height &&
                     playerBounds.y + padding + playerBounds.height > itemBounds.y
                 ) {
-                    console.log(`見つかった(${item.x}, ${item.y})`);
+                    // console.log(`見つかった(${item.x}, ${item.y})`);
                     foundItem = item;
                 }
             });

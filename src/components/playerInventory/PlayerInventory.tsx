@@ -13,17 +13,19 @@ interface PlayerInventoryProps {
     playerId: PlayerItem
     eCollisionGotItem: string[]
     craftEvents: any[]
-
+    currentDirectionRef:{current : string}
+    playerDirection : {current : number }
 }
 
 
-const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGotItem, craftEvents}) => {
+const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGotItem,
+                                                             currentDirectionRef,craftEvents , playerDirection}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-
-
+    const [putItem, setPutItem] = useState<number>(0)
+    console.log(putItem)
     const handleItemClick = (itemId) => {
         if (selectedItemId === itemId) {
             console.log(`Place item with ID: ${selectedItemId}`);
@@ -49,6 +51,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
         const handleKeyPress = (event) => {
             if (event.key === 'p' && selectedItemId !== null) {
                 console.log(`アイテムを置いたよ: ${selectedItemId}`);
+                alert(currentDirectionRef.current)
                 // アイテムを配置するロジック
                 setSelectedItemId(null); // 配置後に選択を解除する
             }
@@ -58,6 +61,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
             if (event.button === 2 && selectedItemId !== null) {
                 event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
                 console.log(`アイテムを置いたよ!!!: ${selectedItemId}`);
+                setPutItem(putItem + 1);
                 // アイテムを配置するロジック
             }
         };
@@ -185,6 +189,9 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
                     ク
                 </button>
             </div>
+            {putItem && (
+                <div> {putItem}</div>
+            )}
 
             {
                 isOpen && (
