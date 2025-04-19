@@ -8,13 +8,14 @@ import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
 import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {io, Socket} from "socket.io-client";
 
-const socket = io('http://localhost:5000');
+// const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
     playerId: PlayerItem
     ECollisionPosition: { x: number, y: number }
     nearbyItemPosition: { x: number, y: number } | null,
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
+    socket : Socket | null
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -23,6 +24,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerCharacter,
                                                  objectItemImage,
                                                  nearbyItemPosition,
+                                                    socket
                                              }) => {
 
 
@@ -33,18 +35,19 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [mapData, setMapData] = useState(Map_data);
     const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
-
+    console.log(items)
 
 
     useEffect(() => {
-        socket.on('itemPlaced', (itemData) => {
+        socket?.on('itemPlaced', (itemData) => {
             console.log('New item placed:', itemData);
             // 新しいアイテムをマップに追加
+            console.log(itemData)
             setItems(prevItems => [...(prevItems || []), itemData]);
         });
 
         return () => {
-            socket.off('itemPlaced');
+            socket?.off('itemPlaced');
         };
     }, [socket , items]);
 

@@ -21,11 +21,11 @@ interface PlayerInventoryProps {
     playerDirection : {current : number }
     socket : Socket | null
 }
-const socket = io('http://localhost:5000'); // サーバーのURLを指定
+// const socket = io('http://localhost:5000'); // サーバーのURLを指定
 
 
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eCollisionGotItem,ECollisionPosition,
-                                                             currentDirectionRef,craftEvents , playerDirection}) => {
+                                                             currentDirectionRef,craftEvents ,socket, playerDirection}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
@@ -42,13 +42,13 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
     };
 
     useEffect(() => {
-        socket.on('itemPlaced', (itemData) => {
+        socket?.on('itemPlaced', (itemData) => {
             console.log('New item placed:', itemData);
             // 新しいアイテムをマップに追加
         });
 
         return () => {
-            socket.off('itemPlaced');
+            socket?.off('itemPlaced');
         };
     }, []);
 
