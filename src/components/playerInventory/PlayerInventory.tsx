@@ -97,13 +97,21 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
                     })
                     console.log(result)
                     if (result.ok && socket) {
+
+                        const putItemData = await result.json()
+
                         const itemData = {
                             roomId,
                             selectedItemId,
                             playerDirection,
                             currentDirectionRef,
                             ECollisionPosition,
-                            playerDataId
+                            playerDataId,
+                            x : putItemData.data.x,
+                            y : putItemData.data.y,
+                            width : putItemData.data.width,
+                            height : putItemData.data.height,
+                            itemIcon : putItemData.data.itemIcon,
                         };
                         // サーバーにアイテム配置を通知
                         socket.emit('placeItem', itemData);

@@ -15,7 +15,7 @@ interface mapVolOneTypes {
     nearbyItemPosition: { x: number, y: number } | null,
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
-    socket : Socket | null
+    socket: Socket | null
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -24,7 +24,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerCharacter,
                                                  objectItemImage,
                                                  nearbyItemPosition,
-                                                    socket
+                                                 socket
                                              }) => {
 
 
@@ -40,6 +40,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     useEffect(() => {
         socket?.on('itemPlaced', (itemData) => {
+            alert("多分これ受け取る貯めの依存配列が間違えてる気がする")
             console.log('New item placed:', itemData);
             // 新しいアイテムをマップに追加
             console.log(itemData)
@@ -49,7 +50,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         return () => {
             socket?.off('itemPlaced');
         };
-    }, [socket , items]);
+    }, [socket]);
 
     const cameraPositionHook = useCameraPosition(
         ECollisionPosition.x,
@@ -166,7 +167,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             alt="タイル画像"
                         />
                     ))}
-                    {/* --- プレイヤー --- */}
                     {objectItemImage?.map((item) => {
                         const img = imagesRef.current[item.id];
                         return (
@@ -183,6 +183,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             )
                         );
                     })}
+                    {/* --- プレイヤー --- */}
                     {playerCharacter && (
                         <KonvaImage
                             image={playerCharacter}
