@@ -262,7 +262,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             />
             <div>
 
-                <PlayerInventory playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem}
+                <PlayerInventory roomId={roomId} playerId={playerId} players={players} eCollisionGotItem={eCollisionGotItem}
+                                 ECollisionPosition={ECollisionPosition}
                                  craftEvents={craftEvents}
                                  currentDirectionRef={currentDirectionRef}
                                  playerDirection={playerDirection}

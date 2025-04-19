@@ -10,22 +10,23 @@ import prisma from "@/lib/prismaClient";
 
 // Propsの型を定義する
 interface PlayerInventoryProps {
+    roomId : number
     playerId: PlayerItem
     eCollisionGotItem: string[]
     craftEvents: any[]
+    ECollisionPosition: { x: number, y: number }
     currentDirectionRef:{current : string}
     playerDirection : {current : number }
 }
 
 
-const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGotItem,
+const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eCollisionGotItem,ECollisionPosition,
                                                              currentDirectionRef,craftEvents , playerDirection}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
     const [putItem, setPutItem] = useState<number>(0)
-    console.log(putItem)
     const handleItemClick = (itemId) => {
         if (selectedItemId === itemId) {
             console.log(`Place item with ID: ${selectedItemId}`);
@@ -61,8 +62,26 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({playerId, eCollisionGo
             if (event.button === 2 && selectedItemId !== null) {
                 event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
                 console.log(`アイテムを置いたよ!!!: ${selectedItemId}`);
-                setPutItem(putItem + 1);
-                // アイテムを配置するロジック
+                // 置かれたアイテムを保存するロジック
+                const putItem = async () => {
+                    const playerDataId = playerId.playerId
+                    const result = await fetch("/api/item/putItem" , {
+                        method: "POST",
+                        headers : {"content-type": "application/json"},
+                        body: JSON.stringify({
+                            roomId,
+                            selectedItemId,
+                            playerDirection,
+                            currentDirectionRef,
+                            ECollisionPosition,
+                            playerDataId
+                        }),
+                    })
+                    console.log(result)
+                }
+                putItem()
+
+
             }
         };
 

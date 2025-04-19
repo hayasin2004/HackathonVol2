@@ -25,14 +25,15 @@ model User {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now())
   PlayerData  PlayerData[]
+  RoomItem    RoomItem[]
 }
 
 model Character {
   id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   parts     Json
-  iconImage String[]
   userId    Int
+  iconImage String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
@@ -139,6 +140,8 @@ model RoomItem {
   width     Int?            @default(64)
   height    Int?            @default(64)
   iconImage String
+  user      User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int?
   isActive  Boolean         @default(true)
   room      Room            @relation("RoomItems", fields: [roomId], references: [id], onDelete: Cascade)
   item      DefaultItemList @relation(fields: [itemId], references: [id])
