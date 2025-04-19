@@ -35,7 +35,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [mapData, setMapData] = useState(Map_data);
     const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
-    console.log(items)
+
 
 
     useEffect(() => {
@@ -51,6 +51,10 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             socket?.off('itemPlaced');
         };
     }, [socket]);
+
+    useEffect(() => {
+        setItems(objectItemImage);
+    }, [objectItemImage]);
 
     const cameraPositionHook = useCameraPosition(
         ECollisionPosition.x,
@@ -73,6 +77,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         const shouldBeDark = Math.random() < 0.2; // 20%の確率
         setIsDark(shouldBeDark);
     }, [playerId]);
+
+
 
 
     // 画像の参照を保持するための useRef
@@ -156,23 +162,19 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             })
                         )}
 
-                    {items?.map((item) => (
-                        <KonvaImage
-                            key={item.id}
-                            image={item.iconImage ? item.iconImage : undefined}
-                            x={item.x}
-                            y={item.y}
-                            width={item.width}
-                            height={item.height}
-                            alt="タイル画像"
-                        />
-                    ))}
-                    {objectItemImage?.map((item) => {
-                        const img = imagesRef.current[item.id];
+
+                    {items?.map((item, index) => {
+                        const img = imagesRef.current[item.id] || new Image();
+                        if (!imagesRef.current[item.id]) {
+                            img.src = item.iconImage; // 各アイテムの画像URL
+                            img.onload = () => {
+                                imagesRef.current[item.id] = img; // ロードした画像を参照に保存
+                            };
+                        }
                         return (
                             img && (
                                 <KonvaImage
-                                    key={item.id}
+                                    key={`${item.id}-${index}`} // idとindexを組み合わせて一意のキーを生成
                                     image={img}
                                     x={item.x - cameraPosition.x}
                                     y={item.y - cameraPosition.y}

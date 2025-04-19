@@ -12,20 +12,23 @@ import {io, Socket} from "socket.io-client";
 
 // Propsの型を定義する
 interface PlayerInventoryProps {
-    roomId : number
+    roomId: number
     playerId: PlayerItem
     eCollisionGotItem: string[]
     craftEvents: any[]
     ECollisionPosition: { x: number, y: number }
-    currentDirectionRef:{current : string}
-    playerDirection : {current : number }
-    socket : Socket | null
+    currentDirectionRef: { current: string }
+    playerDirection: { current: number }
+    socket: Socket | null
 }
+
 // const socket = io('http://localhost:5000'); // サーバーのURLを指定
 
 
-const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eCollisionGotItem,ECollisionPosition,
-                                                             currentDirectionRef,craftEvents ,socket, playerDirection}) => {
+const PlayerInventory: React.FC<PlayerInventoryProps> = ({
+                                                             roomId, playerId, eCollisionGotItem, ECollisionPosition,
+                                                             currentDirectionRef, craftEvents, socket, playerDirection
+                                                         }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     const [craftItems, setCraftItems] = useState<any[]>([]);
@@ -83,9 +86,9 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
                 // 置かれたアイテムを保存するロジック
                 const putItem = async () => {
                     const playerDataId = playerId.playerId
-                    const result = await fetch("/api/item/putItem" , {
+                    const result = await fetch("/api/item/putItem", {
                         method: "POST",
-                        headers : {"content-type": "application/json"},
+                        headers: {"content-type": "application/json"},
                         body: JSON.stringify({
                             roomId,
                             selectedItemId,
@@ -95,10 +98,10 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
                             playerDataId
                         }),
                     })
-                    console.log(result)
                     if (result.ok && socket) {
 
                         const putItemData = await result.json()
+                        console.log(putItemData.data)
 
                         const itemData = {
                             roomId,
@@ -107,11 +110,12 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
                             currentDirectionRef,
                             ECollisionPosition,
                             playerDataId,
-                            x : putItemData.data.x,
-                            y : putItemData.data.y,
-                            width : putItemData.data.width,
-                            height : putItemData.data.height,
-                            itemIcon : putItemData.data.itemIcon,
+                            id: putItemData.data.id,
+                            x: putItemData.data.x,
+                            y: putItemData.data.y,
+                            width: putItemData.data.width,
+                            height: putItemData.data.height,
+                            iconImage: putItemData.data.iconImage,
                         };
                         // サーバーにアイテム配置を通知
                         socket.emit('placeItem', itemData);
@@ -132,7 +136,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
             window.removeEventListener('keydown', handleKeyPress);
             window.removeEventListener('mousedown', handleMouseDown);
         };
-    }, [selectedItemId ,ECollisionPosition]);
+    }, [selectedItemId, ECollisionPosition]);
 
     // ----------------------------
     // プレイヤーとクラフトアイテムの取得
@@ -247,9 +251,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({roomId,playerId, eColl
                     ク
                 </button>
             </div>
-            {putItem && (
-                <div> {putItem}</div>
-            )}
+
 
             {
                 isOpen && (
