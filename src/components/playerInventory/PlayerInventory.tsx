@@ -101,7 +101,10 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
 
                         const putItemData = await result.json()
                         console.log(putItemData.data)
-
+                        const response = await updatePlayerItems(playerId.id);
+                        if (response) {
+                            setPlayerItems(response.item);
+                        }
                         const itemData = {
                             roomId,
                             selectedItemId,
@@ -119,6 +122,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                         socket.emit('placeItem', itemData);　
                     }
                 }
+
                 putItem()
 
 
