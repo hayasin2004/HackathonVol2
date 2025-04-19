@@ -230,8 +230,8 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
 
         <>
             <div className={styles.inventoryUnder}>
-                {playerItems?.map((item) => (
-                    <div
+                {playerItems?.map((item ,index) => (
+                    item.quantity > 0 && (<div
                         key={item.id}
                         className={`${styles.inventoryUnderItem} ${selectedItemId === item.itemId ? styles.inventorySelected : ''}`}
                         onClick={() => handleItemClick(item.itemId)}
@@ -243,7 +243,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                             height={40}
                         />
                         <span className={styles.inventoryItemUnderQuantity}>{item.quantity}</span>
-                    </div>
+                    </div>)
                 ))}
                 <button
                     className={styles.inventoryUnderItem}
