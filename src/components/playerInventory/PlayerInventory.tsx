@@ -236,6 +236,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                         className={`${styles.inventoryUnderItem} ${selectedItemId === item.itemId ? styles.inventorySelected : ''}`}
                         onClick={() => handleItemClick(item.itemId)}
                     >
+
                         <Image
                             src={item.DefaultItemList.itemIcon || ""}
                             alt={item.DefaultItemList.itemName}
