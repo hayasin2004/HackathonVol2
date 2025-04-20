@@ -7,6 +7,7 @@ import {useSession} from "next-auth/react";
 import {PlayerItem} from "@/types/playerItem";
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import {defaultItem} from "@/types/defaultItem";
+import MapDisplay from '@/components/MapDisplay';
 
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
@@ -180,7 +181,8 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             {/*        </p>*/}
             {/*    </div>*/}
             {/*</div>*/}
-                <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
+            {/* <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/> */}
+            <MapDisplay playerId={playerId} itemData={itemData} roomId={roomId}/>
             {/*<Game playerId={playerId} roomId={roomId}/>*/}
         </div>
     );
