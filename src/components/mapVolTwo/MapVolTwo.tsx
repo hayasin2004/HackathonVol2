@@ -1,8 +1,8 @@
 import React, {useState, useEffect, useRef} from "react";
 
-import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
+import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap2";
 import {PlayerItem} from "@/types/playerItem";
-import {Desert_Map_data, Tile_size} from "@/components/(konva)/desertmap/mapData";
+import {Map_data, Tile_size} from "@/components/(konva)/desertmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
 import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
 import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
@@ -32,7 +32,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [isDark, setIsDark] = useState(false);
     const [cameraPosition, setCameraPosition] = useState({x: 0, y: 0});
-    const [mapData, setMapData] = useState(Desert_Map_data);
+    const [mapData, setMapData] = useState(Map_data);
     const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
 
@@ -109,7 +109,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             >
                 <Layer>
                     {/* --- 1. desert背景 --- */}
-                    {Desert_Map_data.map((row, rowIndex) =>
+                    {Map_data.map((row, rowIndex) =>
                         row.map((_, colIndex) => {
                             const desertImg = tileImages["desert"];
                             if (!desertImg) return null;
@@ -129,7 +129,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
                     {/* --- 2. その他のタイル --- */}
                     {tileImages &&
-                        Desert_Map_data.map((row, rowIndex) =>
+                        Map_data.map((row, rowIndex) =>
                             row.map((tile, colIndex) => {
                                 if (!tile || rowIndex === undefined || colIndex === undefined) {
                                     console.error("必要なデータが未定義です: tile, rowIndex, colIndex");
@@ -142,9 +142,9 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
                                 const isLargeTile = ["tree", "stone", "iron", "coal"].includes(tile);
                                 if (isLargeTile) {
-                                    const isRightNeighborSame = Desert_Map_data[rowIndex]?.[colIndex - 1] === tile;
-                                    const isBottomNeighborSame = Desert_Map_data[rowIndex - 1]?.[colIndex] === tile;
-                                    const isBottomRightSame = Desert_Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
+                                    const isRightNeighborSame = Map_data[rowIndex]?.[colIndex - 1] === tile;
+                                    const isBottomNeighborSame = Map_data[rowIndex - 1]?.[colIndex] === tile;
+                                    const isBottomRightSame = Map_data[rowIndex - 1]?.[colIndex - 1] === tile;
                                     if (isRightNeighborSame || isBottomNeighborSame || isBottomRightSame) return null;
                                 }
 

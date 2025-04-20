@@ -59,11 +59,11 @@ export const generateItemPositions = (
     return itemPositions;
 };
 // マップ生成関数
-//ランダムマップ再生 Array.fromで一つ一つを"desert"に設定
+//ランダムマップ再生 Array.fromで一つ一つを"grass"に設定
 export const generateMap = () => {
     const map2d: string[][] = [];
 
-    // 2D配列を desert で初期化
+    // 2D配列を grass で初期化
     for (let y = 0; y < Map_height; y++) {
         map2d[y] = new Array(Map_width).fill("desert");
     }
@@ -336,5 +336,4 @@ export const generateMap = () => {
     return map2d;
 };
 
-export const Desert_Map_data = generateMap(); // generateMap() 関数を呼び出して Desert_Map_data を初期化
-// export const    Map_data = generateMap();
+export const    Map_data = generateMap();

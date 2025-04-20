@@ -1,11 +1,10 @@
 "use client";
 
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect} from "react";
 import {
     Tile_size,
     Map_width,
-    Map_height, 
-    // Map_data,
+    Map_height, Map_data,
 } from "./mapData";
 import {useSocketConnection} from "@/hooks/(realTime)/connection/useScoketConnection";
 import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
@@ -16,7 +15,7 @@ import {MapTilesType} from "@/types/map";
 import {get_character} from "@/script/get_character";
 import useCharacterImage from "@/hooks/(realTime)/2D/2Dcamera/getCharacterImage/useCharacterImage";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
-import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
+import useGenerateMap2 from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap2";
 import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
 import {CharacterImageData} from "@/types/character";
 import {PlayerItem} from "@/types/playerItem";
@@ -24,8 +23,6 @@ import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
 import MapVolTwo from "@/components/mapVolTwo/MapVolTwo";
 import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
 import PlayerInventory from "@/components/playerInventory/PlayerInventory";
-
-import {Desert_Map_data} from "@/components/(konva)/desertmap/mapData"
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -36,7 +33,7 @@ interface GameProps {
 }
 
 
-const Desertmap: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
+const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
@@ -77,7 +74,7 @@ const Desertmap: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
 
     const waterTiles: { x: number; y: number }[] = [];
 
-    Desert_Map_data.forEach((row, y) => {
+    Map_data.forEach((row, y) => {
         row.forEach((cell, x) => {
             if (cell === "water") {
                 waterTiles.push({ x: x * Tile_size, y: y * Tile_size });
@@ -146,7 +143,7 @@ const Desertmap: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
     // ----------------------------
     // タイル画像の読み込み
     // ----------------------------
-    const {tileImagesComplete, isLoading} = useGenerateMap()
+    const {tileImagesComplete, isLoading} = useGenerateMap2()
 
     useEffect(() => {
         setTileImages(tileImagesComplete)
@@ -263,7 +260,6 @@ const Desertmap: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
                 objectItemImage={objectItemImage}
                 nearbyItemPosition={nearbyItemPosition}
                 socket={socket}
-                mapData={Desert_Map_data}
             />
             <div>
 
@@ -312,4 +308,4 @@ const Desertmap: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
     );
 };
 
-export default Desertmap;
+export default MapWithCharacter;
