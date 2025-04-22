@@ -82,7 +82,7 @@ model DefaultItemList {
   id              Int                 @id @default(autoincrement())
   itemName        String
   itemDescription String
-  itemIcon        String?
+  itemIcon        String[]
   x               Int?
   y               Int?
   width           Int?
