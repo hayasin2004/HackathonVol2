@@ -37,7 +37,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
 
 
-
     useEffect(() => {
         socket?.on('itemPlaced', (itemData) => {　
             console.log('New item placed:', itemData);
