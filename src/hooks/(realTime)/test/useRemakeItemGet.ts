@@ -143,7 +143,7 @@ export const useRemakeItemGet = ({
 
                         // 取得したアイテムをランダム(64ピクセル単位)な座標に飛ばす
                         await handleItemCollection(foundItem);
-                        setECollisionGotItem(prev => prev.filter(item => item !== foundItem.id.toString()));
+                        setECollisionGotItem(prev => prev.filter(item => item !== foundItem?.id?.toString()));
 
                     } else {
                         setECollisionGotItem(prev => [...prev, foundItem.id.toString()]);

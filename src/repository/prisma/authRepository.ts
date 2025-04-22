@@ -41,6 +41,7 @@ export const logIn = async (userId: number | undefined) => {
 
 export const findPlayerData = async (userId: number | undefined) => {
     try {
+        console.log("yu-zaデータがないよ！！！！")
         const playerData = await prisma.playerData.findFirst({
             where: {
                 playerId: userId
@@ -64,10 +65,13 @@ export const findPlayerData = async (userId: number | undefined) => {
 }
 
 export const createPlayerData = async (userId: number | undefined) => {
+    console.log("ログインデータないんだよねマジで" + userId)
     const loginUser = await prisma.playerData.create({
         data: {playerId: userId}
     })
     if (loginUser) {
+        console.log("ログインデータないんだよねマジでPart２" + loginUser)
+
         return {status: 200, loginUser}
     } else {
         return {status: "error", userId: userId}

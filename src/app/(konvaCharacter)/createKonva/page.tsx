@@ -2,12 +2,24 @@
 import {supabase} from "@/lib/supabase";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import styles from './page.module.css'
 import {findPlayerData} from "@/repository/prisma/authRepository";
 
 export default function Page() {
+
     const {data: session} = useSession();
+
+    useEffect(() => {
+        const confirmUserData = async () => {
+            const response = await findPlayerData(session?.user.id)
+            if (response){
+                alert(response)
+            }
+        }
+        confirmUserData()
+    }, [session]);
+
     const router = useRouter();
     // Head & Clothing features
     const [gender, setGender] = useState("女性");

@@ -26,6 +26,7 @@ export const authOptions: NextAuthOptions = {
                     },
                 });
 
+
                 if (!user) {
                     throw new Error("ユーザーを見つけれませんでした。もう一度、メールアドレス、パスワードを入力してください")
                 }

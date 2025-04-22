@@ -32,7 +32,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    itemId: item?.id,
+                    itemId: item?.itemId,
                     newPosition,
                 }),
             });
@@ -40,6 +40,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
             if (!response.ok) {
                 throw new Error('Failed to update item position');
             }
+            console.log(response)
 
             const updatedItem = await response.json();
             console.log('Updated item position:', updatedItem);
