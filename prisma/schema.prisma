@@ -88,11 +88,13 @@ model DefaultItemList {
   width           Int?
   height          Int?
   createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   CraftedItems    CraftItem[]         @relation("CreatedItem")
   UsedInRecipes   CraftItemMaterial[] @relation("MaterialItem")
   PlayerItem      PlayerItem[]
-  RoomItem        RoomItem[] // 追加
+  RoomItem        RoomItem[]
+  EnemyDrops      Enemy[]             @relation("DropItems")
+  TradeItems      NPCTrade[]          @relation("TradeItems")
 }
 
 model CraftItem {
@@ -147,4 +149,44 @@ model RoomItem {
   item      DefaultItemList @relation(fields: [itemId], references: [id])
   createdAt DateTime        @default(now())
   updatedAt DateTime        @default(now())
+}
+
+model NPC {
+  id          Int        @id @default(autoincrement())
+  name        String
+  positionX   Float
+  positionY   Float
+  images      String[]
+  dialogues   Json
+  stageStatus Int
+  quests      Quest[]    @relation("NPCQuests")
+  trades      NPCTrade[] @relation("NPCTrades")
+}
+
+model NPCTrade {
+  id     Int             @id @default(autoincrement())
+  npc    NPC             @relation("NPCTrades", fields: [npcId], references: [id])
+  npcId  Int
+  cost   Int
+  item   DefaultItemList @relation("TradeItems", fields: [itemId], references: [id])
+  itemId Int
+}
+
+model Quest {
+  id   Int    @id @default(autoincrement())
+  name String
+  npcs NPC[]  @relation("NPCQuests")
+}
+
+model Enemy {
+  id              Int               @id @default(autoincrement())
+  name            String
+  positionX       Float
+  positionY       Float
+  images          String[]
+  health          Int
+  damage          Int
+  movementPattern Json
+  stageStatus     Int
+  dropItems       DefaultItemList[] @relation("DropItems")
 }
