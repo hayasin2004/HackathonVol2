@@ -32,7 +32,7 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
         >
             <Layer>
                 {npcData.map((npc, index) => (
-                    <SingleNpc key={npc.id} npc={npc} />
+                    <SingleNpc key={npc.id} npc={npc}/>
                 ))}
             </Layer>
         </Stage>
@@ -40,7 +40,7 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
 };
 
 // 単一のNPCを表示するコンポーネント
-const SingleNpc: React.FC<{npc: NPC}> = ({npc}) => {
+const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
     // 2枚目の画像を表示するために、インデックスを1に設定
     // 配列の2番目の要素（インデックス1）を使用
     const imageIndex = 1; // 2枚目の画像を固定で表示
@@ -83,15 +83,17 @@ const SingleNpc: React.FC<{npc: NPC}> = ({npc}) => {
     }, [npc.images.length]);
     */
 
-    const handleClick = () => {
+    const handleClick = () => {　
         // NPCとの対話を開始
         // dialoguesがJsonValueの場合、適切に処理する必要があります
         const dialogues = typeof npc.dialogues === 'string'
             ? JSON.parse(npc.dialogues)
             : npc.dialogues;
-
+        console.log(Array.isArray(dialogues) )
+        // 対話が存在する場合、最初の対話を表示
         if (dialogues && Array.isArray(dialogues) && dialogues.length > 0) {
             onInteract(npc, dialogues[0]);
+            alert(`対話: ${dialogues[0]}`);
         }
     };
 
@@ -99,9 +101,11 @@ const SingleNpc: React.FC<{npc: NPC}> = ({npc}) => {
         <Group
             x={npc.positionX}
             y={npc.positionY}
+            width={100}
+            height={100}
+            cursor="pointer"
             onClick={handleClick}
             onTap={handleClick}
-            cursor="pointer"
         >
             {image && (
                 <Image

@@ -157,7 +157,7 @@ model NPC {
   positionX   Float
   positionY   Float
   images      String[]
-  dialogues   Json
+  dialogues   String[]
   stageStatus Int
   quests      Quest[]    @relation("NPCQuests")
   trades      NPCTrade[] @relation("NPCTrades")
@@ -184,6 +184,7 @@ model Enemy {
   positionX       Float
   positionY       Float
   images          String[]
+  dialogues       String[]
   health          Int
   damage          Int
   movementPattern Json
