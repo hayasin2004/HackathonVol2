@@ -3,7 +3,7 @@ import {GetNpc} from "@/repository/prisma/npc/npcRepository";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 
-const GetNpcPage = async () => {
+const GetEnemyPage = async () => {
     const enemyData = await GetEnemy()
     console.log(enemyData)
     return (
@@ -14,4 +14,4 @@ const GetNpcPage = async () => {
 
 }
 
-export default GetNpcPage
+export default GetEnemyPage

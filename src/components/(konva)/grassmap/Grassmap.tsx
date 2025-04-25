@@ -24,6 +24,10 @@ import MapVolOne from "@/components/mapVolOne/MapVolOne";
 import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
 import PlayerInventory from "@/components/playerInventory/PlayerInventory";
 import useDestroyANDRandom from "@/hooks/(realTime)/item/destroyANDRandom/useDestroyANDRandom";
+import GetEnemyPage from "@/app/(konvaCharacter)/enemy/page";
+import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
+import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
+import {Enemy} from "@/types/enemy";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -43,7 +47,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
-
 
 
     // 試験的なデータ
@@ -78,7 +81,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     Map_data.forEach((row, y) => {
         row.forEach((cell, x) => {
             if (cell === "water") {
-                waterTiles.push({ x: x * Tile_size, y: y * Tile_size });
+                waterTiles.push({x: x * Tile_size, y: y * Tile_size});
             }
         });
     });
@@ -97,9 +100,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         handleEKeyPress,
         clearGotItems
     } = useRemakeItemGet({
-        socket : socket,
+        socket: socket,
         userId: playerId.id,
-        initialPosition: { x: playerId.x ?? 0, y: playerId.y ?? 0 },
+        initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
         rectPositions: objectItemImage,
         waterTiles: waterTiles, // ← ここ！
         mapWidthInPixels: Map_width * Tile_size,
@@ -119,7 +122,12 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     const [characterImageData, setCharacterImageData] = useState<CharacterImageData | null>(null);
 
-    const {playerCharacter, isLoadingCharacter ,currentDirectionRef , playerDirection} = useMotionCharacter(characterImageData)
+    const {
+        playerCharacter,
+        isLoadingCharacter,
+        currentDirectionRef,
+        playerDirection
+    } = useMotionCharacter(characterImageData)
 
     if (isLoadingCharacter) {
         console.log("キャラクター読み込み中")
@@ -231,6 +239,24 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     //         }
     //     }
     // }, [craftEvents, playerId]);
+    const [enemyData, setEnemyData] = useState<Enemy[] | null>([]);
+
+    const [isLoadingEnemy, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchEnemyData = async () => {
+            try {
+                const data = await GetEnemy();
+                console.log('Fetched enemy data:', data);
+                setEnemyData(data);
+            } catch (error) {
+                console.error('Error fetching enemy data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchEnemyData();
+    }, []);
 
 
     // Loading or Error UI
@@ -244,8 +270,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
 
     return (
-        <div style={{outline: "none" ,
-            position: 'relative'}}>
+        <div style={{
+            outline: "none",
+            position: 'relative'
+        }}>
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px'}}>
                 {/*{characterImageData?.iconImage.slice(0, 8).map((url, index) => (*/}
                 {/*    <div key={index} style={{textAlign: 'center'}}>*/}
@@ -255,15 +283,17 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*))}*/}
             </div>
 
-            <MapVolOne
-                playerId={playerId}
-                ECollisionPosition={ECollisionPosition}
-                playerCharacter={playerCharacter}
-                eCollisionGotItemStatus={eCollisionGotItemStatus}
-                objectItemImage={objectItemImage}
-                nearbyItemPosition={nearbyItemPosition}
-                socket={socket}
-            />
+                <MapVolOne
+                    playerId={playerId}
+                    ECollisionPosition={ECollisionPosition}
+                    playerCharacter={playerCharacter}
+                    eCollisionGotItemStatus={eCollisionGotItemStatus}
+                    objectItemImage={objectItemImage}
+                    nearbyItemPosition={nearbyItemPosition}
+                    socket={socket}
+                    enemyData={enemyData}
+                />
+
             <div>
 
                 <PlayerInventory roomId={roomId} playerId={playerId}

@@ -7,6 +7,9 @@ import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosit
 import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
 import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {io, Socket} from "socket.io-client";
+import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
+import {Enemy} from "@/types/enemy";
+import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -16,6 +19,7 @@ interface mapVolOneTypes {
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
+    enemyData : Enemy[] | null
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -24,7 +28,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerCharacter,
                                                  objectItemImage,
                                                  nearbyItemPosition,
-                                                 socket
+                                                 socket,
+                                                 enemyData
                                              }) => {
 
 
@@ -98,6 +103,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         event.evt.preventDefault();
     };
 
+
+
     return (
         <div>
             <Stage
@@ -106,7 +113,10 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 onContextMenu={handleStageContextMenu}
             >
                 <Layer>
-                    {/* --- 1. Grass背景 --- */}
+                    {Array.isArray(enemyData) && enemyData.length > 0 ?   <EnemyTest enemyData={enemyData}/>
+                        : ""}
+
+
                     {Map_data.map((row, rowIndex) =>
                         row.map((_, colIndex) => {
                             const grassImg = tileImages["grass"];
@@ -194,6 +204,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             alt="プレイヤー写真"
                         />
                     )}
+
+
 
                     {/* --- 黒い四角形を最後に追加 --- */}
                     {nearbyItemPosition && (

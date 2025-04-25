@@ -19,23 +19,15 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 
 const EnemyTest: React.FC<PropsNpcData> = ({enemyData}) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
-
     if (!enemyData || enemyData.length === 0) {
         return <div>Enemyデータがありません</div>;
     }
 
     return (
         <div>
-            <Stage
-                width={typeof window !== "undefined" ? window.innerWidth : 0}
-                height={typeof window !== "undefined" ? window.innerHeight : 0}
-            >
-                <Layer>
-                    {enemyData.map((enemy) => (
-                        <SingleEnemy key={enemy.id} enemy={enemy} setDialogue={setDialogue}/>
-                    ))}
-                </Layer>
-            </Stage>
+            {enemyData?.map((enemy) => (
+                <SingleEnemy key={enemy?.id} enemy={enemy} setDialogue={setDialogue}/>
+            ))}
             {dialogue && (
                 <div className="dialog">
                     <p>{dialogue}</p>
@@ -53,7 +45,6 @@ const SingleEnemy: React.FC<{
     const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
     const [image] = useImage(enemy.images[validImageIndex]);
-
     if (enemy.stageStatus !== currentStage) {
         return null;
     }
@@ -79,22 +70,22 @@ const SingleEnemy: React.FC<{
 
     let position, showDialog;
     if (enemy.movementPattern.type === "random") {
-        ({ position, showDialog } = useEnemyRandomMovement(enemy.x, enemy.y));
+        ({position, showDialog} = useEnemyRandomMovement(enemy?.x, enemy?.y));
     } else if (enemy.movementPattern.type === "linear") {
-        const linearMovement = useEnemyLinearRandomMovement(enemy.x, enemy.y);
+        const linearMovement = useEnemyLinearRandomMovement(enemy?.x, enemy?.y);
         position = linearMovement.linearPosition;
         showDialog = linearMovement.showDialog;
     } else {
         // random でも linear でもない場合、初期位置を使用
-        position = { x: enemy.x, y: enemy.y };
+        position = {x: enemy?.x, y: enemy?.y};
         showDialog = false;
     }
     return (
         <Group
-            x={position.x}
-            y={position.y}
-            width={enemy.x}
-            height={enemy.y}
+            x={position?.x}
+            y={position?.y}
+            width={enemy?.x}
+            height={enemy?.y}
             cursor="pointer"
             onClick={handleClick}
             onTap={handleClick}
