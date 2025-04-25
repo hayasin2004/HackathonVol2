@@ -1,10 +1,9 @@
 "use client"
 import React, {useEffect, useRef, useState} from 'react';
-import {NPC} from "@/types/enemy";
 import {Stage, Layer, Group, Image, Text} from "react-konva";
 import useImage from "use-image";
 import {Enemy} from "@/types/enemy";
-import useEnemyRandomMovement from "@/hooks/(animation)/enemy/randomEnemy/enemyRandomMovement/useEnemyRandomMovement";
+import useEnemyRandomMovement from "@/hooks/(animation)/enemy/randomEnemy/useEnemyRandomMovement";
 
 interface PropsNpcData {
     enemyData: Enemy[] | null
@@ -14,7 +13,7 @@ interface PropsNpcData {
 const currentStage = 1; // 仮の値、実際の値に置き換えてください
 
 // onInteract関数の型定義（この関数がどこかで定義されている必要があります）
-const onInteract = (enemy: NPC, dialogue: any) => {
+const onInteract = (enemy: Enemy, dialogue: any) => {
     // 対話処理の実装
     console.log("NPCと対話:", enemy.name, dialogue);
 };
@@ -49,6 +48,7 @@ const SingleEnemy: React.FC<{ enemy: Enemy }> = ({enemy}) => {
     
     // 敵をランダムに動かすヤツ
     const position = useEnemyRandomMovement(enemy.positionX, enemy.positionY, enemy.movementPattern.type);
+
 
     // 画像が存在するかチェック
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
@@ -125,7 +125,7 @@ const SingleEnemy: React.FC<{ enemy: Enemy }> = ({enemy}) => {
                 text={enemy.name}
                 y={-20}
                 fontSize={12}
-                fill="white"
+                fill="red"
                 align="center"
                 width={64}
             />
