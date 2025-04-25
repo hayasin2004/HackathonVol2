@@ -11,6 +11,7 @@ interface PropsNpcData {
     enemyData: Enemy[] | null
     cameraPosition: { x: number, y: number }
     ECollisionPosition: { x: number, y: number }
+    onEnemyRemove?: (enemyId: string) => void  // 敵を削除するための関数を追加
 }
 
 const currentStage = 1;
@@ -19,9 +20,18 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
     console.log("NPCと対話:", enemy.name, dialogue);
 };
 
-const EnemyTest: React.FC<PropsNpcData> = ({enemyData, cameraPosition, ECollisionPosition}) => {
+const EnemyTest: React.FC<PropsNpcData> = ({enemyData, cameraPosition,
+                                               onEnemyRemove ,ECollisionPosition}) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     const [globalMouseDown, setGlobalMouseDown] = useState(false);
+
+    const [visibleEnemies, setVisibleEnemies] = useState<Enemy[]>([]);
+    useEffect(() => {
+        if (enemyData) {
+            setVisibleEnemies(enemyData);
+        }
+    }, [enemyData]);
+
 
     // グローバルなマウスダウンイベントを監視
     useEffect(() => {
@@ -41,7 +51,18 @@ const EnemyTest: React.FC<PropsNpcData> = ({enemyData, cameraPosition, ECollisio
             window.removeEventListener('mousedown', handleGlobalMouseDown);
         };
     }, []);
+    // 敵を削除する関数
+    const handleRemoveEnemy = (enemyId: string) => {
+        console.log(`敵ID: ${enemyId} を削除します`);
 
+        // 親コンポーネントに通知（もし関数が提供されていれば）
+        if (onEnemyRemove) {
+            onEnemyRemove(enemyId);
+        }
+
+        // ローカルの状態も更新
+        setVisibleEnemies(prev => prev.filter(enemy => enemy.id !== enemyId));
+    };
     if (!enemyData || enemyData.length === 0) {
         return <div>Enemyデータがありません</div>;
     }
@@ -56,7 +77,8 @@ const EnemyTest: React.FC<PropsNpcData> = ({enemyData, cameraPosition, ECollisio
                     setDialogue={setDialogue}
                     ECollisionPosition={ECollisionPosition}
                     globalMouseDown={globalMouseDown}
-                />
+
+                    onRemove={handleRemoveEnemy}/>
             ))}
             {dialogue && (
                 <div className="dialog" style={{
@@ -82,9 +104,9 @@ const SingleEnemy: React.FC<{
     cameraPosition: { x: number, y: number },
     setDialogue: React.Dispatch<React.SetStateAction<string | null>>,
     ECollisionPosition: { x: number, y: number },
-    globalMouseDown: boolean
-}> = ({enemy, cameraPosition, setDialogue, ECollisionPosition, globalMouseDown}) => {
-    const imageIndex = 1;
+    globalMouseDown: boolean,
+    onRemove: (enemyId: string) => void
+}> = ({enemy, cameraPosition, setDialogue, ECollisionPosition, globalMouseDown, onRemove}) => {    const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
     const [isColliding, setIsColliding] = useState(false);
     const [image] = useImage(enemy.images[validImageIndex]);
@@ -99,8 +121,7 @@ const SingleEnemy: React.FC<{
             ? JSON.parse(enemy.dialogues)
             : enemy.dialogues;
         if (dialogues && Array.isArray(dialogues) && dialogues.length > 0) {
-            onInteract(enemy, dialogues[0]);
-            setDialogue(dialogues[1]);
+            onInteract(enemy, dialogues[0]);　
         }
     };
 
@@ -155,9 +176,10 @@ const SingleEnemy: React.FC<{
         if (isColliding && globalMouseDown) {
             console.log("衝突中に左クリックされました！");
             console.log(`敵の名前: ${enemy.name}`);
-            console.log(`敵の位置: x=${position.x}, y=${position.y}`);
             console.log(`敵の移動パターン: ${enemy.movementPattern.type}`);
             console.log(`プレイヤーの位置: x=${ECollisionPosition.x}, y=${ECollisionPosition.y}`);
+
+            onRemove(enemy.id);
         }
     }, [isColliding, globalMouseDown, enemy, position, ECollisionPosition]);
 

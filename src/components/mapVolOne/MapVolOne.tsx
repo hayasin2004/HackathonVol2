@@ -102,9 +102,18 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const handleStageContextMenu = (event) => {
         event.evt.preventDefault();
     };
+    const [localEnemyData, setLocalEnemyData] = useState<Enemy[] | null>(enemyData);
 
-　
+    useEffect(() => {
+        setLocalEnemyData(enemyData);
+    }, [enemyData]);
+    // 敵を削除する関数
+    const handleRemoveEnemy = (enemyId: string) => {
+        // ローカルの状態を更新
+        setLocalEnemyData(prev => prev ? prev.filter(enemy => enemy.id !== enemyId) : null);
 
+
+    };
     return (
         <div>
             <Stage
@@ -216,9 +225,13 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             listening={false} // クリックを無視
                         />
                     )}
-
-                    {Array.isArray(enemyData) && enemyData.length > 0 && (
-                        <EnemyTest enemyData={enemyData}　cameraPosition={cameraPosition} ECollisionPosition={ECollisionPosition}/>
+                    {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
+                        <EnemyTest
+                            enemyData={localEnemyData}
+                            cameraPosition={cameraPosition}
+                            ECollisionPosition={ECollisionPosition}
+                            onEnemyRemove={handleRemoveEnemy}
+                        />
                     )}
 
                     {isDark && (
