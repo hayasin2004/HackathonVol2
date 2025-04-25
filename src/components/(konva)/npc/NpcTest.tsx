@@ -103,8 +103,8 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
         <Group
             x={npc.x}
             y={npc.y}
-            width={100}
-            height={100}
+            width={npc.x}
+            height={npc.y}
             cursor="pointer"
             onClick={handleClick}
             onTap={handleClick}

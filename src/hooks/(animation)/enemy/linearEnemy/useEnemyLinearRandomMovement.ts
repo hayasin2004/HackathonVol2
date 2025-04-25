@@ -1,4 +1,3 @@
-// src/hooks/(animation)/enemy/linearEnemy/useEnemyLinearRandomMovement.ts
 import { useState, useEffect } from 'react';
 
 interface Position {
@@ -7,46 +6,51 @@ interface Position {
 }
 
 const useEnemyLinearRandomMovement = (initialX: number, initialY: number) => {
-    const [position, setPosition] = useState<Position>({ x: initialX, y: initialY });
-    const [directionX, setDirectionX] = useState<number>(64); // 水平方向の移動量
-    const [directionY, setDirectionY] = useState<number>(32); // 垂直方向の移動量
+    const startX = initialX ?? 0;
+    const startY = initialY ?? 0;
+
+    const [linearPosition, setLinearPosition] = useState<Position>({ x: startX, y: startY });
+    const [showDialog, setShowDialog] = useState<boolean>(false);
 
     useEffect(() => {
+        let xDirection = 64; // X方向の移動量
+        let yDirection = 64; // Y方向の移動量
+
         const intervalId = setInterval(() => {
-            setPosition(prevPosition => {
+            setLinearPosition(prevPosition => {
                 const screenWidth = window.innerWidth;
                 const screenHeight = window.innerHeight;
-
-                // ランダムにx軸かy軸を選択
-                const moveX = Math.random() < 0.5;
 
                 let newX = prevPosition.x;
                 let newY = prevPosition.y;
 
-                if (moveX) {
-                    newX += directionX;
-                    // 水平方向の境界に達した場合、方向を反転
+                // 2/1の確率でX軸またはY軸を動かす
+                if (Math.random() > 0.5) {
+                    newX += xDirection;
                     if (newX < 0 || newX > screenWidth - 64) {
-                        setDirectionX(prevDirection => -prevDirection);
-                        newX = prevPosition.x - directionX;
+                        xDirection = -xDirection; // 画面外に出たら方向を反転
+                        newX += xDirection;
                     }
                 } else {
-                    newY += directionY;
-                    // 垂直方向の境界に達した場合、方向を反転
+                    newY += yDirection;
                     if (newY < 0 || newY > screenHeight - 64) {
-                        setDirectionY(prevDirection => -prevDirection);
-                        newY = prevPosition.y - directionY;
+                        yDirection = -yDirection; // 画面外に出たら方向を反転
+                        newY += yDirection;
                     }
                 }
 
+                setShowDialog(true);
+                setTimeout(() => {
+                    setShowDialog(false);
+                }, 500);
                 return { x: newX, y: newY };
             });
-        }, 500);
+        }, 1000);
 
         return () => clearInterval(intervalId);
-    }, [directionX, directionY]);
+    }, []);
 
-    return position;
+    return { linearPosition, showDialog };
 };
 
 export default useEnemyLinearRandomMovement;
