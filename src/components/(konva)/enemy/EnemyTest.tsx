@@ -1,6 +1,6 @@
 // src/components/(konva)/enemy/EnemyTest.tsx
 "use client"
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Stage, Layer, Group, Image, Text} from "react-konva";
 import useImage from "use-image";
 import {Enemy} from "@/types/enemy";
@@ -10,6 +10,7 @@ import useEnemyLinearRandomMovement from "@/hooks/(animation)/enemy/linearEnemy/
 interface PropsNpcData {
     enemyData: Enemy[] | null
     cameraPosition: { x: number, y: number }
+    ECollisionPosition: { x: number, y: number }
 }
 
 const currentStage = 1;
@@ -18,16 +19,18 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
     console.log("NPCと対話:", enemy.name, dialogue);
 };
 
-const EnemyTest: React.FC<PropsNpcData> = ({enemyData , cameraPosition}) => {
+const EnemyTest: React.FC<PropsNpcData> = ({enemyData, cameraPosition, ECollisionPosition}) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     if (!enemyData || enemyData.length === 0) {
         return <div>Enemyデータがありません</div>;
     }
 
+
     return (
         <div>
             {enemyData?.map((enemy) => (
-                <SingleEnemy key={enemy?.id} cameraPosition={cameraPosition} enemy={enemy} setDialogue={setDialogue}/>
+                <SingleEnemy key={enemy?.id} cameraPosition={cameraPosition} enemy={enemy} setDialogue={setDialogue}
+                             ECollisionPosition={ECollisionPosition}/>
             ))}
             {dialogue && (
                 <div className="dialog">
@@ -42,10 +45,12 @@ const EnemyTest: React.FC<PropsNpcData> = ({enemyData , cameraPosition}) => {
 const SingleEnemy: React.FC<{
     enemy: Enemy,
     cameraPosition: { x: number, y: number },
-    setDialogue: React.Dispatch<React.SetStateAction<string | null>>
-}> = ({enemy,cameraPosition, setDialogue}) => {
+    setDialogue: React.Dispatch<React.SetStateAction<string | null>>,
+    ECollisionPosition: { x: number, y: number }
+}> = ({enemy, cameraPosition, setDialogue, ECollisionPosition}) => {
     const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
+    const [isColliding, setIsColliding] = useState(false);
     const [image] = useImage(enemy.images[validImageIndex]);
     if (enemy.stageStatus !== currentStage) {
         return null;
@@ -81,6 +86,37 @@ const SingleEnemy: React.FC<{
         // random でも linear でもない場合、初期位置を使用
         position = {x: enemy?.x, y: enemy?.y};
         showDialog = false;
+    }
+
+    const checkCollision = useCallback((player, enemy) => {
+        const playerLeft = player?.x;
+        const playerRight = player?.x + 50;
+        const playerTop = player?.y;
+        const playerBottom = player?.y + 50;
+
+        const enemyLeft = enemy.x;
+        const enemyRight = enemy.x + 50;
+        const enemyTop = enemy.y;
+        const enemyBottom = enemy.y + 50;
+
+        return !(
+            playerRight < enemyLeft ||
+            playerLeft > enemyRight ||
+            playerBottom < enemyTop ||
+            playerTop > enemyBottom
+        );
+    }, []);
+
+    useEffect(() => {
+        console.log("敵との衝突検知" + ECollisionPosition?.x)
+        const collision = checkCollision(ECollisionPosition, position);
+        setIsColliding(collision);
+    }, [ECollisionPosition, position]);
+
+
+    if (isColliding) {
+        console.log(isColliding)
+        console.log("小トス")
     }
     return (
         <Group

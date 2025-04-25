@@ -105,6 +105,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
 
 
+
     return (
         <div>
             <Stage
@@ -218,7 +219,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     )}
 
                     {Array.isArray(enemyData) && enemyData.length > 0 && (
-                        <EnemyTest enemyData={enemyData}　cameraPosition={cameraPosition}/>
+                        <EnemyTest enemyData={enemyData}　cameraPosition={cameraPosition} ECollisionPosition={ECollisionPosition}/>
                     )}
 
                     {isDark && (

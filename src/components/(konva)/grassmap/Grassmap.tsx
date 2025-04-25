@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import {
     Tile_size,
     Map_width,
@@ -257,6 +257,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         };
         fetchEnemyData();
     }, []);
+
+
+    // 衝突判定の更新
 
 
     // Loading or Error UI
