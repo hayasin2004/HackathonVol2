@@ -1,9 +1,10 @@
 "use client"
 import React, {useEffect, useRef, useState} from 'react';
-import {NPC} from "@/types/npc";
+import {NPC} from "@/types/enemy";
 import {Stage, Layer, Group, Image, Text} from "react-konva";
 import useImage from "use-image";
 import {Enemy} from "@/types/enemy";
+import useEnemyRandomMovement from "@/hooks/(animation)/enemy/randomEnemy/enemyRandomMovement/useEnemyRandomMovement";
 
 interface PropsNpcData {
     enemyData: Enemy[] | null
@@ -13,16 +14,16 @@ interface PropsNpcData {
 const currentStage = 1; // 仮の値、実際の値に置き換えてください
 
 // onInteract関数の型定義（この関数がどこかで定義されている必要があります）
-const onInteract = (npc: NPC, dialogue: any) => {
+const onInteract = (enemy: NPC, dialogue: any) => {
     // 対話処理の実装
-    console.log("NPCと対話:", npc.name, dialogue);
+    console.log("NPCと対話:", enemy.name, dialogue);
 };
 
 const EnemyTest: React.FC<PropsNpcData> = ({enemyData}) => {
     console.log(enemyData);
 
     if (!enemyData || enemyData.length === 0) {
-        return <div>NPCデータがありません</div>;
+        return <div>Enemyデータがありません</div>;
     }
 
     // Konvaコンポーネントは必ずStageとLayerの中に配置する
@@ -32,8 +33,8 @@ const EnemyTest: React.FC<PropsNpcData> = ({enemyData}) => {
             height={typeof window !== "undefined" ? window.innerHeight : 0}
         >
             <Layer>
-                {enemyData.map((npc, index) => (
-                    <SingleNpc key={npc.id} npc={npc}/>
+                {enemyData.map((enemy, index) => (
+                    <SingleEnemy key={enemy.id} enemy={enemy}/>
                 ))}
             </Layer>
         </Stage>
@@ -41,16 +42,19 @@ const EnemyTest: React.FC<PropsNpcData> = ({enemyData}) => {
 };
 
 // 単一のNPCを表示するコンポーネント
-const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
+const SingleEnemy: React.FC<{ enemy: Enemy }> = ({enemy}) => {
     // 2枚目の画像を表示するために、インデックスを1に設定
     // 配列の2番目の要素（インデックス1）を使用
     const imageIndex = 1; // 2枚目の画像を固定で表示
+    
+    // 敵をランダムに動かすヤツ
+    const position = useEnemyRandomMovement(enemy.positionX, enemy.positionY, enemy.movementPattern.type);
 
     // 画像が存在するかチェック
-    const validImageIndex = npc.images.length > imageIndex ? imageIndex : 0;
+    const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
 
     // 指定したインデックスの画像を使用
-    const [image] = useImage(npc.images[validImageIndex]);
+    const [image] = useImage(enemy.images[validImageIndex]);
 
     // アニメーションを使用しない場合は以下のコードは不要
     // const animationRef = useRef<number | null>(null);
@@ -58,7 +62,7 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
     // const FRAME_RATE = 5; // フレームレート（秒間5フレーム）
 
     // NPCのステージステータスが現在のステージと一致する場合のみ表示
-    if (npc.stageStatus !== currentStage) {
+    if (enemy.stageStatus !== currentStage) {
         return null;
     }
 
@@ -68,7 +72,7 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
         // スプライトアニメーションの実装
         const animate = (time: number) => {
             if (time - lastFrameTime.current >= 1000 / FRAME_RATE) {
-                setCurrentImageIndex((prev) => (prev + 1) % npc.images.length);
+                setCurrentImageIndex((prev) => (prev + 1) % enemy.images.length);
                 lastFrameTime.current = time;
             }
             animationRef.current = requestAnimationFrame(animate);
@@ -81,19 +85,19 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
                 cancelAnimationFrame(animationRef.current);
             }
         };
-    }, [npc.images.length]);
+    }, [enemy.images.length]);
     */
 
     const handleClick = () => {　
         // NPCとの対話を開始
         // dialoguesがJsonValueの場合、適切に処理する必要があります
-        const dialogues = typeof npc.dialogues === 'string'
-            ? JSON.parse(npc.dialogues)
-            : npc.dialogues;
+        const dialogues = typeof enemy.dialogues === 'string'
+            ? JSON.parse(enemy.dialogues)
+            : enemy.dialogues;
         console.log(Array.isArray(dialogues) )
         // 対話が存在する場合、最初の対話を表示
         if (dialogues && Array.isArray(dialogues) && dialogues.length > 0) {
-            onInteract(npc, dialogues[0]);
+            onInteract(enemy, dialogues[0]);
 
 
             alert(dialogues[1]);
@@ -102,8 +106,8 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
 
     return (
         <Group
-            x={npc.positionX}
-            y={npc.positionY}
+            x={position.x}
+            y={position.y}
             width={100}
             height={100}
             cursor="pointer"
@@ -118,7 +122,7 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
                 />
             )}
             <Text
-                text={npc.name}
+                text={enemy.name}
                 y={-20}
                 fontSize={12}
                 fill="white"

@@ -8,7 +8,7 @@ export interface Enemy {
     health: number;
     damage: number;
     dialogues : string[]
-    movementPattern: string;
+    movementPattern: {type :  string };
     stageStatus: number;
     dropItems?: number[];
 }
