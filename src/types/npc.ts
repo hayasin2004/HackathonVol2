@@ -3,8 +3,8 @@ import { JsonValue } from "@prisma/client/runtime/library";
 export interface NPC {
     id: number;
     name: string;
-    positionX: number;
-    positionY: number;
+    x: number;
+    y: number;
     images: string[];
     dialogues : string[]
     stageStatus: number;

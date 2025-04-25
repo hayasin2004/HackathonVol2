@@ -2,8 +2,8 @@
 export interface Enemy {
     id: number;
     name: string;
-    positionX: number;
-    positionY: number;
+    x: number;
+    y: number;
     images: string[];
     health: number;
     damage: number;

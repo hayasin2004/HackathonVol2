@@ -101,8 +101,8 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
 
     return (
         <Group
-            x={npc.positionX}
-            y={npc.positionY}
+            x={npc.x}
+            y={npc.y}
             width={100}
             height={100}
             cursor="pointer"

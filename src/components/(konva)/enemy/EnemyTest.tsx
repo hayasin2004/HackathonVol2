@@ -47,7 +47,7 @@ const SingleEnemy: React.FC<{ enemy: Enemy }> = ({enemy}) => {
     const imageIndex = 1; // 2枚目の画像を固定で表示
     
     // 敵をランダムに動かすヤツ
-    const position = useEnemyRandomMovement(enemy.positionX, enemy.positionY, enemy.movementPattern.type);
+    const position = useEnemyRandomMovement(enemy.x, enemy.y, enemy.movementPattern.type);
 
 
     // 画像が存在するかチェック

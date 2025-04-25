@@ -8,28 +8,43 @@ interface Position {
 
 const useEnemyLinearRandomMovement = (initialX: number, initialY: number) => {
     const [position, setPosition] = useState<Position>({ x: initialX, y: initialY });
-    const [direction, setDirection] = useState<number>(64); // 水平方向に固定
+    const [directionX, setDirectionX] = useState<number>(64); // 水平方向の移動量
+    const [directionY, setDirectionY] = useState<number>(32); // 垂直方向の移動量
 
     useEffect(() => {
         const intervalId = setInterval(() => {
             setPosition(prevPosition => {
                 const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
 
-                // 新しい位置を計算
-                let newX = prevPosition.x + direction;
+                // ランダムにx軸かy軸を選択
+                const moveX = Math.random() < 0.5;
 
-                // 境界に達した場合、方向を反転
-                if (newX < 0 || newX > screenWidth - 64) {
-                    setDirection(prevDirection => -prevDirection);
-                    newX = prevPosition.x - direction;
+                let newX = prevPosition.x;
+                let newY = prevPosition.y;
+
+                if (moveX) {
+                    newX += directionX;
+                    // 水平方向の境界に達した場合、方向を反転
+                    if (newX < 0 || newX > screenWidth - 64) {
+                        setDirectionX(prevDirection => -prevDirection);
+                        newX = prevPosition.x - directionX;
+                    }
+                } else {
+                    newY += directionY;
+                    // 垂直方向の境界に達した場合、方向を反転
+                    if (newY < 0 || newY > screenHeight - 64) {
+                        setDirectionY(prevDirection => -prevDirection);
+                        newY = prevPosition.y - directionY;
+                    }
                 }
 
-                return { x: newX, y: initialY }; // yは固定
+                return { x: newX, y: newY };
             });
-        }, 1000); // 1秒ごとに動かす
+        }, 500);
 
         return () => clearInterval(intervalId);
-    }, [direction]);
+    }, [directionX, directionY]);
 
     return position;
 };
