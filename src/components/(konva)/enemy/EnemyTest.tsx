@@ -9,6 +9,7 @@ import useEnemyLinearRandomMovement from "@/hooks/(animation)/enemy/linearEnemy/
 
 interface PropsNpcData {
     enemyData: Enemy[] | null
+    cameraPosition: { x: number, y: number }
 }
 
 const currentStage = 1;
@@ -17,7 +18,7 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
     console.log("NPCと対話:", enemy.name, dialogue);
 };
 
-const EnemyTest: React.FC<PropsNpcData> = ({enemyData}) => {
+const EnemyTest: React.FC<PropsNpcData> = ({enemyData , cameraPosition}) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     if (!enemyData || enemyData.length === 0) {
         return <div>Enemyデータがありません</div>;
@@ -26,7 +27,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({enemyData}) => {
     return (
         <div>
             {enemyData?.map((enemy) => (
-                <SingleEnemy key={enemy?.id} enemy={enemy} setDialogue={setDialogue}/>
+                <SingleEnemy key={enemy?.id} cameraPosition={cameraPosition} enemy={enemy} setDialogue={setDialogue}/>
             ))}
             {dialogue && (
                 <div className="dialog">
@@ -40,8 +41,9 @@ const EnemyTest: React.FC<PropsNpcData> = ({enemyData}) => {
 
 const SingleEnemy: React.FC<{
     enemy: Enemy,
+    cameraPosition: { x: number, y: number },
     setDialogue: React.Dispatch<React.SetStateAction<string | null>>
-}> = ({enemy, setDialogue}) => {
+}> = ({enemy,cameraPosition, setDialogue}) => {
     const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
     const [image] = useImage(enemy.images[validImageIndex]);
@@ -82,10 +84,10 @@ const SingleEnemy: React.FC<{
     }
     return (
         <Group
-            x={position?.x}
-            y={position?.y}
-            width={enemy?.x}
-            height={enemy?.y}
+            x={position.x - cameraPosition.x}
+            y={position.y - cameraPosition.y}
+            width={enemy.x}
+            height={enemy.y}
             cursor="pointer"
             onClick={handleClick}
             onTap={handleClick}

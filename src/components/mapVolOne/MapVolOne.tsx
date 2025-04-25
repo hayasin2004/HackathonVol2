@@ -113,8 +113,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 onContextMenu={handleStageContextMenu}
             >
                 <Layer>
-                    {Array.isArray(enemyData) && enemyData.length > 0 ?   <EnemyTest enemyData={enemyData}/>
-                        : ""}
 
 
                     {Map_data.map((row, rowIndex) =>
@@ -217,6 +215,10 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             fill="rgba(0, 0, 0, 0.5)" // 半透明の黒
                             listening={false} // クリックを無視
                         />
+                    )}
+
+                    {Array.isArray(enemyData) && enemyData.length > 0 && (
+                        <EnemyTest enemyData={enemyData}　cameraPosition={cameraPosition}/>
                     )}
 
                     {isDark && (
