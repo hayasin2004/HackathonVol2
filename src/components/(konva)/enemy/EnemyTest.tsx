@@ -3,9 +3,10 @@ import React, {useEffect, useRef, useState} from 'react';
 import {NPC} from "@/types/npc";
 import {Stage, Layer, Group, Image, Text} from "react-konva";
 import useImage from "use-image";
+import {Enemy} from "@/types/enemy";
 
 interface PropsNpcData {
-    npcData: NPC[] | null
+    enemyData: Enemy[] | null
 }
 
 // 現在のステージを定義（この変数がどこかで定義されている必要があります）
@@ -17,10 +18,10 @@ const onInteract = (npc: NPC, dialogue: any) => {
     console.log("NPCと対話:", npc.name, dialogue);
 };
 
-const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
-    console.log(npcData);
+const EnemyTest: React.FC<PropsNpcData> = ({enemyData}) => {
+    console.log(enemyData);
 
-    if (!npcData || npcData.length === 0) {
+    if (!enemyData || enemyData.length === 0) {
         return <div>NPCデータがありません</div>;
     }
 
@@ -31,7 +32,7 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
             height={typeof window !== "undefined" ? window.innerHeight : 0}
         >
             <Layer>
-                {npcData.map((npc, index) => (
+                {enemyData.map((npc, index) => (
                     <SingleNpc key={npc.id} npc={npc}/>
                 ))}
             </Layer>
@@ -128,4 +129,4 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
     );
 };
 
-export default NpcTest;
+export default EnemyTest;

@@ -7,6 +7,7 @@ export interface Enemy {
     images: string[];
     health: number;
     damage: number;
+    dialogues : string[]
     movementPattern: string;
     stageStatus: number;
     dropItems?: number[];

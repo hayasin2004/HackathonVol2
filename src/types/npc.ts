@@ -6,7 +6,7 @@ export interface NPC {
     positionX: number;
     positionY: number;
     images: string[];
-    dialogues: JsonValue;  // Prismaの返す型に合わせて変更
+    dialogues : string[]
     stageStatus: number;
     questId?: number;     
 }
