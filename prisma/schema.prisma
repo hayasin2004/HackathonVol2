@@ -26,6 +26,10 @@ model User {
   updatedAt   DateTime     @default(now())
   PlayerData  PlayerData[]
   RoomItem    RoomItem[]
+  HP          Int          @default(5)
+  attack      Int          @default(1)
+  defense     Int          @default(1)
+  level       Int          @default(1)
 }
 
 model Character {
