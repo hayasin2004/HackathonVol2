@@ -103,15 +103,14 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         event.evt.preventDefault();
     };
 
-
-
+　
 
     return (
         <div>
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
-                onContextMenu={handleStageContextMenu}
+                onContextMenu={handleStageContextMenu}　
             >
                 <Layer>
 
