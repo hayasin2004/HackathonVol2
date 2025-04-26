@@ -107,7 +107,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     }, [enemyData]);
     // 敵を削除する関数
 
-    const handleRemoveEnemy = (enemyId: string) => {
+    const handleRemoveEnemy = (enemyId : number) => {
         // ローカルの状態を更新
         setLocalEnemyData(prev => prev ? prev.filter(enemy => enemy.id !== enemyId) : null);
     };
