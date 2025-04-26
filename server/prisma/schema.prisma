@@ -65,6 +65,10 @@ model PlayerData {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now())
   Room      Room?        @relation(fields: [roomId], references: [id])
+  hp        Int          @default(5)
+  attack    Int          @default(1)
+  defense   Int          @default(1)
+  level     Int          @default(1)
 }
 
 model PlayerItem {
@@ -154,8 +158,10 @@ model RoomItem {
 model NPC {
   id          Int        @id @default(autoincrement())
   name        String
-  positionX   Float
-  positionY   Float
+  x           Int
+  y           Int
+  width       Int?       @default(64)
+  height      Int?       @default(64)
   images      String[]
   dialogues   String[]
   stageStatus Int
@@ -181,8 +187,10 @@ model Quest {
 model Enemy {
   id              Int               @id @default(autoincrement())
   name            String
-  positionX       Float
-  positionY       Float
+  x               Int
+  y               Int
+  width           Int?              @default(64)
+  height          Int?              @default(64)
   images          String[]
   dialogues       String[]
   health          Int

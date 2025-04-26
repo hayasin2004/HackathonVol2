@@ -6,6 +6,10 @@ export interface PlayerType {
     description: string | null;
     createdAt: Date;
     updatedAt: Date;
+    hp : number;
+    attack : number
+    level : number;
+    defense : number;
 }
 
 // フォローボタンコンポーネントに渡す用
@@ -18,6 +22,9 @@ export interface propsPlayerType {
         description?: string | null;
         createdAt?: Date;
         updatedAt?: Date;
+        attack : number
+        level : number;
+        defense : number;
     } | null
 }
 

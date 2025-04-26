@@ -1,10 +1,12 @@
-
-
 export interface PlayerItem {
     id: number;
     playerId: number | null;
     x?: number | null;
     y?: number | null;
+    hp: number
+    attack: number
+    defense: number
+    level: number
     createdAt: Date;
     updatedAt: Date;
 }
@@ -12,7 +14,7 @@ export interface PlayerItem {
 export interface PlayerHaveItem {
     id: number;
     playerDataId: number;
-    playerId : number
+    playerId: number
     itemId: number;
     quantity: number;
     DefaultItemList: {

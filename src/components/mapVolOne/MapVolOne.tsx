@@ -4,7 +4,7 @@ import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/use
 import {PlayerItem} from "@/types/playerItem";
 import {Map_data, Tile_size} from "@/components/(konva)/grassmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
-import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
+import {Stage, Layer, Rect, Image as KonvaImage, Text} from "react-konva";
 import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {io, Socket} from "socket.io-client";
 import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
@@ -19,7 +19,7 @@ interface mapVolOneTypes {
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
-    enemyData : Enemy[] | null
+    enemyData: Enemy[] | null
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -43,7 +43,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
 
     useEffect(() => {
-        socket?.on('itemPlaced', (itemData) => {　
+        socket?.on('itemPlaced', (itemData) => {
             console.log('New item placed:', itemData);
             // 新しいアイテムをマップに追加
             console.log(itemData)
@@ -82,8 +82,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     }, [playerId]);
 
 
-
-
     // 画像の参照を保持するための useRef
 
     useEffect(() => {
@@ -108,18 +106,18 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         setLocalEnemyData(enemyData);
     }, [enemyData]);
     // 敵を削除する関数
+
     const handleRemoveEnemy = (enemyId: string) => {
         // ローカルの状態を更新
         setLocalEnemyData(prev => prev ? prev.filter(enemy => enemy.id !== enemyId) : null);
-
-
     };
+
     return (
         <div>
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
-                onContextMenu={handleStageContextMenu}　
+                onContextMenu={handleStageContextMenu}
             >
                 <Layer>
 
@@ -202,16 +200,36 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     })}
                     {/* --- プレイヤー --- */}
                     {playerCharacter && (
-                        <KonvaImage
-                            image={playerCharacter}
-                            x={ECollisionPosition?.x - cameraPosition.x}
-                            y={ECollisionPosition?.y - cameraPosition.y}
-                            width={Tile_size}
-                            height={Tile_size}
-                            alt="プレイヤー写真"
-                        />
-                    )}
+                        <>
+                            <KonvaImage
+                                image={playerCharacter}
+                                x={ECollisionPosition?.x - cameraPosition.x}
+                                y={ECollisionPosition?.y - cameraPosition.y}
+                                width={Tile_size}
+                                height={Tile_size}
+                                alt="プレイヤー写真"
+                            />
+                            <Text
+                                text={`hp + ${String(playerId.hp)}`}
+                                x={ECollisionPosition?.x - cameraPosition.x}
+                                y={(ECollisionPosition?.y - cameraPosition.y) - 20}
+                                fontSize={30}
+                                fill="red"
+                                align="center"
+                                width={100}
+                            />
+                            <Text
+                                text={`attack + ${String(playerId.attack)}`}
+                                x={ECollisionPosition?.x - cameraPosition.x}
+                                y={(ECollisionPosition?.y - cameraPosition.y) - 60}
+                                fontSize={30}
+                                fill="red"
+                                align="center"
+                                width={150}
+                            />
+                        </>
 
+                    )}
 
 
                     {/* --- 黒い四角形を最後に追加 --- */}
