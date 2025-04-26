@@ -5,8 +5,10 @@ import {PlayerItem} from "@/types/playerItem";
 import {Map_data, Tile_size} from "@/components/(konva)/grassmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
 import {Stage, Layer, Rect, Image as KonvaImage} from "react-konva";
+import {defaultItem} from '@/types/defaultItem';
 import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {io, Socket} from "socket.io-client";
+import {NPC} from "@/types/npc";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -16,6 +18,9 @@ interface mapVolOneTypes {
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
+}
+interface PropsDefaultItem {
+    defaultItemData: defaultItem[] | null
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -76,15 +81,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         setIsDark(shouldBeDark);
     }, [playerId]);
 
-
-
-
-    // 画像の参照を保持するための useRef
-
     useEffect(() => {
         // アイテムごとに画像をプリロード
         objectItemImage?.forEach((item) => {
             if (!imagesRef.current[item.id]) {
+                // 前にonloadした画像が残らないように初期化用のnew Image
                 const img = new Image();
                 img.src = item.iconImage; // 各アイテムの画像URL
                 img.onload = () => {
@@ -173,7 +174,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             img && (
                                 <KonvaImage
                                     key={`${item.id}-${index}`} // idとindexを組み合わせて一意のキーを生成
-                                    image={img}
+                                    image={imagesRef.current[item.id]}
                                     x={item.x - cameraPosition.x}
                                     y={item.y - cameraPosition.y}
                                     width={item.width}

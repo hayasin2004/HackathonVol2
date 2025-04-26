@@ -242,7 +242,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                     >
 
                         <Image
-                            src={item.DefaultItemList.itemIcon || ""}
+                            src={item.DefaultItemList.itemIcon[0] || ""}
                             alt={item.DefaultItemList.itemName}
                             width={40}
                             height={40}
