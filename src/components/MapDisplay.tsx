@@ -12,15 +12,16 @@ interface MapDisplayProps {
     playerId: PlayerItem;
     itemData: defaultItem[];
     roomId: number;
+    ECollisionPosition: { x: number; y: number };
 }
 
 const TILE_SIZE = 64;
 const MAP_WIDTH = 64 * TILE_SIZE;
 const MAP_HEIGHT = 64 * TILE_SIZE;
 
-const MapDisplay: React.FC<MapDisplayProps> = ({ playerId, itemData, roomId }) => {
+const MapDisplay: React.FC<MapDisplayProps> = ({ playerId, itemData, roomId, ECollisionPosition }) => {
     const [mapStatus, setMapStatus] = useState(1);
-    const {ECollisionPosition,} = useRemakeItemGet({userId: playerId.userId, initialPosition: { x: playerId.x, y: playerId.y }, itemData, mapWidthInPixels: MAP_WIDTH, mapHeightInPixels: MAP_HEIGHT,});
+    // const {ECollisionPosition,} = useRemakeItemGet({userId: playerId.id, initialPosition: { x: playerId.x, y: playerId.y }, itemData, mapWidthInPixels: MAP_WIDTH, mapHeightInPixels: MAP_HEIGHT,});
     // const {ECollisionPosition,} = useRemakeItemGet({userId: playerId.userId, initialPosition: { x:0, y:0 }, itemData, mapWidthInPixels: MAP_WIDTH, mapHeightInPixels: MAP_HEIGHT,});
 
     //マップの端に来たら切り替え処理
@@ -58,6 +59,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({ playerId, itemData, roomId }) =
                 return null;
         }
     };
+
+    console.log(ECollisionPosition)
 
     return <div>{renderMap()}</div>;
 }

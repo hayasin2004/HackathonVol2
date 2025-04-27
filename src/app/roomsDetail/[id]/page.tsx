@@ -8,6 +8,8 @@ import {PlayerItem} from "@/types/playerItem";
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import {defaultItem} from "@/types/defaultItem";
 import MapDisplay from '@/components/MapDisplay';
+import PlayerInventory from '@/components/playerInventory/PlayerInventory';
+import useRemakeItemGet from "@/hooks/(realTime)/test/useRemakeItemGet";
 
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
@@ -22,6 +24,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const [error, setError] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<PlayerItem | null | undefined>(null);
     const [itemData, setItemData] = useState<defaultItem[]>([]);
+
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
@@ -121,6 +124,14 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         initializePlayerData();
     }, [playerId, roomId]);
 
+    const {ECollisionPosition,} = useRemakeItemGet({
+        userId: playerId?.id ?? 0,
+        initialPosition: {x: playerId?.x ?? 0, y: playerId?.y ?? 0},
+        itemData,
+        mapWidthInPixels: 64 * 64,
+        mapHeightInPixels: 64 * 64,
+    });
+
     if (loading) {
         return <div className="flex justify-center items-center h-screen">ルーム情報を読み込み中...</div>;
     }
@@ -161,29 +172,10 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         return <div className="flex justify-center items-center h-screen">プレイヤー情報を読み込み中...</div>;
     }
 
-
-
     return (
         <div className="container mx-auto p-4">
-            {/*<h1 className="text-2xl font-bold mb-4">{room.name}</h1>*/}
-
-            {/*<div className="mb-6">*/}
-            {/*    <button*/}
-            {/*        onClick={() => router.push('/rooms')}*/}
-            {/*        className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded mr-2"*/}
-            {/*    >*/}
-            {/*        ルーム一覧に戻る*/}
-            {/*    </button>*/}
-
-            {/*    <div className="mt-2">*/}
-            {/*        <p className="text-sm text-gray-500">*/}
-            {/*            ルームID: {room.id} | プレイヤー数: {room.players.length}*/}
-            {/*        </p>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
-            {/* <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/> */}
-            <MapDisplay playerId={playerId} itemData={itemData} roomId={roomId}/>
-            {/*<Game playerId={playerId} roomId={roomId}/>*/}
+            <MapDisplay playerId={playerId} itemData={itemData} roomId={roomId} ECollisionPosition={ECollisionPosition}/>
+            <PlayerInventory playerId={playerId} itemData={itemData} roomId={roomId} ECollisionPosition={ECollisionPosition}/>
         </div>
     );
 };
