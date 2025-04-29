@@ -18,6 +18,7 @@ interface mapVolOneTypes {
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
+    onItemRemove?: (enemyId: string) => void
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -26,7 +27,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerCharacter,
                                                  objectItemImage,
                                                  nearbyItemPosition,
-                                                 socket
+                                                 socket,
+                                                 onItemRemove
                                              }) => {
 
 
@@ -37,6 +39,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [mapData, setMapData] = useState(Map_data);
     const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
+    const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
 
 
     useEffect(() => {
@@ -52,36 +55,30 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         };
     }, [socket]);
 
-    // map上からItemを削除する
-    useEffect(() => {
-        socket?.on('itemRemoved', (itemId) => {
-            console.log('マップ上から削除:', itemId);
-            setItems(prevItems =>
-                prevItems ? prevItems.filter(item => item.id !== itemId) : null
-            );
-        });
-
-        // クリーンアップ関数でイベントリスナーを削除
-        return () => {
-            socket?.off('itemRemoved');
-        };
-    }, [socket]);
-
-    // アイテムを破壊する関数（ユーザーの操作で呼び出す）
-    const breakItem = (itemId:string) => {
-        // ローカルでアイテムを破壊する処理
-        // 例: removeItemFromMap(itemId);
-
-        // 他のプレイヤーに通知
-        socket?.emit('itemBreak', {
-            id: itemId,
-            // 必要に応じて他の情報を追加
-            playerId: playerId,
-            timestamp: Date.now()
-        });
-    };
+    // // map上からItemを削除する
+    // useEffect(() => {
+    //
+    //     socket?.on('itemRemoved', (itemId) => {
+    //
+    //         console.log('マップ上から削除:', itemId);
+    //         setItems(prevItems =>
+    //             prevItems ? prevItems.filter(item => item.id !== itemId) : null
+    //         );
+    //     });
+    //
+    //     // クリーンアップ関数でイベントリスナーを削除
+    //     return () => {
+    //         socket?.off('itemRemoved');
+    //     };
+    // }, [socket]);
 
 
+    const handleItemDelete = (itemId:string) =>{
+        console.log("delete", itemId);
+        setItems(prevItems =>
+            prevItems ? prevItems.filter(item => item.id !== itemId) : null
+        );
+    }
 
     useEffect(() => {
         setItems(objectItemImage);
@@ -208,6 +205,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                     width={item.width}
                                     height={item.height}
                                     alt="タイル画像"
+                                    onItemRemove={handleItemDelete}
                                 />
                             )
                         );
