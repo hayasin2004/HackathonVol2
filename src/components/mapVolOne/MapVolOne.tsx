@@ -51,40 +51,37 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             socket?.off('itemPlaced');
         };
     }, [socket]);
-    //
-    //
-    // useEffect(() => {
-    //     // 他のプレイヤーからのアイテム破壊通知を受け取る
-    //     const handleItemBreak = (brokenItem:string) => {
-    //         console.log('アイテムが破壊されました:', brokenItem);
-    //         // ここでマップ上からアイテムを削除する処理
-    //         // 例: removeItemFromMap(brokenItem.id);
-    //     };
-    //
-    //     // イベントリスナーを設定
-    //     socket?.on('itemBreak', handleItemBreak);
-    //
-    //     // クリーンアップ関数でイベントリスナーを削除
-    //     return () => {
-    //         socket?.off('itemBreak', handleItemBreak);
-    //     };
-    // }, [socket]);
-    //
-    // // アイテムを破壊する関数（ユーザーの操作で呼び出す）
-    // const breakItem = (itemId:string) => {
-    //     // ローカルでアイテムを破壊する処理
-    //     // 例: removeItemFromMap(itemId);
-    //
-    //     // 他のプレイヤーに通知
-    //     socket?.emit('itemBreak', {
-    //         id: itemId,
-    //         // 必要に応じて他の情報を追加
-    //         playerId: playerId,
-    //         timestamp: Date.now()
-    //     });
-    // };
-    //
-    //
+
+    // map上からItemを削除する
+    useEffect(() => {
+        socket?.on('itemRemoved', (itemId) => {
+            console.log('マップ上から削除:', itemId);
+            setItems(prevItems =>
+                prevItems ? prevItems.filter(item => item.id !== itemId) : null
+            );
+        });
+
+        // クリーンアップ関数でイベントリスナーを削除
+        return () => {
+            socket?.off('itemRemoved');
+        };
+    }, [socket]);
+
+    // アイテムを破壊する関数（ユーザーの操作で呼び出す）
+    const breakItem = (itemId:string) => {
+        // ローカルでアイテムを破壊する処理
+        // 例: removeItemFromMap(itemId);
+
+        // 他のプレイヤーに通知
+        socket?.emit('itemBreak', {
+            id: itemId,
+            // 必要に応じて他の情報を追加
+            playerId: playerId,
+            timestamp: Date.now()
+        });
+    };
+
+
 
     useEffect(() => {
         setItems(objectItemImage);

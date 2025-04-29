@@ -102,6 +102,10 @@ io.on('connection', (socket) => {
         socket.emit('itemPlaced', itemData);
     });
 
+    // MapにあるItemを取得したらItemから消える処理
+
+    socket?.emit('itemRemoved');
+
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
 
         // DBを更新
