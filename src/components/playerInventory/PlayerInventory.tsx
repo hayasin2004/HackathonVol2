@@ -198,26 +198,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
         }
     };
 
-    // 拓がやること
-    // testRepositoryの中にあるcraftItem参考にして
-    // inventoryでアイテム選択した状態で設置 or 破壊ボタンをクリックするとマイナスされる機能　
-    // →　非同期でinventoryにあるアイテムの個数も減らして
-    // これができたら画面下側にマイクラみたいなアイテム一覧を作成して
-    // Break(itemId , PlayerId)
 
-    // わからないこと
-    // プレイヤーの位置情報の持ってくる方法
-    // まずおかれているアイテム(defaultItem)がマップ配置されているがそれを取得したときに消すとなるとdefaultItemを消すことにならないか
-    // →取得したアイテムのキーを消すイメージ。
-    // storageに保存されている前提。　→　画像を置かれている座標と保存することで取得されるたびにランダムに座標を生成する必要がある。
-
-    // ユーザーがアイテムを獲得した状態をどのようにして新しい関数に入れていけばいいかわからない
-    // アイテムの関数に取得したアイテムIdをキーから割り出して、プレイヤーIDも持ってくきてそれを渡す必要
-
-    // ランダムに動くアイテムの座標をどのようにして使うのか
-    // →publicフォルダー画像を呼び出してその画像をランダムに座標を生成してるから配置してるから座標を扱うのは無理。
-
-    // 最優先 オブジェクトをstorageに保存するようにするしかない
     const ItemBreak = async (playerId: number | undefined) => {
 
         const player = await prisma.playerData.findUnique({

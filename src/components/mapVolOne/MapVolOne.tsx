@@ -19,9 +19,6 @@ interface mapVolOneTypes {
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
 }
-interface PropsDefaultItem {
-    defaultItemData: defaultItem[] | null
-}
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  playerId,
