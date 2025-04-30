@@ -4,8 +4,11 @@ export interface Enemy {
     name: string;
     x: number;
     y: number;
+    width: number;
+    height: number;
     images: string[];
-    health: number;
+    hp: number;
+    attack: number;
     damage: number;
     dialogues : string[]
     movementPattern: {type :  string };

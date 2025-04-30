@@ -42,6 +42,10 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
 
 
+    // 破壊の通知をonで受け取る　補足（onで受け取る情報は座標が更新された一番新しいroomItemsのデータが送られてくる。）
+    // setItemsの更新
+
+
     useEffect(() => {
         socket?.on('itemPlaced', (itemData) => {
             console.log('New item placed:', itemData);
@@ -249,6 +253,13 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             cameraPosition={cameraPosition}
                             ECollisionPosition={ECollisionPosition}
                             onEnemyRemove={handleRemoveEnemy}
+                            player={playerId}  // プレイヤー情報を渡す
+                            playerAttack={playerId.attack}
+                            onPlayerDamage={(newHp) => {
+                                // プレイヤーのHPが更新されたときの処理
+                                console.log(`プレイヤーのHPが${newHp}に更新されました`);
+                                // ここで必要に応じて親コンポーネントに通知できます
+                            }}
                         />
                     )}
 

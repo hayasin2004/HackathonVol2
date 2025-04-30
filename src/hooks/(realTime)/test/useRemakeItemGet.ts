@@ -146,7 +146,7 @@ export const useRemakeItemGet = ({
                         setECollisionGotItem(prev => prev.filter(item => item !== foundItem?.id?.toString()));
 
                     } else {
-                        setECollisionGotItem(prev => [...prev, foundItem.id.toString()]);
+                        setECollisionGotItem(prev => [...prev, foundItem.itemId.toString()]);
                         setECollisionGotItemStatus(foundItem);
                         console.log("取得成功（データなし）:", foundItem.id);
                     }

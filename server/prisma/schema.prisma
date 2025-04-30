@@ -193,7 +193,8 @@ model Enemy {
   height          Int?              @default(64)
   images          String[]
   dialogues       String[]
-  health          Int
+  hp              Int?              @default(5)
+  attack          Int?              @default(2)
   damage          Int
   movementPattern Json
   stageStatus     Int
