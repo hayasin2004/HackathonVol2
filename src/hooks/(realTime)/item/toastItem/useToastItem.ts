@@ -26,6 +26,7 @@ const useToastItem = (clearGotItems: () => void) => {
             mushroom: "キノコ",
             insect: "虫",
             water: "不思議な水",
+            honetukiniku:"骨付き肉",
         };
 
         items.forEach((item, index) => {

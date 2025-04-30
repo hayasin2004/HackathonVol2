@@ -35,16 +35,44 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
     const [putItem, setPutItem] = useState<number>(0)
-    const handleItemClick = (itemId) => {
+    const [selectItemIndex, setSelectItemIndex] = useState<number>(0);
+    const [selectedCraftItemId, setSelectedCraftItemId] = useState<number | null>(null);
+    const handleItemClick = (itemId: number) => {
         if (selectedItemId === itemId) {
-            console.log(`Place item with ID: ${selectedItemId}`);
-            // アイテムを配置するロジック
-            setSelectedItemId(null); // 配置後に選択を解除する
+            setSelectedItemId(null);
         } else {
             setSelectedItemId(itemId);
         }
     };
 
+    // playerItemsが更新されたときにインデックス初期化
+    useEffect(() => {
+        if(playerItems && playerItems.length > 0){
+            setSelectItemIndex(0);
+            setSelectedItemId(playerItems[0].itemId);
+        }
+    }, [playerItems]);
+    // ホイールスクロールでアイテムを選択
+    useEffect(() => {
+        const handleWheel = (event: WheelEvent) => {
+            if (isOpen) return; // クラフトメニューが開いていたら無視
+            if (!playerItems || playerItems.length === 0) return;
+
+            event.preventDefault();
+            const currentIndex = playerItems.findIndex(item => item.itemId === selectedItemId);
+            const newIndex =
+                event.deltaY > 0
+                    ? (currentIndex + 1) % playerItems.length
+                    : (currentIndex - 1 + playerItems.length) % playerItems.length;
+
+            setSelectedItemId(playerItems[newIndex].itemId);
+        };
+
+        window.addEventListener("wheel", handleWheel, { passive: false });
+        return () => {
+            window.removeEventListener("wheel", handleWheel);
+        };
+    }, [playerItems, selectedItemId, isOpen]);
     useEffect(() => {
         socket?.on('itemPlaced', (itemData) => {
             console.log('New item placed:', itemData);
@@ -182,10 +210,9 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     };
 
     // クラフトをプルダウンメニュー化
-    const handleSelectChange = (e: any) => {
-        setSelectedItemId(e);
+    const handleCraftSelectChange = (id: number) => {
+        setSelectedCraftItemId(id);
     };
-
     const handleCraftClick = () => {
         if (selectedItemId) {
             const selectedItem = craftItems.find(
@@ -247,40 +274,38 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                             <button className={styles.closeButton} onClick={() => setIsOpen(false)}>×</button>
                             <div className={styles.inventory}>
                                 <h3>インベントリ</h3>
-                                <table className={styles.inventoryTable}>
-                                    <thead>
-                                    <tr>
-                                        <th>アイテム名</th>
-                                        <th>個数</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-
+                                <div className={styles.inventoryGrid}>
                                     {playerItems?.map((item) => (
-                                        <tr key={item.id}>
-                                            <td>{item.DefaultItemList.itemName}</td>
-                                            <td>{item.quantity}</td>
-                                        </tr>
+                                        item.quantity > 0 && (
+                                            <div key={item.id} className={styles.inventoryItemGrid}>
+                                                <Image
+                                                    src={item.DefaultItemList.itemIcon[0] || ""}
+                                                    alt={item.DefaultItemList.itemName}
+                                                    width={48}
+                                                    height={48}
+                                                    title={`${item.DefaultItemList.itemName} ×${item.quantity}`}
+                                                />
+                                                <span className={styles.quantityOverlay}>{item.quantity}</span>
+                                            </div>
+                                        )
                                     ))}
-                                    </tbody>
-                                </table>
+                                </div>
                             </div>
-
                             <div className={styles.crafting}>
                                 <h3 className={styles.heading}>クラフトメニュー</h3>
 
-                                <p className={styles.selectedInfo}>選択中: {selectedItemId || '-- アイテムを選択 --'}</p>
+                                <p className={styles.selectedInfo}>
+                                    選択中: {selectedCraftItemId || '-- アイテムを選択 --'}
+                                </p>
 
                                 <div className={styles.craftButtonContainer}>
                                     {craftItems.map((craftItem) => (
                                         <div
-                                            className={`${styles.craftButtons} ${selectedItemId === craftItem.createdItem.id ? styles.selected : ''}`}
+                                            className={`${styles.craftButtons} ${selectedCraftItemId === craftItem.createdItem.id ? styles.selected : ''}`}
                                             key={craftItem.id}
-                                            onClick={() => handleSelectChange(craftItem.id)}
+                                            onClick={() => handleCraftSelectChange(craftItem.createdItem.id)}
                                         >
-                                                <span
-                                                    className={styles.itemName}>{craftItem.createdItem.itemName}</span>
+                                            <span className={styles.itemName}>{craftItem.createdItem.itemName}</span>
                                             <Image
                                                 src={craftItem.createdItem.itemIcon}
                                                 alt={craftItem.createdItem.itemName}
@@ -290,7 +315,6 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                                         </div>
                                     ))}
                                 </div>
-
 
                                 <button
                                     className={styles.buttonCreate}

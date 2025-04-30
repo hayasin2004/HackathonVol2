@@ -103,8 +103,15 @@ io.on('connection', (socket) => {
     });
 
     // MapにあるItemを取得したらItemから消える処理
-
-    socket?.emit('itemRemoved');
+    // イチカワが書きます
+    socket.on('itemMoved', (data) => {
+        const { roomId, itemId, x, y } = data;
+        if (roomId) {
+            // 同じルームの全メンバーにブロードキャスト（送信元を含まない）
+            socket.to(`room-${roomId}`).emit('itemMoved', { itemId, x, y });
+            console.log(`Item ${itemId} moved to (${x}, ${y}) in room ${roomId}`);
+        }
+    });
 
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
 
