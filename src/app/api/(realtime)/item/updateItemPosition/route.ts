@@ -11,11 +11,7 @@ export async function POST(req: Request) {
             where: {id: itemId},
             data: {x: newPosition.x, y: newPosition.y},
         });
-        await prisma.defaultItemList.update({
-            where:{id:updatedItem.itemId},
-            data: {x: newPosition.x, y: newPosition.y}
-        })
-        console.log("roomItem,defaultItemListの位置情報を更新")
+        console.log("roomItemの位置情報を更新")
         console.log(updatedItem);
         return NextResponse.json(updatedItem, {status: 200});
     } catch (error) {

@@ -103,7 +103,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
             }
 
             // 既存アイテムの数量を増やす
-            if (existingItemIds.length > 0 && playerId !== undefined) {
+            if (existingItemIds.length && playerId !== undefined) {
 
                 const savedItemData = await prisma.defaultItemList.findMany({
                     where: {

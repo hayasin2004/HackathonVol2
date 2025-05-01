@@ -42,6 +42,22 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
 
 
+     // map上からItemを削除する
+    useEffect(() => {
+        socket?.on('itemRemoved', (itemId) => {
+            console.log('マップ上から削除:', itemId);
+            setItems(prevItems =>
+                prevItems ? prevItems.filter(item => item.itemId !== itemId) : null
+            );
+        });
+
+        return () => {
+            socket?.off('itemRemoved');
+        };
+    }, [socket]);
+
+
+
     useEffect(() => {
         socket?.on('itemPlaced', (itemData) => {　
             console.log('New item placed:', itemData);
@@ -55,22 +71,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         };
     }, [socket]);
 
-    // // map上からItemを削除する
-    // useEffect(() => {
-    //
-    //     socket?.on('itemRemoved', (itemId) => {
-    //
-    //         console.log('マップ上から削除:', itemId);
-    //         setItems(prevItems =>
-    //             prevItems ? prevItems.filter(item => item.id !== itemId) : null
-    //         );
-    //     });
-    //
-    //     // クリーンアップ関数でイベントリスナーを削除
-    //     return () => {
-    //         socket?.off('itemRemoved');
-    //     };
-    // }, [socket]);
+
 
 
     const handleItemDelete = (itemId:string) =>{

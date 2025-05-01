@@ -25,14 +25,11 @@ const useDestroyAndRandom = (socket: Socket | null) => {
                 return;
             }
             const existingPositions = []; // Fetch existing positions if needed
+
             const newPosition = getRandomPosition(existingPositions);
             // うまくいかない
-            // console.log('アイテムが取得されたらマップからすぐに消える',newPosition);
-            // socket?.emit('itemMoved',{
-            //     ...item,
-            //     x: newPosition.x,
-            //     y: newPosition.y,
-            // });
+            socket?.emit('itemRemoved', {...item, x: newPosition.x, y: newPosition.y});
+            console.log('アイテムが取得されたらマップからすぐに消える',newPosition);
 
             const response = await fetch('/api/item/updateItemPosition', {
                 method: 'POST',
