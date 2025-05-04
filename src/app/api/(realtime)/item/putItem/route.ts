@@ -124,7 +124,7 @@ async function route(itemData: putItemType) {
                 y: ECollisionPosition.y + YPosition,
                 itemId: selectedItemId,
                 userId: playerId.playerId,
-                iconImage: iconImage
+                iconImage: iconImage[1]
             }
         })
 

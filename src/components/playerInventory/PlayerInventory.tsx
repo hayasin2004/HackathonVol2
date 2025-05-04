@@ -134,8 +134,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                         if (response) {
                             setPlayerItems(response.item);
                         }
-
-                        console.log("アイテムログ"+putItemData.data.id)
+　
 
                         const itemData = {
                             roomId,

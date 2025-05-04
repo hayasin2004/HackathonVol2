@@ -4,7 +4,7 @@ import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/use
 import {PlayerItem} from "@/types/playerItem";
 import {Map_data, Tile_size} from "@/components/(konva)/grassmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
-import {Stage, Layer, Rect, Image as KonvaImage ,Text} from "react-konva";
+import {Stage, Layer, Rect, Image as KonvaImage, Text} from "react-konva";
 import {defaultItem} from '@/types/defaultItem';
 import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {io, Socket} from "socket.io-client";
@@ -30,7 +30,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  ECollisionPosition,
                                                  playerCharacter,
                                                  objectItemImage,
-                                                 nearbyItemPosition,　
+                                                 nearbyItemPosition,
                                                  enemyData,
                                                  socket,
                                                  onItemRemove
@@ -46,9 +46,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
     const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
 
+    useEffect(() => {
+        console.log("items" + JSON.stringify(items))
+    }, []);
 
-
-     // map上からItemを削除する
+    // map上からItemを削除する
     useEffect(() => {
         socket?.on('itemRemoved', (itemId) => {
             console.log('マップ上から削除:', itemId);
@@ -63,12 +65,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     }, [socket]);
 
 
-
     useEffect(() => {
-        socket?.on('itemPlaced', (itemData) => {　
+        socket?.on('itemPlaced', (itemData) => {
             console.log('New item placed:', itemData);
             // 新しいアイテムをマップに追加
-            console.log(itemData)
+            console.log(itemData.x ,itemData.y )
+            console.log(ECollisionPosition)
             setItems(prevItems => [...(prevItems || []), itemData]);
         });
 
@@ -78,9 +80,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     }, [socket]);
 
 
-
-
-    const handleItemDelete = (itemId:string) =>{
+    const handleItemDelete = (itemId: string) => {
         console.log("delete", itemId);
         setItems(prevItems =>
             prevItems ? prevItems.filter(item => item.id !== itemId) : null
@@ -114,8 +114,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     }, [playerId]);
 
 
-
-
     // 画像の参照を保持するための useRef
 
     useEffect(() => {
@@ -141,7 +139,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     }, [enemyData]);
     // 敵を削除する関数
 
-    const handleRemoveEnemy = (enemyId : number) => {
+    const handleRemoveEnemy = (enemyId: number) => {
         // ローカルの状態を更新
         setLocalEnemyData(prev => prev ? prev.filter(enemy => enemy.id !== enemyId) : null);
     };
