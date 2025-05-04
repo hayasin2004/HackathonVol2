@@ -47,6 +47,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
 
 
+
      // map上からItemを削除する
     useEffect(() => {
         socket?.on('itemRemoved', (itemId) => {
