@@ -45,10 +45,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
     const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
+    // アイテムの画像がロード完了したかを追跡するための状態
+    const [loadedImages, setLoadedImages] = useState<{[key: string]: boolean}>({});
 
     useEffect(() => {
         console.log("items" + JSON.stringify(items))
-    }, []);
+    }, [items]); // itemsが変更されたときに実行されるように修正
 
     // map上からItemを削除する
     useEffect(() => {
@@ -68,10 +70,15 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     useEffect(() => {
         socket?.on('itemPlaced', (itemData) => {
             console.log('New item placed:', itemData);
-            // 新しいアイテムをマップに追加
-            console.log(itemData.x ,itemData.y )
-            console.log(ECollisionPosition)
-            setItems(prevItems => [...(prevItems || []), itemData]);
+            // 新しいアイテムの画像をプリロード
+            const img = new Image();
+            img.src = itemData.iconImage;
+            img.onload = () => {
+                // 画像がロードされたら、参照を保存してからアイテムを追加
+                imagesRef.current[itemData.id] = img;
+                setLoadedImages(prev => ({...prev, [itemData.id]: true}));
+                setItems(prevItems => [...(prevItems || []), itemData]);
+            };
         });
 
         return () => {
@@ -98,7 +105,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     useEffect(() => {
         // cameraPositionの変更を検知して状態を更新
         setCameraPosition(cameraPositionHook);
-    }, [cameraPosition, ECollisionPosition]);
+    }, [cameraPositionHook, ECollisionPosition]);
 
 
     useEffect(() => {
@@ -106,8 +113,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     }, [tileImagesComplete, isLoading]);
 
     useEffect(() => {
-
-
         // 20パーの確立でマップを暗くする
         const shouldBeDark = Math.random() < 0.2; // 20%の確率
         setIsDark(shouldBeDark);
@@ -115,19 +120,21 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
 
     // 画像の参照を保持するための useRef
-
     useEffect(() => {
         // アイテムごとに画像をプリロード
-        objectItemImage?.forEach((item) => {
+        if (!items) return;
+        
+        items.forEach((item) => {
             if (!imagesRef.current[item.id]) {
                 const img = new Image();
                 img.src = item.iconImage; // 各アイテムの画像URL
                 img.onload = () => {
                     imagesRef.current[item.id] = img; // ロードした画像を参照に保存
+                    setLoadedImages(prev => ({...prev, [item.id]: true}));
                 };
             }
         });
-    }, [objectItemImage]);
+    }, [items]);
 
     const handleStageContextMenu = (event) => {
         event.evt.preventDefault();
@@ -208,26 +215,24 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
 
                     {items?.map((item, index) => {
-                        const img = imagesRef.current[item.id] || new Image();
-                        if (!imagesRef.current[item.id]) {
-                            img.src = item.iconImage; // 各アイテムの画像URL
-                            img.onload = () => {
-                                imagesRef.current[item.id] = img; // ロードした画像を参照に保存
-                            };
+                        // 既存の画像を使用するか、新しい画像をロード
+                        const img = imagesRef.current[item.id];
+                        if (!img) {
+                            // 画像がまだロードされていない場合はnullを返し、レンダリングしない
+                            return null;
                         }
+                        
                         return (
-                            img && (
-                                <KonvaImage
-                                    key={`${item.id}-${index}`} // idとindexを組み合わせて一意のキーを生成
-                                    image={imagesRef.current[item.id]}
-                                    x={item.x - cameraPosition.x}
-                                    y={item.y - cameraPosition.y}
-                                    width={item.width}
-                                    height={item.height}
-                                    alt="タイル画像"
-                                    onItemRemove={handleItemDelete}
-                                />
-                            )
+                            <KonvaImage
+                                key={`${item.id}-${index}`} // idとindexを組み合わせて一意のキーを生成
+                                image={img}
+                                x={item.x - cameraPosition.x}
+                                y={item.y - cameraPosition.y}
+                                width={item.width}
+                                height={item.height}
+                                alt="タイル画像"
+                                onItemRemove={handleItemDelete}
+                            />
                         );
                     })}
                     {playerCharacter && (
