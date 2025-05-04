@@ -43,6 +43,7 @@ const useGetAlwaysItem = (
         isProcessingRef.current = true;
 
         const collidingObstacles = getCollidingObstacles(ECollisionPosition.x, ECollisionPosition.y);
+
         if (collidingObstacles!.length > 0) {
             setAdjacentObstacles(collidingObstacles!);
             try {

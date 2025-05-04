@@ -105,6 +105,7 @@ model CraftItem {
   id            Int                 @id @default(autoincrement())
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @default(now())
+  craftItemIcon String?
   // # 作成されるアイテム (1対1)
   createdItemId Int
   createdItem   DefaultItemList     @relation("CreatedItem", fields: [createdItemId], references: [id], onDelete: Cascade)
