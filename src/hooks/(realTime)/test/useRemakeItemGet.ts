@@ -138,6 +138,7 @@ export const useRemakeItemGet = ({
                 const result = await playerGetItem(userId, [foundItem.itemId]);
                 if (result?.status === "success") {
                     if (Array.isArray(result.savedItemData)) {
+                        console.log(result.savedItemData[0].id , foundItem.itemId)
                         setECollisionGotItem(prev => [...prev, ...result.savedItemData]);
                         setECollisionGotItemStatus(foundItem);
 

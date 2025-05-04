@@ -20,6 +20,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
     // アイテムを引数として受け取るように変更
     const handleItemCollection = useCallback(async (item) => {
         try {
+            console.log("ランダム座標対象アイテム" + JSON.stringify(item))
             if (item.itemId === 11) { // 11が水のIDであると仮定
                 console.log('Water item detected, not moving.');
                 return;
@@ -29,7 +30,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
             const newPosition = getRandomPosition(existingPositions);
             // うまくいかない
             socket?.emit('itemRemoved', {...item, x: newPosition.x, y: newPosition.y});
-            console.log('アイテムが取得されたらマップからすぐに消える',newPosition);
+            console.log('アイテムが取得されたらマップからすぐに消える',JSON.stringify(item));
 
             const response = await fetch('/api/item/updateItemPosition', {
                 method: 'POST',

@@ -106,7 +106,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         rectPositions: objectItemImage,
         waterTiles: waterTiles, // ← ここ！
         mapWidthInPixels: Map_width * Tile_size,
-        mapHeightInPixels: Map_height * Tile_size
+        mapHeightInPixels: Map_height * Tile_size,
+
     });
 
     useEffect(() => {

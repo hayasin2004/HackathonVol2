@@ -6,9 +6,13 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     const {itemId, newPosition} = await req.json();
     try {
-        console.log(itemId, newPosition)
+
+        const roomItem =  await prisma.roomItem.findFirst({
+            where: {itemId: itemId},
+        });
+
         const updatedItem = await prisma.roomItem.update({
-            where: {id: itemId},
+            where: {id: roomItem?.id},
             data: {x: newPosition.x, y: newPosition.y},
         });
         console.log("roomItemの位置情報を更新")
