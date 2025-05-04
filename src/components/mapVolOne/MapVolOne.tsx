@@ -4,12 +4,14 @@ import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/use
 import {PlayerItem} from "@/types/playerItem";
 import {Map_data, Tile_size} from "@/components/(konva)/grassmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
-import {Stage, Layer, Rect, Image as KonvaImage, Text} from "react-konva";
+import {Stage, Layer, Rect, Image as KonvaImage ,Text} from "react-konva";
+import {defaultItem} from '@/types/defaultItem';
 import {objectItemIconImage} from "@/hooks/(realTime)/test/useRemakeItemGet";
 import {io, Socket} from "socket.io-client";
 import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 import {Enemy} from "@/types/enemy";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
+import {NPC} from "@/types/npc";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -20,6 +22,7 @@ interface mapVolOneTypes {
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
     enemyData: Enemy[] | null
+    onItemRemove?: (enemyId: string) => void
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -27,10 +30,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  ECollisionPosition,
                                                  playerCharacter,
                                                  objectItemImage,
-                                                 nearbyItemPosition,
+                                                 nearbyItemPosition,　
+                                                 enemyData,
                                                  socket,
-                                                 enemyData
+                                                 onItemRemove
                                              }) => {
+
 
     const {tileImagesComplete, isLoading} = useGenerateMap()
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
@@ -39,14 +44,28 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [mapData, setMapData] = useState(Map_data);
     const imagesRef = useRef<{ [key: string]: HTMLImageElement }>({});
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
+    const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
 
 
-    // 破壊の通知をonで受け取る　補足（onで受け取る情報は座標が更新された一番新しいroomItemsのデータが送られてくる。）
-    // setItemsの更新
+
+     // map上からItemを削除する
+    useEffect(() => {
+        socket?.on('itemRemoved', (itemId) => {
+            console.log('マップ上から削除:', itemId);
+            setItems(prevItems =>
+                prevItems ? prevItems.filter(item => item.itemId !== itemId) : null
+            );
+        });
+
+        return () => {
+            socket?.off('itemRemoved');
+        };
+    }, [socket]);
+
 
 
     useEffect(() => {
-        socket?.on('itemPlaced', (itemData) => {
+        socket?.on('itemPlaced', (itemData) => {　
             console.log('New item placed:', itemData);
             // 新しいアイテムをマップに追加
             console.log(itemData)
@@ -57,6 +76,16 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             socket?.off('itemPlaced');
         };
     }, [socket]);
+
+
+
+
+    const handleItemDelete = (itemId:string) =>{
+        console.log("delete", itemId);
+        setItems(prevItems =>
+            prevItems ? prevItems.filter(item => item.id !== itemId) : null
+        );
+    }
 
     useEffect(() => {
         setItems(objectItemImage);
@@ -83,6 +112,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         const shouldBeDark = Math.random() < 0.2; // 20%の確率
         setIsDark(shouldBeDark);
     }, [playerId]);
+
+
 
 
     // 画像の参照を保持するための useRef
@@ -123,8 +154,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 onContextMenu={handleStageContextMenu}
             >
                 <Layer>
-
-
+                    {/* --- 1. Grass背景 --- */}
                     {Map_data.map((row, rowIndex) =>
                         row.map((_, colIndex) => {
                             const grassImg = tileImages["grass"];
@@ -191,17 +221,17 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             img && (
                                 <KonvaImage
                                     key={`${item.id}-${index}`} // idとindexを組み合わせて一意のキーを生成
-                                    image={img}
+                                    image={imagesRef.current[item.id]}
                                     x={item.x - cameraPosition.x}
                                     y={item.y - cameraPosition.y}
                                     width={item.width}
                                     height={item.height}
                                     alt="タイル画像"
+                                    onItemRemove={handleItemDelete}
                                 />
                             )
                         );
                     })}
-                    {/* --- プレイヤー --- */}
                     {playerCharacter && (
                         <>
                             <KonvaImage
@@ -233,7 +263,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         </>
 
                     )}
-
 
                     {/* --- 黒い四角形を最後に追加 --- */}
                     {nearbyItemPosition && (

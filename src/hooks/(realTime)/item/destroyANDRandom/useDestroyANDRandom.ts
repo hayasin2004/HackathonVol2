@@ -1,5 +1,6 @@
 import {useCallback} from "react";
 import {Socket} from "socket.io-client";
+import {response} from "express";
 
 const useDestroyAndRandom = (socket: Socket | null) => {
     const maxWidth = 2200;
@@ -24,7 +25,11 @@ const useDestroyAndRandom = (socket: Socket | null) => {
                 return;
             }
             const existingPositions = []; // Fetch existing positions if needed
+
             const newPosition = getRandomPosition(existingPositions);
+            // うまくいかない
+            socket?.emit('itemRemoved', {...item, x: newPosition.x, y: newPosition.y});
+            console.log('アイテムが取得されたらマップからすぐに消える',newPosition);
 
             const response = await fetch('/api/item/updateItemPosition', {
                 method: 'POST',

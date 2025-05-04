@@ -102,6 +102,14 @@ io.on('connection', (socket) => {
         socket.emit('itemPlaced', itemData);
     });
 
+    // MapにあるItemを取得したらItemから消える処理
+    // イチカワが書きます
+    socket.on('itemRemoved', (itemId) => {
+        // クライアントにアイテム削除をブロードキャスト（全ての接続されたクライアントに送信）
+        io.emit('itemRemoved', itemId);
+        console.log(`Item ${itemId} removed`);
+    });
+
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
 
         // DBを更新

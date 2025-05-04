@@ -1,5 +1,5 @@
 import SignIn from "@/app/(userAuth)/signin/page";
-import {SessionProvider} from "next-auth/react";
+import React from "react";
 
 export default function Home() {
   return (

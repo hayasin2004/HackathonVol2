@@ -21,6 +21,6 @@ export interface PlayerHaveItem {
         id: number;
         itemName: string;
         itemDescription: string;
-        itemIcon: string | null;
+        itemIcon: string;
     };
 }
