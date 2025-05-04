@@ -32,7 +32,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  enemyData
                                              }) => {
 
-
     const {tileImagesComplete, isLoading} = useGenerateMap()
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [isDark, setIsDark] = useState(false);
