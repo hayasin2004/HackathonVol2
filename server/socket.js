@@ -54,7 +54,6 @@ io.on('connection', (socket) => {
 
         try {
             console.log(playerId, roomId);
-            console.log("市川拓" + "平手後期")
 
             // DBのプレイヤーデータを更新
             const test = await prisma.playerData.update({
@@ -99,17 +98,21 @@ io.on('connection', (socket) => {
 
         console.log(itemData)
         // 他のクライアントにアイテム設置をブロードキャスト
-        socket.emit('itemPlaced', itemData);
+        io.emit('itemPlaced', itemData);
     });
 
     // MapにあるItemを取得したらItemから消える処理
     // イチカワが書きます
-    socket.on('itemRemoved', (itemId) => {
-        // クライアントにアイテム削除をブロードキャスト（全ての接続されたクライアントに送信）
-        io.emit('itemRemoved', itemId);
-        console.log(`Item ${itemId} removed`);
-    });
 
+
+    socket.on('itemRemoved', (itemData) => {
+        console.log('Received itemRemoved event from client:', itemData);
+        // itemData.idが存在するか確認
+        console.log("市川拓" + "平手後期")
+        const itemId = itemData.id || itemData.itemId;
+        io.emit('itemRemoved', itemId);
+        console.log(`Broadcasted itemRemoved event for item ${itemId} to all clients`);
+    });
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
 
         // DBを更新

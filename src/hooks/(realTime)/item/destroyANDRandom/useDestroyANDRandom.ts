@@ -30,7 +30,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
             const newPosition = getRandomPosition(existingPositions);
             // うまくいかない
             socket?.emit('itemRemoved', {...item, x: newPosition.x, y: newPosition.y});
-            console.log('アイテムが取得されたらマップからすぐに消える',JSON.stringify(item));
+            console.log('アイテムが取得されたらマップからすぐに消える', JSON.stringify(item));
 
             const response = await fetch('/api/item/updateItemPosition', {
                 method: 'POST',
@@ -50,12 +50,26 @@ const useDestroyAndRandom = (socket: Socket | null) => {
 
             const updatedItem = await response.json();
             console.log('Updated item position:', updatedItem);
-            socket?.emit('itemPlaced', {...item, x: newPosition.x, y: newPosition.y});
-            alert("ここでemit")
+            const newItemData = {
+                ...item,
+                x: newPosition.x,
+                y: newPosition.y,
+                id: item.id,
+                iconImage: item.iconImage[0] // 画像URLが必要
+            };
+
+
+            if (socket) {
+                socket.emit('placeItem', newItemData);
+                console.log('Emitted placeItem event with data:', newItemData);
+            } else {
+                console.warn('Socket is not connected, cannot emit placeItem event');
+            }
+
         } catch (error) {
             console.error("Failed to update item position:", error);
         }
-    }, [getRandomPosition]);
+    }, [getRandomPosition , socket]);
 
     return {handleItemCollection};
 };

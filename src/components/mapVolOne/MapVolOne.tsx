@@ -57,7 +57,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         socket?.on('itemRemoved', (itemId) => {
             console.log('マップ上から削除:', itemId);
             setItems(prevItems =>
-                prevItems ? prevItems.filter(item => item.itemId !== itemId) : null
+                prevItems ? prevItems.filter(item => item.id !== itemId) : null
             );
         });
 
@@ -82,7 +82,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         });
 
         return () => {
-            socket?.off('itemPlaced');
+            socket.off('itemPlaced');
+            socket.off('itemRemoved');
         };
     }, [socket]);
 
@@ -123,7 +124,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     useEffect(() => {
         // アイテムごとに画像をプリロード
         if (!items) return;
-        
+
         items.forEach((item) => {
             if (!imagesRef.current[item.id]) {
                 const img = new Image();
@@ -221,7 +222,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             // 画像がまだロードされていない場合はnullを返し、レンダリングしない
                             return null;
                         }
-                        
+
                         return (
                             <KonvaImage
                                 key={`${item.id}-${index}`} // idとindexを組み合わせて一意のキーを生成
