@@ -51,6 +51,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
             const updatedItem = await response.json();
             console.log('Updated item position:', updatedItem);
             socket?.emit('itemPlaced', {...item, x: newPosition.x, y: newPosition.y});
+            alert("ここでemit")
         } catch (error) {
             console.error("Failed to update item position:", error);
         }

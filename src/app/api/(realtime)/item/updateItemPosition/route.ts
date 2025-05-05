@@ -15,7 +15,8 @@ export async function POST(req: Request) {
             where: {id: roomItem?.id},
             data: {x: newPosition.x, y: newPosition.y},
         });
-        console.log("roomItemの位置情報を更新")
+
+        console.log("roomItemの位置情報を更新"+itemId , roomItem , updatedItem);
         console.log(updatedItem);
         return NextResponse.json(updatedItem, {status: 200});
     } catch (error) {
