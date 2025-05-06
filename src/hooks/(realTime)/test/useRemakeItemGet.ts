@@ -26,6 +26,8 @@ interface UseGetItemProps {
     mapHeightInPixels?: number;
     waterTiles?: { x: number; y: number }[];
     socket: Socket | null;
+    setRectPositions?: React.Dispatch<React.SetStateAction<objectItemIconImage[] | undefined>>;
+
 }
 
 const TILE_SIZE = 64;
@@ -36,6 +38,7 @@ export const useRemakeItemGet = ({
                                      initialPosition,
                                      rectPositions,
                                      speed,
+                                     setRectPositions,
                                      mapWidthInPixels,
                                      mapHeightInPixels,
                                      waterTiles,

@@ -46,11 +46,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [items, setItems] = useState<objectItemIconImage[] | null>(objectItemImage);
     const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
     // アイテムの画像がロード完了したかを追跡するための状態
-    const [loadedImages, setLoadedImages] = useState<{[key: string]: boolean}>({});
+    const [loadedImages, setLoadedImages] = useState<{ [key: string]: boolean }>({});
 
-    useEffect(() => {
-        console.log("items" + JSON.stringify(items))
-    }, [items]); // itemsが変更されたときに実行されるように修正
+    // useEffect(() => {
+    //     console.log("items" + JSON.stringify(items))
+    // }, [items]); // itemsが変更されたときに実行されるように修正
 
     // map上からItemを削除する
     useEffect(() => {
@@ -80,7 +80,13 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 setItems(prevItems => [...(prevItems || []), itemData]);
             };
         });
+        const fetchItems = async () => {
+            const response = await fetch('/api/items');
+            const data = await response.json();
+            setItems([...data.items]); // 新しい配列を生成して更新
+        };
 
+        fetchItems();
         return () => {
             socket.off('itemPlaced');
             socket.off('itemRemoved');
@@ -94,9 +100,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             prevItems ? prevItems.filter(item => item.id !== itemId) : null
         );
     }
-
     useEffect(() => {
-        setItems(objectItemImage);
+        alert("アイテムの更新だ")
+        console.log("アイテムリストの更新" + objectItemImage?.map((item) => {
+            item.x , item.y
+        }));
+        setItems(objectItemImage); // 外部から渡された最新のアイテムリストを反映
     }, [objectItemImage]);
 
     const cameraPositionHook = useCameraPosition(

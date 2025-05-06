@@ -39,6 +39,7 @@ interface GameProps {
 
 
 const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
@@ -76,6 +77,28 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         itemIconFetch();
     }, [roomId]);
 
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleItemPlaced = (itemData) => {
+            setObjectItemImage((prev) => [...prev, itemData]);
+        };
+
+        const handleItemRemoved = (itemId) => {
+            setObjectItemImage((prev) => prev.filter((item) => item.id !== itemId));
+        };
+
+        socket.on("itemPlaced", handleItemPlaced);
+        socket.on("itemRemoved", handleItemRemoved);
+
+        return () => {
+            socket.off("itemPlaced", handleItemPlaced);
+            socket.off("itemRemoved", handleItemRemoved);
+        };
+    }, [socket]);
+
+
     const waterTiles: { x: number; y: number }[] = [];
 
     Map_data.forEach((row, y) => {
@@ -90,8 +113,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // console.log(nearbyItemPosition)
 
 
-    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
-
     const {
         nearbyItemPosition,
         ECollisionPosition,
@@ -104,12 +125,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         userId: playerId.id,
         initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
         rectPositions: objectItemImage,
-        waterTiles: waterTiles, // ← ここ！
+        setRectPositions: setObjectItemImage, // 追加
+        waterTiles: waterTiles,
         mapWidthInPixels: Map_width * Tile_size,
         mapHeightInPixels: Map_height * Tile_size,
-
     });
-
     useEffect(() => {
         console.log(eCollisionGotItemStatus)
 

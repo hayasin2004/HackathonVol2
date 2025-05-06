@@ -26,7 +26,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
                 console.log('Water item detected, not moving.');
                 return;
             }
-            const existingPositions = []; // Fetch existing positions if needed
+            const existingPositions = [];
 
             const newPosition = getRandomPosition(existingPositions);
 
