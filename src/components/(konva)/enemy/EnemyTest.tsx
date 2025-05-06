@@ -293,6 +293,7 @@ const SingleEnemy: React.FC<{
                 if (currentTime - lastEnemyAttackTime >= enemyAttackCooldown) {
                     console.log(`${enemy.name}がプレイヤーを攻撃！攻撃力: ${enemy.attack}`);
 
+
                     // プレイヤーにダメージを与える
                     damagePlayer(enemy.attack);
 
