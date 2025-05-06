@@ -21,6 +21,7 @@ interface mapVolOneTypes {
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
+    players : any[]
     enemyData: Enemy[] | null
     onItemRemove?: (enemyId: string) => void
 }
@@ -33,6 +34,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  nearbyItemPosition,
                                                  enemyData,
                                                  socket,
+                                                 players,
                                                  onItemRemove
                                              }) => {
 
@@ -160,6 +162,36 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         setLocalEnemyData(prev => prev ? prev.filter(enemy => enemy.id !== enemyId) : null);
     };
 
+    const [images, setImages] = useState<{ [key: string]: HTMLImageElement }>({});
+
+    // プレイヤーのアイコン画像をロード
+    useEffect(() => {
+        const loadImages = async () => {
+            const imageMap: { [key: string]: HTMLImageElement } = {};
+
+            players.forEach((player) => {
+                if (player.player?.character?.[0]?.iconImage?.[0]) {
+                    const imageUrl = player.player.character[0].iconImage[0];
+                    const img = new window.Image();
+                    img.src = imageUrl;
+                    imageMap[player.playerId] = img;
+                }
+            });
+
+            setImages(imageMap);
+        };
+
+        if (players.length > 0) {
+            loadImages();
+        }
+    }, [players]);
+
+    // カメラの位置を更新
+    useEffect(() => {
+        setCameraPosition({ x: playerId.x, y: playerId.y });
+    }, [playerId]);
+
+
     return (
         <div>
             <Stage
@@ -275,6 +307,18 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         </>
 
                     )}
+                    {players
+                        .filter((player) => player.playerId !== playerId.playerId)
+                        .map((player, index) => (
+                            <KonvaImage
+                                key={player.playerId || `player-${index}`}
+                                x={player.x - cameraPosition.x}
+                                y={player.y - cameraPosition.y}
+                                width={50} // アイコンの幅
+                                height={50} // アイコンの高さ
+                                image={images[player.playerId]} // プレイヤーごとの画像
+                            />
+                        ))}
 
                     {/* --- 黒い四角形を最後に追加 --- */}
                     {nearbyItemPosition && (

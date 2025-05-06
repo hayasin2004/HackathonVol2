@@ -298,34 +298,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         }
     }, [players]);
 
-    const [images, setImages] = useState<{ [key: string]: HTMLImageElement }>({});
 
-    // プレイヤーのアイコン画像をロード
-    useEffect(() => {
-        const loadImages = async () => {
-            const imageMap: { [key: string]: HTMLImageElement } = {};
-
-            players.forEach((player) => {
-                if (player.player?.character?.[0]?.iconImage?.[0]) {
-                    const imageUrl = player.player.character[0].iconImage[0];
-                    const img = new window.Image();
-                    img.src = imageUrl;
-                    imageMap[player.playerId] = img;
-                }
-            });
-
-            setImages(imageMap);
-        };
-
-        if (players.length > 0) {
-            loadImages();
-        }
-    }, [players]);
-
-    // カメラの位置を更新
-    useEffect(() => {
-        setCameraPosition({ x: playerId.x, y: playerId.y });
-    }, [playerId]);
 
     // Loading or Error UI
     if (!connected) {
@@ -351,16 +324,17 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*))}*/}
             </div>
 
-                {/*<MapVolOne*/}
-                {/*    playerId={playerId}*/}
-                {/*    ECollisionPosition={ECollisionPosition}*/}
-                {/*    playerCharacter={playerCharacter}*/}
-                {/*    eCollisionGotItemStatus={eCollisionGotItemStatus}*/}
-                {/*    objectItemImage={objectItemImage}*/}
-                {/*    nearbyItemPosition={nearbyItemPosition}*/}
-                {/*    socket={socket}*/}
-                {/*    enemyData={enemyData}*/}
-                {/*/>*/}
+                <MapVolOne
+                    playerId={playerId}
+                    players={players}
+                    ECollisionPosition={ECollisionPosition}
+                    playerCharacter={playerCharacter}
+                    eCollisionGotItemStatus={eCollisionGotItemStatus}
+                    objectItemImage={objectItemImage}
+                    nearbyItemPosition={nearbyItemPosition}
+                    socket={socket}
+                    enemyData={enemyData}
+                />
 
             {/*<div>*/}
 
@@ -407,24 +381,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             {/*    /!*        </div>*!/*/}
             {/*    /!*    ))}*!/*/}
             {/*</div>*/}
-
-            <Stage width={window.innerWidth} height={window.innerHeight}>
-                <Layer>
-                    {/* 他のプレイヤーを描画 */}
-                    {players
-                        .filter((player) => player.playerId !== playerId.playerId && player.roomId === roomId)
-                        .map((player, index) => (
-                            <KonvaImage
-                                key={player.playerId || `player-${index}`}
-                                x={player.x - cameraPosition.x}
-                                y={player.y - cameraPosition.y}
-                                width={50} // アイコンの幅
-                                height={50} // アイコンの高さ
-                                image={images[player.playerId]} // プレイヤーごとの画像
-                            />
-                        ))}
-                </Layer>
-            </Stage>
+　
         </div>
     );
 };
