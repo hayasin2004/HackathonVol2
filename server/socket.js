@@ -47,8 +47,6 @@ const io = new Server(server, {
 // ルーム管理用のマップ
 const rooms = new Map();
 
-const playerPositions = new Map();
-const playerUpdateTimers = new Map();
 io.on('connection', (socket) => {
     console.log('接続！', socket.id);
     // プレイヤーがルームに参加
@@ -95,76 +93,70 @@ io.on('connection', (socket) => {
         }
     });
 
-    // アイテム削除イベント
+    socket.on('placeItem', (itemData) => {
+        console.log( "クライアントからのアイテム設置イベントをリッスン");
+
+        console.log(itemData)
+        // 他のクライアントにアイテム設置をブロードキャスト
+        io.emit('itemPlaced', itemData);
+    });
+
+    // MapにあるItemを取得したらItemから消える処理
+    // イチカワが書きます
+
+
     socket.on('itemRemoved', (itemData) => {
         console.log('Received itemRemoved event from client:', itemData);
         // itemData.idが存在するか確認
+        console.log("市川拓" + "平手後期")
         const itemId = itemData.id || itemData.itemId;
         io.emit('itemRemoved', itemId);
         console.log(`Broadcasted itemRemoved event for item ${itemId} to all clients`);
     });
-
-// アイテム配置イベント
-    socket.on('placeItem', (itemData) => {
-        console.log('Received placeItem event from client:', itemData);
-
-        // IDが変更されている場合でも、正しく処理できるようにする
-        const broadcastData = {
-            ...itemData,
-            // 必要に応じて追加のデータ処理をここで行う
-        };
-
-        // 少し遅延を入れて、削除イベントが先に処理されるようにする
-        setTimeout(() => {
-            io.emit('itemPlaced', broadcastData);
-            console.log('Broadcasted itemPlaced event to all clients:', broadcastData);
-        }, 50);
-    });
-
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
-        // 現在の位置を保存
-        playerPositions.set(playerId, { x, y, roomId });
 
-        // 他のプレイヤーにはリアルタイムで通知
-        socket.to(`room:${roomId}`).emit('player_moved', {
-            playerId: playerId,
-            x: x,
-            y: y,
+        // DBを更新
+        const updatedPlayer = await prisma.playerData.update({
+            where: {playerId},
+            data: {x, y},
         });
 
-        // 既存のタイマーがあればクリア
-        if (playerUpdateTimers.has(playerId)) {
-            clearTimeout(playerUpdateTimers.get(playerId));
-        }
+        // 他のプレイヤーに通知（最新のDBから座標を取得して通知）
+        socket.to(`room:${roomId}`).emit('player_moved', {
+            playerId: updatedPlayer.playerId,
+            x: updatedPlayer.x,
+            y: updatedPlayer.y,
+        });
+        // const collidedItems = nearbyItems.filter((item) => {
+        //     const itemX = item.x;
+        //     const itemY = item.y;
+        //     const itemWidth = item.item.width || 10;
+        //     const itemHeight = item.item.height || 10;
+        //     return (
+        //         x >= itemX &&
+        //         x <= itemX + itemWidth &&
+        //         y >= itemY &&
+        //         y <= itemY + itemHeight
+        //     );
+        // });
 
-        // 2秒間移動がなければDBを更新するタイマーを設定
-        const timerId = setTimeout(async () => {
-            try {
-                const position = playerPositions.get(playerId);
-                if (position) {
-                    console.log(`Updating player ${playerId} position in DB after 2 seconds of inactivity`);
-
-                    // DBを更新
-                    const updatedPlayer = await prisma.playerData.update({
-                        where: {playerId},
-                        data: {
-                            x: position.x,
-                            y: position.y
-                        },
-                    });
-
-                    console.log(`Updated player ${playerId} position in DB: x=${position.x}, y=${position.y}`);
-                }
-
-                // タイマーとポジションをクリア
-                playerUpdateTimers.delete(playerId);
-            } catch (error) {
-                console.error(`Error updating player ${playerId} position:`, error);
-            }
-        }, 2000); // 2秒後に実行
-
-        // タイマーIDを保存
-        playerUpdateTimers.set(playerId, timerId);
+        // if (collidedItems.length > 0) {
+        //     const itemIds = collidedItems.map((item) => item.itemId);
+        //     const collectResult =
+        //         await import('../../HackathonVol2/src/app/api/(realtime)/item/getItem').then((module) =>
+        //             module.playerGetItem(playerId, itemIds)
+        //         );
+        //
+        //     socket.emit('items_collected', {
+        //         itemIds,
+        //         result: collectResult,
+        //     });
+        //
+        //     socket.to(`room:${roomId}`).emit('items_collected_by_player', {
+        //         playerId,
+        //         itemIds,
+        //     });
+        // }
     });
 // プレイヤーの移動を処理
 

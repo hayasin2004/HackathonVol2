@@ -1,6 +1,6 @@
-// src/hooks/(realTime)/item/destroyANDRandom/useDestroyANDRandom.ts　
-import {Socket} from "socket.io-client";
 import {useCallback} from "react";
+import {Socket} from "socket.io-client";
+import {response} from "express";
 
 const useDestroyAndRandom = (socket: Socket | null) => {
     const maxWidth = 2200;
@@ -28,17 +28,10 @@ const useDestroyAndRandom = (socket: Socket | null) => {
             const existingPositions = []; // Fetch existing positions if needed
 
             const newPosition = getRandomPosition(existingPositions);
+            // うまくいかない
+            socket?.emit('itemRemoved', {...item, x: newPosition.x, y: newPosition.y});
+            console.log('アイテムが取得されたらマップからすぐに消える', JSON.stringify(item));
 
-            // まずアイテムを削除
-            if (socket) {
-                socket.emit('itemRemoved', {
-                    id: item.id,
-                    itemId: item.itemId
-                });
-                console.log('アイテムが取得されたらマップからすぐに消える', JSON.stringify(item));
-            }
-
-            // データベースでアイテム位置を更新
             const response = await fetch('/api/item/updateItemPosition', {
                 method: 'POST',
                 headers: {
@@ -53,50 +46,32 @@ const useDestroyAndRandom = (socket: Socket | null) => {
             if (!response.ok) {
                 throw new Error('Failed to update item position');
             }
+            console.log(response)
 
             const updatedItem = await response.json();
             console.log('Updated item position:', updatedItem);
-
-            // 画像URLの処理
-            let iconImage;
-            if (typeof item.iconImage === 'string') {
-                iconImage = item.iconImage;
-            } else if (Array.isArray(item.iconImage) && item.iconImage.length > 0) {
-                iconImage = item.iconImage[0];
-            } else {
-                iconImage = ''; // デフォルト値
-                console.warn('iconImage is missing or invalid:', item.iconImage);
-            }
-
-            // 新しいIDを生成（元のIDに現在のタイムスタンプを追加）
-            // これにより、クライアント側で同じアイテムでも新しいアイテムとして認識される
-            const newId = `${item.id}_${Date.now()}`;
-
             const newItemData = {
                 ...item,
                 x: newPosition.x,
                 y: newPosition.y,
-                id: newId, // クライアント表示用の新しいID
-                originalId: item.id, // 元のIDを保持
-                itemId: item.itemId, // データベースのIDは変更しない
-                iconImage: iconImage
+                id: item.id,
+                iconImage: item.iconImage[0] // 画像URLが必要
             };
 
-            // 少し遅延を入れて、削除イベントが先に処理されるようにする
-            setTimeout(() => {
-                if (socket) {
-                    socket.emit('placeItem', newItemData);
-                    console.log('Emitted placeItem event with data:', newItemData);
-                } else {
-                    console.warn('Socket is not connected, cannot emit placeItem event');
-                }
-            }, 300); // 300msの遅延
+
+            if (socket) {
+                socket.emit('placeItem', newItemData);
+                console.log('Emitted placeItem event with data:', newItemData);
+            } else {
+                console.warn('Socket is not connected, cannot emit placeItem event');
+            }
 
         } catch (error) {
             console.error("Failed to update item position:", error);
         }
-    }, [getRandomPosition, socket]);
+    }, [getRandomPosition , socket]);
 
     return {handleItemCollection};
 };
+
 export default useDestroyAndRandom;
