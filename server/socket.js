@@ -188,6 +188,14 @@ io.on('connection', (socket) => {
 
 //     敵関連のリアルタイム　
 
+    // 敵のHP変更を受信
+    socket.on("updateEnemyHp", (enemyId, newHp) => {
+        console.log(`敵ID ${enemyId} のHPが更新されました: ${newHp}`);
+
+        // 全クライアントに通知
+        io.emit("enemyHpUpdated", { id: enemyId, hp: newHp });
+    });
+
     // 敵削除リクエストを受け取る
     socket.on("removeEnemy", (enemy) => {
         console.log(`敵ID ${enemy.name} を削除`);
