@@ -88,7 +88,6 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         };
 
         const handleEnemyHpUpdated = ({ id, hp }: { id: number; hp: number }) => {
-            alert(`敵ID ${id} のHPが更新されました: ${hp}`);
             setVisibleEnemies((prev) =>
                 prev.map((enemy) =>
                     enemy.id === id ? { ...enemy, hp } : enemy
@@ -161,9 +160,10 @@ const EnemyTest: React.FC<PropsNpcData> = ({
 
             console.log("プレイヤーが倒れました！");
             // ここでゲームオーバー処理を追加できます
-            alert("ゲームオーバー！プレイヤーが倒れました。");
+            console.log("ゲームオーバー！プレイヤーが倒れました。");
         } else {
             // HPを更新
+            setPlayerHP(newHP);
             setPlayerHP(newHP);
 
             if (onPlayerDamage) {

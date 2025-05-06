@@ -26,7 +26,7 @@ interface UseGetItemProps {
     mapHeightInPixels?: number;
     waterTiles?: { x: number; y: number }[];
     socket: Socket | null;
-    setRectPositions?: React.Dispatch<React.SetStateAction<objectItemIconImage[] | undefined>>;
+    setRectPositions?: React.Dispatch<React.SetStateAction<objectItemIconImage[] | undefined >>;
 
 }
 
@@ -52,10 +52,19 @@ export const useRemakeItemGet = ({
     const keysPressedRef = useRef({
         ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
     });
+    const rectPositionsRef = useRef(rectPositions);
     const moveIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const moveInterval = speed ? Math.max(50, 400 - speed) : DEFAULT_MOVE_INTERVAL;
     const {handleItemCollection} = useDestroyANDRandom(socket);
+
+    // 最新のrectPositionsを更新
+    useEffect(() => {
+        alert("データの更新がされました！（アイテム設置によって）")
+        rectPositionsRef.current = rectPositions;
+
+    }, [rectPositions]);
+
 
 
     const findNearbyItem = useCallback(() => {
@@ -138,6 +147,7 @@ export const useRemakeItemGet = ({
 
         if (foundItem) {
             try {
+                console.log("foundItem.itemId"+JSON.stringify(foundItem))
                 const result = await playerGetItem(userId, [foundItem.itemId]);
                 if (result?.status === "success") {
                     if (Array.isArray(result.savedItemData)) {

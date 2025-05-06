@@ -83,9 +83,6 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     //     }
     //     setSelectedItemId(null); // 配置後に選択を解除する
     // };
-    useEffect(() => {
-        console.log("ECollisionPosition updated:", ECollisionPosition);
-    }, [ECollisionPosition]);
 
     useEffect(() => {
         const handleKeyPress = (event) => {
@@ -132,7 +129,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                         }
                         const itemData = {
                             roomId,
-                            selectedItemId,
+                            itemId : selectedItemId,
                             playerDirection,
                             currentDirectionRef,
                             ECollisionPosition,
