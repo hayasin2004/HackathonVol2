@@ -12,6 +12,7 @@ import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 import {Enemy} from "@/types/enemy";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {NPC} from "@/types/npc";
+import {supabase} from "@/lib/supabase";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -164,7 +165,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     const [images, setImages] = useState<{ [key: string]: HTMLImageElement }>({});
 
-    // プレイヤーのアイコン画像をロード
+    // 他のプレイヤーのアイコン画像をロード
     useEffect(() => {
         const loadImages = async () => {
             const imageMap: { [key: string]: HTMLImageElement } = {};
@@ -191,6 +192,82 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     useEffect(() => {
         setCameraPosition({ x: playerId.x, y: playerId.y });
     }, [playerId]);
+
+    const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+    const [musicList, setMusicList] = useState<string[]>([]);
+    const [selectedMusic, setSelectedMusic] = useState<string | null>(null);
+
+    // Supabaseから音楽リストを取得
+    useEffect(() => {
+        const fetchMusicList = async () => {
+            try {
+                const { data, error } = await supabase.storage
+                    .from("hackathon2-picture-storage")
+                    .list("bgm/mapVolOne"); // フォルダパスを指定;
+                if (error) {
+                    console.error("音楽リストの取得に失敗しました:", error.message);
+                    return;
+                }
+
+                if (data) {
+                    const musicFiles = data.map((file) => file.name);
+                    setMusicList(musicFiles);
+                }
+            } catch (err) {
+                console.error("音楽リストの取得中にエラーが発生しました:", err);
+            }
+        };
+
+        fetchMusicList();
+    }, []);
+
+    // 選択された音楽を再生
+    useEffect(() => {
+        if (selectedMusic) {
+            const fetchAndPlayMusic = async () => {
+                try {
+                    const { data, error } = await supabase.storage
+                        .from("hackathon2-picture-storage")
+                        .createSignedUrl(`bgm/mapVolOne/${selectedMusic}`, 60 * 60); // フルパスを指定して署名付きURLを生成
+
+                    if (error) {
+                        console.error("音楽ファイルの取得に失敗しました:", error.message);
+                        return;
+                    }
+
+                    if (data?.signedUrl) {
+                        if (audio) {
+                            audio.pause();
+                            audio.currentTime = 0;
+                        }
+
+                        const newAudio = new Audio(data.signedUrl);
+                        newAudio.loop = true; // ループ再生
+
+                        // 自動再生を試みる
+                        newAudio
+                            .play()
+                            .catch((err) => {
+                                console.error("音楽の再生中にエラーが発生しました:", err);
+                            });
+　
+                        setAudio(newAudio);
+                    }
+                } catch (err) {
+                    console.error("音楽ファイルの取得中にエラーが発生しました:", err);
+                }
+            };
+
+            fetchAndPlayMusic();
+        }
+
+        return () => {
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        };
+    }, [selectedMusic]);
 
 
     return (
@@ -306,7 +383,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                 width={150}
                             />
                         </>
-
                     )}
                     {players
                         .filter((player) => player.playerId !== playerId.playerId)
@@ -315,8 +391,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                 key={player.playerId || `player-${index}`}
                                 x={player.x - cameraPosition.x}
                                 y={player.y - cameraPosition.y}
-                                width={50} // アイコンの幅
-                                height={50} // アイコンの高さ
+                                width={Tile_size}
+                                height={Tile_size}
                                 image={images[player.playerId]} // プレイヤーごとの画像
                             />
                         ))}
@@ -349,6 +425,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         />
                     )}
 
+
                     {isDark && (
                         <Rect
                             x={0}
@@ -359,6 +436,32 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             opacity={0.2}
                         />
                     )}
+
+                    {musicList.map((music, index) => (
+                        <React.Fragment key={index}>
+                            {/* 背景を描画（選択状態の場合は色を変更） */}
+                            <Rect
+                                x={20}
+                                y={20 + index * 40}
+                                width={300}
+                                height={30}
+                                fill={selectedMusic === music ? "lightblue" : "white"}
+                                stroke="black"
+                                strokeWidth={1}
+                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
+                            />
+                            {/* 音楽名を描画 */}
+                            <Text
+                                x={25}
+                                y={25 + index * 40}
+                                text={music}
+                                fontSize={16}
+                                fill="black"
+                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
+                            />
+                        </React.Fragment>
+                    ))}
+
                 </Layer>
             </Stage>
         </div>

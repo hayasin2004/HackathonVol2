@@ -69,7 +69,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json(); // `await` を追加
-                console.log(data.roomItems);
+                //console.log(data.roomItems);
                 setObjectItemImage(data.roomItems); // 状態更新
             } catch (error) {
                 console.error("データ取得に失敗しました:", error);
@@ -111,7 +111,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     });
 
 
-    // console.log(nearbyItemPosition)
+    // //console.log(nearbyItemPosition)
 
 
     const {
@@ -132,7 +132,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         mapHeightInPixels: Map_height * Tile_size,
     });
     useEffect(() => {
-        console.log(eCollisionGotItemStatus)
+        //console.log(eCollisionGotItemStatus)
 
         // alert(JSON.stringify(eCollisionGotItemStatus))
     }, [eCollisionGotItem]);
@@ -152,7 +152,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     } = useMotionCharacter(characterImageData)
 
     if (isLoadingCharacter) {
-        console.log("キャラクター読み込み中")
+        //console.log("キャラクター読み込み中")
     }
 
     useEffect(() => {
@@ -237,7 +237,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     // // アイテムクラフトイベントの処理
     // useEffect(() => {
-    //     console.log("これは来たのか・")
+    //     //console.log("これは来たのか・")
     //     if (craftEvents.length > 0) {
     //         const latestEvent = craftEvents[craftEvents.length - 1];
     //         if (latestEvent.player_id !== playerId.id) {
@@ -269,7 +269,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         const fetchEnemyData = async () => {
             try {
                 const data = await GetEnemy();
-                console.log('Fetched enemy data:', data);
+                //console.log('Fetched enemy data:', data);
                 setEnemyData(data);
             } catch (error) {
                 console.error('Error fetching enemy data:', error);
@@ -293,8 +293,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 }
                 return null; // デフォルト値としてnullを返す
             });
-
-            console.log("プレイヤーのアイコン画像:", playerIcons);
+　
         }
     }, [players]);
 

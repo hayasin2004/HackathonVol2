@@ -182,7 +182,7 @@ io.on('connection', (socket) => {
         playerUpdateTimers.set(playerId, timerId);
     });
 // プレイヤーの移動を処理
-
+　
 // プレイヤーがルームから退出
     socket.on('leave_room', async ({playerId, roomId}) => {
         try {
@@ -198,7 +198,7 @@ io.on('connection', (socket) => {
         } catch (error) {
             console.error('Error leaving room:', error);
         }
-    });
+    })
 
 
 //     敵関連のリアルタイム　
