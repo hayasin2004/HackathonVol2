@@ -1,6 +1,6 @@
 // src/hooks/(realTime)/item/destroyANDRandom/useDestroyANDRandom.ts　
 import {Socket} from "socket.io-client";
-import {useCallback} from "react";　
+import {useCallback} from "react";
 
 const useDestroyAndRandom = (socket: Socket | null) => {
     const maxWidth = 2200;
@@ -68,11 +68,17 @@ const useDestroyAndRandom = (socket: Socket | null) => {
                 console.warn('iconImage is missing or invalid:', item.iconImage);
             }
 
+            // 新しいIDを生成（元のIDに現在のタイムスタンプを追加）
+            // これにより、クライアント側で同じアイテムでも新しいアイテムとして認識される
+            const newId = `${item.id}_${Date.now()}`;
+
             const newItemData = {
                 ...item,
                 x: newPosition.x,
                 y: newPosition.y,
-                id: item.id,
+                id: newId, // クライアント表示用の新しいID
+                originalId: item.id, // 元のIDを保持
+                itemId: item.itemId, // データベースのIDは変更しない
                 iconImage: iconImage
             };
 
@@ -93,5 +99,4 @@ const useDestroyAndRandom = (socket: Socket | null) => {
 
     return {handleItemCollection};
 };
-
 export default useDestroyAndRandom;

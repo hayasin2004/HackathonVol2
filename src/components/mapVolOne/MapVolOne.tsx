@@ -94,8 +94,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     // 既存のアイテムがない場合は新しい配列を作成
                     if (!prevItems) return [itemData];
 
-                    // 同じIDのアイテムが既に存在するか確認
-                    const existingIndex = prevItems.findIndex(item => item.id === itemData.id);
+                    // 同じIDのアイテムが既に存在するか確認（originalIdも考慮）
+                    const existingIndex = prevItems.findIndex(item =>
+                        item.id === itemData.id ||
+                        (itemData.originalId && item.id === itemData.originalId)
+                    );
+
                     if (existingIndex >= 0) {
                         // 既存のアイテムを更新
                         const updatedItems = [...prevItems];
