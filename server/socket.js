@@ -123,7 +123,7 @@ io.on('connection', (socket) => {
 
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
         // 現在の位置を保存
-        playerPositions.set(playerId, { x, y, roomId });
+        playerPositions.set(playerId, {x, y, roomId});
 
         // 他のプレイヤーにはリアルタイムで通知
         socket.to(`room:${roomId}`).emit('player_moved', {
@@ -184,6 +184,18 @@ io.on('connection', (socket) => {
             console.error('Error leaving room:', error);
         }
     });
+
+
+//     敵関連のリアルタイム　
+
+    // 敵削除リクエストを受け取る
+    socket.on("removeEnemy", (enemy) => {
+        console.log(`敵ID ${enemy.name} を削除`);
+
+        // 全クライアントに通知
+        io.emit("enemyRemoved", enemy);
+    });
+
 
 // 切断時の処理
     socket.on('disconnect', () => {

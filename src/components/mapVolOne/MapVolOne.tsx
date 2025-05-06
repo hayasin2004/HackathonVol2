@@ -101,7 +101,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         );
     }
     useEffect(() => {
-        alert("アイテムの更新だ")
         console.log("アイテムリストの更新" + objectItemImage?.map((item) => {
             item.x , item.y
         }));
@@ -290,6 +289,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     )}
                     {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
                         <EnemyTest
+                            socket={socket}
                             enemyData={localEnemyData}
                             cameraPosition={cameraPosition}
                             ECollisionPosition={ECollisionPosition}
