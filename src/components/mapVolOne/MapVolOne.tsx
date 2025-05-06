@@ -54,36 +54,71 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     // map上からItemを削除する
     useEffect(() => {
-        socket?.on('itemRemoved', (itemId) => {
+        if (!socket) return;
+
+        const handleItemRemoved = (itemId) => {
             console.log('マップ上から削除:', itemId);
-            setItems(prevItems =>
-                prevItems ? prevItems.filter(item => item.id !== itemId) : null
-            );
-        });
+            setItems(prevItems => {
+                if (!prevItems) return null;
+                return prevItems.filter(item => item.id !== itemId);
+            });
+        };
+
+        socket.on('itemRemoved', handleItemRemoved);
 
         return () => {
-            socket?.off('itemRemoved');
+            socket.off('itemRemoved', handleItemRemoved);
         };
     }, [socket]);
 
 
+
     useEffect(() => {
-        socket?.on('itemPlaced', (itemData) => {
+        if (!socket) return;
+
+        const handleItemPlaced = (itemData) => {
             console.log('New item placed:', itemData);
+
             // 新しいアイテムの画像をプリロード
             const img = new Image();
             img.src = itemData.iconImage;
+
             img.onload = () => {
+                console.log('Image loaded for item:', itemData.id);
                 // 画像がロードされたら、参照を保存してからアイテムを追加
                 imagesRef.current[itemData.id] = img;
                 setLoadedImages(prev => ({...prev, [itemData.id]: true}));
-                setItems(prevItems => [...(prevItems || []), itemData]);
+
+                // 既存のアイテムリストに新しいアイテムを追加
+                setItems(prevItems => {
+                    // 既存のアイテムがない場合は新しい配列を作成
+                    if (!prevItems) return [itemData];
+
+                    // 同じIDのアイテムが既に存在するか確認
+                    const existingIndex = prevItems.findIndex(item => item.id === itemData.id);
+                    if (existingIndex >= 0) {
+                        // 既存のアイテムを更新
+                        const updatedItems = [...prevItems];
+                        updatedItems[existingIndex] = itemData;
+                        console.log('Updated existing item:', itemData);
+                        return updatedItems;
+                    } else {
+                        // 新しいアイテムを追加
+                        console.log('Added new item:', itemData);
+                        return [...prevItems, itemData];
+                    }
+                });
             };
-        });
+
+            img.onerror = () => {
+                console.error('Failed to load image for item:', itemData.id, itemData.iconImage);
+            };
+        };
+
+        socket.on('itemPlaced', handleItemPlaced);
 
         return () => {
-            socket.off('itemPlaced');
-            socket.off('itemRemoved');
+            socket.off('itemPlaced', handleItemPlaced);
         };
     }, [socket]);
 

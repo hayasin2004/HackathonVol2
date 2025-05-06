@@ -91,28 +91,28 @@ io.on('connection', (socket) => {
             console.error('Error joining room:', error);
             socket.emit('error', {message: `Failed to join room ${playerId} aass`});
         }
-    });
+    });　
 
     socket.on('placeItem', (itemData) => {
-        console.log( "クライアントからのアイテム設置イベントをリッスン");
-
-        console.log(itemData)
-        // 他のクライアントにアイテム設置をブロードキャスト
-        io.emit('itemPlaced', itemData);
+        console.log('Received placeItem event from client:', itemData);
+        // 少し遅延を入れて、削除イベントが先に処理されるようにする
+        setTimeout(() => {
+            // io.emitを使用して全クライアントにブロードキャスト
+            io.emit('itemPlaced', itemData);
+            console.log('Broadcasted itemPlaced event to all clients:', itemData);
+        }, 50); // 50msの遅延
     });
 
-    // MapにあるItemを取得したらItemから消える処理
-    // イチカワが書きます
-
-
+// アイテム削除イベント
     socket.on('itemRemoved', (itemData) => {
         console.log('Received itemRemoved event from client:', itemData);
         // itemData.idが存在するか確認
-        console.log("市川拓" + "平手後期")
         const itemId = itemData.id || itemData.itemId;
         io.emit('itemRemoved', itemId);
         console.log(`Broadcasted itemRemoved event for item ${itemId} to all clients`);
     });
+
+
     socket.on('player_move', async ({playerId, roomId, x, y}) => {
 
         // DBを更新

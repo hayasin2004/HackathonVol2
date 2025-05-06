@@ -1,6 +1,6 @@
-import {useCallback} from "react";
+// src/hooks/(realTime)/item/destroyANDRandom/useDestroyANDRandom.ts　
 import {Socket} from "socket.io-client";
-import {response} from "express";
+import {useCallback} from "react";　
 
 const useDestroyAndRandom = (socket: Socket | null) => {
     const maxWidth = 2200;
@@ -28,10 +28,17 @@ const useDestroyAndRandom = (socket: Socket | null) => {
             const existingPositions = []; // Fetch existing positions if needed
 
             const newPosition = getRandomPosition(existingPositions);
-            // うまくいかない
-            socket?.emit('itemRemoved', {...item, x: newPosition.x, y: newPosition.y});
-            console.log('アイテムが取得されたらマップからすぐに消える', JSON.stringify(item));
 
+            // まずアイテムを削除
+            if (socket) {
+                socket.emit('itemRemoved', {
+                    id: item.id,
+                    itemId: item.itemId
+                });
+                console.log('アイテムが取得されたらマップからすぐに消える', JSON.stringify(item));
+            }
+
+            // データベースでアイテム位置を更新
             const response = await fetch('/api/item/updateItemPosition', {
                 method: 'POST',
                 headers: {
@@ -46,30 +53,43 @@ const useDestroyAndRandom = (socket: Socket | null) => {
             if (!response.ok) {
                 throw new Error('Failed to update item position');
             }
-            console.log(response)
 
             const updatedItem = await response.json();
             console.log('Updated item position:', updatedItem);
+
+            // 画像URLの処理
+            let iconImage;
+            if (typeof item.iconImage === 'string') {
+                iconImage = item.iconImage;
+            } else if (Array.isArray(item.iconImage) && item.iconImage.length > 0) {
+                iconImage = item.iconImage[0];
+            } else {
+                iconImage = ''; // デフォルト値
+                console.warn('iconImage is missing or invalid:', item.iconImage);
+            }
+
             const newItemData = {
                 ...item,
                 x: newPosition.x,
                 y: newPosition.y,
                 id: item.id,
-                iconImage: item.iconImage[0] // 画像URLが必要
+                iconImage: iconImage
             };
 
-
-            if (socket) {
-                socket.emit('placeItem', newItemData);
-                console.log('Emitted placeItem event with data:', newItemData);
-            } else {
-                console.warn('Socket is not connected, cannot emit placeItem event');
-            }
+            // 少し遅延を入れて、削除イベントが先に処理されるようにする
+            setTimeout(() => {
+                if (socket) {
+                    socket.emit('placeItem', newItemData);
+                    console.log('Emitted placeItem event with data:', newItemData);
+                } else {
+                    console.warn('Socket is not connected, cannot emit placeItem event');
+                }
+            }, 300); // 300msの遅延
 
         } catch (error) {
             console.error("Failed to update item position:", error);
         }
-    }, [getRandomPosition , socket]);
+    }, [getRandomPosition, socket]);
 
     return {handleItemCollection};
 };
