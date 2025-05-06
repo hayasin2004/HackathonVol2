@@ -47,6 +47,8 @@ const io = new Server(server, {
 // ルーム管理用のマップ
 const rooms = new Map();
 
+const playerPositions = new Map();
+const playerUpdateTimers = new Map();
 io.on('connection', (socket) => {
     console.log('接続！', socket.id);
     // プレイヤーがルームに参加
