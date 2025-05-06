@@ -28,6 +28,7 @@ import GetEnemyPage from "@/app/(konvaCharacter)/enemy/page";
 import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {Enemy} from "@/types/enemy";
+import {Layer, Stage ,Image as KonvaImage} from "react-konva";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -283,6 +284,49 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // 衝突判定の更新
 
 
+    useEffect(() => {
+        if (players && players.length > 0) {
+            const playerIcons = players.map(player => {
+                // characterが存在し、iconImageが配列であることを確認
+                if (player.player?.character?.length > 0) {
+                    return player.player.character[0].iconImage; // 最初のキャラクターのiconImageを取得
+                }
+                return null; // デフォルト値としてnullを返す
+            });
+
+            console.log("プレイヤーのアイコン画像:", playerIcons);
+        }
+    }, [players]);
+
+    const [images, setImages] = useState<{ [key: string]: HTMLImageElement }>({});
+
+    // プレイヤーのアイコン画像をロード
+    useEffect(() => {
+        const loadImages = async () => {
+            const imageMap: { [key: string]: HTMLImageElement } = {};
+
+            players.forEach((player) => {
+                if (player.player?.character?.[0]?.iconImage?.[0]) {
+                    const imageUrl = player.player.character[0].iconImage[0];
+                    const img = new window.Image();
+                    img.src = imageUrl;
+                    imageMap[player.playerId] = img;
+                }
+            });
+
+            setImages(imageMap);
+        };
+
+        if (players.length > 0) {
+            loadImages();
+        }
+    }, [players]);
+
+    // カメラの位置を更新
+    useEffect(() => {
+        setCameraPosition({ x: playerId.x, y: playerId.y });
+    }, [playerId]);
+
     // Loading or Error UI
     if (!connected) {
         return <div className="loading">サーバーに接続中...</div>;
@@ -307,60 +351,80 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*))}*/}
             </div>
 
-                <MapVolOne
-                    playerId={playerId}
-                    ECollisionPosition={ECollisionPosition}
-                    playerCharacter={playerCharacter}
-                    eCollisionGotItemStatus={eCollisionGotItemStatus}
-                    objectItemImage={objectItemImage}
-                    nearbyItemPosition={nearbyItemPosition}
-                    socket={socket}
-                    enemyData={enemyData}
-                />
+                {/*<MapVolOne*/}
+                {/*    playerId={playerId}*/}
+                {/*    ECollisionPosition={ECollisionPosition}*/}
+                {/*    playerCharacter={playerCharacter}*/}
+                {/*    eCollisionGotItemStatus={eCollisionGotItemStatus}*/}
+                {/*    objectItemImage={objectItemImage}*/}
+                {/*    nearbyItemPosition={nearbyItemPosition}*/}
+                {/*    socket={socket}*/}
+                {/*    enemyData={enemyData}*/}
+                {/*/>*/}
 
-            <div>
+            {/*<div>*/}
 
-                <PlayerInventory roomId={roomId} playerId={playerId}
-                                 players={players}
-                                 eCollisionGotItem={eCollisionGotItem}
-                                 objectItemImage={objectItemImage}
-                                 ECollisionPosition={ECollisionPosition}
-                                 craftEvents={craftEvents}
-                                 currentDirectionRef={currentDirectionRef}
-                                 playerDirection={playerDirection}
-                                 socket={socket}
+            {/*    <PlayerInventory roomId={roomId} playerId={playerId}*/}
+            {/*                     players={players}*/}
+            {/*                     eCollisionGotItem={eCollisionGotItem}*/}
+            {/*                     objectItemImage={objectItemImage}*/}
+            {/*                     ECollisionPosition={ECollisionPosition}*/}
+            {/*                     craftEvents={craftEvents}*/}
+            {/*                     currentDirectionRef={currentDirectionRef}*/}
+            {/*                     playerDirection={playerDirection}*/}
+            {/*                     socket={socket}*/}
 
-                />
-                {/*    <form action={logout}>*/}
-                {/*        <button className={styles.fixedLogOutButton}>*/}
-                {/*            ログアウト*/}
-                {/*        </button>*/}
-                {/*    </form>*/}
-                {/*</div>*/}
-                {/* 他のプレイヤー */}
-                {/*{players*/}
-                {/*    .filter(player => player.playerId !== playerId)*/}
-                {/*    .map((player, index) => (*/}
-                {/*        <div*/}
-                {/*            key={player.playerId || `player-${index}`}*/}
-                {/*            className="other-player"*/}
-                {/*            style={{*/}
-                {/*                position: 'absolute',*/}
-                {/*                left: `${player.x}px`,*/}
-                {/*                top: `${player.y}px`,*/}
-                {/*                width: '20px',*/}
-                {/*                height: '20px',*/}
-                {/*                borderRadius: '50%',*/}
-                {/*                backgroundColor: 'red',*/}
-                {/*                zIndex: 10,*/}
-                {/*            }}*/}
-                {/*        >*/}
-                {/*            {player.playerId}*/}
+            {/*    />*/}
 
-                {/*        </div>*/}
-                {/*    ))}*/}
-            </div>
 
+            {/*    /!*    <form action={logout}>*!/*/}
+            {/*    /!*        <button className={styles.fixedLogOutButton}>*!/*/}
+            {/*    /!*            ログアウト*!/*/}
+            {/*    /!*        </button>*!/*/}
+            {/*    /!*    </form>*!/*/}
+            {/*    /!*</div>*!/*/}
+            {/*    /!* 他のプレイヤー *!/*/}
+
+            {/*    /!*{players*!/*/}
+            {/*    /!*    .filter(player => player.playerId !== playerId)*!/*/}
+            {/*    /!*    .map((player, index) => (*!/*/}
+            {/*    /!*        <div*!/*/}
+            {/*    /!*            key={player.playerId || `player-${index}`}*!/*/}
+            {/*    /!*            className="other-player"*!/*/}
+            {/*    /!*            style={{*!/*/}
+            {/*    /!*                position: 'absolute',*!/*/}
+            {/*    /!*                left: `${player.x - cameraPosition.x }px`,*!/*/}
+            {/*    /!*                top: `${player.y- cameraPosition.y}px`,*!/*/}
+            {/*    /!*                width: '20px',*!/*/}
+            {/*    /!*                height: '20px',*!/*/}
+            {/*    /!*                borderRadius: '50%',*!/*/}
+            {/*    /!*                backgroundColor: 'red',*!/*/}
+            {/*    /!*                zIndex: 10,*!/*/}
+            {/*    /!*            }}*!/*/}
+            {/*    /!*        >*!/*/}
+            {/*    /!*            {player.playerId}*!/*/}
+
+            {/*    /!*        </div>*!/*/}
+            {/*    /!*    ))}*!/*/}
+            {/*</div>*/}
+
+            <Stage width={window.innerWidth} height={window.innerHeight}>
+                <Layer>
+                    {/* 他のプレイヤーを描画 */}
+                    {players
+                        .filter((player) => player.playerId !== playerId.playerId && player.roomId === roomId)
+                        .map((player, index) => (
+                            <KonvaImage
+                                key={player.playerId || `player-${index}`}
+                                x={player.x - cameraPosition.x}
+                                y={player.y - cameraPosition.y}
+                                width={50} // アイコンの幅
+                                height={50} // アイコンの高さ
+                                image={images[player.playerId]} // プレイヤーごとの画像
+                            />
+                        ))}
+                </Layer>
+            </Stage>
         </div>
     );
 };

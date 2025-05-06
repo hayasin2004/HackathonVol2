@@ -67,9 +67,24 @@ io.on('connection', (socket) => {
             socket.join(`room:${roomId}`);
 
             // ルーム内の他プレイヤーとアイテム情報を取得
-            const roomPlayers = await prisma.playerData.findMany({
-                where: {roomId},
+            const roomPlayers = await prisma.playerData.findMany({　
+                include: {
+                    player: {
+                        select: {
+                            username: true, // 必要に応じてUserテーブルのフィールドを選択
+                            character: {    // Characterテーブルを絡める
+                                select: {
+                                    id: true,
+                                    parts: true,
+                                    iconImage: true,　　
+                                },
+                            },
+                        },
+                    },
+                },
             });
+
+            console.log(roomPlayers);
 
             const roomItems = await prisma.roomItem.findMany({
                 where: {
