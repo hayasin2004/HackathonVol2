@@ -129,10 +129,12 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                         }
                         const itemData = {
                             roomId,
-                            itemId : selectedItemId,
+                            placedByPlayer : selectedItemId,
                             playerDirection,
+                            playerId : playerId.id,
                             currentDirectionRef,
                             ECollisionPosition,
+                            itemId : putItemData.data.itemId,
                             id: putItemData?.data?.id,
                             x: putItemData.data.x,
                             y: putItemData.data.y,

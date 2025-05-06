@@ -9,12 +9,15 @@ export interface objectItemIconImage {
     id: number,
     roomId: number,
     itemId: number,
+    userId : number,
+    playerId : number,
     x: number
     y: number
     width: number
     height: number
     isActive: boolean
     iconImage: HTMLImageElement
+    placedByPlayer : number
 }
 
 interface UseGetItemProps {
@@ -57,10 +60,10 @@ export const useRemakeItemGet = ({
 
     const moveInterval = speed ? Math.max(50, 400 - speed) : DEFAULT_MOVE_INTERVAL;
     const {handleItemCollection} = useDestroyANDRandom(socket);
+    const {playerItemCollection} = useDestroyANDRandom(socket);
 
     // 最新のrectPositionsを更新
     useEffect(() => {
-        alert("データの更新がされました！（アイテム設置によって）")
         rectPositionsRef.current = rectPositions;
 
     }, [rectPositions]);
@@ -147,6 +150,27 @@ export const useRemakeItemGet = ({
 
         if (foundItem) {
             try {
+                console.log(foundItem)
+                // プレイヤーが設置したかどうかの判定
+                if (foundItem.playerId){
+                    alert("これだれが置いたんや！！" + foundItem.playerId)
+                    const result = await playerGetItem(userId, [foundItem.itemId]);
+
+                    if (result?.status === "success") {
+                        if (Array.isArray(result.savedItemData)) {
+                            console.log(result.savedItemData[0].id , foundItem.itemId)
+                            setECollisionGotItem(prev => [...prev, ...result.savedItemData]);
+                            setECollisionGotItemStatus(foundItem);
+                            await playerItemCollection(foundItem.id);
+
+                            setECollisionGotItem(prev => prev.filter(item => item !== foundItem?.id?.toString()));
+                        } else {
+                            setECollisionGotItem(prev => [...prev, foundItem.itemId.toString()]);
+                            setECollisionGotItemStatus(foundItem);
+                            console.log("取得成功（データなし）:", foundItem.id);
+                        }
+                    }
+                }
                 console.log("foundItem.itemId"+JSON.stringify(foundItem))
                 const result = await playerGetItem(userId, [foundItem.itemId]);
                 if (result?.status === "success") {

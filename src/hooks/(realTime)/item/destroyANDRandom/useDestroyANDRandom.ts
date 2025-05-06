@@ -92,7 +92,52 @@ const useDestroyAndRandom = (socket: Socket | null) => {
         }
     }, [getRandomPosition, socket]);
 
-    return {handleItemCollection};
+    const playerItemCollection = useCallback(async (item) => {
+        try {
+            console.log("プレイヤーが取得したアイテム:", JSON.stringify(item));
+
+            // アイテムが水の場合は処理をスキップ
+            if (item.itemId === 11) { // 11が水のIDであると仮定
+                console.log('Water item detected, not hiding.');
+                return;
+            }
+
+            // マップ上からアイテムを非表示にする（リアルタイム処理）
+            if (socket) {
+                socket.emit('itemRemoved', {
+                    id: item.id,
+                    itemId: item.itemId
+                });
+                console.log('アイテムが取得されたためマップから非表示にしました:', JSON.stringify(item));
+            } else {
+                console.warn('Socket is not connected, cannot emit itemRemoved event');
+            }
+
+            // データベースからアイテムを削除
+            const response = await fetch('/api/item/removePlayerItem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: item,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to remove item from database');
+            }
+
+            const result = await response.json();
+            console.log('アイテムがデータベースから削除されました:', result);
+
+        } catch (error) {
+            console.error("Failed to remove item:", error);
+        }
+    }, [socket]);
+
+
+    return {handleItemCollection ,playerItemCollection};
 };
 
 export default useDestroyAndRandom;
