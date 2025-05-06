@@ -408,8 +408,9 @@ export default function Page() {
             backgroundAttachment: "fixed", // 背景を固定
 
         }}>
-            <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
+
             <form className={styles.characterEditorForm} onSubmit={handleGenerate}>
+                <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
                 <h2 className={styles.characterEditorWrapper}>キャラクター</h2>
                 <table className={styles.characterEditorTable}>
                     <tbody>
@@ -487,7 +488,7 @@ export default function Page() {
                 </table>
 
                 <br/>
-                <h2>お洋服</h2>
+                <h2 className={styles.characterEditorWrapper} >お洋服</h2>
 
                 <table className={styles.characterEditorTable}>
                     <tbody>
@@ -605,49 +606,68 @@ export default function Page() {
 
             {frontImageUrl && (
                 <div>
-                    <h2 className={styles.characterEditorTitle}>生成された画像 (Front View):</h2>
-                    <img
-                        className={styles.imgCreate}
-                        src={`${frontImageUrl}?t=${Date.now()}`}
-                        alt="Front View"
-                        style={{imageRendering: "pixelated"}}
-                    />
-                    <br/>
-                    <button className={styles.button} onClick={handleStaticGenerate} disabled={staticLoading}>
-                        {staticLoading ? "別角度生成中..." : "キャラクター別角度生成"}
-                    </button>
+                    <h2 className={styles.characterEditorTitle}>生成された画像 (Front View)</h2>
+                    <div className={styles.horizontalImages}>
+                        <div className={styles.imageContainer}>
+                            <img
+                                className={styles.imgCreate}
+                                src={`${frontImageUrl}?t=${Date.now()}`}
+                                alt="Front View"
+                                style={{imageRendering: "pixelated"}}
+                            />
+                            <br/>
+                        </div>
+                    </div>
+                    <div className={styles.horizontalImages}>
+                        <button className={styles.buttonCreate} onClick={handleStaticGenerate} disabled={staticLoading}>
+                            {staticLoading ? "別角度生成中..." : "キャラクター別角度生成"}
+                        </button>
+                    </div>
                 </div>
+
             )}
 
             {staticImages.back && staticImages.right && staticImages.left && (
                 <div>
-                    <h2>追加生成された画像 (静止画像):</h2>
-                    <div>
-                        <h3>Back View:</h3>
-                        <img
-                            className={styles.imgCreate}
-                            src={`${staticImages.back}?t=${Date.now()}`}
-                            alt="Back View"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                    </div>
-                    <div>
-                        <h3>Right View:</h3>
-                        <img
-                            className={styles.imgCreate}
-                            src={`${staticImages.right}?t=${Date.now()}`}
-                            alt="Right View"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                    </div>
-                    <div>
-                        <h3>Left View:</h3>
-                        <img
-                            className={styles.imgCreate}
-                            src={`${staticImages.left}?t=${Date.now()}`}
-                            alt="Left View"
-                            style={{imageRendering: "pixelated"}}
-                        />
+
+                    <h2 className={styles.characterStillEditorTitle}>追加生成された画像 (静止画像)</h2>
+                        <div className={styles.horizontalImages}>
+                            <div className={styles.imageContainer}>
+                                <h3>Back View:</h3>
+                                <img
+                                    className={styles.imgCreate}
+                                    src={`${staticImages.back}?t=${Date.now()}`}
+                                    alt="Back View"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                            <div className={styles.imageContainer}>
+                                <h3>Right View:</h3>
+                                <img
+                                    className={styles.imgCreate}
+                                    src={`${staticImages.right}?t=${Date.now()}`}
+                                    alt="Right View"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                            <div className={styles.imageContainer}>
+                                <h3>Left View:</h3>
+                                <img
+                                    className={styles.imgCreate}
+                                    src={`${staticImages.left}?t=${Date.now()}`}
+                                    alt="Left View"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                        </div>
+                    <div className={styles.horizontalImages}>
+                        <button className={styles.buttonCreate} onClick={handleMotionGenerate} disabled={motionLoading}>
+                            {motionLoading
+                                ? "モーション生成中..."
+                                : motionImages.front
+                                    ? "キャラクターモーション再生成"
+                                    : "キャラクターモーション生成"}
+                        </button>
                     </div>
                 </div>
             )}
@@ -657,43 +677,51 @@ export default function Page() {
                 staticImages.right &&
                 staticImages.left && (
                     <div>
-                        <h2>モーション画像:</h2>
-                        <button className={styles.button} onClick={handleMotionGenerate} disabled={motionLoading}>
-                            {motionLoading
-                                ? "モーション生成中..."
-                                : motionImages.front
-                                    ? "キャラクターモーション再生成"
-                                    : "キャラクターモーション生成"}
-                        </button>
+                        <h2 className={styles.characterStillEditorTitle}>モーション画像:</h2>
+
                         {motionImages.front &&
                             motionImages.back &&
                             motionImages.right &&
                             motionImages.left && (
                                 <div>
-                                    <h3>Front Walk:</h3>
-                                    <img
-                                        src={`${motionImages.front}?t=${Date.now()}`}
-                                        alt="Front Walk"
-                                        style={{imageRendering: "pixelated"}}
-                                    />
-                                    <h3>Back Walk:</h3>
-                                    <img
-                                        src={`${motionImages.back}?t=${Date.now()}`}
-                                        alt="Back Walk"
-                                        style={{imageRendering: "pixelated"}}
-                                    />
-                                    <h3>Right Walk:</h3>
-                                    <img
-                                        src={`${motionImages.right}?t=${Date.now()}`}
-                                        alt="Right Walk"
-                                        style={{imageRendering: "pixelated"}}
-                                    />
-                                    <h3>Left Walk:</h3>
-                                    <img
-                                        src={`${motionImages.left}?t=${Date.now()}`}
-                                        alt="Left Walk"
-                                        style={{imageRendering: "pixelated"}}
-                                    />
+                                    <div className={styles.horizontalImages}>
+                                        <div className={styles.imageContainer}>
+                                            <h3>Front Walk:</h3>
+                                            <img
+                                                className={styles.imgCreate}
+                                                src={`${motionImages.front}?t=${Date.now()}`}
+                                                alt="Front Walk"
+                                                style={{imageRendering: "pixelated"}}
+                                                />
+                                        </div>
+                                        <div className={styles.imageContainer}>
+                                            <h3>Back Walk:</h3>
+                                            <img
+                                                className={styles.imgCreate}
+                                                src={`${motionImages.back}?t=${Date.now()}`}
+                                                alt="Back Walk"
+                                                style={{imageRendering: "pixelated"}}
+                                            />
+                                        </div>
+                                        <div className={styles.imageContainer}>
+                                            <h3>Right Walk:</h3>
+                                            <img
+                                                className={styles.imgCreate}
+                                                src={`${motionImages.right}?t=${Date.now()}`}
+                                                alt="Right Walk"
+                                                style={{imageRendering: "pixelated"}}
+                                            />
+                                        </div>
+                                        <div className={styles.imageContainer}>
+                                            <h3>Left Walk:</h3>
+                                            <img
+                                                className={styles.imgCreate}
+                                                src={`${motionImages.left}?t=${Date.now()}`}
+                                                alt="Left Walk"
+                                                style={{imageRendering: "pixelated"}}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                     </div>
@@ -709,9 +737,11 @@ export default function Page() {
                 motionImages.left && (
                     <div>
                         <h2>確定画像 (リサイズ済み & GIF化)：</h2>
-                        <button className={styles.button} onClick={handleConfirmCharacter} disabled={confirmLoading}>
-                            {confirmLoading ? "確定中..." : "キャラクターを確定"}
-                        </button>
+                        <div className={styles.horizontalImages}>
+                            <button className={styles.button} onClick={handleConfirmCharacter} disabled={confirmLoading}>
+                                {confirmLoading ? "確定中..." : "キャラクターを確定"}
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -720,72 +750,98 @@ export default function Page() {
                     <h2>最終結果</h2>
                     <h3>静止画像 (64×64)：</h3>
                     <div>
-                        <img
-                            src={`${finalImages.static?.front}?t=${Date.now()}`}
-                            alt="Front Resized"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.static?.back}?t=${Date.now()}`}
-                            alt="Back Resized"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.static?.right}?t=${Date.now()}`}
-                            alt="Right Resized"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.static?.left}?t=${Date.now()}`}
-                            alt="Left Resized"
-                            style={{imageRendering: "pixelated"}}
-                        />
+                        <div className={styles.horizontalImages}>
+                            <div className={styles.imageContainer}>
+                                <img
+                                    src={`${finalImages.static?.front}?t=${Date.now()}`}
+                                    alt="Front Resized"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                                </div>
+                            <div className={styles.imageContainer}>
+                                <img
+                                    src={`${finalImages.static?.back}?t=${Date.now()}`}
+                                    alt="Back Resized"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                            <div className={styles.imageContainer}>
+                                <img
+                                    src={`${finalImages.static?.right}?t=${Date.now()}`}
+                                    alt="Right Resized"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                            <div className={styles.imageContainer}>
+                                <img
+                                    src={`${finalImages.static?.left}?t=${Date.now()}`}
+                                    alt="Left Resized"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                        </div>
                     </div>
                     <h3>モーション画像 (64×64)：</h3>
-                    <div>
-                        <img
-                            src={`${finalImages.motion?.front}?t=${Date.now()}`}
-                            alt="Front Walk Resized"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.motion?.back}?t=${Date.now()}`}
-                            alt="Back Walk Resized"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.motion?.right}?t=${Date.now()}`}
-                            alt="Right Walk Resized"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.motion?.left}?t=${Date.now()}`}
-                            alt="Left Walk Resized"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                    </div>
+                        <div className={styles.horizontalImages}>
+                            <div className={styles.imageContainer}>
+                                <img
+                                    src={`${finalImages.motion?.front}?t=${Date.now()}`}
+                                    alt="Front Walk Resized"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                                </div>
+                            <div className={styles.imageContainer}>
+                                <img
+                                    src={`${finalImages.motion?.back}?t=${Date.now()}`}
+                                    alt="Back Walk Resized"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                            <div className={styles.imageContainer}>
+                                <img
+                                    src={`${finalImages.motion?.right}?t=${Date.now()}`}
+                                    alt="Right Walk Resized"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                            <div className={styles.imageContainer}>
+                                <img
+                                    src={`${finalImages.motion?.left}?t=${Date.now()}`}
+                                    alt="Left Walk Resized"
+                                    style={{imageRendering: "pixelated"}}
+                                />
+                            </div>
+                        </div>
                     <h3>GIF アニメーション：</h3>
-                    <div>
-                        <img
-                            src={`${finalImages.gif?.front}?t=${Date.now()}`}
-                            alt="Front Motion GIF"
+                    <div className={styles.horizontalImages}>
+                        <div className={styles.imageContainer}>
+                            <img
+                                src={`${finalImages.gif?.front}?t=${Date.now()}`}
+                                alt="Front Motion GIF"
+                                style={{imageRendering: "pixelated"}}
+                            />
+                        </div>
+                        <div className={styles.imageContainer}>
+                            <img
+                                src={`${finalImages.gif?.back}?t=${Date.now()}`}
+                                alt="Back Motion GIF"
                             style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.gif?.back}?t=${Date.now()}`}
-                            alt="Back Motion GIF"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.gif?.right}?t=${Date.now()}`}
-                            alt="Right Motion GIF"
-                            style={{imageRendering: "pixelated"}}
-                        />
-                        <img
-                            src={`${finalImages.gif?.left}?t=${Date.now()}`}
-                            alt="Left Motion GIF"
-                            style={{imageRendering: "pixelated"}}
-                        />
+                            />
+                        </div>
+                        <div className={styles.imageContainer}>
+                            <img
+                                src={`${finalImages.gif?.right}?t=${Date.now()}`}
+                                alt="Right Motion GIF"
+                                style={{imageRendering: "pixelated"}}
+                            />
+                        </div>
+                        <div className={styles.imageContainer}>
+                            <img
+                                src={`${finalImages.gif?.left}?t=${Date.now()}`}
+                                alt="Left Motion GIF"
+                                style={{imageRendering: "pixelated"}}
+                            />
+                        </div>
                     </div>
                     <div>
                         <button className={styles.button} onClick={handleSaveAllImages}>Supabaseに画像保存</button>
