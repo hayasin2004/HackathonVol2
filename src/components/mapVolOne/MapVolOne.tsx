@@ -169,6 +169,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         const loadImages = async () => {
             const imageMap: { [key: string]: HTMLImageElement } = {};
 
+
             players.forEach((player) => {
                 if (player.player?.character?.[0]?.iconImage?.[0]) {
                     const imageUrl = player.player.character[0].iconImage[0];
