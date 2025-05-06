@@ -1,8 +1,5 @@
-// src/hooks/(realTime)/item/destroyANDRandom/useDestroyANDRandom.ts
 import {useCallback} from "react";
 import {Socket} from "socket.io-client";
-import {response} from "express";
-
 const useDestroyAndRandom = (socket: Socket | null) => {
     const maxWidth = 2200;
     const maxHeight = 2200;
@@ -10,15 +7,22 @@ const useDestroyAndRandom = (socket: Socket | null) => {
 
     const getRandomPosition = useCallback((existingPositions) => {
         let position;
+        let isOverlapping; // 重複を確認するフラグ
         do {
             const x = Math.floor(Math.random() * (maxWidth / tileSize)) * tileSize;
             const y = Math.floor(Math.random() * (maxHeight / tileSize)) * tileSize;
             position = {x, y};
-        } while (existingPositions.some(pos => pos.x === position.x && pos.y === position.y));
+
+            // 重複を確認するロジック
+            isOverlapping = existingPositions.some(pos => {
+                const isXOverlap = Math.abs(pos.x - position.x) < tileSize;
+                const isYOverlap = Math.abs(pos.y - position.y) < tileSize;
+                return isXOverlap && isYOverlap;
+            });
+        } while (isOverlapping); // 重複している場合は再度位置を生成
         return position;
     }, [maxWidth, maxHeight, tileSize]);
 
-    // アイテムを引数として受け取るように変更
     const handleItemCollection = useCallback(async (item) => {
         try {
             console.log("ランダム座標対象アイテム" + JSON.stringify(item))
@@ -26,7 +30,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
                 console.log('Water item detected, not moving.');
                 return;
             }
-            const existingPositions = [];
+            const existingPositions = []; // 他のアイテムの座標を取得する必要があります
 
             const newPosition = getRandomPosition(existingPositions);
 
@@ -36,7 +40,6 @@ const useDestroyAndRandom = (socket: Socket | null) => {
                     id: item.id,
                     itemId: item.itemId
                 });
-                console.log('アイテムが取得されたらマップからすぐに消える', JSON.stringify(item));
             }
 
             // データベースでアイテム位置を更新
@@ -96,11 +99,7 @@ const useDestroyAndRandom = (socket: Socket | null) => {
         try {
             console.log("プレイヤーが取得したアイテム:", JSON.stringify(item));
 
-            // アイテムが水の場合は処理をスキップ
-            if (item.itemId === 11) { // 11が水のIDであると仮定
-                console.log('Water item detected, not hiding.');
-                return;
-            }
+
 
             // マップ上からアイテムを非表示にする（リアルタイム処理）
             if (socket) {
