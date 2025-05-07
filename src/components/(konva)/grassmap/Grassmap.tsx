@@ -335,51 +335,51 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     enemyData={enemyData}
                 />
 
-            {/*<div>*/}
+            <div>
 
-            {/*    <PlayerInventory roomId={roomId} playerId={playerId}*/}
-            {/*                     players={players}*/}
-            {/*                     eCollisionGotItem={eCollisionGotItem}*/}
-            {/*                     objectItemImage={objectItemImage}*/}
-            {/*                     ECollisionPosition={ECollisionPosition}*/}
-            {/*                     craftEvents={craftEvents}*/}
-            {/*                     currentDirectionRef={currentDirectionRef}*/}
-            {/*                     playerDirection={playerDirection}*/}
-            {/*                     socket={socket}*/}
+                <PlayerInventory roomId={roomId} playerId={playerId}
+                                 players={players}
+                                 eCollisionGotItem={eCollisionGotItem}
+                                 objectItemImage={objectItemImage}
+                                 ECollisionPosition={ECollisionPosition}
+                                 craftEvents={craftEvents}
+                                 currentDirectionRef={currentDirectionRef}
+                                 playerDirection={playerDirection}
+                                 socket={socket}
 
-            {/*    />*/}
+                />
 
 
-            {/*    /!*    <form action={logout}>*!/*/}
-            {/*    /!*        <button className={styles.fixedLogOutButton}>*!/*/}
-            {/*    /!*            ログアウト*!/*/}
-            {/*    /!*        </button>*!/*/}
-            {/*    /!*    </form>*!/*/}
-            {/*    /!*</div>*!/*/}
-            {/*    /!* 他のプレイヤー *!/*/}
+                {/*    <form action={logout}>*/}
+                {/*        <button className={styles.fixedLogOutButton}>*/}
+                {/*            ログアウト*/}
+                {/*        </button>*/}
+                {/*    </form>*/}
+                {/*</div>*/}
+                {/* 他のプレイヤー */}
 
-            {/*    /!*{players*!/*/}
-            {/*    /!*    .filter(player => player.playerId !== playerId)*!/*/}
-            {/*    /!*    .map((player, index) => (*!/*/}
-            {/*    /!*        <div*!/*/}
-            {/*    /!*            key={player.playerId || `player-${index}`}*!/*/}
-            {/*    /!*            className="other-player"*!/*/}
-            {/*    /!*            style={{*!/*/}
-            {/*    /!*                position: 'absolute',*!/*/}
-            {/*    /!*                left: `${player.x - cameraPosition.x }px`,*!/*/}
-            {/*    /!*                top: `${player.y- cameraPosition.y}px`,*!/*/}
-            {/*    /!*                width: '20px',*!/*/}
-            {/*    /!*                height: '20px',*!/*/}
-            {/*    /!*                borderRadius: '50%',*!/*/}
-            {/*    /!*                backgroundColor: 'red',*!/*/}
-            {/*    /!*                zIndex: 10,*!/*/}
-            {/*    /!*            }}*!/*/}
-            {/*    /!*        >*!/*/}
-            {/*    /!*            {player.playerId}*!/*/}
+                {/*{players*/}
+                {/*    .filter(player => player.playerId !== playerId)*/}
+                {/*    .map((player, index) => (*/}
+                {/*        <div*/}
+                {/*            key={player.playerId || `player-${index}`}*/}
+                {/*            className="other-player"*/}
+                {/*            style={{*/}
+                {/*                position: 'absolute',*/}
+                {/*                left: `${player.x - cameraPosition.x }px`,*/}
+                {/*                top: `${player.y- cameraPosition.y}px`,*/}
+                {/*                width: '20px',*/}
+                {/*                height: '20px',*/}
+                {/*                borderRadius: '50%',*/}
+                {/*                backgroundColor: 'red',*/}
+                {/*                zIndex: 10,*/}
+                {/*            }}*/}
+                {/*        >*/}
+                {/*            {player.playerId}*/}
 
-            {/*    /!*        </div>*!/*/}
-            {/*    /!*    ))}*!/*/}
-            {/*</div>*/}
+                {/*        </div>*/}
+                {/*    ))}*/}
+            </div>
 　
         </div>
     );

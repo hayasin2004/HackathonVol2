@@ -296,7 +296,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                                         >
                                             <span className={styles.itemName}>{craftItem.createdItem.itemName}</span>
                                             <Image
-                                                src={craftItem.createdItem.itemIcon}
+                                                src={craftItem.createdItem.itemIcon[0]}
                                                 alt={craftItem.createdItem.itemName}
                                                 width={64}
                                                 height={64}
