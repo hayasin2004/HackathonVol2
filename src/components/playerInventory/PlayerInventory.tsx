@@ -34,12 +34,16 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     // alert(JSON.stringify(playerItems))
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+    console.log(selectedItemId)
     const [selectItemIndex, setSelectItemIndex] = useState<number>(0);
     const [selectedCraftItemId, setSelectedCraftItemId] = useState<number | null>(null);
     const handleItemClick = (itemId: number) => {
+
         if (selectedItemId === itemId) {
+            alert("どっちに来てるの１")
             setSelectedItemId(null);
         } else {
+            alert("どっちに来てるの１あ")
 
             setSelectedItemId(itemId);
         }
