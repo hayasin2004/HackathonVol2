@@ -99,23 +99,12 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData , cameraPosition}) => {
         }
     };
 
-    // コンポーネントのアンマウント時にタイマーをクリア
-    useEffect(() => {
-        return () => {
-            if (dialogueTimerRef.current) {
-                clearInterval(dialogueTimerRef.current);
-            }
-        };
-    }, []);
-
-    if (!npcData || npcData.length === 0) {
-        return <div>NPCデータがありません</div>;
-    }
-
+　
+　
     // Konvaコンポーネントは必ずStageとLayerの中に配置する
     return (
         <>
-            {npcData.map((npc) => (
+            {npcData?.map((npc) => (
                 <SingleNpc
                     key={npc.id}
                     npc={npc}
@@ -126,11 +115,9 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData , cameraPosition}) => {
 
             {/* 対話ボックスを描画 */}
             <DialogueBox
-                activeDialogue={{
-                    isVisible: activeDialogue.isVisible,
-                    npc: activeDialogue.npc,
-                    currentIndex: activeDialogue.currentIndex // 現在のインデックスを渡す
-                }}
+                activeDialogue={activeDialogue}
+                onNextMessage={handleNextMessage}
+                onPrevMessage={handlePrevMessage}
             />
         </>
     );
@@ -168,15 +155,15 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick , cameraPosition})
 
         if (npc.id === 1) {
             // 水平方向に移動するロジック（まずX軸、次にY軸）
-            const moveToDestination = async () => {　
+            const moveToDestination = async () => {
                 const targetX = 64;
                 const targetY = 128;
-　
+
                 let currentX = npc.x;
                 let currentY = npc.y;
-　
+
                 setPosition({ x: currentX, y: currentY });
-　
+
                 while (currentX > targetX && isMounted) {
                     await new Promise(resolve => setTimeout(resolve, 150));
                     currentX -= 64;
@@ -207,7 +194,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick , cameraPosition})
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, []); // 依存配列にnpcとonNpcClickを追加
 
     const handleClick = () => {
       　
