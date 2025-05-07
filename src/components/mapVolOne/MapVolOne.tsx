@@ -477,16 +477,21 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                 x={20}
                                 y={20 + index * 40}
                                 width={300}
-                                height={30}
-                                fill={selectedMusic === music ? "lightblue" : "white"}
+                                height={100}
+                                fill={selectedMusic === music ? "white" : "#444"}
+                                cornerRadius={9}
                                 stroke="black"
                                 strokeWidth={1}
                                 onClick={() => setSelectedMusic(music)} // 音楽を選択する
+                                shadowColor="rgba(0,0,0,0.2)"
+                                shadowBlur={10}
+                                shadowOffset={{ x: 0, y: 5 }}
+                                shadowOpacity={2}
                             />
                             {/* 音楽名を描画 */}
                             <Text
-                                x={25}
-                                y={25 + index * 40}
+                                x={40}
+                                y={37 + index * 40}
                                 text={music}
                                 fontSize={16}
                                 fill="black"
@@ -494,23 +499,39 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             />
                         </React.Fragment>
                     ))}
-                    <Text x={20} y={200} text="音量" fontSize={16} fill="black" />
-                    <Line
-                        points={[20, 230, 220, 230]} // スライダーのベースライン
+                    <Text x={110} y={60} text="音量" fontSize={16} fill="black" />
+                    {/* <Line
+                        points={[100, 100, 310, 100]} // スライダーのベースライン
+                        stroke="#e0e0ff"
+                        strokeWidth={30}
+                        corner
+                    /> */}
+                    <Rect 
+                        x={100}
+                        y={80}
+                        width={210}
+                        height={30}
+                        fill="#e0e0ff"
+                        cornerRadius={30}
                         stroke="black"
-                        strokeWidth={2}
-                    />
+                        strokeWidth={1}
+                        shadowColor="rgba(0,0,0,0.2)"
+                        shadowBlur={10}
+                        shadowOffset={{ x: 0, y: 5 }}
+                        shadowOpacity={2}
+                        />
                     <Rect
-                        x={20 + volume * 200 - 5} // 音量に応じてスライダーの位置を調整
-                        y={220}
-                        width={10}
+                        x={100 + volume * 200 - 5} // 音量に応じてスライダーの位置を調整
+                        y={85}
+                        width={20}
                         height={20}
                         fill="blue"
                         draggable
+                        cornerRadius={30}
                         dragBoundFunc={(pos) => {
                             // ドラッグ範囲を制限
                             const x = Math.max(20, Math.min(pos.x, 220));
-                            return { x, y: 220 };
+                            return { x, y: 85 };
                         }}
                         onDragMove={(e) => {
                             // スライダーを移動したときに音量を更新
@@ -519,13 +540,18 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         }}
                     />
                     <Rect
-                        x={20}
-                        y={280}
-                        width={100}
-                        height={30}
-                        fill={isPlaying ? "red" : "green"} // 再生中なら赤、停止中なら緑
+                        x={40}
+                        y={60}
+                        width={50}
+                        height={50}
+                        fill={isPlaying ? "#ffc6e2" : "#c6ffe2"} // 再生中なら赤、停止中なら緑
+                        cornerRadius={30}
                         stroke="black"
                         strokeWidth={1}
+                        shadowColor="rgba(0,0,0,0.2)"
+                        shadowBlur={10}
+                        shadowOffset={{ x: 0, y: 5 }}
+                        shadowOpacity={2}
                         onClick={() => {
                             if (audio) {
                                 if (isPlaying) {
@@ -540,11 +566,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         }}
                     />
                     <Text
-                        x={25}
-                        y={285}
-                        text={isPlaying ? "停止" : "再生"}
+                        x={58}
+                        y={78}
+                        text={isPlaying ? "I I" : "▶"}
                         fontSize={16}
-                        fill="white"
+                        fill="#3E4042"
                         onClick={() => {
                             if (audio) {
                                 if (isPlaying) {
