@@ -29,8 +29,10 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onDialogueAdv
 
     // 表示する対話テキスト（NPC.dialogues の 2 番目の要素を使用）
     // dialogues が文字列の場合はパースする
+    const dialogueText = npc.dialogues;
+
     const dialogues = dialogueEntry?.lines || [];
-    const dialogueText = dialogues && Array.isArray(dialogues) && dialogues.length > 1 && dialogues[1]
+    const dialogueText2 = dialogues && Array.isArray(dialogues) && dialogues.length > 1 && dialogues[1]
                          ? dialogues[1]
                          : npc.dialogues; // dialogues[1] がない場合のデフォルトテキスト
 
@@ -50,6 +52,9 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onDialogueAdv
     const textY = boxPadding + nameFontSize + 5; // 名前の下に配置
     const textWidth = stageWidth - boxPadding * 3 - portraitSize;
     const textHeight = boxHeight - boxPadding * 2 - nameFontSize - 5; // テキストが表示できる最大の高さ
+    //2行目の文言の位置を調整
+    const textY2 = textY + 15; // 名前の下に配置
+    
 
     // ボックスを画面下部に配置
     const boxY = stageHeight - boxHeight;
@@ -114,15 +119,20 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onDialogueAdv
                 verticalAlign="top" // テキストを上端に揃える
                 listening={false} // クリックイベントを受け取らない
             />
-             {/* （オプション）対話続行を促すマークなどをここに追加できます */}
-             <Text
-                text="▼" // 下矢印の例
-                x={stageWidth - boxPadding - 20} // 右下付近に配置
-                y={boxY + boxHeight - boxPadding - 20} // 右下付近に配置
-                fontSize={16}
-                fill="#FFFFFF"
-                listening={false}
-             />
+             {/* 2行目 */}
+            <Text
+                text={dialogueText2}
+                x={textX} // 名前に合わせて配置
+                y={textY2} // 名前の下に配置
+                fontSize={textFontSize}
+                fill="#FFFFFF" // 白い文字
+                width={textWidth} // テキストエリアの幅で折り返し
+                height={textHeight} // テキストエリアの最大の高さ
+                wrap="word" // 単語で折り返し
+                lineHeight={1.5} // 行間
+                verticalAlign="top" // テキストを上端に揃える
+                listening={false} // クリックイベントを受け取らない
+            />
         </Group>
     );
 };
