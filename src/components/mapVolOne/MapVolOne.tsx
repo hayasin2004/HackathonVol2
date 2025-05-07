@@ -230,62 +230,62 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     }, []);
 
     // 選択された音楽を再生
-    useEffect(() => {
-        if (selectedMusic) {
-            const fetchAndPlayMusic = async () => {
-                try {
-                    const { data, error } = await supabase.storage
-                        .from("hackathon2-picture-storage")
-                        .createSignedUrl(`bgm/mapVolOne/${selectedMusic}`, 60 * 60); // フルパスを指定して署名付きURLを生成
-
-                    if (error) {
-                        console.error("音楽ファイルの取得に失敗しました:", error.message);
-                        return;
-                    }
-
-                    if (data?.signedUrl) {
-                        if (audio) {
-                            audio.pause();
-                            audio.currentTime = 0;
-                        }
-
-                        const newAudio = new Audio(data.signedUrl);
-                        newAudio.loop = true; // ループ再生
-                        newAudio.volume = Math.max(0, Math.min(volume, 1)); // 音量を制限
-
-                        // 自動再生を試みる
-                        newAudio
-                            .play()
-                            .catch((err) => {
-                                console.error("音楽の再生中にエラーが発生しました:", err);
-                            });
-
-                        setAudio(newAudio);
-                        setIsPlaying(true); // 再生状態を更新
-                    }
-                } catch (err) {
-                    console.error("音楽ファイルの取得中にエラーが発生しました:", err);
-                }
-            };
-
-            fetchAndPlayMusic();
-        }
-
-        return () => {
-            if (audio) {
-                audio.pause();
-                audio.currentTime = 0;
-            }
-        };
-    }, [selectedMusic]);
-
-
-    // 音量変更時の処理
-    useEffect(() => {
-        if (audio) {
-            audio.volume = volume;
-        }
-    }, [volume, audio]);
+    // useEffect(() => {
+    //     if (selectedMusic) {
+    //         const fetchAndPlayMusic = async () => {
+    //             try {
+    //                 const { data, error } = await supabase.storage
+    //                     .from("hackathon2-picture-storage")
+    //                     .createSignedUrl(`bgm/mapVolOne/${selectedMusic}`, 60 * 60); // フルパスを指定して署名付きURLを生成
+    //
+    //                 if (error) {
+    //                     console.error("音楽ファイルの取得に失敗しました:", error.message);
+    //                     return;
+    //                 }
+    //
+    //                 if (data?.signedUrl) {
+    //                     if (audio) {
+    //                         audio.pause();
+    //                         audio.currentTime = 0;
+    //                     }
+    //
+    //                     const newAudio = new Audio(data.signedUrl);
+    //                     newAudio.loop = true; // ループ再生
+    //                     newAudio.volume = Math.max(0, Math.min(volume, 1)); // 音量を制限
+    //
+    //                     // 自動再生を試みる
+    //                     newAudio
+    //                         .play()
+    //                         .catch((err) => {
+    //                             console.error("音楽の再生中にエラーが発生しました:", err);
+    //                         });
+    //
+    //                     setAudio(newAudio);
+    //                     setIsPlaying(true); // 再生状態を更新
+    //                 }
+    //             } catch (err) {
+    //                 console.error("音楽ファイルの取得中にエラーが発生しました:", err);
+    //             }
+    //         };
+    //
+    //         fetchAndPlayMusic();
+    //     }
+    //
+    //     return () => {
+    //         if (audio) {
+    //             audio.pause();
+    //             audio.currentTime = 0;
+    //         }
+    //     };
+    // }, [selectedMusic]);
+    //
+    //
+    // // 音量変更時の処理
+    // useEffect(() => {
+    //     if (audio) {
+    //         audio.volume = volume;
+    //     }
+    // }, [volume, audio]);
 
 
     return (
