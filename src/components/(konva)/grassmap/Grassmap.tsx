@@ -358,18 +358,18 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
             {/*<div>*/}
 
-                {/*<PlayerInventory roomId={roomId} playerId={playerId}*/}
-                {/*                 players={players}*/}
-                {/*                 eCollisionGotItem={eCollisionGotItem}*/}
-                {/*                 objectItemImage={objectItemImage}*/}
-                {/*                 ECollisionPosition={ECollisionPosition}*/}
-                {/*                 craftEvents={craftEvents}*/}
-                {/*                 currentDirectionRef={currentDirectionRef}*/}
-                {/*                 playerDirection={playerDirection}*/}
-                {/*                 socket={socket}*/}
-                {/*                 playerInventory={playerInventory}*/}
+                <PlayerInventory roomId={roomId} playerId={playerId}
+                                 players={players}
+                                 eCollisionGotItem={eCollisionGotItem}
+                                 objectItemImage={objectItemImage}
+                                 ECollisionPosition={ECollisionPosition}
+                                 craftEvents={craftEvents}
+                                 currentDirectionRef={currentDirectionRef}
+                                 playerDirection={playerDirection}
+                                 socket={socket}
+                                 playerInventory={playerInventory}
 
-                {/*/>*/}
+                />
 
 
             {/*    /!*    <form action={logout}>*!/*/}

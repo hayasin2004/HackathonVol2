@@ -26,85 +26,44 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData , cameraPosition}) => {
     // --- 対話ボックスの状態管理 ---
     // isVisible: 対話ボックスが表示されているか
     // npc: 現在対話しているNPCのデータ (nullの場合は表示しない)
-    const [activeDialogue, setActiveDialogue] = useState<{
-        isVisible: boolean,
-        npc: NPC | null,
-        currentIndex: number // 現在表示中のダイアログインデックス
-    }>({
+    const [activeDialogue, setActiveDialogue] = useState<{ isVisible: boolean, npc: NPC | null }>({
         isVisible: false,
-        npc: null,
-        currentIndex: 0
+        npc: null
     });
     // --- ここまで ---
 
     // NPCがクリックされたときに呼び出されるハンドラ
-    // ダイアログ自動進行用のタイマー参照
-    const dialogueTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-    // NPCがクリックされたときに呼び出されるハンドラ
     const handleNpcClick = (clickedNpc: NPC) => {
-        // 既にダイアログが表示されている場合はタイマーをクリア
-        if (dialogueTimerRef.current) {
-            clearInterval(dialogueTimerRef.current);
-            dialogueTimerRef.current = null;
-        }
-
-        // クリックされたNPCのダイアログを取得
+        // クリックされたNPCが dialogues[1] にテキストを持っているかチェック
         const dialogues = typeof clickedNpc.dialogues === 'string'
             ? JSON.parse(clickedNpc.dialogues)
             : clickedNpc.dialogues;
-
-        const hasDialogue = dialogues && Array.isArray(dialogues) && dialogues.length > 0;
+        const hasDialogue = dialogues && Array.isArray(dialogues) && dialogues.length > 1 && dialogues[1];
 
         if (activeDialogue.isVisible && activeDialogue.npc?.id === clickedNpc.id) {
             // 現在表示中のNPCを再度クリックした場合は、対話ボックスを非表示にする
-            setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
+            setActiveDialogue({isVisible: false, npc: null});
         } else if (hasDialogue) {
             // 別のNPCをクリックした場合、または対話ボックスが非表示の場合は、そのNPCの対話ボックスを表示
-            setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
-
-            // ID=1のNPCの場合、自動的にダイアログを進行
-            if (clickedNpc.id === 1) {
-                // 2秒ごとにダイアログを進行するタイマーを設定
-                dialogueTimerRef.current = setInterval(() => {
-                    setActiveDialogue(prev => {
-                        // ダイアログの配列を取得
-                        const dialogArray = typeof clickedNpc.dialogues === 'string'
-                            ? JSON.parse(clickedNpc.dialogues)
-                            : clickedNpc.dialogues;
-
-                        // 次のインデックス
-                        const nextIndex = prev.currentIndex + 1;
-
-                        // 最後のダイアログまで表示したらタイマーを停止
-                        if (nextIndex >= dialogArray.length) {
-                            if (dialogueTimerRef.current) {
-                                clearInterval(dialogueTimerRef.current);
-                                dialogueTimerRef.current = null;
-                            }
-                            return prev; // インデックスを更新しない
-                        }
-
-                        // 次のダイアログを表示
-                        return {
-                            ...prev,
-                            currentIndex: nextIndex
-                        };
-                    });
-                }, 2000); // 2秒ごと
-            }
+            setActiveDialogue({isVisible: true, npc: clickedNpc});
+            // 必要であれば、onInteract関数をここで呼び出す
+            // if (dialogues.length > 0 && dialogues[0]) {
+            //     onInteract(clickedNpc, dialogues[0]);
+            // }
         } else {
-            // ダイアログがないNPCがクリックされた場合は、対話ボックスを非表示にする
-            setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
+            // dialogues[1] がないNPCがクリックされた場合は、対話ボックスを非表示にする
+            setActiveDialogue({isVisible: false, npc: null});
         }
     };
 
-　
-　
+    if (!npcData || npcData.length === 0) {
+        return <div>NPCデータがありません</div>;
+    }
+
     // Konvaコンポーネントは必ずStageとLayerの中に配置する
     return (
         <>
-            {npcData?.map((npc) => (
+            {npcData.map((npc) => (
                 <SingleNpc
                     key={npc.id}
                     npc={npc}
@@ -114,11 +73,7 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData , cameraPosition}) => {
             ))}
 
             {/* 対話ボックスを描画 */}
-            <DialogueBox
-                activeDialogue={activeDialogue}
-                onNextMessage={handleNextMessage}
-                onPrevMessage={handlePrevMessage}
-            />
+            <DialogueBox activeDialogue={activeDialogue}/>
         </>
     );
 };
@@ -148,22 +103,29 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick , cameraPosition})
     if (npc.stageStatus !== currentStage) {
         return null;
     }
-
+    // id=1のNPCの場合のみ、マウント時に移動パターンを実行
+    // マウント時に移動パターンを実行
+// SingleNpcコンポーネント内のuseEffect部分のみ変更
     useEffect(() => {
-        // 移動が完了したかどうかをみるかあああああああああああああ
+        // 移動が完了したかどうかを追跡するフラグ
         let isMounted = true;
 
+        // ID=1のNPCの場合のみ移動を実行
         if (npc.id === 1) {
             // 水平方向に移動するロジック（まずX軸、次にY軸）
             const moveToDestination = async () => {
+                // 目標位置
                 const targetX = 64;
                 const targetY = 128;
 
+                // 現在位置
                 let currentX = npc.x;
                 let currentY = npc.y;
 
+                // 初期位置を設定
                 setPosition({ x: currentX, y: currentY });
 
+                // まずX軸方向に移動（左へ）
                 while (currentX > targetX && isMounted) {
                     await new Promise(resolve => setTimeout(resolve, 150));
                     currentX -= 64;
@@ -194,12 +156,13 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick , cameraPosition})
         return () => {
             isMounted = false;
         };
-    }, []); // 依存配列にnpcとonNpcClickを追加
+    }, []); // 空の依存配列でマウント時に1回だけ実行
 
     const handleClick = () => {
-      　
+        // クリック時に親のハンドラを呼び出し、このNPCデータを渡す
         onNpcClick(npc);
-    }; 　
+    }; // onNpcClickも依存配列に追加; // npcオブジェクト全体ではなくnpc.idだけを依存配列に入れる
+　
 
     return (
         <Group
