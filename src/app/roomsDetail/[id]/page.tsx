@@ -31,8 +31,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓
     const [currentMap, setCurrentMap] = useState<MapType>("roomDetail/2");//初期マップをGrassmapに設定
 
-
-    //特定の座標
+// 特定の座標
     const room2Coordinates = [
         { x: 4032, y: 576 },
         { x: 4032, y: 640 },
@@ -45,26 +44,28 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         { x: 0, y: 704 }
     ];
 
-    const handleTKeyPress = useCallback(() => {
+// 座標を踏んだらマップを自動で切り替える useEffect
+    useEffect(() => {
         if (!playerId) return;
 
         const playerX = playerId.x;
         const playerY = playerId.y;
-        console.log("現在位置:", playerX, playerY, "現在マップ:", currentMap);
-        console.log("%cPlayerId確認", "color: blue", playerId);
 
         if (currentMap === "roomDetail/2") {
+            console.log('３に移動します')
             const inRoom2 = room2Coordinates.some(coord => coord.x === playerX && coord.y === playerY);
             if (inRoom2) {
+                console.log('３に移動します')
                 setCurrentMap("roomDetail/3");
             }
         } else if (currentMap === "roomDetail/3") {
+            console.log('2に移動します')
             const inRoom3 = room3Coordinates.some(coord => coord.x === playerX && coord.y === playerY);
             if (inRoom3) {
+                console.log('2に移動します')
                 setCurrentMap("roomDetail/2");
             }
         }
-        handleTKeyPress()
     }, [playerId, currentMap]);
 
 
