@@ -205,11 +205,10 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     };
 
     // クラフトをプルダウンメニュー化
-    const handleCraftSelectChange = (id: number) => {
-        setSelectedCraftItemId(id);
-    };
+
     const handleCraftClick = () => {
         if (selectedItemId) {
+            alert(selectedItemId)
             const selectedItem = craftItems.find(
                 (item) => item.id === Number(selectedItemId)
             );
@@ -298,9 +297,9 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                                         <div
                                             className={`${styles.craftButtons} ${selectedCraftItemId === craftItem.createdItem.id ? styles.selected : ''}`}
                                             key={craftItem.id}
-                                            onClick={() => handleCraftSelectChange(craftItem.createdItem.id)}
+                                            onClick={() => setSelectedItemId(craftItem.id)}
                                         >
-                                            <span className={styles.itemName}>{craftItem.createdItem.itemName}</span>
+                                            <span className={styles.itemName}>{craftItem.createdItem.id}</span>
                                             <Image
                                                 src={craftItem.createdItem.itemIcon}
                                                 alt={craftItem.createdItem.itemName}
