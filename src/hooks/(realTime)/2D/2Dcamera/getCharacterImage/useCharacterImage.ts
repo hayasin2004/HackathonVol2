@@ -25,7 +25,6 @@ const useGetCharacterImage = (itemData : defaultItem[]) => {
                                     resolve(true);
                                 };
                                 img.onerror = (err) => {
-                                    console.error(`Failed to load image: ${data.itemIcon}`, err);
                                     resolve(false);
                                 };
                             });

@@ -20,6 +20,8 @@ interface PlayerInventoryProps {
     currentDirectionRef: { current: string }
     playerDirection: { current: number }
     socket: Socket | null
+
+    playerInventory: any[]; // 新たに追加
 }
 
 // const socket = io('http://localhost:5000'); // サーバーのURLを指定
@@ -27,29 +29,32 @@ interface PlayerInventoryProps {
 
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                                                              roomId, playerId, eCollisionGotItem, ECollisionPosition,
-                                                             currentDirectionRef, craftEvents, socket, playerDirection
+                                                             currentDirectionRef, craftEvents, socket, playerDirection,playerInventory
                                                          }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     // alert(JSON.stringify(playerItems))
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-    const [putItem, setPutItem] = useState<number>(0)
+    console.log(selectedItemId)
     const [selectItemIndex, setSelectItemIndex] = useState<number>(0);
     const [selectedCraftItemId, setSelectedCraftItemId] = useState<number | null>(null);
     const handleItemClick = (itemId: number) => {
+
         if (selectedItemId === itemId) {
+            alert("どっちに来てるの１")
             setSelectedItemId(null);
         } else {
+            alert("どっちに来てるの１あ")
+
             setSelectedItemId(itemId);
         }
     };
 
     // playerItemsが更新されたときにインデックス初期化
     useEffect(() => {
-        if(playerItems && playerItems.length > 0){
+        if (playerItems && playerItems.length > 0) {
             setSelectItemIndex(0);
-            setSelectedItemId(playerItems[0].itemId);
         }
     }, [playerItems]);
     // ホイールスクロールでアイテムを選択
@@ -68,21 +73,11 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
             setSelectedItemId(playerItems[newIndex].itemId);
         };
 
-        window.addEventListener("wheel", handleWheel, { passive: false });
+        window.addEventListener("wheel", handleWheel, {passive: false});
         return () => {
             window.removeEventListener("wheel", handleWheel);
         };
     }, [playerItems, selectedItemId, isOpen]);
-    useEffect(() => {
-        socket?.on('itemPlaced', (itemData) => {
-            console.log('New item placed:', itemData);
-            // 新しいアイテムをマップに追加
-        });
-
-        return () => {
-            socket?.off('itemPlaced');
-        };
-    }, []);
 
 
     // const handleOutsideRightClick = (event) => {
@@ -94,16 +89,12 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     //     }
     //     setSelectedItemId(null); // 配置後に選択を解除する
     // };
-    useEffect(() => {
-        console.log("ECollisionPosition updated:", ECollisionPosition);
-    }, [ECollisionPosition]);
 
     useEffect(() => {
         const handleKeyPress = (event) => {
             if (event.key === 'p' && selectedItemId !== null) {
-                console.log(`アイテムを置いたよ: ${selectedItemId}`);　
+                console.log(`アイテムを置いたよ: ${selectedItemId}`);
                 // アイテムを配置するロジック
-                setSelectedItemId(null); // 配置後に選択を解除する
             }
         };
 
@@ -130,20 +121,27 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
 
                         const putItemData = await result.json()
                         console.log(putItemData.data)
+
                         const response = await updatePlayerItems(playerId.id);
                         if (response) {
+                            const placedItem = response.item.find(item => item.itemId === selectedItemId);
                             setPlayerItems(response.item);
+                            const stillHasItem = response.item.some(item => item.itemId === selectedItemId);
+                            if (!placedItem || placedItem.quantity <= 0) {
+                                // 他に所持しているアイテムがあれば最初のアイテムを選択、なければnull
+                                const nextItem = response.item.find(item => item.quantity > 0);
+                                setSelectedItemId(nextItem ? nextItem.itemId : null);
+                            }
                         }
-
-                        console.log("アイテムログ"+putItemData.data.id)
-
                         const itemData = {
                             roomId,
-                            selectedItemId,
+                            placedByPlayer : selectedItemId,
                             playerDirection,
+                            playerId : playerId.id,
                             currentDirectionRef,
                             ECollisionPosition,
-                            id: putItemData.data.id,
+                            itemId : putItemData.data.itemId,
+                            id: putItemData?.data?.id,
                             x: putItemData.data.x,
                             y: putItemData.data.y,
                             width: putItemData.data.width,
@@ -151,13 +149,10 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                             iconImage: putItemData.data.iconImage,
                         };
                         // サーバーにアイテム配置を通知
-                        socket.emit('placeItem', itemData);　
+                        socket.emit('placeItem', itemData);
                     }
                 }
-
                 putItem()
-
-
             }
         };
 
@@ -210,11 +205,10 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     };
 
     // クラフトをプルダウンメニュー化
-    const handleCraftSelectChange = (id: number) => {
-        setSelectedCraftItemId(id);
-    };
+
     const handleCraftClick = () => {
         if (selectedItemId) {
+            alert(selectedItemId)
             const selectedItem = craftItems.find(
                 (item) => item.id === Number(selectedItemId)
             );
@@ -242,7 +236,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
 
         <>
             <div className={styles.inventoryUnder}>
-                {playerItems?.map((item ,index) => (
+                {playerItems?.map((item, index) => (
                     item.quantity > 0 && (<div
                         key={item.id}
                         className={`${styles.inventoryUnderItem} ${selectedItemId === item.itemId ? styles.inventorySelected : ''}`}
@@ -303,9 +297,9 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                                         <div
                                             className={`${styles.craftButtons} ${selectedCraftItemId === craftItem.createdItem.id ? styles.selected : ''}`}
                                             key={craftItem.id}
-                                            onClick={() => handleCraftSelectChange(craftItem.createdItem.id)}
+                                            onClick={() => setSelectedItemId(craftItem.id)}
                                         >
-                                            <span className={styles.itemName}>{craftItem.createdItem.itemName}</span>
+                                            <span className={styles.itemName}>{craftItem.createdItem.id}</span>
                                             <Image
                                                 src={craftItem.createdItem.itemIcon[0]}
                                                 alt={craftItem.createdItem.itemName}

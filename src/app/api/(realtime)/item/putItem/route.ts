@@ -56,7 +56,6 @@ async function route(itemData: putItemType) {
         playerId
     } = itemData;
 
-
     // 向いている方向の調整
     let XPosition = 0
 
@@ -123,8 +122,10 @@ async function route(itemData: putItemType) {
                 x: ECollisionPosition.x + XPosition,
                 y: ECollisionPosition.y + YPosition,
                 itemId: selectedItemId,
+                width : foundItemData.width ,
+                height : foundItemData.height ,
                 userId: playerId.playerId,
-                iconImage: iconImage
+                iconImage: iconImage[1]
             }
         })
 

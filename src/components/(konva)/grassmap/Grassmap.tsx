@@ -28,6 +28,9 @@ import GetEnemyPage from "@/app/(konvaCharacter)/enemy/page";
 import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {Enemy} from "@/types/enemy";
+import {Layer, Stage ,Image as KonvaImage} from "react-konva";
+import {GetNpc} from "@/repository/prisma/npc/npcRepository";
+import {NPC} from "@/types/npc";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -39,6 +42,7 @@ interface GameProps {
 
 
 const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
+    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
     const [playerImage, setPlayerImage] = useState<HTMLImageElement | null>(null);
@@ -48,6 +52,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
 
+// PlayerInventoryに渡すアイテムの状態を追加
+    const [playerInventory, setPlayerInventory] = useState([]);
 
     // 試験的なデータ
 
@@ -67,7 +73,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json(); // `await` を追加
-                console.log(data.roomItems);
+                //console.log(data.roomItems);
                 setObjectItemImage(data.roomItems); // 状態更新
             } catch (error) {
                 console.error("データ取得に失敗しました:", error);
@@ -75,6 +81,28 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         };
         itemIconFetch();
     }, [roomId]);
+
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleItemPlaced = (itemData) => {
+            setObjectItemImage((prev) => [...prev, itemData]);
+        };
+
+        const handleItemRemoved = (itemId) => {
+            setObjectItemImage((prev) => prev.filter((item) => item.id !== itemId));
+        };
+
+        socket.on("itemPlaced", handleItemPlaced);
+        socket.on("itemRemoved", handleItemRemoved);
+
+        return () => {
+            socket.off("itemPlaced", handleItemPlaced);
+            socket.off("itemRemoved", handleItemRemoved);
+        };
+    }, [socket]);
+
 
     const waterTiles: { x: number; y: number }[] = [];
 
@@ -87,10 +115,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     });
 
 
-    // console.log(nearbyItemPosition)
+    // //console.log(nearbyItemPosition)
 
-
-    const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {
         nearbyItemPosition,
@@ -104,13 +130,13 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         userId: playerId.id,
         initialPosition: {x: playerId.x ?? 0, y: playerId.y ?? 0},
         rectPositions: objectItemImage,
-        waterTiles: waterTiles, // ← ここ！
+        setRectPositions: setObjectItemImage, // 追加
+        waterTiles: waterTiles,
         mapWidthInPixels: Map_width * Tile_size,
-        mapHeightInPixels: Map_height * Tile_size
+        mapHeightInPixels: Map_height * Tile_size,
     });
-
     useEffect(() => {
-        console.log(eCollisionGotItemStatus)
+        //console.log(eCollisionGotItemStatus)
 
         // alert(JSON.stringify(eCollisionGotItemStatus))
     }, [eCollisionGotItem]);
@@ -130,7 +156,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     } = useMotionCharacter(characterImageData)
 
     if (isLoadingCharacter) {
-        console.log("キャラクター読み込み中")
+        //console.log("キャラクター読み込み中")
     }
 
     useEffect(() => {
@@ -215,7 +241,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     // // アイテムクラフトイベントの処理
     // useEffect(() => {
-    //     console.log("これは来たのか・")
+    //     //console.log("これは来たのか・")
     //     if (craftEvents.length > 0) {
     //         const latestEvent = craftEvents[craftEvents.length - 1];
     //         if (latestEvent.player_id !== playerId.id) {
@@ -240,6 +266,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     //     }
     // }, [craftEvents, playerId]);
     const [enemyData, setEnemyData] = useState<Enemy[] | null>([]);
+    const [npcData, setNpcData] = useState<NPC[] | null>([]);
 
     const [isLoadingEnemy, setIsLoading] = useState(true);
 
@@ -247,7 +274,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         const fetchEnemyData = async () => {
             try {
                 const data = await GetEnemy();
-                console.log('Fetched enemy data:', data);
+                //console.log('Fetched enemy data:', data);
                 setEnemyData(data);
             } catch (error) {
                 console.error('Error fetching enemy data:', error);
@@ -257,9 +284,39 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         };
         fetchEnemyData();
     }, []);
+    useEffect(() => {
+        const fetchNpcData = async () => {
+            try {
+                const data = await GetNpc();
+                //console.log('Fetched enemy data:', data);
+                setNpcData(data);
+            } catch (error) {
+                console.error('Error fetching enemy data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchNpcData();
+    }, []);
 
 
     // 衝突判定の更新
+
+
+    useEffect(() => {
+        if (players && players.length > 0) {
+            const playerIcons = players.map(player => {
+                // characterが存在し、iconImageが配列であることを確認
+                if (player.player?.character?.length > 0) {
+                    return player.player.character[0].iconImage; // 最初のキャラクターのiconImageを取得
+                }
+                return null; // デフォルト値としてnullを返す
+            });
+　
+        }
+    }, [players]);
+
+
 
 
     // Loading or Error UI
@@ -288,6 +345,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
                 <MapVolOne
                     playerId={playerId}
+                    players={players}
                     ECollisionPosition={ECollisionPosition}
                     playerCharacter={playerCharacter}
                     eCollisionGotItemStatus={eCollisionGotItemStatus}
@@ -295,9 +353,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     nearbyItemPosition={nearbyItemPosition}
                     socket={socket}
                     enemyData={enemyData}
+                    npcData={npcData}
                 />
 
-            <div>
+            {/*<div>*/}
 
                 <PlayerInventory roomId={roomId} playerId={playerId}
                                  players={players}
@@ -308,38 +367,42 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                  currentDirectionRef={currentDirectionRef}
                                  playerDirection={playerDirection}
                                  socket={socket}
+                                 playerInventory={playerInventory}
 
                 />
-                {/*    <form action={logout}>*/}
-                {/*        <button className={styles.fixedLogOutButton}>*/}
-                {/*            ログアウト*/}
-                {/*        </button>*/}
-                {/*    </form>*/}
-                {/*</div>*/}
-                {/* 他のプレイヤー */}
-                {/*{players*/}
-                {/*    .filter(player => player.playerId !== playerId)*/}
-                {/*    .map((player, index) => (*/}
-                {/*        <div*/}
-                {/*            key={player.playerId || `player-${index}`}*/}
-                {/*            className="other-player"*/}
-                {/*            style={{*/}
-                {/*                position: 'absolute',*/}
-                {/*                left: `${player.x}px`,*/}
-                {/*                top: `${player.y}px`,*/}
-                {/*                width: '20px',*/}
-                {/*                height: '20px',*/}
-                {/*                borderRadius: '50%',*/}
-                {/*                backgroundColor: 'red',*/}
-                {/*                zIndex: 10,*/}
-                {/*            }}*/}
-                {/*        >*/}
-                {/*            {player.playerId}*/}
 
-                {/*        </div>*/}
-                {/*    ))}*/}
-            </div>
 
+            {/*    /!*    <form action={logout}>*!/*/}
+            {/*    /!*        <button className={styles.fixedLogOutButton}>*!/*/}
+            {/*    /!*            ログアウト*!/*/}
+            {/*    /!*        </button>*!/*/}
+            {/*    /!*    </form>*!/*/}
+            {/*    /!*</div>*!/*/}
+            {/*    /!* 他のプレイヤー *!/*/}
+
+            {/*    /!*{players*!/*/}
+            {/*    /!*    .filter(player => player.playerId !== playerId)*!/*/}
+            {/*    /!*    .map((player, index) => (*!/*/}
+            {/*    /!*        <div*!/*/}
+            {/*    /!*            key={player.playerId || `player-${index}`}*!/*/}
+            {/*    /!*            className="other-player"*!/*/}
+            {/*    /!*            style={{*!/*/}
+            {/*    /!*                position: 'absolute',*!/*/}
+            {/*    /!*                left: `${player.x - cameraPosition.x }px`,*!/*/}
+            {/*    /!*                top: `${player.y- cameraPosition.y}px`,*!/*/}
+            {/*    /!*                width: '20px',*!/*/}
+            {/*    /!*                height: '20px',*!/*/}
+            {/*    /!*                borderRadius: '50%',*!/*/}
+            {/*    /!*                backgroundColor: 'red',*!/*/}
+            {/*    /!*                zIndex: 10,*!/*/}
+            {/*    /!*            }}*!/*/}
+            {/*    /!*        >*!/*/}
+            {/*    /!*            {player.playerId}*!/*/}
+
+            {/*    /!*        </div>*!/*/}
+            {/*    /!*    ))}*!/*/}
+            {/*</div>*/}
+　
         </div>
     );
 };

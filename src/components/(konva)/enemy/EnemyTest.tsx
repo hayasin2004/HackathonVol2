@@ -7,6 +7,7 @@ import {Enemy} from "@/types/enemy";
 import useEnemyRandomMovement from "@/hooks/(animation)/enemy/randomEnemy/useEnemyRandomMovement";
 import useEnemyLinearRandomMovement from "@/hooks/(animation)/enemy/linearEnemy/useEnemyLinearRandomMovement";
 import {PlayerItem} from "@/types/playerItem";
+import {Socket} from "socket.io-client";
 
 interface PropsNpcData {
     enemyData: Enemy[] | null
@@ -16,6 +17,7 @@ interface PropsNpcData {
     playerAttack: number
     player?: PlayerItem  // プレイヤー情報を追加
     onPlayerDamage?: (newHp: number) => void  // プレイヤーのHPを更新するコールバック
+    socket: Socket | null
 }
 
 const currentStage = 1;
@@ -25,7 +27,7 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 };
 
 const EnemyTest: React.FC<PropsNpcData> = ({
-                                               enemyData, cameraPosition, player,
+                                               enemyData, cameraPosition, player,socket,
                                                onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack
                                            }) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
@@ -73,8 +75,32 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         }
 
         // ローカルの状態も更新
-        setVisibleEnemies(prev => prev.filter(enemy => enemy.id !== enemyId));
     };
+
+    // もし他のプレイヤーが敵を倒したときの通知
+    // ソケットイベントで敵削除を受信
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleEnemyRemoved = (removedEnemy: Enemy) => {
+            console.log(removedEnemy.id);
+            alert(`敵ID ${removedEnemy.name} が倒された！`);
+
+            // 正しい敵IDを使って削除
+            setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== removedEnemy.id));
+        };
+
+        socket.on("enemyRemoved", handleEnemyRemoved);
+
+        return () => {
+            socket.off("enemyRemoved", handleEnemyRemoved);
+        };
+    }, [socket]);
+
+
+
+
+
     // 敵にダメージを与える関数
     const damageEnemy = useCallback((enemy: Enemy, attackPower: number) => {
 
@@ -85,6 +111,11 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         if (newHp <= 0) {
             // HPが0以下になったら敵を削除
             handleRemoveEnemy(enemy.id);
+
+            // サーバーに削除イベントを送信
+            if (socket) {
+                socket.emit("removeEnemy", enemy);
+            }
             return true; // 敵が倒されたことを示す
         }
 
@@ -95,7 +126,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             prev.map(e => e.id === enemy.id ? updatedEnemy : e)
         );
         return false; // 敵はまだ生きている
-    }, [handleRemoveEnemy]);
+    }, [handleRemoveEnemy,playerAttack , socket]);
 
 
     // プレイヤーにダメージを与える関数
@@ -292,6 +323,7 @@ const SingleEnemy: React.FC<{
                 // 敵の攻撃クールダウンが経過しているか確認
                 if (currentTime - lastEnemyAttackTime >= enemyAttackCooldown) {
                     console.log(`${enemy.name}がプレイヤーを攻撃！攻撃力: ${enemy.attack}`);
+
 
                     // プレイヤーにダメージを与える
                     damagePlayer(enemy.attack);
