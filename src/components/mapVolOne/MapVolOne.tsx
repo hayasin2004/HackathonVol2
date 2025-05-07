@@ -14,6 +14,7 @@ import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {NPC} from "@/types/npc";
 import {supabase} from "@/lib/supabase";
 import NpcTest from "@/components/(konva)/npc/NpcTest";
+import PlayerInventory from "@/components/playerInventory/PlayerInventory";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -23,9 +24,9 @@ interface mapVolOneTypes {
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
-    players : any[]
+    players: any[]
     enemyData: Enemy[] | null
-    npcData : NPC[] | null
+    npcData: NPC[] | null
     onItemRemove?: (enemyId: string) => void
 }
 
@@ -39,7 +40,13 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  socket,
                                                  players,
                                                  npcData,
-                                                 onItemRemove
+                                                 roomId,
+                                                 eCollisionGotItem,
+                                                 craftEvents,
+                                                 currentDirectionRef,
+                                                 playerDirection,
+                                                 playerInventory,
+                                                 onItemRemove,
                                              }) => {
 
 
@@ -197,7 +204,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     // カメラの位置を更新
     useEffect(() => {
-        setCameraPosition({ x: playerId.x, y: playerId.y });
+        setCameraPosition({x: playerId.x, y: playerId.y});
     }, [playerId]);
 
     const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
@@ -207,92 +214,92 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [isPlaying, setIsPlaying] = useState(false); // 再生状態を管理
 
     // Supabaseから音楽リストを取得
-    useEffect(() => {
-        const fetchMusicList = async () => {
-            try {
-                const { data, error } = await supabase.storage
-                    .from("hackathon2-picture-storage")
-                    .list("bgm/mapVolOne"); // フォルダパスを指定
-
-                if (error) {
-                    console.error("音楽リストの取得に失敗しました:", error.message);
-                    return;
-                }
-
-                if (data) {
-                    const musicFiles = data.map((file) => file.name);
-                    setMusicList(musicFiles);
-
-                    // 自動再生のため最初の曲を選択
-                    if (musicFiles.length > 0) {
-                        setSelectedMusic(musicFiles[0]);
-                    }
-                }
-            } catch (err) {
-                console.error("音楽リストの取得中にエラーが発生しました:", err);
-            }
-        };
-
-        fetchMusicList();
-    }, []);
-
-    // 選択された音楽を再生
-    useEffect(() => {
-        if (selectedMusic) {
-            const fetchAndPlayMusic = async () => {
-                try {
-                    const { data, error } = await supabase.storage
-                        .from("hackathon2-picture-storage")
-                        .createSignedUrl(`bgm/mapVolOne/${selectedMusic}`, 60 * 60); // フルパスを指定して署名付きURLを生成
-
-                    if (error) {
-                        console.error("音楽ファイルの取得に失敗しました:", error.message);
-                        return;
-                    }
-
-                    if (data?.signedUrl) {
-                        if (audio) {
-                            audio.pause();
-                            audio.currentTime = 0;
-                        }
-
-                        const newAudio = new Audio(data.signedUrl);
-                        newAudio.loop = true; // ループ再生
-                        newAudio.volume = Math.max(0, Math.min(volume, 1)); // 音量を制限
-
-                        // 自動再生を試みる
-                        newAudio
-                            .play()
-                            .catch((err) => {
-                                console.error("音楽の再生中にエラーが発生しました:", err);
-                            });
-
-                        setAudio(newAudio);
-                        setIsPlaying(true); // 再生状態を更新
-                    }
-                } catch (err) {
-                    console.error("音楽ファイルの取得中にエラーが発生しました:", err);
-                }
-            };
-
-            fetchAndPlayMusic();
-        }
-
-        return () => {
-            if (audio) {
-                audio.pause();
-                audio.currentTime = 0;
-            }
-        };
-    }, [selectedMusic]);
-
-
-    // 音量変更時の処理
-    useEffect(() => {
-        if (audio) {
-            audio.volume = volume;
-        }
-    }, [volume, audio]);
+    // useEffect(() => {
+    //     const fetchMusicList = async () => {
+    //         try {
+    //             const {data, error} = await supabase.storage
+    //                 .from("hackathon2-picture-storage")
+    //                 .list("bgm/mapVolOne"); // フォルダパスを指定
+    //
+    //             if (error) {
+    //                 console.error("音楽リストの取得に失敗しました:", error.message);
+    //                 return;
+    //             }
+    //
+    //             if (data) {
+    //                 const musicFiles = data.map((file) => file.name);
+    //                 setMusicList(musicFiles);
+    //
+    //                 // 自動再生のため最初の曲を選択
+    //                 if (musicFiles.length > 0) {
+    //                     setSelectedMusic(musicFiles[0]);
+    //                 }
+    //             }
+    //         } catch (err) {
+    //             console.error("音楽リストの取得中にエラーが発生しました:", err);
+    //         }
+    //     };
+    //
+    //     fetchMusicList();
+    // }, []);
+    //
+    // // 選択された音楽を再生
+    // useEffect(() => {
+    //     if (selectedMusic) {
+    //         const fetchAndPlayMusic = async () => {
+    //             try {
+    //                 const {data, error} = await supabase.storage
+    //                     .from("hackathon2-picture-storage")
+    //                     .createSignedUrl(`bgm/mapVolOne/${selectedMusic}`, 60 * 60); // フルパスを指定して署名付きURLを生成
+    //
+    //                 if (error) {
+    //                     console.error("音楽ファイルの取得に失敗しました:", error.message);
+    //                     return;
+    //                 }
+    //
+    //                 if (data?.signedUrl) {
+    //                     if (audio) {
+    //                         audio.pause();
+    //                         audio.currentTime = 0;
+    //                     }
+    //
+    //                     const newAudio = new Audio(data.signedUrl);
+    //                     newAudio.loop = true; // ループ再生
+    //                     newAudio.volume = Math.max(0, Math.min(volume, 1)); // 音量を制限
+    //
+    //                     // 自動再生を試みる
+    //                     newAudio
+    //                         .play()
+    //                         .catch((err) => {
+    //                             console.error("音楽の再生中にエラーが発生しました:", err);
+    //                         });
+    //
+    //                     setAudio(newAudio);
+    //                     setIsPlaying(true); // 再生状態を更新
+    //                 }
+    //             } catch (err) {
+    //                 console.error("音楽ファイルの取得中にエラーが発生しました:", err);
+    //             }
+    //         };
+    //
+    //         fetchAndPlayMusic();
+    //     }
+    //
+    //     return () => {
+    //         if (audio) {
+    //             audio.pause();
+    //             audio.currentTime = 0;
+    //         }
+    //     };
+    // }, [selectedMusic]);
+    //
+    //
+    // // 音量変更時の処理
+    // useEffect(() => {
+    //     if (audio) {
+    //         audio.volume = volume;
+    //     }
+    // }, [volume, audio]);
 
 
     return (
@@ -433,29 +440,31 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             listening={false} // クリックを無視
                         />
                     )}
-                    {/*{Array.isArray(localEnemyData) && localEnemyData.length > 0 && (*/}
-                    {/*    <EnemyTest*/}
-                    {/*        socket={socket}*/}
-                    {/*        enemyData={localEnemyData}*/}
-                    {/*        cameraPosition={cameraPosition}*/}
-                    {/*        ECollisionPosition={ECollisionPosition}*/}
-                    {/*        onEnemyRemove={handleRemoveEnemy}*/}
-                    {/*        player={playerId}  // プレイヤー情報を渡す*/}
-                    {/*        playerAttack={playerId.attack}*/}
-                    {/*        onPlayerDamage={(newHp) => {*/}
-                    {/*            // プレイヤーのHPが更新されたときの処理*/}
-                    {/*            console.log(`プレイヤーのHPが${newHp}に更新されました`);*/}
-                    {/*            // ここで必要に応じて親コンポーネントに通知できます*/}
-                    {/*        }}*/}
-                    {/*    />*/}
-                    {/*)}*/}
-                    {Array.isArray(localNpcData) && localNpcData.length > 0 && (
-                        <NpcTest
-                            npcData={localNpcData}
+                    {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
+                        <EnemyTest
+                            socket={socket}
+                            enemyData={localEnemyData}
                             cameraPosition={cameraPosition}
                             ECollisionPosition={ECollisionPosition}
+                            onEnemyRemove={handleRemoveEnemy}
+                            player={playerId}  // プレイヤー情報を渡す
+                            playerAttack={playerId.attack}
+                            onPlayerDamage={(newHp) => {
+                                // プレイヤーのHPが更新されたときの処理
+                                console.log(`プレイヤーのHPが${newHp}に更新されました`);
+                                // ここで必要に応じて親コンポーネントに通知できます
+                            }}
                         />
                     )}
+
+
+                    {/*{Array.isArray(localNpcData) && localNpcData.length > 0 && (*/}
+                    {/*    <NpcTest*/}
+                    {/*        npcData={localNpcData}*/}
+                    {/*        cameraPosition={cameraPosition}*/}
+                    {/*        ECollisionPosition={ECollisionPosition}*/}
+                    {/*    />*/}
+                    {/*)}*/}
 
 
                     {isDark && (
@@ -469,120 +478,111 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         />
                     )}
 
-                    {musicList.map((music, index) => (
-                        <React.Fragment key={index}>
-                            {/* 背景を描画（選択状態の場合は色を変更） */}
-                            <Rect
-                                x={20}
-                                y={20 + index * 40}
-                                width={300}
-                                height={30}
-                                fill={selectedMusic === music ? "lightblue" : "white"}
-                                stroke="black"
-                                strokeWidth={1}
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                            {/* 音楽名を描画 */}
-                            <Text
-                                x={25}
-                                y={25 + index * 40}
-                                text={music}
-                                fontSize={16}
-                                fill="black"
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                        </React.Fragment>
-                    ))}
-                    {musicList.map((music, index) => (
-                        <React.Fragment key={index}>
-                            {/* 背景を描画（選択状態の場合は色を変更） */}
-                            <Rect
-                                x={20}
-                                y={20 + index * 40}
-                                width={300}
-                                height={30}
-                                fill={selectedMusic === music ? "lightblue" : "white"}
-                                stroke="black"
-                                strokeWidth={1}
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                            {/* 音楽名を描画 */}
-                            <Text
-                                x={25}
-                                y={25 + index * 40}
-                                text={music}
-                                fontSize={16}
-                                fill="black"
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                        </React.Fragment>
-                    ))}
-                    <Text x={20} y={200} text="音量" fontSize={16} fill="black" />
-                    <Line
-                        points={[20, 230, 220, 230]} // スライダーのベースライン
-                        stroke="black"
-                        strokeWidth={2}
-                    />
-                    <Rect
-                        x={20 + volume * 200 - 5} // 音量に応じてスライダーの位置を調整
-                        y={220}
-                        width={10}
-                        height={20}
-                        fill="blue"
-                        draggable
-                        dragBoundFunc={(pos) => {
-                            // ドラッグ範囲を制限
-                            const x = Math.max(20, Math.min(pos.x, 220));
-                            return { x, y: 220 };
-                        }}
-                        onDragMove={(e) => {
-                            // スライダーを移動したときに音量を更新
-                            const newVolume = (e.target.x() - 20) / 200;
-                            setVolume(Math.max(0, Math.min(newVolume, 1))); // 音量を制限
-                        }}
-                    />
-                    <Rect
-                        x={20}
-                        y={280}
-                        width={100}
-                        height={30}
-                        fill={isPlaying ? "red" : "green"} // 再生中なら赤、停止中なら緑
-                        stroke="black"
-                        strokeWidth={1}
-                        onClick={() => {
-                            if (audio) {
-                                if (isPlaying) {
-                                    audio.pause(); // 音楽を停止
-                                } else {
-                                    audio.play().catch((err) => {
-                                        console.error("音楽の再生中にエラーが発生しました:", err);
-                                    }); // 音楽を再生
-                                }
-                                setIsPlaying(!isPlaying); // 再生状態を切り替え
-                            }
-                        }}
-                    />
-                    <Text
-                        x={25}
-                        y={285}
-                        text={isPlaying ? "停止" : "再生"}
-                        fontSize={16}
-                        fill="white"
-                        onClick={() => {
-                            if (audio) {
-                                if (isPlaying) {
-                                    audio.pause();
-                                } else {
-                                    audio.play().catch((err) => {
-                                        console.error("音楽の再生中にエラーが発生しました:", err);
-                                    });
-                                }
-                                setIsPlaying(!isPlaying);
-                            }
-                        }}
-                    />
+
+                    {/*{musicList.map((music, index) => (*/}
+                    {/*    <React.Fragment key={index}>*/}
+                    {/*        /!* 背景を描画（選択状態の場合は色を変更） *!/*/}
+                    {/*        <Rect*/}
+                    {/*            x={20}*/}
+                    {/*            y={20 + index * 40}*/}
+                    {/*            width={300}*/}
+                    {/*            height={30}*/}
+                    {/*            fill={selectedMusic === music ? "lightblue" : "white"}*/}
+                    {/*            stroke="black"*/}
+                    {/*            strokeWidth={1}*/}
+                    {/*            onClick={() => setSelectedMusic(music)} // 音楽を選択する*/}
+                    {/*        />*/}
+                    {/*        /!* 音楽名を描画 *!/*/}
+                    {/*        <Text*/}
+                    {/*            x={25}*/}
+                    {/*            y={25 + index * 40}*/}
+                    {/*            text={music}*/}
+                    {/*            fontSize={16}*/}
+                    {/*            fill="black"*/}
+                    {/*            onClick={() => setSelectedMusic(music)} // 音楽を選択する*/}
+                    {/*        />*/}
+                    {/*    </React.Fragment>*/}
+                    {/*))}*/}
+                    {/*<Text x={20} y={200} text="音量" fontSize={16} fill="black"/>*/}
+                    {/*<Line*/}
+                    {/*    points={[20, 230, 220, 230]} // スライダーのベースライン*/}
+                    {/*    stroke="black"*/}
+                    {/*    strokeWidth={2}*/}
+                    {/*/>*/}
+                    {/*<Rect*/}
+                    {/*    x={20 + volume * 200 - 5} // 音量に応じてスライダーの位置を調整*/}
+                    {/*    y={220}*/}
+                    {/*    width={10}*/}
+                    {/*    height={20}*/}
+                    {/*    fill="blue"*/}
+                    {/*    draggable*/}
+                    {/*    dragBoundFunc={(pos) => {*/}
+                    {/*        // ドラッグ範囲を制限*/}
+                    {/*        const x = Math.max(20, Math.min(pos.x, 220));*/}
+                    {/*        return {x, y: 220};*/}
+                    {/*    }}*/}
+                    {/*    onDragMove={(e) => {*/}
+                    {/*        // スライダーを移動したときに音量を更新*/}
+                    {/*        const newVolume = (e.target.x() - 20) / 200;*/}
+                    {/*        setVolume(Math.max(0, Math.min(newVolume, 1))); // 音量を制限*/}
+                    {/*    }}*/}
+                    {/*/>*/}
+                    {/*<Rect*/}
+                    {/*    x={20}*/}
+                    {/*    y={280}*/}
+                    {/*    width={100}*/}
+                    {/*    height={30}*/}
+                    {/*    fill={isPlaying ? "red" : "green"} // 再生中なら赤、停止中なら緑*/}
+                    {/*    stroke="black"*/}
+                    {/*    strokeWidth={1}*/}
+                    {/*    onClick={() => {*/}
+                    {/*        if (audio) {*/}
+                    {/*            if (isPlaying) {*/}
+                    {/*                audio.pause(); // 音楽を停止*/}
+                    {/*            } else {*/}
+                    {/*                audio.play().catch((err) => {*/}
+                    {/*                    console.error("音楽の再生中にエラーが発生しました:", err);*/}
+                    {/*                }); // 音楽を再生*/}
+                    {/*            }*/}
+                    {/*            setIsPlaying(!isPlaying); // 再生状態を切り替え*/}
+                    {/*        }*/}
+                    {/*    }}*/}
+                    {/*/>*/}
+                    {/*<Text*/}
+                    {/*    x={25}*/}
+                    {/*    y={285}*/}
+                    {/*    text={isPlaying ? "停止" : "再生"}*/}
+                    {/*    fontSize={16}*/}
+                    {/*    fill="white"*/}
+                    {/*    onClick={() => {*/}
+                    {/*        if (audio) {*/}
+                    {/*            if (isPlaying) {*/}
+                    {/*                audio.pause();*/}
+                    {/*            } else {*/}
+                    {/*                audio.play().catch((err) => {*/}
+                    {/*                    console.error("音楽の再生中にエラーが発生しました:", err);*/}
+                    {/*                });*/}
+                    {/*            }*/}
+                    {/*            setIsPlaying(!isPlaying);*/}
+                    {/*        }*/}
+                    {/*    }}*/}
+                    {/*/>*/}
                 </Layer>
             </Stage>
+            <PlayerInventory
+                playerId={playerId}
+                roomId={roomId}
+                eCollisionGotItem={eCollisionGotItem}
+                craftEvents={craftEvents}
+                currentDirectionRef={currentDirectionRef}
+                playerDirection={playerDirection}
+                playerInventory={playerInventory}
+                objectItemImage={objectItemImage}
+                ECollisionPosition={ECollisionPosition}
+                socket={socket}
+                players={players}
+            />
+
         </div>
     );
 }

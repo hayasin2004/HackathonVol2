@@ -52,6 +52,8 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
 
+// PlayerInventoryに渡すアイテムの状態を追加
+    const [playerInventory, setPlayerInventory] = useState([]);
 
     // 試験的なデータ
 
@@ -316,6 +318,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
 
 
+
     // Loading or Error UI
     if (!connected) {
         return <div className="loading">サーバーに接続中...</div>;
@@ -351,21 +354,16 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     socket={socket}
                     enemyData={enemyData}
                     npcData={npcData}
+                    roomId={roomId}
+                    eCollisionGotItem={eCollisionGotItem}
+                    craftEvents={craftEvents}
+                    currentDirectionRef={currentDirectionRef}
+                    playerDirection={playerDirection}
+                    playerInventory={playerInventory}
                 />
 
             {/*<div>*/}
 
-                <PlayerInventory roomId={roomId} playerId={playerId}
-                                 players={players}
-                                 eCollisionGotItem={eCollisionGotItem}
-                                 objectItemImage={objectItemImage}
-                                 ECollisionPosition={ECollisionPosition}
-                                 craftEvents={craftEvents}
-                                 currentDirectionRef={currentDirectionRef}
-                                 playerDirection={playerDirection}
-                                 socket={socket}
-
-                />
 
 
             {/*    /!*    <form action={logout}>*!/*/}

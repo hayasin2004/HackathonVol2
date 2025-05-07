@@ -20,6 +20,8 @@ interface PlayerInventoryProps {
     currentDirectionRef: { current: string }
     playerDirection: { current: number }
     socket: Socket | null
+
+    playerInventory: any[]; // 新たに追加
 }
 
 // const socket = io('http://localhost:5000'); // サーバーのURLを指定
@@ -27,7 +29,7 @@ interface PlayerInventoryProps {
 
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                                                              roomId, playerId, eCollisionGotItem, ECollisionPosition,
-                                                             currentDirectionRef, craftEvents, socket, playerDirection
+                                                             currentDirectionRef, craftEvents, socket, playerDirection,playerInventory
                                                          }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);

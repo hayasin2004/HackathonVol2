@@ -18,6 +18,7 @@ interface PropsNpcData {
     player?: PlayerItem  // プレイヤー情報を追加
     onPlayerDamage?: (newHp: number) => void  // プレイヤーのHPを更新するコールバック
     socket: Socket | null
+    onDropItemGet?: (itemId: number) => void
 }
 
 const currentStage = 1;
@@ -27,7 +28,7 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 };
 
 const EnemyTest: React.FC<PropsNpcData> = ({
-                                               enemyData, cameraPosition, player,socket,
+                                               enemyData, cameraPosition, player, socket,onDropItemGet,
                                                onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack
                                            }) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
@@ -87,10 +88,10 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== enemyId));
         };
 
-        const handleEnemyHpUpdated = ({ id, hp }: { id: number; hp: number }) => {
+        const handleEnemyHpUpdated = ({id, hp}: { id: number; hp: number }) => {
             setVisibleEnemies((prev) =>
                 prev.map((enemy) =>
-                    enemy.id === id ? { ...enemy, hp } : enemy
+                    enemy.id === id ? {...enemy, hp} : enemy
                 )
             );
         };
@@ -102,10 +103,8 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             socket.off("enemyRemoved", handleEnemyRemoved);
             socket.off("enemyHpUpdated", handleEnemyHpUpdated);
         };
-    }, [socket]);;
-
-
-
+    }, [socket]);
+    ;
 
 
     // 敵にダメージを与える関数
@@ -114,17 +113,6 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         const newHp = enemy.hp - attackPower;
         console.log(`${enemy.name}に${attackPower}ダメージ！残りHP: ${newHp}`);
         console.log(enemy.hp, attackPower);
-
-        if (newHp <= 0) {
-            // HPが0以下になったら敵を削除
-            handleRemoveEnemy(enemy.id);
-
-            // サーバーに削除イベントを送信
-            if (socket) {　
-                socket.emit("removeEnemy", enemy);
-            }
-            return true; // 敵が倒されたことを示す
-        }
 
 
         // サーバーにHP更新を送信
@@ -139,17 +127,18 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             prev.map(e => e.id === enemy.id ? updatedEnemy : e)
         );
         return false; // 敵はまだ生きている
-    }, [handleRemoveEnemy,playerAttack , socket]);
+    }, [handleRemoveEnemy, playerAttack, socket]);
 
 
     // プレイヤーにダメージを与える関数
-    const damagePlayer = useCallback((attackPower: number) => {
+    const damagePlayer = useCallback(async (attackPower: number , enemy : Enemy) => {
         if (!isPlayerAlive) return; // プレイヤーが既に死亡している場合は何もしない
 
         const newHP = playerHP - attackPower;
         console.log(`プレイヤーに${attackPower}ダメージ！残りHP: ${newHP}`);
 
         if (newHP < 0) {
+
             // HPが0以下になったらプレイヤーを「死亡」状態に
             setIsPlayerAlive(false);
             setPlayerHP(0);
@@ -158,6 +147,35 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                 onPlayerDamage(0);
             }
 
+            try {
+                // APIを呼び出して敵のドロップアイテムをプレイヤーのインベントリに追加
+                const response = await fetch("/api/enemy/dropItem", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({
+                        enemyId: enemy.id,
+                        playerId: player?.id || 0
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("獲得したアイテム:", data.items);
+
+                    // 獲得したアイテムの通知
+                    if (data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            console.log(`${item.name} を獲得しました！`);
+                            // アイテム獲得を親コンポーネントに通知
+                            if (onDropItemGet) {
+                                onDropItemGet(item.id);
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("アイテム獲得エラー:", error);
+            }
             console.log("プレイヤーが倒れました！");
             // ここでゲームオーバー処理を追加できます
             console.log("ゲームオーバー！プレイヤーが倒れました。");
@@ -227,7 +245,16 @@ const SingleEnemy: React.FC<{
     damageEnemy: (enemy: Enemy, attackPower: number) => boolean,
     playerAttack: number
     playerHP?: number
-}> = ({enemy, cameraPosition, damageEnemy,    damagePlayer, ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
+}> = ({
+          enemy,
+          cameraPosition,
+          damageEnemy,
+          damagePlayer,
+          ECollisionPosition,
+          playerHP,
+          globalMouseDown,
+          playerAttack
+      }) => {
     const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
     const [isColliding, setIsColliding] = useState(false);
@@ -324,7 +351,6 @@ const SingleEnemy: React.FC<{
     }, [isColliding, globalMouseDown, enemy, position, ECollisionPosition]);
 
 
-
     // 敵からプレイヤーへの攻撃処理（衝突中は自動的に攻撃）
     useEffect(() => {
         let attackInterval: NodeJS.Timeout;
@@ -355,7 +381,6 @@ const SingleEnemy: React.FC<{
             }
         };
     }, [isColliding, enemy, damagePlayer, lastEnemyAttackTime, enemyAttackCooldown]);
-
 
 
     return (
