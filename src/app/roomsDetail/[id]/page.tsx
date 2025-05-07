@@ -9,8 +9,9 @@ import {defaultItem} from "@/types/defaultItem";
 //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import MapWithCharacterDesert from '@/components/(konva)/desertmap/Desertmap';
+import MapWithCharacterSnow from '@/components/(konva)/snowmap/Snowmap';
 
-type MapType = "grass" | "desert";
+type MapType = "grass" | "desert" | "snow";
 
 //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑
 
@@ -32,15 +33,25 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const [currentMap, setCurrentMap] = useState<MapType>("grass") //初期マップをGrassmapに設定
     
     //特定の座標
-    const grassMapCoordinates = [
+    const grassdesertMapCoordinates = [
         {x: 4032, y: 576},
         {x: 4032, y: 640},
         {x: 4032, y: 704}
     ];
-    const desertMapCoordinates = [
+    const desertgrassMapCoordinates = [
         {x: 0, y: 576},
         {x: 0, y: 640},
         {x: 0, y: 704}
+    ];
+    const grasssnowMapCoordinates = [
+        {x: 2368, y: 4032},
+        {x: 2432, y: 4032},
+        {x: 2496, y: 4032}
+    ];
+    const snowgrassMapCoordinates = [
+        {x: 1216, y: 0},
+        {x: 1280, y: 0},
+        {x: 1216, y: 0}
     ];
 
     // Tキーを押したときの処理
@@ -54,19 +65,40 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         //現在のマップがGrassマップの場合
         if (currentMap === "grass") {
             //grassmapの座標に居るかの確認
-            const isPlayerInGrassMapCoordinates = grassMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
-            
-            if (isPlayerInGrassMapCoordinates) {
+            const isPlayerInGrassDesertMapCoordinates = grassdesertMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            const isPlayerInGrassSnowMapCoordinates = grasssnowMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+
+            if (isPlayerInGrassDesertMapCoordinates) {
                 setCurrentMap("desert");
+            };
+            if (isPlayerInGrassSnowMapCoordinates) {
+                setCurrentMap("snow");
             }
+            console.log(isPlayerInGrassSnowMapCoordinates)
         }
 
         //現在のマップがGrassマップの場合
         else if (currentMap === "desert") {
             //desertmapの座標に居るかの確認
-            const isPlayerInGrassMapCoordinates = desertMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            const isPlayerInDeserGrsstMapCoordinates = desertgrassMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
             
-            if (isPlayerInGrassMapCoordinates) {
+            if (isPlayerInDeserGrsstMapCoordinates) {
+                setCurrentMap("grass");
+            }
+        }
+        // else if (currentMap === "grass") {
+        //     //snowmapの座標に居るかの確認
+        //     const isPlayerInGrassSnowMapCoordinates = grasssnowMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            
+        //     if (isPlayerInGrassSnowMapCoordinates) {
+        //         setCurrentMap("snow");
+        //     }
+        // }
+        else if (currentMap === "snow") {
+            //snowmapの座標に居るかの確認
+            const isPlayerInSnowGrassMapCoordinates = snowgrassMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            
+            if (isPlayerInSnowGrassMapCoordinates) {
                 setCurrentMap("grass");
             }
         }
@@ -281,6 +313,9 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             )}
             {currentMap === "desert" && (
                 <MapWithCharacterDesert playerId={playerId} itemData={itemData} roomId={roomId}/>
+            )}
+            {currentMap === "snow" && (
+                <MapWithCharacterSnow playerId={playerId} itemData={itemData} roomId={roomId}/>
             )}
             {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑*/}
         </div>

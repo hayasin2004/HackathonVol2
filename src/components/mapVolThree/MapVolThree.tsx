@@ -1,8 +1,8 @@
 import React, {useState, useEffect, useRef} from "react";
 
-import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMapDesert";
+import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMapSnow";
 import {PlayerItem} from "@/types/playerItem";
-import {Map_data, Tile_size} from "@/components/(konva)/desertmap/mapData";
+import {Map_data, Tile_size} from "@/components/(konva)/snowmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
 import {Stage, Layer, Rect, Image as KonvaImage, Text, Line} from "react-konva";
 import {defaultItem} from '@/types/defaultItem';
@@ -296,15 +296,15 @@ const MapVolThree: React.FC<mapVolOneTypes> = ({
                 onContextMenu={handleStageContextMenu}
             >
                 <Layer>
-                    {/* --- 1. Desert背景 --- */}
+                    {/* --- 1. Snow背景 --- */}
                     {Map_data.map((row, rowIndex) =>
                         row.map((_, colIndex) => {
-                            const desertImg = tileImages["desert"];
-                            if (!desertImg) return null;
+                            const snowImg = tileImages["snow"];
+                            if (!snowImg) return null;
                             return (
                                 <KonvaImage
-                                    key={`desert-${rowIndex}-${colIndex}`}
-                                    image={desertImg}
+                                    key={`snow-${rowIndex}-${colIndex}`}
+                                    image={snowImg}
                                     x={colIndex * Tile_size - cameraPosition.x}
                                     y={rowIndex * Tile_size - cameraPosition.y}
                                     width={Tile_size}
