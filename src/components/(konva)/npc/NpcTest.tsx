@@ -24,7 +24,10 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
     // --- 対話ボックスの状態管理 ---
     // isVisible: 対話ボックスが表示されているか
     // npc: 現在対話しているNPCのデータ (nullの場合は表示しない)
-    const [activeDialogue, setActiveDialogue] = useState<{ isVisible: boolean, npc: NPC | null }>({ isVisible: false, npc: null });
+    const [activeDialogue, setActiveDialogue] = useState<{ isVisible: boolean, npc: NPC | null }>({
+        isVisible: false,
+        npc: null
+    });
     // --- ここまで ---
 
     // NPCがクリックされたときに呼び出されるハンドラ
@@ -37,17 +40,17 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
 
         if (activeDialogue.isVisible && activeDialogue.npc?.id === clickedNpc.id) {
             // 現在表示中のNPCを再度クリックした場合は、対話ボックスを非表示にする
-            setActiveDialogue({ isVisible: false, npc: null });
+            setActiveDialogue({isVisible: false, npc: null});
         } else if (hasDialogue) {
             // 別のNPCをクリックした場合、または対話ボックスが非表示の場合は、そのNPCの対話ボックスを表示
-            setActiveDialogue({ isVisible: true, npc: clickedNpc });
+            setActiveDialogue({isVisible: true, npc: clickedNpc});
             // 必要であれば、onInteract関数をここで呼び出す
             // if (dialogues.length > 0 && dialogues[0]) {
             //     onInteract(clickedNpc, dialogues[0]);
             // }
         } else {
-             // dialogues[1] がないNPCがクリックされた場合は、対話ボックスを非表示にする
-             setActiveDialogue({ isVisible: false, npc: null });
+            // dialogues[1] がないNPCがクリックされた場合は、対話ボックスを非表示にする
+            setActiveDialogue({isVisible: false, npc: null});
         }
     };
 
@@ -57,24 +60,18 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
 
     // Konvaコンポーネントは必ずStageとLayerの中に配置する
     return (
-        <Stage
-            width={typeof window !== "undefined" ? window.innerWidth : 0}
-            height={typeof window !== "undefined" ? window.innerHeight : 0}
-        >
-            <Layer>
-                {/* すべてのNPCを描画 */}
-                {npcData.map((npc) => (
-                    <SingleNpc
-                        key={npc.id}
-                        npc={npc}
-                        onNpcClick={handleNpcClick} // クリックハンドラを渡す
-                    />
-                ))}
+        <>
+            {npcData.map((npc) => (
+                <SingleNpc
+                    key={npc.id}
+                    npc={npc}
+                    onNpcClick={handleNpcClick} // クリックハンドラを渡す
+                />
+            ))}
 
-                {/* 対話ボックスを描画 */}
-                <DialogueBox activeDialogue={activeDialogue} />
-            </Layer>
-        </Stage>
+            {/* 対話ボックスを描画 */}
+            <DialogueBox activeDialogue={activeDialogue}/>
+        </>
     );
 };
 
@@ -84,7 +81,7 @@ interface PropsSingleNpc {
     onNpcClick: (npc: NPC) => void; // 新しく追加したプロパティ
 }
 
-const SingleNpc: React.FC<PropsSingleNpc> = ({ npc, onNpcClick }) => { // プロパティでonNpcClickを受け取る
+const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick}) => { // プロパティでonNpcClickを受け取る
     // ローカルの吹き出し関連の状態とロジックを削除
     // const [isBubbleVisible, setIsBubbleVisible] = useState(false);
     // const [bubbleText, setBubbleText] = useState('');
