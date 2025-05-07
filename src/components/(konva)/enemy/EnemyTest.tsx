@@ -82,27 +82,20 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     useEffect(() => {
         if (!socket) return;
 
-        const handleEnemyRemoved = (enemyId: number) => {
-            console.log(`敵ID ${enemyId} が削除されました`);
-            setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== enemyId));
-        };
+        const handleEnemyRemoved = (removedEnemy: Enemy) => {
+            console.log(removedEnemy.id);
+            alert(`敵ID ${removedEnemy.name} が倒された！`);
 
-        const handleEnemyHpUpdated = ({ id, hp }: { id: number; hp: number }) => {
-            setVisibleEnemies((prev) =>
-                prev.map((enemy) =>
-                    enemy.id === id ? { ...enemy, hp } : enemy
-                )
-            );
+            // 正しい敵IDを使って削除
+            setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== removedEnemy.id));
         };
 
         socket.on("enemyRemoved", handleEnemyRemoved);
-        socket.on("enemyHpUpdated", handleEnemyHpUpdated);
 
         return () => {
             socket.off("enemyRemoved", handleEnemyRemoved);
-            socket.off("enemyHpUpdated", handleEnemyHpUpdated);
         };
-    }, [socket]);;
+    }, [socket]);
 
 
 
@@ -120,16 +113,10 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             handleRemoveEnemy(enemy.id);
 
             // サーバーに削除イベントを送信
-            if (socket) {　
+            if (socket) {
                 socket.emit("removeEnemy", enemy);
             }
             return true; // 敵が倒されたことを示す
-        }
-
-
-        // サーバーにHP更新を送信
-        if (socket) {
-            socket.emit("updateEnemyHp", enemy.id, newHp);
         }
 
         // HPが残っている場合は敵のHPを更新
@@ -160,10 +147,9 @@ const EnemyTest: React.FC<PropsNpcData> = ({
 
             console.log("プレイヤーが倒れました！");
             // ここでゲームオーバー処理を追加できます
-            console.log("ゲームオーバー！プレイヤーが倒れました。");
+            alert("ゲームオーバー！プレイヤーが倒れました。");
         } else {
             // HPを更新
-            setPlayerHP(newHP);
             setPlayerHP(newHP);
 
             if (onPlayerDamage) {

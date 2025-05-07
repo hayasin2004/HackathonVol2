@@ -261,11 +261,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         newAudio.volume = Math.max(0, Math.min(volume, 1)); // 音量を制限
 
                         // 自動再生を試みる
-                        newAudio
-                            .play()
-                            .catch((err) => {
-                                console.error("音楽の再生中にエラーが発生しました:", err);
-                            });
+                        // newAudio
+                        //     .play()
+                        //     .catch((err) => {
+                        //         console.error("音楽の再生中にエラーが発生しました:", err);
+                        //     });
 
                         setAudio(newAudio);
                         setIsPlaying(true); // 再生状態を更新
@@ -433,29 +433,29 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             listening={false} // クリックを無視
                         />
                     )}
-                    {/*{Array.isArray(localEnemyData) && localEnemyData.length > 0 && (*/}
-                    {/*    <EnemyTest*/}
-                    {/*        socket={socket}*/}
-                    {/*        enemyData={localEnemyData}*/}
-                    {/*        cameraPosition={cameraPosition}*/}
-                    {/*        ECollisionPosition={ECollisionPosition}*/}
-                    {/*        onEnemyRemove={handleRemoveEnemy}*/}
-                    {/*        player={playerId}  // プレイヤー情報を渡す*/}
-                    {/*        playerAttack={playerId.attack}*/}
-                    {/*        onPlayerDamage={(newHp) => {*/}
-                    {/*            // プレイヤーのHPが更新されたときの処理*/}
-                    {/*            console.log(`プレイヤーのHPが${newHp}に更新されました`);*/}
-                    {/*            // ここで必要に応じて親コンポーネントに通知できます*/}
-                    {/*        }}*/}
-                    {/*    />*/}
-                    {/*)}*/}
-                    {Array.isArray(localNpcData) && localNpcData.length > 0 && (
-                        <NpcTest
-                            npcData={localNpcData}
+                    {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
+                        <EnemyTest
+                            socket={socket}
+                            enemyData={localEnemyData}
                             cameraPosition={cameraPosition}
                             ECollisionPosition={ECollisionPosition}
+                            onEnemyRemove={handleRemoveEnemy}
+                            player={playerId}  // プレイヤー情報を渡す
+                            playerAttack={playerId.attack}
+                            onPlayerDamage={(newHp) => {
+                                // プレイヤーのHPが更新されたときの処理
+                                console.log(`プレイヤーのHPが${newHp}に更新されました`);
+                                // ここで必要に応じて親コンポーネントに通知できます
+                            }}
                         />
                     )}
+                    {/*{Array.isArray(localNpcData) && localNpcData.length > 0 && (*/}
+                    {/*    <NpcTest*/}
+                    {/*        npcData={localNpcData}*/}
+                    {/*        cameraPosition={cameraPosition}*/}
+                    {/*        ECollisionPosition={ECollisionPosition}*/}
+                    {/*    />*/}
+                    {/*)}*/}
 
 
                     {isDark && (
@@ -469,30 +469,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         />
                     )}
 
-                    {musicList.map((music, index) => (
-                        <React.Fragment key={index}>
-                            {/* 背景を描画（選択状態の場合は色を変更） */}
-                            <Rect
-                                x={20}
-                                y={20 + index * 40}
-                                width={300}
-                                height={30}
-                                fill={selectedMusic === music ? "lightblue" : "white"}
-                                stroke="black"
-                                strokeWidth={1}
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                            {/* 音楽名を描画 */}
-                            <Text
-                                x={25}
-                                y={25 + index * 40}
-                                text={music}
-                                fontSize={16}
-                                fill="black"
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                        </React.Fragment>
-                    ))}
+
                     {musicList.map((music, index) => (
                         <React.Fragment key={index}>
                             {/* 背景を描画（選択状態の場合は色を変更） */}
