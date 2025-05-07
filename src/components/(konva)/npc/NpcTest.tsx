@@ -7,6 +7,8 @@ import DialogueBox from './DialogueBox'; // DialogueBoxコンポーネントを�
 
 interface PropsNpcData {
     npcData: NPC[] | null
+    cameraPosition: { x: number, y: number }
+
 }
 
 // 現在のステージを定義（この変数がどこかで定義されている必要があります）
@@ -18,7 +20,7 @@ const onInteract = (npc: NPC, dialogue: any) => {
     console.log("NPCと対話:", npc.name, dialogue);
 };
 
-const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
+const NpcTest: React.FC<PropsNpcData> = ({npcData , cameraPosition}) => {
     console.log(npcData);
 
     // --- 対話ボックスの状態管理 ---
@@ -65,6 +67,7 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
                 <SingleNpc
                     key={npc.id}
                     npc={npc}
+                    cameraPosition={cameraPosition} // cameraPositionを渡す
                     onNpcClick={handleNpcClick} // クリックハンドラを渡す
                 />
             ))}
@@ -79,9 +82,11 @@ const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
 interface PropsSingleNpc {
     npc: NPC;
     onNpcClick: (npc: NPC) => void; // 新しく追加したプロパティ
+    cameraPosition: { x: number, y: number }
+
 }
 
-const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick}) => { // プロパティでonNpcClickを受け取る
+const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick , cameraPosition}) => { // プロパティでonNpcClickを受け取る
     // ローカルの吹き出し関連の状態とロジックを削除
     // const [isBubbleVisible, setIsBubbleVisible] = useState(false);
     // const [bubbleText, setBubbleText] = useState('');
@@ -93,10 +98,30 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick}) => { // プロ�
     // 指定したインデックスの画像を使用
     const [image] = useImage(npc.images[validImageIndex]);
 
+    const [position, setPosition] = useState({ x: npc.x, y: npc.y });
     // 現在のステージにいないNPCは描画しない
     if (npc.stageStatus !== currentStage) {
         return null;
     }
+    // id=1のNPCの場合のみ、マウント時に移動パターンを実行
+    useEffect(() => {
+        if (npc.id === 1) {
+            // 右に3回、下に1回の移動を実行
+            const moveRight = async () => {
+                // 右に3回移動
+                for (let i = 0; i < 3; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    setPosition(prev => ({ x: prev.x + 64, y: prev.y }));
+                }
+
+                // 下に1回移動
+                await new Promise(resolve => setTimeout(resolve, 300));
+                setPosition(prev => ({ x: prev.x, y: prev.y + 64 }));
+            };
+
+            moveRight();
+        }
+    }, [npc.id]);
 
     const handleClick = () => {
         // クリック時に親のハンドラを呼び出し、このNPCデータを渡す
@@ -105,10 +130,10 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick}) => { // プロ�
 
     return (
         <Group
-            x={npc.x}
-            y={npc.y}
-            width={npc.x}
-            height={npc.y}
+            x={position.x - cameraPosition.x}
+            y={position.y - cameraPosition.y}
+            width={64}
+            height={64}
             cursor="pointer"
             onClick={handleClick}
             onTap={handleClick}
@@ -116,21 +141,15 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick}) => { // プロ�
             {image && (
                 <Image
                     image={image}
-                    width={64} // スプライトの幅
-                    height={64} // スプライトの高さ
-                    listening={true} // クリックイベントを受け取る
-                    hitStrokeWidth={0} // クリック判定を正確にするため
-                    // マップ上での見栄えのために影を残す
+                    width={64}
+                    height={64}
+                    listening={true}
+                    hitStrokeWidth={0}
                     shadowColor="black"
                     shadowBlur={5}
                     shadowOpacity={0.5}
                 />
             )}
-            {/* NPCの名前表示はDialogueBoxに移動するため、ここから削除 */}
-            {/* <Text ... /> */}
-
-            {/* 吹き出しの描画ロジックは削除 */}
-            {/* {isBubbleVisible && (...) } */}
         </Group>
     );
 };
