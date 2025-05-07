@@ -8,6 +8,7 @@ interface PropsDialogueBox {
     activeDialogue: {
         isVisible: boolean;
         npc: NPC | null;
+        currentIndex?: number; // currentIndexプロパティを追加
     };
 }
 
@@ -17,18 +18,20 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue }) => {
         return null;
     }
 
-    const { npc } = activeDialogue;
+    const { npc, currentIndex = 0 } = activeDialogue; // デフォルト値を0に設定
 
     // ポートレート画像（NPC.images の最初の画像をポートレートとして使用）
     const portraitImageUrl = npc.images.length > 0 ? npc.images[0] : undefined;
     const [portraitImage] = useImage(portraitImageUrl);
 
-    // 表示する対話テキスト（NPC.dialogues の 2 番目の要素を使用）
+    // 表示する対話テキスト
     // dialogues が文字列の場合はパースする
     const dialogues = typeof npc.dialogues === 'string' ? JSON.parse(npc.dialogues) : npc.dialogues;
-    const dialogueText = dialogues && Array.isArray(dialogues) && dialogues.length > 1 && dialogues[1]
-                         ? dialogues[1]
-                         : '（会話がありません）'; // dialogues[1] がない場合のデフォルトテキスト
+
+    // currentIndexに基づいてダイアログを表示
+    const dialogueText = dialogues && Array.isArray(dialogues) && dialogues.length > currentIndex
+        ? dialogues[currentIndex]
+        : '（会話がありません）'; // 該当するインデックスがない場合のデフォルトテキスト
 
     // ステージのサイズを取得（ウィンドウサイズに合わせる）
     const stageWidth = typeof window !== "undefined" ? window.innerWidth : 800;
@@ -56,9 +59,6 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue }) => {
             y={boxY} // 画面下端に配置
             width={stageWidth} // 画面いっぱいの幅
             height={boxHeight} // ボックスの高さ
-            // 将来的に対話を進めるためのクリックハンドラをここに追加できます
-            // onClick={() => { console.log("Dialogue box clicked"); /* 対話進行ロジック */ }}
-            // onTap={() => { console.log("Dialogue box tapped"); /* 対話進行ロジック */ }}
             listening={true} // クリックイベントを受け取るようにする
         >
             {/* 背景の四角形（半透明） */}
@@ -109,15 +109,18 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue }) => {
                 verticalAlign="top" // テキストを上端に揃える
                 listening={false} // クリックイベントを受け取らない
             />
-             {/* （オプション）対話続行を促すマークなどをここに追加できます */}
-             {/* <Text
-                text="▼" // 下矢印の例
-                x={stageWidth - boxPadding - 20} // 右下付近に配置
-                y={boxY + boxHeight - boxPadding - 20} // 右下付近に配置
-                fontSize={16}
-                fill="#FFFFFF"
-                listening={false}
-             /> */}
+
+            {/* 現在のダイアログインデックスと総数を表示（オプション） */}
+            {dialogues && Array.isArray(dialogues) && dialogues.length > 1 && (
+                <Text
+                    text={`${currentIndex + 1}/${dialogues.length}`}
+                    x={stageWidth - boxPadding - 50}
+                    y={boxY + boxHeight - boxPadding - 20}
+                    fontSize={14}
+                    fill="#AAAAAA"
+                    listening={false}
+                />
+            )}
         </Group>
     );
 };
