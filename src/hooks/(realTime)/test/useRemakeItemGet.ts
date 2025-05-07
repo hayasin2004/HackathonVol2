@@ -9,12 +9,15 @@ export interface objectItemIconImage {
     id: number,
     roomId: number,
     itemId: number,
+    userId : number,
+    playerId : number,
     x: number
     y: number
     width: number
     height: number
     isActive: boolean
     iconImage: HTMLImageElement
+    placedByPlayer : number
 }
 
 interface UseGetItemProps {
@@ -26,6 +29,8 @@ interface UseGetItemProps {
     mapHeightInPixels?: number;
     waterTiles?: { x: number; y: number }[];
     socket: Socket | null;
+    setRectPositions?: React.Dispatch<React.SetStateAction<objectItemIconImage[] | undefined >>;
+
 }
 
 const TILE_SIZE = 64;
@@ -36,6 +41,7 @@ export const useRemakeItemGet = ({
                                      initialPosition,
                                      rectPositions,
                                      speed,
+                                     setRectPositions,
                                      mapWidthInPixels,
                                      mapHeightInPixels,
                                      waterTiles,
@@ -49,10 +55,19 @@ export const useRemakeItemGet = ({
     const keysPressedRef = useRef({
         ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
     });
+    const rectPositionsRef = useRef(rectPositions);
     const moveIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const moveInterval = speed ? Math.max(50, 400 - speed) : DEFAULT_MOVE_INTERVAL;
     const {handleItemCollection} = useDestroyANDRandom(socket);
+    const {playerItemCollection} = useDestroyANDRandom(socket);
+
+    // 最新のrectPositionsを更新
+    useEffect(() => {
+        rectPositionsRef.current = rectPositions;
+
+    }, [rectPositions]);
+
 
 
     const findNearbyItem = useCallback(() => {
@@ -135,6 +150,28 @@ export const useRemakeItemGet = ({
 
         if (foundItem) {
             try {
+                console.log(foundItem)
+                // プレイヤーが設置したかどうかの判定
+                if (foundItem.playerId || foundItem.userId ){
+                    alert("これだれが置いたんや！！" + foundItem.playerId)
+                    const result = await playerGetItem(userId, [foundItem.itemId]);
+
+                    if (result?.status === "success") {
+                        if (Array.isArray(result.savedItemData)) {
+                            console.log(result.savedItemData[0].id , foundItem.itemId)
+                            setECollisionGotItem(prev => [...prev, ...result.savedItemData]);
+                            setECollisionGotItemStatus(foundItem);
+                            await playerItemCollection(foundItem.id);
+
+                            setECollisionGotItem(prev => prev.filter(item => item !== foundItem?.id?.toString()));
+                        } else {
+                            setECollisionGotItem(prev => [...prev, foundItem.itemId.toString()]);
+                            setECollisionGotItemStatus(foundItem);
+                            console.log("取得成功（データなし）:", foundItem.id);
+                        }
+                    }
+                }
+                console.log("foundItem.itemId"+JSON.stringify(foundItem))
                 const result = await playerGetItem(userId, [foundItem.itemId]);
                 if (result?.status === "success") {
                     if (Array.isArray(result.savedItemData)) {
