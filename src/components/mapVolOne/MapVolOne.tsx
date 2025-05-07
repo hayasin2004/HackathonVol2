@@ -444,129 +444,129 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     )}
 
 
-                    {isDark && (
-                        <Rect
-                            x={0}
-                            y={0}
-                            width={typeof window !== "undefined" ? window.innerWidth : 0}
-                            height={typeof window !== "undefined" ? window.innerHeight : 0}
-                            fill="black"
-                            opacity={0.2}
-                        />
-                    )}
+                    {/*{isDark && (*/}
+                    {/*    <Rect*/}
+                    {/*        x={0}*/}
+                    {/*        y={0}*/}
+                    {/*        width={typeof window !== "undefined" ? window.innerWidth : 0}*/}
+                    {/*        height={typeof window !== "undefined" ? window.innerHeight : 0}*/}
+                    {/*        fill="black"*/}
+                    {/*        opacity={0.2}*/}
+                    {/*    />*/}
+                    {/*)}*/}
 
-                    {musicList.map((music, index) => (
-                        <React.Fragment key={index}>
-                            {/* 背景を描画（選択状態の場合は色を変更） */}
-                            <Rect
-                                x={20}
-                                y={20 + index * 40}
-                                width={300}
-                                height={30}
-                                fill={selectedMusic === music ? "lightblue" : "white"}
-                                stroke="black"
-                                strokeWidth={1}
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                            {/* 音楽名を描画 */}
-                            <Text
-                                x={25}
-                                y={25 + index * 40}
-                                text={music}
-                                fontSize={16}
-                                fill="black"
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                        </React.Fragment>
-                    ))}
-                    {musicList.map((music, index) => (
-                        <React.Fragment key={index}>
-                            {/* 背景を描画（選択状態の場合は色を変更） */}
-                            <Rect
-                                x={20}
-                                y={20 + index * 40}
-                                width={300}
-                                height={30}
-                                fill={selectedMusic === music ? "lightblue" : "white"}
-                                stroke="black"
-                                strokeWidth={1}
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                            {/* 音楽名を描画 */}
-                            <Text
-                                x={25}
-                                y={25 + index * 40}
-                                text={music}
-                                fontSize={16}
-                                fill="black"
-                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
-                            />
-                        </React.Fragment>
-                    ))}
-                    <Text x={20} y={200} text="音量" fontSize={16} fill="black" />
-                    <Line
-                        points={[20, 230, 220, 230]} // スライダーのベースライン
-                        stroke="black"
-                        strokeWidth={2}
-                    />
-                    <Rect
-                        x={20 + volume * 200 - 5} // 音量に応じてスライダーの位置を調整
-                        y={220}
-                        width={10}
-                        height={20}
-                        fill="blue"
-                        draggable
-                        dragBoundFunc={(pos) => {
-                            // ドラッグ範囲を制限
-                            const x = Math.max(20, Math.min(pos.x, 220));
-                            return { x, y: 220 };
-                        }}
-                        onDragMove={(e) => {
-                            // スライダーを移動したときに音量を更新
-                            const newVolume = (e.target.x() - 20) / 200;
-                            setVolume(Math.max(0, Math.min(newVolume, 1))); // 音量を制限
-                        }}
-                    />
-                    <Rect
-                        x={20}
-                        y={280}
-                        width={100}
-                        height={30}
-                        fill={isPlaying ? "red" : "green"} // 再生中なら赤、停止中なら緑
-                        stroke="black"
-                        strokeWidth={1}
-                        onClick={() => {
-                            if (audio) {
-                                if (isPlaying) {
-                                    audio.pause(); // 音楽を停止
-                                } else {
-                                    audio.play().catch((err) => {
-                                        console.error("音楽の再生中にエラーが発生しました:", err);
-                                    }); // 音楽を再生
-                                }
-                                setIsPlaying(!isPlaying); // 再生状態を切り替え
-                            }
-                        }}
-                    />
-                    <Text
-                        x={25}
-                        y={285}
-                        text={isPlaying ? "停止" : "再生"}
-                        fontSize={16}
-                        fill="white"
-                        onClick={() => {
-                            if (audio) {
-                                if (isPlaying) {
-                                    audio.pause();
-                                } else {
-                                    audio.play().catch((err) => {
-                                        console.error("音楽の再生中にエラーが発生しました:", err);
-                                    });
-                                }
-                                setIsPlaying(!isPlaying);
-                            }
-                        }}
-                    />
+                    {/*{musicList.map((music, index) => (*/}
+                    {/*    <React.Fragment key={index}>*/}
+                    {/*        /!* 背景を描画（選択状態の場合は色を変更） *!/*/}
+                    {/*        <Rect*/}
+                    {/*            x={20}*/}
+                    {/*            y={20 + index * 40}*/}
+                    {/*            width={300}*/}
+                    {/*            height={30}*/}
+                    {/*            fill={selectedMusic === music ? "lightblue" : "white"}*/}
+                    {/*            stroke="black"*/}
+                    {/*            strokeWidth={1}*/}
+                    {/*            onClick={() => setSelectedMusic(music)} // 音楽を選択する*/}
+                    {/*        />*/}
+                    {/*        /!* 音楽名を描画 *!/*/}
+                    {/*        <Text*/}
+                    {/*            x={25}*/}
+                    {/*            y={25 + index * 40}*/}
+                    {/*            text={music}*/}
+                    {/*            fontSize={16}*/}
+                    {/*            fill="black"*/}
+                    {/*            onClick={() => setSelectedMusic(music)} // 音楽を選択する*/}
+                    {/*        />*/}
+                    {/*    </React.Fragment>*/}
+                    {/*))}*/}
+                    {/*{musicList.map((music, index) => (*/}
+                    {/*    <React.Fragment key={index}>*/}
+                    {/*        /!* 背景を描画（選択状態の場合は色を変更） *!/*/}
+                    {/*        <Rect*/}
+                    {/*            x={20}*/}
+                    {/*            y={20 + index * 40}*/}
+                    {/*            width={300}*/}
+                    {/*            height={30}*/}
+                    {/*            fill={selectedMusic === music ? "lightblue" : "white"}*/}
+                    {/*            stroke="black"*/}
+                    {/*            strokeWidth={1}*/}
+                    {/*            onClick={() => setSelectedMusic(music)} // 音楽を選択する*/}
+                    {/*        />*/}
+                    {/*        /!* 音楽名を描画 *!/*/}
+                    {/*        <Text*/}
+                    {/*            x={25}*/}
+                    {/*            y={25 + index * 40}*/}
+                    {/*            text={music}*/}
+                    {/*            fontSize={16}*/}
+                    {/*            fill="black"*/}
+                    {/*            onClick={() => setSelectedMusic(music)} // 音楽を選択する*/}
+                    {/*        />*/}
+                    {/*    </React.Fragment>*/}
+                    {/*))}*/}
+                    {/*<Text x={20} y={200} text="音量" fontSize={16} fill="black" />*/}
+                    {/*<Line*/}
+                    {/*    points={[20, 230, 220, 230]} // スライダーのベースライン*/}
+                    {/*    stroke="black"*/}
+                    {/*    strokeWidth={2}*/}
+                    {/*/>*/}
+                    {/*<Rect*/}
+                    {/*    x={20 + volume * 200 - 5} // 音量に応じてスライダーの位置を調整*/}
+                    {/*    y={220}*/}
+                    {/*    width={10}*/}
+                    {/*    height={20}*/}
+                    {/*    fill="blue"*/}
+                    {/*    draggable*/}
+                    {/*    dragBoundFunc={(pos) => {*/}
+                    {/*        // ドラッグ範囲を制限*/}
+                    {/*        const x = Math.max(20, Math.min(pos.x, 220));*/}
+                    {/*        return { x, y: 220 };*/}
+                    {/*    }}*/}
+                    {/*    onDragMove={(e) => {*/}
+                    {/*        // スライダーを移動したときに音量を更新*/}
+                    {/*        const newVolume = (e.target.x() - 20) / 200;*/}
+                    {/*        setVolume(Math.max(0, Math.min(newVolume, 1))); // 音量を制限*/}
+                    {/*    }}*/}
+                    {/*/>*/}
+                    {/*<Rect*/}
+                    {/*    x={20}*/}
+                    {/*    y={280}*/}
+                    {/*    width={100}*/}
+                    {/*    height={30}*/}
+                    {/*    fill={isPlaying ? "red" : "green"} // 再生中なら赤、停止中なら緑*/}
+                    {/*    stroke="black"*/}
+                    {/*    strokeWidth={1}*/}
+                    {/*    onClick={() => {*/}
+                    {/*        if (audio) {*/}
+                    {/*            if (isPlaying) {*/}
+                    {/*                audio.pause(); // 音楽を停止*/}
+                    {/*            } else {*/}
+                    {/*                audio.play().catch((err) => {*/}
+                    {/*                    console.error("音楽の再生中にエラーが発生しました:", err);*/}
+                    {/*                }); // 音楽を再生*/}
+                    {/*            }*/}
+                    {/*            setIsPlaying(!isPlaying); // 再生状態を切り替え*/}
+                    {/*        }*/}
+                    {/*    }}*/}
+                    {/*/>*/}
+                    {/*<Text*/}
+                    {/*    x={25}*/}
+                    {/*    y={285}*/}
+                    {/*    text={isPlaying ? "停止" : "再生"}*/}
+                    {/*    fontSize={16}*/}
+                    {/*    fill="white"*/}
+                    {/*    onClick={() => {*/}
+                    {/*        if (audio) {*/}
+                    {/*            if (isPlaying) {*/}
+                    {/*                audio.pause();*/}
+                    {/*            } else {*/}
+                    {/*                audio.play().catch((err) => {*/}
+                    {/*                    console.error("音楽の再生中にエラーが発生しました:", err);*/}
+                    {/*                });*/}
+                    {/*            }*/}
+                    {/*            setIsPlaying(!isPlaying);*/}
+                    {/*        }*/}
+                    {/*    }}*/}
+                    {/*/>*/}
                 </Layer>
             </Stage>
         </div>

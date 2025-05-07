@@ -32,86 +32,114 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const [currentMap, setCurrentMap] = useState<MapType>("grass") //初期マップをGrassmapに設定
     
     //特定の座標
-    const grassMapCoordinates = [
-        {x: 4032, y: 576},
-        {x: 4032, y: 640},
-        {x: 4032, y: 704}
-    ];
-    const desertMapCoordinates = [
-        {x: 0, y: 576},
-        {x: 0, y: 640},
-        {x: 0, y: 704}
-    ];
+    // const grassMapCoordinates = [
+    //     {x: 4032, y: 576},
+    //     {x: 4032, y: 640},
+    //     {x: 4032, y: 704}
+    // ];
+    // const desertMapCoordinates = [
+    //     {x: 0, y: 576},
+    //     {x: 0, y: 640},
+    //     {x: 0, y: 704}
+    // ];
+    //
+    // // Tキーを押したときの処理
+    // const handleTKeyPress = useCallback(() => {
+    //     if (!playerId) return;
+    //     const playerX = playerId.x;
+    //     const playerY = playerId.y;
+    //
+    //     console.log("%cPlayerId確認","color: blue", playerId)
+    //
+    //     //現在のマップがGrassマップの場合
+    //     if (currentMap === "grass") {
+    //         //grassmapの座標に居るかの確認
+    //         const isPlayerInGrassMapCoordinates = grassMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+    //
+    //         if (isPlayerInGrassMapCoordinates) {
+    //             setCurrentMap("desert");
+    //         }
+    //     }
+    //
+    //     //現在のマップがGrassマップの場合
+    //     else if (currentMap === "desert") {
+    //         //desertmapの座標に居るかの確認
+    //         const isPlayerInGrassMapCoordinates = desertMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+    //
+    //         if (isPlayerInGrassMapCoordinates) {
+    //             setCurrentMap("grass");
+    //         }
+    //     }
+    //
+    // }, [playerId, currentMap]);
+    //
+    // useEffect(() => {
+    //     const handleKeyDown = (event: KeyboardEvent) => {
+    //         if (event.key === "t" || event.key === "T") {
+    //             handleTKeyPress();
+    //
+    //             //Tキー押したら座標再取得処理
+    //
+    //             const userId = session?.user.id;
+    //             if (userId) {
+    //                 const currentUserId = async () => {
+    //                     const ItemResponse = await fetch(`/api/item/fetchItem`, {method: "GET"});
+    //                     const response = await fetch(`/api/player/catch/${userId}`, {method: "GET"});
+    //                     if (!response.ok) {
+    //                         throw new Error(`HTTP error! status: ${response.status}`);
+    //                     }
+    //
+    //                     const text = await response.text(); // レスポンスをテキストとして取得
+    //                     const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
+    //                     if (data == undefined) return;
+    //
+    //                     const userData = JSON.parse(JSON.stringify(data.playerData))
+    //
+    //                     const itemDataList = await ItemResponse.json()
+    //                     console.log(userData)
+    //                     setPlayerId(userData);
+    //                     setItemData(itemDataList);
+    //                 }
+    //                 currentUserId()
+    //                 }
+    //             }
+    //
+    //         };
+    //
+    //     window.addEventListener("keydown", handleKeyDown);
+    //
+    //     return () => {
+    //         window.removeEventListener("keydown", handleKeyDown);
+    //     };
+    // },[handleTKeyPress]);
+    useEffect(() => {
+        if(!playerId)return;
 
-    // Tキーを押したときの処理
-    const handleTKeyPress = useCallback(() => {
-        if (!playerId) return;
-        const playerX = playerId.x;
-        const playerY = playerId.y;
+        const mapRightEdge = 4032;
 
-        console.log("%cPlayerId確認","color: blue", playerId)
-
-        //現在のマップがGrassマップの場合
-        if (currentMap === "grass") {
-            //grassmapの座標に居るかの確認
-            const isPlayerInGrassMapCoordinates = grassMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
-            
-            if (isPlayerInGrassMapCoordinates) {
-                setCurrentMap("desert");
-            }
+        if(roomId === 2 && playerId.x >= mapRightEdge){
+            router.push("/roomsDetail/3");
         }
 
-        //現在のマップがGrassマップの場合
-        else if (currentMap === "desert") {
-            //desertmapの座標に居るかの確認
-            const isPlayerInGrassMapCoordinates = desertMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
-            
-            if (isPlayerInGrassMapCoordinates) {
-                setCurrentMap("grass");
-            }
+        if(playerId.x >= mapRightEdge){
+            router.push("/roomsDetail/2");
         }
-
-    }, [playerId, currentMap]);
+    }, [playerId,roomId]);
 
     useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "t" || event.key === "T") {
-                handleTKeyPress();
+        const userId = session?.user.id;
+        if(!userId) return;
+        const fetchPosition = async () => {
+            const response = await fetch(`/api/users/${userId}`);
+            if(!response.ok)return;
+            const data = await response.json();
+            setPlayerId(data.playerData);
+        }
+        const interval = setInterval(fetchPosition, 500);
 
-                //Tキー押したら座標再取得処理
+        return () => clearInterval(interval);
+    }, [session]);
 
-                const userId = session?.user.id;
-                if (userId) {
-                    const currentUserId = async () => {
-                        const ItemResponse = await fetch(`/api/item/fetchItem`, {method: "GET"});
-                        const response = await fetch(`/api/player/catch/${userId}`, {method: "GET"});
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-
-                        const text = await response.text(); // レスポンスをテキストとして取得
-                        const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
-                        if (data == undefined) return;
-
-                        const userData = JSON.parse(JSON.stringify(data.playerData))
-
-                        const itemDataList = await ItemResponse.json()
-                        console.log(userData)
-                        setPlayerId(userData);
-                        setItemData(itemDataList);
-                    }
-                    currentUserId()
-                    }
-                }
-
-            };
-
-        window.addEventListener("keydown", handleKeyDown);
-
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    },[handleTKeyPress]);
     //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑
 
     // 現在のユーザーIDを取得（認証システムから取得する想定）
