@@ -1,7 +1,7 @@
 "use client"
 // pages/rooms/[id].tsx
 import React, {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation'; 
+import {useRouter} from 'next/navigation';
 import {useSession} from "next-auth/react";
 import {PlayerItem} from "@/types/playerItem";
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
@@ -37,12 +37,17 @@ const RoomPage = ({params}: { params: { id: string } }) => {
 
                 const text = await response.text(); // レスポンスをテキストとして取得
                 const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
-                const userData = JSON.parse(JSON.stringify(data.playerData))
+                if (data == undefined) return ;
 
-                const itemDataList = await ItemResponse.json()
-                console.log(userData)
-                setPlayerId(userData);
-                setItemData(itemDataList);
+                if (data) {
+
+                    const userData = JSON.parse(JSON.stringify(data.playerData))
+
+                    const itemDataList = await ItemResponse.json()
+                    console.log(userData)
+                    setPlayerId(userData);
+                    setItemData(itemDataList);
+                }
             }
             currentUserId()
         } else {
@@ -160,7 +165,6 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     }
 
 
-
     return (
         <div className="container mx-auto p-4">
             {/*<h1 className="text-2xl font-bold mb-4">{room.name}</h1>*/}
@@ -179,7 +183,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             {/*        </p>*/}
             {/*    </div>*/}
             {/*</div>*/}
-                <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
+            <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
             {/*<Game playerId={playerId} roomId={roomId}/>*/}
         </div>
     );
