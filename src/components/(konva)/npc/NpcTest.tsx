@@ -104,29 +104,65 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick , cameraPosition})
         return null;
     }
     // id=1のNPCの場合のみ、マウント時に移動パターンを実行
+    // マウント時に移動パターンを実行
+// SingleNpcコンポーネント内のuseEffect部分のみ変更
     useEffect(() => {
+        // 移動が完了したかどうかを追跡するフラグ
+        let isMounted = true;
+
+        // ID=1のNPCの場合のみ移動を実行
         if (npc.id === 1) {
-            // 右に3回、下に1回の移動を実行
-            const moveRight = async () => {
-                // 右に3回移動
-                for (let i = 0; i < 3; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                    setPosition(prev => ({ x: prev.x + 64, y: prev.y }));
+            // 水平方向に移動するロジック（まずX軸、次にY軸）
+            const moveToDestination = async () => {
+                // 目標位置
+                const targetX = 64;
+                const targetY = 128;
+
+                // 現在位置
+                let currentX = npc.x;
+                let currentY = npc.y;
+
+                // 初期位置を設定
+                setPosition({ x: currentX, y: currentY });
+
+                // まずX軸方向に移動（左へ）
+                while (currentX > targetX && isMounted) {
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                    currentX -= 64;
+                    setPosition(prev => ({ x: currentX, y: prev.y }));
                 }
 
-                // 下に1回移動
-                await new Promise(resolve => setTimeout(resolve, 300));
-                setPosition(prev => ({ x: prev.x, y: prev.y + 64 }));
+                // 次にY軸方向に移動（上へ）
+                while (currentY > targetY && isMounted) {
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                    currentY -= 64;
+                    setPosition(prev => ({ x: prev.x, y: currentY }));
+                }
+
+                // コンポーネントがアンマウントされていなければダイアログを表示
+                if (isMounted) {
+                    // 終点に到達したらダイアログを表示
+                    // 少し遅延を入れてから表示
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    onNpcClick(npc);
+                }
             };
 
-            moveRight();
+            // 移動開始
+            moveToDestination();
         }
-    }, [npc.id]);
+
+        // クリーンアップ関数
+        return () => {
+            isMounted = false;
+        };
+    }, []); // 空の依存配列でマウント時に1回だけ実行
 
     const handleClick = () => {
         // クリック時に親のハンドラを呼び出し、このNPCデータを渡す
         onNpcClick(npc);
-    };
+    }; // onNpcClickも依存配列に追加; // npcオブジェクト全体ではなくnpc.idだけを依存配列に入れる
+　
 
     return (
         <Group
