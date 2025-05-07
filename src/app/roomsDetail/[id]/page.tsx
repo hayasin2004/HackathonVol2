@@ -1,12 +1,18 @@
 "use client"
 // pages/rooms/[id].tsx
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Game from "../../../components/(realTime)/game/Game";
 import {useSession} from "next-auth/react";
 import {PlayerItem} from "@/types/playerItem";
-import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import {defaultItem} from "@/types/defaultItem";
+//マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓
+import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
+import MapWithCharacterDesert from '@/components/(konva)/desertmap/Desertmap';
+
+type MapType = "grass" | "desert";
+
+//マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑
 
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
@@ -21,6 +27,93 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const [error, setError] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<PlayerItem | null | undefined>(null);
     const [itemData, setItemData] = useState<defaultItem[]>([]);
+
+    //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓
+    const [currentMap, setCurrentMap] = useState<MapType>("grass") //初期マップをGrassmapに設定
+    
+    //特定の座標
+    const grassMapCoordinates = [
+        {x: 4032, y: 576},
+        {x: 4032, y: 640},
+        {x: 4032, y: 704}
+    ];
+    const desertMapCoordinates = [
+        {x: 0, y: 576},
+        {x: 0, y: 640},
+        {x: 0, y: 704}
+    ];
+
+    // Tキーを押したときの処理
+    const handleTKeyPress = useCallback(() => {
+        if (!playerId) return;
+        const playerX = playerId.x;
+        const playerY = playerId.y;
+
+        console.log("%cPlayerId確認","color: blue", playerId)
+
+        //現在のマップがGrassマップの場合
+        if (currentMap === "grass") {
+            //grassmapの座標に居るかの確認
+            const isPlayerInGrassMapCoordinates = grassMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            
+            if (isPlayerInGrassMapCoordinates) {
+                setCurrentMap("desert");
+            }
+        }
+
+        //現在のマップがGrassマップの場合
+        else if (currentMap === "desert") {
+            //desertmapの座標に居るかの確認
+            const isPlayerInGrassMapCoordinates = desertMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            
+            if (isPlayerInGrassMapCoordinates) {
+                setCurrentMap("grass");
+            }
+        }
+
+    }, [playerId, currentMap]);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "t" || event.key === "T") {
+                handleTKeyPress();
+
+                //Tキー押したら座標再取得処理
+
+                const userId = session?.user.id;
+                if (userId) {
+                    const currentUserId = async () => {
+                        const ItemResponse = await fetch(`/api/item/fetchItem`, {method: "GET"});
+                        const response = await fetch(`/api/player/catch/${userId}`, {method: "GET"});
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const text = await response.text(); // レスポンスをテキストとして取得
+                        const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
+                        if (data == undefined) return;
+
+                        const userData = JSON.parse(JSON.stringify(data.playerData))
+
+                        const itemDataList = await ItemResponse.json()
+                        console.log(userData)
+                        setPlayerId(userData);
+                        setItemData(itemDataList);
+                    }
+                    currentUserId()
+                    }
+                }
+
+            };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    },[handleTKeyPress]);
+    //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑
+
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
@@ -180,8 +273,16 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             {/*        </p>*/}
             {/*    </div>*/}
             {/*</div>*/}
-                <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
+                {/* <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/> */}
             {/*<Game playerId={playerId} roomId={roomId}/>*/}
+            {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓*/}
+            {currentMap === "grass" && (
+                <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
+            )}
+            {currentMap === "desert" && (
+                <MapWithCharacterDesert playerId={playerId} itemData={itemData} roomId={roomId}/>
+            )}
+            {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑*/}
         </div>
     );
 };
