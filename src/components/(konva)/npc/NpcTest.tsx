@@ -20,22 +20,21 @@ const onInteract = (npc: NPC, dialogue: any) => {
 const NpcTest: React.FC<PropsNpcData> = ({npcData}) => {
     console.log(npcData);
 
-    if (!npcData || npcData.length === 0) {
-        return <div>NPCデータがありません</div>;
-    }
 
     // Konvaコンポーネントは必ずStageとLayerの中に配置する
     return (
-        <Stage
-            width={typeof window !== "undefined" ? window.innerWidth : 0}
-            height={typeof window !== "undefined" ? window.innerHeight : 0}
-        >
-            <Layer>
-                {npcData.map((npc, index) => (
-                    <SingleNpc key={npc.id} npc={npc}/>
-                ))}
-            </Layer>
-        </Stage>
+        <>
+            <Stage
+                width={typeof window !== "undefined" ? window.innerWidth : 0}
+                height={typeof window !== "undefined" ? window.innerHeight : 0}
+            >
+                <Layer>
+                    {npcData?.map((npc, index) => (
+                        <SingleNpc key={npc.id} npc={npc}/>
+                    ))}
+                </Layer>
+            </Stage>
+        </>
     );
 };
 
@@ -83,13 +82,13 @@ const SingleNpc: React.FC<{ npc: NPC }> = ({npc}) => {
     }, [npc.images.length]);
     */
 
-    const handleClick = () => {　
+    const handleClick = () => {
         // NPCとの対話を開始
         // dialoguesがJsonValueの場合、適切に処理する必要があります
         const dialogues = typeof npc.dialogues === 'string'
             ? JSON.parse(npc.dialogues)
             : npc.dialogues;
-        console.log(Array.isArray(dialogues) )
+        console.log(Array.isArray(dialogues))
         // 対話が存在する場合、最初の対話を表示
         if (dialogues && Array.isArray(dialogues) && dialogues.length > 0) {
             onInteract(npc, dialogues[0]);

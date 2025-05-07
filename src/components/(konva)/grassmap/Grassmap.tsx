@@ -29,6 +29,8 @@ import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {Enemy} from "@/types/enemy";
 import {Layer, Stage ,Image as KonvaImage} from "react-konva";
+import {GetNpc} from "@/repository/prisma/npc/npcRepository";
+import {NPC} from "@/types/npc";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -262,6 +264,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     //     }
     // }, [craftEvents, playerId]);
     const [enemyData, setEnemyData] = useState<Enemy[] | null>([]);
+    const [npcData, setNpcData] = useState<NPC[] | null>([]);
 
     const [isLoadingEnemy, setIsLoading] = useState(true);
 
@@ -278,6 +281,20 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             }
         };
         fetchEnemyData();
+    }, []);
+    useEffect(() => {
+        const fetchNpcData = async () => {
+            try {
+                const data = await GetNpc();
+                //console.log('Fetched enemy data:', data);
+                setNpcData(data);
+            } catch (error) {
+                console.error('Error fetching enemy data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchNpcData();
     }, []);
 
 
@@ -333,21 +350,22 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     nearbyItemPosition={nearbyItemPosition}
                     socket={socket}
                     enemyData={enemyData}
+                    npcData={npcData}
                 />
 
             {/*<div>*/}
 
-            {/*    <PlayerInventory roomId={roomId} playerId={playerId}*/}
-            {/*                     players={players}*/}
-            {/*                     eCollisionGotItem={eCollisionGotItem}*/}
-            {/*                     objectItemImage={objectItemImage}*/}
-            {/*                     ECollisionPosition={ECollisionPosition}*/}
-            {/*                     craftEvents={craftEvents}*/}
-            {/*                     currentDirectionRef={currentDirectionRef}*/}
-            {/*                     playerDirection={playerDirection}*/}
-            {/*                     socket={socket}*/}
+                <PlayerInventory roomId={roomId} playerId={playerId}
+                                 players={players}
+                                 eCollisionGotItem={eCollisionGotItem}
+                                 objectItemImage={objectItemImage}
+                                 ECollisionPosition={ECollisionPosition}
+                                 craftEvents={craftEvents}
+                                 currentDirectionRef={currentDirectionRef}
+                                 playerDirection={playerDirection}
+                                 socket={socket}
 
-            {/*    />*/}
+                />
 
 
             {/*    /!*    <form action={logout}>*!/*/}

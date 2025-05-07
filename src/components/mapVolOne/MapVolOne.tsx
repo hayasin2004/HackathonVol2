@@ -13,6 +13,7 @@ import {Enemy} from "@/types/enemy";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {NPC} from "@/types/npc";
 import {supabase} from "@/lib/supabase";
+import NpcTest from "@/components/(konva)/npc/NpcTest";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -24,6 +25,7 @@ interface mapVolOneTypes {
     socket: Socket | null
     players : any[]
     enemyData: Enemy[] | null
+    npcData : NPC[] | null
     onItemRemove?: (enemyId: string) => void
 }
 
@@ -36,6 +38,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  enemyData,
                                                  socket,
                                                  players,
+                                                 npcData,
                                                  onItemRemove
                                              }) => {
 
@@ -152,10 +155,14 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         event.evt.preventDefault();
     };
     const [localEnemyData, setLocalEnemyData] = useState<Enemy[] | null>(enemyData);
+    const [localNpcData, setLocalNpcData] = useState<NPC[] | null>(npcData);
 
     useEffect(() => {
         setLocalEnemyData(enemyData);
     }, [enemyData]);
+    useEffect(() => {
+        setLocalNpcData(npcData);
+    }, [npcData]);
     // 敵を削除する関数
 
     const handleRemoveEnemy = (enemyId: number) => {
@@ -426,20 +433,27 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             listening={false} // クリックを無視
                         />
                     )}
-                    {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
-                        <EnemyTest
-                            socket={socket}
-                            enemyData={localEnemyData}
+                    {/*{Array.isArray(localEnemyData) && localEnemyData.length > 0 && (*/}
+                    {/*    <EnemyTest*/}
+                    {/*        socket={socket}*/}
+                    {/*        enemyData={localEnemyData}*/}
+                    {/*        cameraPosition={cameraPosition}*/}
+                    {/*        ECollisionPosition={ECollisionPosition}*/}
+                    {/*        onEnemyRemove={handleRemoveEnemy}*/}
+                    {/*        player={playerId}  // プレイヤー情報を渡す*/}
+                    {/*        playerAttack={playerId.attack}*/}
+                    {/*        onPlayerDamage={(newHp) => {*/}
+                    {/*            // プレイヤーのHPが更新されたときの処理*/}
+                    {/*            console.log(`プレイヤーのHPが${newHp}に更新されました`);*/}
+                    {/*            // ここで必要に応じて親コンポーネントに通知できます*/}
+                    {/*        }}*/}
+                    {/*    />*/}
+                    {/*)}*/}
+                    {Array.isArray(localNpcData) && localNpcData.length > 0 && (
+                        <NpcTest
+                            npcData={localNpcData}
                             cameraPosition={cameraPosition}
                             ECollisionPosition={ECollisionPosition}
-                            onEnemyRemove={handleRemoveEnemy}
-                            player={playerId}  // プレイヤー情報を渡す
-                            playerAttack={playerId.attack}
-                            onPlayerDamage={(newHp) => {
-                                // プレイヤーのHPが更新されたときの処理
-                                console.log(`プレイヤーのHPが${newHp}に更新されました`);
-                                // ここで必要に応じて親コンポーネントに通知できます
-                            }}
                         />
                     )}
 

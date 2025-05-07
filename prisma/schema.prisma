@@ -92,8 +92,10 @@ model DefaultItemList {
   UsedInRecipes   CraftItemMaterial[] @relation("MaterialItem")
   PlayerItem      PlayerItem[]
   RoomItem        RoomItem[]
-  TradeItems      NPCTrade[]          @relation("TradeItems")
+  TradeItems      NPCTrade[]          @relation("TradeItems") // 既存のリレーション
   EnemyDropItem   EnemyDropItem[]
+  CostItems       NPCTrade[]          @relation("CostItems") // 逆方向のリレーションを追加
+  NPCTrade        NPCTrade[]
 }
 
 model CraftItem {
@@ -159,13 +161,17 @@ model NPC {
 }
 
 model NPCTrade {
-  id       Int             @id @default(autoincrement())
-  npc      NPC             @relation("NPCTrades", fields: [npcId], references: [id])
-  npcId    Int
-  cost     Int
-  item     DefaultItemList @relation("TradeItems", fields: [itemId], references: [id])
-  itemId   Int
-  quantity Int             @default(10)
+  id                Int              @id @default(autoincrement())
+  npc               NPC              @relation("NPCTrades", fields: [npcId], references: [id])
+  npcId             Int
+  costItem          Int
+  costItemRef       DefaultItemList  @relation("CostItems", fields: [costItem], references: [id], onDelete: Cascade)
+  cost              Int              @default(1)
+  item              DefaultItemList  @relation("TradeItems", fields: [itemId], references: [id])
+  itemId            Int
+  quantity          Int              @default(10)
+  DefaultItemList   DefaultItemList? @relation(fields: [defaultItemListId], references: [id])
+  defaultItemListId Int?
 }
 
 model Quest {

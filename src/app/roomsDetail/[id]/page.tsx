@@ -1,8 +1,7 @@
 "use client"
 // pages/rooms/[id].tsx
 import React, {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import Game from "../../../components/(realTime)/game/Game";
+import {useRouter} from 'next/navigation'; 
 import {useSession} from "next-auth/react";
 import {PlayerItem} from "@/types/playerItem";
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
