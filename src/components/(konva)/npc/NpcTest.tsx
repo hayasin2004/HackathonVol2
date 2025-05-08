@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { NPC } from "@/types/npc";
-import { Stage, Layer, Group, Image } from "react-konva";
+import React, {useEffect, useRef, useState} from "react";
+import {NPC} from "@/types/npc";
+import {Stage, Layer, Group, Image} from "react-konva";
 import useImage from "use-image";
 import DialogueBox from "./DialogueBox";
 
@@ -16,6 +16,7 @@ interface NpcDialogueState {
     [npcId: number]: {
         hasHeardDialogue: boolean;
         lastInteractionDate: string;
+        y?: number
     };
 }
 
@@ -41,6 +42,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
     const [npcDialogueStates, setNpcDialogueStates] = useState<NpcDialogueState>(
         {}
     );
+    console.log(npcDialogueStates)
 
     // ローカルストレージからNPCの対話状態を読み込む
     useEffect(() => {
@@ -116,10 +118,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
             dialogues && Array.isArray(dialogues) && dialogues.length > 0;
 
         if (activeDialogue.isVisible && activeDialogue.npc?.id === clickedNpc.id) {
-            setActiveDialogue({ isVisible: false, npc: null, currentIndex: 0 });
+            setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
         } else if (hasDialogue) {
             if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
-                setActiveDialogue({ isVisible: true, npc: clickedNpc, currentIndex: 0 });
+                setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
 
                 if (clickedNpc.id === 1) {
                     dialogueTimerRef.current = setInterval(() => {
@@ -153,7 +155,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 }
             }
         } else {
-            setActiveDialogue({ isVisible: false, npc: null, currentIndex: 0 });
+            setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
         }
     };
 
@@ -195,11 +197,23 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             const nextIndex = (prev.currentIndex || 0) + 1;
 
-            // 最後のダイアログまで表示した場合
-            if (!dialogues || !Array.isArray(dialogues) || nextIndex >= dialogues.length) {
+            if (!dialogues || dialogues.length === 0 || nextIndex + 1 >= dialogues.length) {
+
+                // NPC IDが3の場合、ダイアログ終了後に3秒待機して下に1マス移動
+                if (prev.npc.id === 3) {
+                    console.log("最後のダイアログに到達しました");
+                    setTimeout(() => {
+                        setNpcDialogueStates((states) => ({
+                            ...states,
+                            [prev.npc!.id]: {
+                                ...states[prev.npc!.id],
+                                y: (states[prev.npc!.id]?.y || prev.npc.y) + 64, // 安全にyを更新
+                            },
+                        }));
+                    }, 3000);
+                }
                 return prev;
             }
-
             return {
                 ...prev,
                 currentIndex: nextIndex
@@ -284,7 +298,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
     const [image] = useImage(npc.images[validImageIndex]);
 
-    const [position, setPosition] = useState({ x: npc.x, y: npc.y });
+    const [position, setPosition] = useState({x: npc.x, y: npc.y});
 
     if (npc.stageStatus !== currentStage) {
         return null;
@@ -301,18 +315,18 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                 let currentX = npc.x;
                 let currentY = npc.y;
 
-                setPosition({ x: currentX, y: currentY });
+                setPosition({x: currentX, y: currentY});
 
                 while (currentX > targetX && isMounted) {
                     await new Promise((resolve) => setTimeout(resolve, 150));
                     currentX -= 64;
-                    setPosition((prev) => ({ x: currentX, y: prev.y }));
+                    setPosition((prev) => ({x: currentX, y: prev.y}));
                 }
 
                 while (currentY > targetY && isMounted) {
                     await new Promise((resolve) => setTimeout(resolve, 150));
                     currentY -= 64;
-                    setPosition((prev) => ({ x: prev.x, y: currentY }));
+                    setPosition((prev) => ({x: prev.x, y: currentY}));
                 }
 
                 if (isMounted && !hasHeardDialogue) {
