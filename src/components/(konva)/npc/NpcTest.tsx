@@ -426,7 +426,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
         // ID=3のNPCの移動ロジック
 // ID=3のNPCの移動ロジック部分を修正
-        // ID=3のNPCの移動ロジック - 移動が必要な場合のみ実行
+        // ID=3のNPCの移動ロMジック - 移動が必要な場合のみ実行
         else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current) {
             const targetX = 1024;
             const targetY = 2176;

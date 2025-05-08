@@ -526,22 +526,22 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         />
                     )}
 
-                    {/*{Array.isArray(localEnemyData) && localEnemyData.length > 0 && (*/}
-                    {/*    <EnemyTest*/}
-                    {/*        socket={socket}*/}
-                    {/*        enemyData={localEnemyData}*/}
-                    {/*        cameraPosition={cameraPosition}*/}
-                    {/*        ECollisionPosition={ECollisionPosition}*/}
-                    {/*        onEnemyRemove={handleRemoveEnemy}*/}
-                    {/*        player={playerId}  // プレイヤー情報を渡す*/}
-                    {/*        playerAttack={playerId.attack}*/}
-                    {/*        onPlayerDamage={(newHp) => {*/}
-                    {/*            // プレイヤーのHPが更新されたときの処理*/}
-                    {/*            console.log(`プレイヤーのHPが${newHp}に更新されました`);*/}
-                    {/*            // ここで必要に応じて親コンポーネントに通知できます*/}
-                    {/*        }}*/}
-                    {/*    />*/}
-                    {/*)}*/}
+                    {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
+                        <EnemyTest
+                            socket={socket}
+                            enemyData={localEnemyData}
+                            cameraPosition={cameraPosition}
+                            ECollisionPosition={ECollisionPosition}
+                            onEnemyRemove={handleRemoveEnemy}
+                            player={playerId}  // プレイヤー情報を渡す
+                            playerAttack={playerId.attack}
+                            onPlayerDamage={(newHp) => {
+                                // プレイヤーのHPが更新されたときの処理
+                                console.log(`プレイヤーのHPが${newHp}に更新されました`);
+                                // ここで必要に応じて親コンポーネントに通知できます
+                            }}
+                        />
+                    )}
 
                     {Array.isArray(localNpcData) && localNpcData.length > 0 && (
                         <NpcTest

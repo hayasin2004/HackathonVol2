@@ -8,6 +8,7 @@ import useEnemyRandomMovement from "@/hooks/(animation)/enemy/randomEnemy/useEne
 import useEnemyLinearRandomMovement from "@/hooks/(animation)/enemy/linearEnemy/useEnemyLinearRandomMovement";
 import {PlayerItem} from "@/types/playerItem";
 import {Socket} from "socket.io-client";
+import useEnemyBuruBuruMovement from "@/hooks/(animation)/enemy/EnemyBuruBuru/useEnemyBuruBuruMovement";
 
 interface PropsNpcData {
     enemyData: Enemy[] | null
@@ -252,7 +253,11 @@ const SingleEnemy: React.FC<{
         const linearMovement = useEnemyLinearRandomMovement(enemy?.x, enemy?.y);
         position = linearMovement.linearPosition;
         showDialog = linearMovement.showDialog;
-    } else {
+    }  else if (enemy.movementPattern.type === "buruburu") {
+        const buruburuMovement = useEnemyBuruBuruMovement(enemy?.x, enemy?.y);
+        position = buruburuMovement.buruburuPosition;
+        showDialog = buruburuMovement.showDialog;
+    }else {
         // random でも linear でもない場合、初期位置を使用
         position = {x: enemy?.x, y: enemy?.y};
         showDialog = false;
@@ -348,7 +353,7 @@ const SingleEnemy: React.FC<{
         <Group
             x={position.x - cameraPosition.x}
             y={position.y - cameraPosition.y}
-
+            zIndex={100}
             width={enemy.width}
             height={enemy.height}
             cursor="pointer"
