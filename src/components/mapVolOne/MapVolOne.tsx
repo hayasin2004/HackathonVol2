@@ -57,6 +57,9 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    // プレイヤーの位置を追跡するためのref
+    const playerPositionRef = useRef({ x: 0, y: 0 });
+
     // ダイアログの状態が変更されたときに親コンポーネントに通知
     useEffect(() => {
         if (onDialogOpen) {
@@ -109,8 +112,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
         fetchItems();
         return () => {
-            socket.off('itemPlaced');
-            socket.off('itemRemoved');
+            socket?.off('itemPlaced');
+            socket?.off('itemRemoved');
         };
     }, [socket]);
 
@@ -128,15 +131,65 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         setItems(objectItemImage); // 外部から渡された最新のアイテムリストを反映
     }, [objectItemImage]);
 
-    const cameraPositionHook = useCameraPosition(
-        ECollisionPosition.x,
-        ECollisionPosition.y
-    );
+    // カメラ位置の更新をリファクタリング
     useEffect(() => {
-        // cameraPositionの変更を検知して状態を更新
-        setCameraPosition(cameraPositionHook);
-    }, [cameraPositionHook, ECollisionPosition]);
+        // プレイヤーの位置が変わったら参照を更新
+        if (ECollisionPosition) {
+            playerPositionRef.current = {
+                x: ECollisionPosition.x,
+                y: ECollisionPosition.y
+            };
+        }
 
+        // カメラ位置を更新
+        if (ECollisionPosition) {
+            // ウィンドウサイズを取得
+            const windowWidth = typeof window !== "undefined" ? window.innerWidth : 800;
+            const windowHeight = typeof window !== "undefined" ? window.innerHeight : 600;
+
+            // プレイヤーが画面中央に来るようにカメラ位置を計算
+            const newCameraX = ECollisionPosition.x - (windowWidth / 2) + (Tile_size / 2);
+            const newCameraY = ECollisionPosition.y - (windowHeight / 2) + (Tile_size / 2);
+
+            // カメラ位置を更新
+            setCameraPosition({
+                x: Math.max(0, newCameraX),  // 負の値にならないように
+                y: Math.max(0, newCameraY)   // 負の値にならないように
+            });
+        }
+    }, [ECollisionPosition]);
+
+    // タブ切り替え時にカメラ位置をリセット
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                // タブが表示された時、保存していたプレイヤー位置を使ってカメラを更新
+                const { x, y } = playerPositionRef.current;
+
+                // ウィンドウサイズを取得
+                const windowWidth = typeof window !== "undefined" ? window.innerWidth : 800;
+                const windowHeight = typeof window !== "undefined" ? window.innerHeight : 600;
+
+                // プレイヤーが画面中央に来るようにカメラ位置を計算
+                const newCameraX = x - (windowWidth / 2) + (Tile_size / 2);
+                const newCameraY = y - (windowHeight / 2) + (Tile_size / 2);
+
+                // カメラ位置を更新
+                setCameraPosition({
+                    x: Math.max(0, newCameraX),
+                    y: Math.max(0, newCameraY)
+                });
+            }
+        };
+
+        // visibilitychange イベントリスナーを追加
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // クリーンアップ関数
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
 
     useEffect(() => {
         setTileImages(tileImagesComplete)
@@ -209,11 +262,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             loadImages();
         }
     }, [players]);
-
-    // カメラの位置を更新
-    useEffect(() => {
-        setCameraPosition({ x: playerId.x, y: playerId.y });
-    }, [playerId]);
 
     const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
     const [musicList, setMusicList] = useState<string[]>([]);
@@ -309,6 +357,35 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         }
     }, [volume, audio]);
 
+    // ウィンドウのリサイズ時にカメラ位置を更新
+    useEffect(() => {
+        const handleResize = () => {
+            // プレイヤーの現在位置を取得
+            const { x, y } = playerPositionRef.current;
+
+            // ウィンドウサイズを取得
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            // プレイヤーが画面中央に来るようにカメラ位置を計算
+            const newCameraX = x - (windowWidth / 2) + (Tile_size / 2);
+            const newCameraY = y - (windowHeight / 2) + (Tile_size / 2);
+
+            // カメラ位置を更新
+            setCameraPosition({
+                x: Math.max(0, newCameraX),
+                y: Math.max(0, newCameraY)
+            });
+        };
+
+        // リサイズイベントリスナーを追加
+        window.addEventListener('resize', handleResize);
+
+        // クリーンアップ関数
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     return (
         <div>
@@ -448,28 +525,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             listening={false} // クリックを無視
                         />
                     )}
-                    {/*{Array.isArray(localEnemyData) && localEnemyData.length > 0 && (*/}
-                    {/*    <EnemyTest*/}
-                    {/*        socket={socket}*/}
-                    {/*        enemyData={localEnemyData}*/}
-                    {/*        cameraPosition={cameraPosition}*/}
-                    {/*        ECollisionPosition={ECollisionPosition}*/}
-                    {/*        onEnemyRemove={handleRemoveEnemy}*/}
-                    {/*        player={playerId}  // プレイヤー情報を渡す*/}
-                    {/*        playerAttack={playerId.attack}*/}
-                    {/*        onPlayerDamage={(newHp) => {*/}
-                    {/*            // プレイヤーのHPが更新されたときの処理*/}
-                    {/*            console.log(`プレイヤーのHPが${newHp}に更新されました`);*/}
-                    {/*            // ここで必要に応じて親コンポーネントに通知できます*/}
-                    {/*        }}*/}
-                    {/*    />*/}
-                    {/*)}*/}
 
                     {Array.isArray(localNpcData) && localNpcData.length > 0 && (
                         <NpcTest
                             npcData={localNpcData}
-                            cameraPosition={ECollisionPosition}
-                            ECollisionPosition={ECollisionPosition}
+                            cameraPosition={cameraPosition}
                             onDialogOpen={handleDialogStateChange}
                         />
                     )}
