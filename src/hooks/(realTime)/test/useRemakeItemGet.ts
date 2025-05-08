@@ -173,8 +173,7 @@ export const useRemakeItemGet = ({
                 }
                 console.log("foundItem.itemId"+JSON.stringify(foundItem))
                 const result = await playerGetItem(userId, [foundItem.itemId]);
-                if (result?.status === "success") {　
-                    alert("なんで新規取得難鬼"+JSON.stringify(result))
+                if (result?.status === "success") {　　
                         console.log(result.savedItemData[0].id , foundItem.itemId)
                         setECollisionGotItem(prev => [...prev, ...result.savedItemData]);
                         setECollisionGotItemStatus(foundItem);
