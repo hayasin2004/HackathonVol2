@@ -177,16 +177,17 @@ model NPCTrade {
 }
 
 model Quest {
-  id            Int         @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   name          String
-  npcs          NPC[]       @relation("NPCQuests")
-  howEnemykills Int?        @default(0)
-  contactNpc    Boolean     @default(false)
-  complete      Boolean     @default(false)
-  playerDataId  Int?        @unique
-  playerData    PlayerData? @relation("PlayerQuest", fields: [playerDataId], references: [id], onDelete: Cascade)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @default(now())
+  npcs          NPC[]         @relation("NPCQuests")
+  howEnemykills Int?          @default(0)
+  contactNpc    Boolean       @default(false)
+  complete      Boolean       @default(false)
+  playerDataId  Int?          @unique
+  playerData    PlayerData?   @relation("PlayerQuest", fields: [playerDataId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
+  PlayerQuest   PlayerQuest[]
 }
 
 model Enemy {
@@ -213,4 +214,16 @@ model EnemyDropItem {
   item     DefaultItemList @relation(fields: [itemId], references: [id], onDelete: Cascade)
   itemId   Int
   dropRate Float           @default(1.0) // ドロップ率（100% = 1.0）
+}
+
+model PlayerQuest {
+  id        Int      @id @default(autoincrement())
+  playerId  Int // プレイヤーのID
+  questId   Int // クエストのID
+  complete  Boolean  @default(false) // 完了状態　
+  quest     Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([playerId, questId]) // プレイヤーごとにクエストは一意
 }

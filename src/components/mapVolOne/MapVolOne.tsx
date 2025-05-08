@@ -548,6 +548,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             npcData={localNpcData}
                             cameraPosition={cameraPosition}
                             onDialogOpen={handleDialogStateChange}
+                            player={playerId}
                         />
                     )}
 

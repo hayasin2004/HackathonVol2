@@ -5,11 +5,13 @@ import {Stage, Layer, Group, Image} from "react-konva";
 import useImage from "use-image";
 import DialogueBox from "./DialogueBox";
 import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
+import {PlayerItem} from "@/types/playerItem";
 
 interface PropsNpcData {
     npcData: NPC[] | null;
     cameraPosition: { x: number; y: number };
     onDialogOpen?: (isOpen: boolean) => void;
+    player : PlayerItem
 }
 
 // NPCの対話状態を管理する型
@@ -30,7 +32,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                              npcData,
                                              cameraPosition,
                                              onDialogOpen,
+                                             player
                                          }) => {
+
+    console.log(player)
     const [activeDialogue, setActiveDialogue] = useState<{
         isVisible: boolean;
         npc: NPC | null;
@@ -144,7 +149,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         console.log("ID=3のNPCが移動後にクリックされました。9番目以降のダイアログを表示します。");
                         console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${dialogues[startIndex]}`);
                         const GetFirstQuest = async () => {
-                            const response = await firstQuest()
+                            const response = await firstQuest(player.id)
                             console.log(response)
                         }
                         GetFirstQuest()
