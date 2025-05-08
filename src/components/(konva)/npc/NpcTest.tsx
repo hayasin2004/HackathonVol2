@@ -174,15 +174,22 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 if (activeDialogue.npc.id === 3) {
                     console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
                     setTimeout(() => {
-                        setNpcDialogueStates((states) => ({
-                            ...states,
+                        const newY = (npcDialogueStates[activeDialogue.npc!.id]?.y || activeDialogue.npc!.y) + 64;
+
+                        // 状態を更新
+                        const updatedStates = {
+                            ...npcDialogueStates,
                             [activeDialogue.npc!.id]: {
-                                ...states[activeDialogue.npc!.id],
+                                ...npcDialogueStates[activeDialogue.npc!.id],
                                 hasHeardDialogue: true,
                                 lastInteractionDate: new Date().toISOString(),
-                                y: (states[activeDialogue.npc!.id]?.y || activeDialogue.npc!.y) + 64,
+                                y: newY,
                             },
-                        }));
+                        };
+
+                        // 状態を設定してローカルストレージに保存
+                        setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
                     }, 3000);
                 }
             }
@@ -199,6 +206,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
             dialogueTimerRef.current = null;
         }
     };
+
+
     useEffect(() => {
         return () => {
             if (dialogueTimerRef.current) {
@@ -224,19 +233,27 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             const nextIndex = (prev.currentIndex || 0) + 1;
 
-            if (!dialogues || dialogues.length === 0 || nextIndex  >= dialogues.length) {
-
+            if (!dialogues || dialogues.length === 0 || nextIndex >= dialogues.length) {
                 // NPC IDが3の場合、ダイアログ終了後に3秒待機して下に1マス移動
                 if (prev.npc.id === 3) {
                     console.log("最後のダイアログに到達しました");
                     setTimeout(() => {
-                        setNpcDialogueStates((states) => ({
-                            ...states,
+                        const newY = (npcDialogueStates[prev.npc!.id]?.y || prev.npc!.y) + 64;
+
+                        // 状態を更新
+                        const updatedStates = {
+                            ...npcDialogueStates,
                             [prev.npc!.id]: {
-                                ...states[prev.npc!.id],
-                                y: (states[prev.npc!.id]?.y || prev.npc.y) + 64, // 安全にyを更新
+                                ...npcDialogueStates[prev.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                y: newY,
                             },
-                        }));
+                        };
+
+                        // 状態を設定してローカルストレージに保存
+                        setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
                     }, 3000);
                 }
                 return prev;
@@ -247,7 +264,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
             };
         });
     };
-
 // 前のダイアログに戻るハンドラ
     const handlePrevDialogue = () => {
         // タイマーがある場合はクリア（自動進行を停止）
