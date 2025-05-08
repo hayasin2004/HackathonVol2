@@ -173,8 +173,8 @@ export const useRemakeItemGet = ({
                 }
                 console.log("foundItem.itemId"+JSON.stringify(foundItem))
                 const result = await playerGetItem(userId, [foundItem.itemId]);
-                if (result?.status === "success") {
-                    if (Array.isArray(result.savedItemData)) {
+                if (result?.status === "success") {　
+                    alert("なんで新規取得難鬼"+JSON.stringify(result))
                         console.log(result.savedItemData[0].id , foundItem.itemId)
                         setECollisionGotItem(prev => [...prev, ...result.savedItemData]);
                         setECollisionGotItemStatus(foundItem);
@@ -182,12 +182,7 @@ export const useRemakeItemGet = ({
                         // 取得したアイテムをランダム(64ピクセル単位)な座標に飛ばす
                         await handleItemCollection(foundItem);
                         setECollisionGotItem(prev => prev.filter(item => item !== foundItem?.id?.toString()));
-
-                    } else {
-                        setECollisionGotItem(prev => [...prev, foundItem.itemId.toString()]);
-                        setECollisionGotItemStatus(foundItem);
-                        console.log("取得成功（データなし）:", foundItem.id);
-                    }
+　　
                 }
             } catch (err) {
                 console.error("取得失敗:", err);
