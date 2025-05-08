@@ -160,6 +160,34 @@ const NpcTest: React.FC<PropsNpcData> = ({
     };
 
     const handleCloseDialogue = () => {
+        // ダイアログを閉じる前に、最後のダイアログだった場合の処理
+        if (activeDialogue.npc && activeDialogue.isVisible) {
+            const dialogues = typeof activeDialogue.npc.dialogues === 'string'
+                ? JSON.parse(activeDialogue.npc.dialogues)
+                : activeDialogue.npc.dialogues;
+
+            const currentIndex = activeDialogue.currentIndex || 0;
+
+            // 最後のダイアログだった場合
+            if (dialogues && Array.isArray(dialogues) && currentIndex >= dialogues.length - 1) {
+                // NPC IDが3の場合、移動処理を実行
+                if (activeDialogue.npc.id === 3) {
+                    console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
+                    setTimeout(() => {
+                        setNpcDialogueStates((states) => ({
+                            ...states,
+                            [activeDialogue.npc!.id]: {
+                                ...states[activeDialogue.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                y: (states[activeDialogue.npc!.id]?.y || activeDialogue.npc!.y) + 64,
+                            },
+                        }));
+                    }, 3000);
+                }
+            }
+        }
+
         setActiveDialogue({
             isVisible: false,
             npc: null,
@@ -171,7 +199,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
             dialogueTimerRef.current = null;
         }
     };
-
     useEffect(() => {
         return () => {
             if (dialogueTimerRef.current) {
@@ -197,7 +224,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             const nextIndex = (prev.currentIndex || 0) + 1;
 
-            if (!dialogues || dialogues.length === 0 || nextIndex + 1 >= dialogues.length) {
+            if (!dialogues || dialogues.length === 0 || nextIndex  >= dialogues.length) {
 
                 // NPC IDが3の場合、ダイアログ終了後に3秒待機して下に1マス移動
                 if (prev.npc.id === 3) {
@@ -261,6 +288,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     onNpcClick={(npc) => handleNpcClick(npc, false)}
                     hasHeardDialogue={hasHeardDialogue(npc.id)}
                     onAutoDialogue={(npc) => handleNpcClick(npc, true)}
+                    npcState={npcDialogueStates[npc.id]} // 追加：NPCの状態を渡す
                 />
             ))}
 
@@ -284,6 +312,11 @@ interface PropsSingleNpc {
     onAutoDialogue: (npc: NPC) => void;
     cameraPosition: { x: number; y: number };
     hasHeardDialogue: boolean;
+    npcState?: { // 追加：NPCの状態
+        hasHeardDialogue: boolean;
+        lastInteractionDate: string;
+        y?: number;
+    };
 }
 
 const SingleNpc: React.FC<PropsSingleNpc> = ({
@@ -292,17 +325,29 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                                                  onAutoDialogue,
                                                  cameraPosition,
                                                  hasHeardDialogue,
+                                                 npcState,
                                              }) => {
     const imageIndex = 1;
     const validImageIndex = npc.images.length > imageIndex ? imageIndex : 0;
 
     const [image] = useImage(npc.images[validImageIndex]);
-
-    const [position, setPosition] = useState({x: npc.x, y: npc.y});
+　
 
     if (npc.stageStatus !== currentStage) {
         return null;
     }
+    // npcStateのyがあればそれを使用、なければnpc.yを使用
+    const [position, setPosition] = useState({
+        x: npc.x,
+        y: npcState?.y !== undefined ? npcState.y : npc.y
+    });
+
+    // npcStateが変更されたときに位置を更新するエフェクト
+    useEffect(() => {
+        if (npcState?.y !== undefined) {
+            setPosition(prev => ({...prev, y: npcState.y}));
+        }
+    }, [npcState?.y]);
 
     useEffect(() => {
         let isMounted = true;
