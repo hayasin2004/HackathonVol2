@@ -178,6 +178,61 @@ const NpcTest: React.FC<PropsNpcData> = ({
         };
     }, []);
 
+// 次のダイアログに進むハンドラ
+    const handleNextDialogue = () => {
+        // タイマーがある場合はクリア（自動進行を停止）
+        if (dialogueTimerRef.current) {
+            clearInterval(dialogueTimerRef.current);
+            dialogueTimerRef.current = null;
+        }
+
+        setActiveDialogue(prev => {
+            if (!prev.npc) return prev;
+
+            const dialogues = typeof prev.npc.dialogues === 'string'
+                ? JSON.parse(prev.npc.dialogues)
+                : prev.npc.dialogues;
+
+            const nextIndex = (prev.currentIndex || 0) + 1;
+
+            // 最後のダイアログまで表示した場合
+            if (!dialogues || !Array.isArray(dialogues) || nextIndex >= dialogues.length) {
+                return prev;
+            }
+
+            return {
+                ...prev,
+                currentIndex: nextIndex
+            };
+        });
+    };
+
+// 前のダイアログに戻るハンドラ
+    const handlePrevDialogue = () => {
+        // タイマーがある場合はクリア（自動進行を停止）
+        if (dialogueTimerRef.current) {
+            clearInterval(dialogueTimerRef.current);
+            dialogueTimerRef.current = null;
+        }
+
+        setActiveDialogue(prev => {
+            if (!prev.npc) return prev;
+
+            const prevIndex = (prev.currentIndex || 0) - 1;
+
+            // 最初のダイアログより前には戻れない
+            if (prevIndex < 0) {
+                return prev;
+            }
+
+            return {
+                ...prev,
+                currentIndex: prevIndex
+            };
+        });
+    };
+
+
     if (!npcData || npcData.length === 0) {
         return <div>NPCデータがありません</div>;
     }
@@ -202,6 +257,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     currentIndex: activeDialogue.currentIndex,
                 }}
                 onClose={handleCloseDialogue}
+                onNextDialogue={handleNextDialogue}
+                onPrevDialogue={handlePrevDialogue}
             />
         </>
     );
