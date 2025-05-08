@@ -140,11 +140,16 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     if (hasMoved) {
                         // 移動完了後は9個目から表示
                         startIndex = 8;
+                        console.log("ID=3のNPCが移動後にクリックされました。9番目以降のダイアログを表示します。");
+                        console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${dialogues[startIndex]}`);
 
                         // 配列の範囲を超えないようにチェック
                         if (startIndex >= dialogues.length) {
+                            console.log("開始インデックスがダイアログ配列の範囲を超えています。インデックス0から開始します。");
                             startIndex = 0;
                         }
+                    } else {
+                        console.log("ID=3のNPCが移動前にクリックされました。最初からのダイアログを表示します。");
                     }
 
                     setActiveDialogue({
@@ -192,8 +197,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
         } else {
             setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
         }
-    };
-// ダイアログを閉じるハンドラも修正
+    };// ダイアログを閉じるハンドラも修正
     const handleCloseDialogue = () => {
         // ダイアログを閉じる前に、最後のダイアログだった場合の処理
         if (activeDialogue.npc && activeDialogue.isVisible) {
@@ -307,8 +311,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     };
                 }
 
-                // 移動完了後は9個目と10個目のみ表示
+                // 移動完了後は9個目以降を表示
                 if (hasMoved) {
+                    console.log(`ID=3のNPC移動後、次のダイアログに進みます: ${nextIndex + 1}/12`);
+
                     // 最後のダイアログに達した場合
                     if (nextIndex >= dialogues.length) {
                         console.log("移動後の対話が終了しました");
@@ -318,6 +324,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             currentIndex: 0
                         };
                     }
+
+                    console.log(`表示するダイアログ: ${dialogues[nextIndex]}`);
                 }
             }
 
@@ -345,7 +353,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 currentIndex: nextIndex
             };
         });
-    };// 前のダイアログに戻るハンドラ
+    };
+// 前のダイアログに戻るハンドラ
     const handlePrevDialogue = () => {
         // タイマーがある場合はクリア（自動進行を停止）
         if (dialogueTimerRef.current) {
@@ -358,8 +367,32 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             const prevIndex = (prev.currentIndex || 0) - 1;
 
+            // 3番NPCの特殊処理
+            if (prev.npc.id === 3) {
+                const npcState = npcDialogueStates[prev.npc.id];
+                const targetX = 1024;
+                const targetY = 2176;
+                const hasMoved = npcState?.x === targetX && npcState?.y === targetY;
+
+                if (hasMoved) {
+                    console.log(`ID=3のNPC移動後、前のダイアログに戻ります: ${prevIndex + 1}/12`);
+
+                    // 移動後は9個目より前には戻れない
+                    if (prevIndex < 8) {
+                        console.log("移動後は9個目より前のダイアログには戻れません");
+                        return prev;
+                    }
+
+                    const dialogues = typeof prev.npc.dialogues === 'string'
+                        ? JSON.parse(prev.npc.dialogues)
+                        : prev.npc.dialogues;
+                    console.log(`表示するダイアログ: ${dialogues[prevIndex]}`);
+                }
+            }
+
             // 最初のダイアログより前には戻れない
             if (prevIndex < 0) {
+                console.log("最初のダイアログより前には戻れません");
                 return prev;
             }
 
@@ -369,7 +402,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
             };
         });
     };
-
 
     if (!npcData || npcData.length === 0) {
         return <div>NPCデータがありません</div>;
