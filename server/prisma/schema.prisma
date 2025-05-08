@@ -50,29 +50,31 @@ model Follow {
 }
 
 model PlayerData {
-  id        Int          @id @default(autoincrement())
-  playerId  Int?         @unique
-  player    User?        @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  haveItems PlayerItem[] @relation("PlayerToItems")
-  x         Int          @default(64)
-  y         Int          @default(64)
-  roomId    Int?
-  room      Room?        @relation("RoomPlayers", fields: [roomId], references: [id])
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @default(now())
-  hp        Int          @default(5)
-  attack    Int          @default(1)
-  defense   Int          @default(1)
-  level     Int          @default(1)
+  id          Int          @id @default(autoincrement())
+  playerId    Int?         @unique
+  player      User?        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  haveItems   PlayerItem[] @relation("PlayerToItems")
+  playerQuest Quest?       @relation("PlayerQuest")
+  x           Int          @default(64)
+  y           Int          @default(64)
+  roomId      Int?
+  room        Room?        @relation("RoomPlayers", fields: [roomId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+  hp          Int          @default(5)
+  attack      Int          @default(1)
+  defense     Int          @default(1)
+  level       Int          @default(1)
+  questId     Int?
 }
 
 model PlayerItem {
   id              Int              @id @default(autoincrement())
-  playerDataId    Int
   itemId          Int
   quantity        Int              @default(1)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @default(now())
+  playerDataId    Int
   playerData      PlayerData       @relation("PlayerToItems", fields: [playerDataId], references: [id], onDelete: Cascade)
   DefaultItemList DefaultItemList? @relation(fields: [itemId], references: [id], onDelete: Cascade)
 }
@@ -175,9 +177,16 @@ model NPCTrade {
 }
 
 model Quest {
-  id   Int    @id @default(autoincrement())
-  name String
-  npcs NPC[]  @relation("NPCQuests")
+  id            Int         @id @default(autoincrement())
+  name          String
+  npcs          NPC[]       @relation("NPCQuests")
+  howEnemykills Int?        @default(0)
+  contactNpc    Boolean     @default(false)
+  complete      Boolean     @default(false)
+  playerDataId  Int?        @unique
+  playerData    PlayerData? @relation("PlayerQuest", fields: [playerDataId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now())
 }
 
 model Enemy {

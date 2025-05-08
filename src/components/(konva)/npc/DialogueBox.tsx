@@ -57,11 +57,52 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onClose, onNe
     const navButtonSize = 30;
     const navButtonY = boxHeight - boxPadding - navButtonSize; // boxYを含めない相対位置
 
-    // 前のダイアログに戻るボタンを表示するかどうか
-    const showPrevButton = currentIndex > 0;
+    // 3番NPCの特殊処理：ダイアログの総数と表示インデックスを調整
+    let totalDialogues = dialogues?.length || 0;
+    let displayCurrentIndex = currentIndex + 1; // デフォルトは通常通り
+    let showPrevButton = currentIndex > 0;
+    let showNextButton = dialogues && Array.isArray(dialogues) && currentIndex < dialogues.length - 1;
 
-    // 次のダイアログに進むボタンを表示するかどうか
-    const showNextButton = dialogues && Array.isArray(dialogues) && currentIndex < dialogues.length - 1;
+    // 3番NPCの場合、移動前と移動後で表示を変える
+    if (npc.id === 3) {
+        // ローカルストレージから状態を取得
+        const savedStates = localStorage.getItem("npcDialogueStates");
+        let npcState = null;
+
+        if (savedStates) {
+            try {
+                const states = JSON.parse(savedStates);
+                npcState = states[npc.id];
+            } catch (e) {
+                console.error("NPCの対話状態の読み込みに失敗しました:", e);
+            }
+        }
+
+        const targetX = 1024;
+        const targetY = 2176;
+        const hasMoved = npcState?.x === targetX && npcState?.y === targetY;
+
+        if (!hasMoved) {
+            // 移動前は1～8個目のみ表示
+            totalDialogues = 8; // 総数は8個
+            // 現在のインデックスがそのまま表示インデックスになる
+            displayCurrentIndex = currentIndex + 1;
+
+            // 8個目より後は表示しない
+            showNextButton = currentIndex < Math.min(7, dialogues.length - 1);
+        } else {
+            // 移動後は9～12個目のみ表示
+            totalDialogues = 4; // 9～12の4個
+
+            // 表示インデックスを調整: 8以降のインデックスを0から始まるように調整
+            const adjustedIndex = currentIndex - 8;
+            displayCurrentIndex = adjustedIndex + 1; // 1から始まる表示用
+
+            // ナビゲーションボタンの表示条件を調整
+            showPrevButton = adjustedIndex > 0;
+            showNextButton = currentIndex < dialogues.length - 1;
+        }
+    }
 
     // ダイアログボックスのクリックハンドラ
     const handleBoxClick = (e: any) => {
@@ -242,7 +283,7 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onClose, onNe
             {/* 現在のダイアログインデックスと総数を表示 */}
             {dialogues && Array.isArray(dialogues) && dialogues.length > 1 && (
                 <Text
-                    text={`${currentIndex + 1}/${dialogues.length}`}
+                    text={`${displayCurrentIndex}/${totalDialogues}`}
                     x={stageWidth - boxPadding - 50}
                     y={boxHeight - boxPadding - 20}
                     fontSize={14}
