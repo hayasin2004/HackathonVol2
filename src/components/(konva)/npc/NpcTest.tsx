@@ -4,6 +4,7 @@ import {NPC} from "@/types/npc";
 import {Stage, Layer, Group, Image} from "react-konva";
 import useImage from "use-image";
 import DialogueBox from "./DialogueBox";
+import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
 
 interface PropsNpcData {
     npcData: NPC[] | null;
@@ -142,6 +143,11 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         startIndex = 8;
                         console.log("ID=3のNPCが移動後にクリックされました。9番目以降のダイアログを表示します。");
                         console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${dialogues[startIndex]}`);
+                        const GetFirstQuest = async () => {
+                            const response = await firstQuest()
+                            console.log(response)
+                        }
+                        GetFirstQuest()
 
                         // 配列の範囲を超えないようにチェック
                         if (startIndex >= dialogues.length) {
