@@ -175,21 +175,45 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 if (activeDialogue.npc.id === 3) {
                     console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
 
-                    // 状態を更新 - yだけ更新して移動をトリガー
-                    const updatedStates = {
-                        ...npcDialogueStates,
-                        [activeDialogue.npc!.id]: {
-                            ...npcDialogueStates[activeDialogue.npc!.id],
-                            hasHeardDialogue: true,
-                            lastInteractionDate: new Date().toISOString(),
-                            y: activeDialogue.npc!.y + 1, // 少しだけ値を変えて移動をトリガー
-                        },
-                    };
+                    // 既に最終位置にいるかチェック
+                    const targetX = 1024;
+                    const targetY = 2176;
+                    const currentX = npcDialogueStates[activeDialogue.npc.id]?.x || activeDialogue.npc.x;
+                    const currentY = npcDialogueStates[activeDialogue.npc.id]?.y || activeDialogue.npc.y;
 
-                    // 状態を設定してローカルストレージに保存
-                    setNpcDialogueStates(updatedStates);
-                    localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                }            }
+                    // 既に最終位置にいる場合は移動せず、そのまま保存
+                    if (currentX === targetX && currentY === targetY) {
+                        const updatedStates = {
+                            ...npcDialogueStates,
+                            [activeDialogue.npc!.id]: {
+                                ...npcDialogueStates[activeDialogue.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                x: targetX,
+                                y: targetY,
+                            },
+                        };
+
+                        setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                    } else {
+                        // 移動が必要な場合は移動トリガーを設定
+                        const updatedStates = {
+                            ...npcDialogueStates,
+                            [activeDialogue.npc!.id]: {
+                                ...npcDialogueStates[activeDialogue.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                y: activeDialogue.npc!.y + 1, // 少しだけ値を変えて移動をトリガー
+                                needsToMove: true, // 移動が必要なフラグを追加
+                            },
+                        };
+
+                        setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                    }
+                }
+            }
         }
 
         setActiveDialogue({
@@ -402,12 +426,28 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
         // ID=3のNPCの移動ロジック
 // ID=3のNPCの移動ロジック部分を修正
+        // ID=3のNPCの移動ロジック - 移動が必要な場合のみ実行
         else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current) {
+            const targetX = 1024;
+            const targetY = 2176;
+
+            // 既に目的地にいる場合は移動しない
+            if (position.x === targetX && position.y === targetY) {
+                console.log("既に目的地にいるため移動しません");
+                return;
+            }
+
+            // npcStateに最終位置が保存されている場合は移動しない
+            // 移動トリガーの場合のみ移動する（y値が少し変更された場合）
+            if (npcState.x === targetX && npcState.y === targetY) {
+                console.log("最終位置が保存されているため移動しません");
+                setPosition({x: targetX, y: targetY});
+                return;
+            }
+
+            // 移動が必要な場合のみ実行
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;
-
-                const targetX = 1024;
-                const targetY = 2176;
 
                 let currentX = position.x;
                 let currentY = position.y;
@@ -447,7 +487,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                             hasHeardDialogue: true,
                             lastInteractionDate: new Date().toISOString(),
                             y: targetY,
-                            x: targetX, // X座標も保存しておく
+                            x: targetX,
                         },
                     };
 
@@ -460,12 +500,11 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             };
 
             moveToDestination();
-
         }
         return () => {
             isMounted = false;
         };
-    }, [hasHeardDialogue]);
+    }, [npcState?.y, npcState?.x, position.x, position.y, hasHeardDialogue]);
 
     const handleClick = () => {
         onNpcClick(npc);
