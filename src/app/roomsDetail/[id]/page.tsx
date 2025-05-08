@@ -7,8 +7,6 @@ import {useSession} from "next-auth/react";
 import {PlayerItem} from "@/types/playerItem";
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import {defaultItem} from "@/types/defaultItem";
-//マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓
-import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import MapWithCharacterDesert from '@/components/(konva)/desertmap/Desertmap';
 import MapWithCharacterSnow from '@/components/(konva)/snowmap/Snowmap';
 
@@ -252,7 +250,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     }, [playerId, roomId]);
 
     if (loading) {
-        return <div className="flex justify-center items-center h-screen">ルーム情報を読み込み中...</div>;
+        return <div>ルーム情報を読み込み中...</div>;
     }
 
     if (error) {
@@ -288,7 +286,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     }
 
     if (!playerId) {
-        return <div className="flex justify-center items-center h-screen">プレイヤー情報を読み込み中...</div>;
+        return <div >プレイヤー情報を読み込み中...</div>;
     }
 
 
