@@ -504,7 +504,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         return () => {
             isMounted = false;
         };
-    }, [npcState?.y, npcState?.x, position.x, position.y, hasHeardDialogue]);
+    }, [npcState?.y, npcState?.x, hasHeardDialogue]);
 
     const handleClick = () => {
         onNpcClick(npc);
