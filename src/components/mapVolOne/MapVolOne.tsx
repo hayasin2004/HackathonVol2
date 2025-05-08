@@ -14,6 +14,7 @@ import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {NPC} from "@/types/npc";
 import {supabase} from "@/lib/supabase";
 import NpcTest from "@/components/(konva)/npc/NpcTest";
+import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -71,6 +72,26 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const handleDialogStateChange = (isOpen: boolean) => {
         setIsDialogOpen(isOpen);
     };
+
+    // クエスト受注処理を行うハンドラ
+    const handleQuestTrigger = async (npcId: number, questId: number) => {
+        console.log(`NPC ID: ${npcId}からクエスト ID: ${questId}の受注がトリガーされました`);
+
+        try {
+            // クエスト受注処理を実行
+            const response = await firstQuest(playerId.id);
+            console.log("クエスト受注結果:", response);
+
+            // 必要に応じて状態を更新
+            // 例: クエスト一覧を更新するなど
+
+        } catch (error) {
+            console.error("クエスト受注中にエラーが発生しました:", error);
+        }
+    };
+
+
+
 
     // useEffect(() => {
     //     console.log("items" + JSON.stringify(items))
@@ -549,6 +570,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             cameraPosition={cameraPosition}
                             onDialogOpen={handleDialogStateChange}
                             player={playerId}
+                            onQuestTrigger={handleQuestTrigger}
                         />
                     )}
 

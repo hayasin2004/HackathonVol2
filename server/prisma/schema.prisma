@@ -179,6 +179,7 @@ model NPCTrade {
 model Quest {
   id            Int           @id @default(autoincrement())
   name          String
+  description   String?
   npcs          NPC[]         @relation("NPCQuests")
   howEnemykills Int?          @default(0)
   contactNpc    Boolean       @default(false)

@@ -12,6 +12,8 @@ interface PropsNpcData {
     cameraPosition: { x: number; y: number };
     onDialogOpen?: (isOpen: boolean) => void;
     player : PlayerItem
+    onQuestTrigger?: (npcId: number, questId: number) => void; // 追加: クエスト受注通知用
+
 }
 
 // NPCの対話状態を管理する型
@@ -22,6 +24,7 @@ interface NpcDialogueState {
         y?: number
         x?: number
         dialogueProgress?: number; // どこまでダイアログを表示したかを追跡
+
     };
 }
 
@@ -32,7 +35,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                              npcData,
                                              cameraPosition,
                                              onDialogOpen,
-                                             player
+                                             player,
+                                             onQuestTrigger
                                          }) => {
 
     console.log(player)
@@ -148,11 +152,11 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         startIndex = 8;
                         console.log("ID=3のNPCが移動後にクリックされました。9番目以降のダイアログを表示します。");
                         console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${dialogues[startIndex]}`);
-                        const GetFirstQuest = async () => {
-                            const response = await firstQuest(player.id)
-                            console.log(response)
+
+                        if (onQuestTrigger) {
+                            // 第一引数: NPCのID、第二引数: クエストのID (ここでは1と仮定)
+                            onQuestTrigger(clickedNpc.id, 1);
                         }
-                        GetFirstQuest()
 
                         // 配列の範囲を超えないようにチェック
                         if (startIndex >= dialogues.length) {
