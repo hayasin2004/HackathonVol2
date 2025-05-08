@@ -283,8 +283,8 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick, onAutoDialogue, c
                     setPosition(prev => ({x: prev.x, y: currentY}));
                 }
 
-                // コンポーネントがアンマウントされていなければ、自動対話を開始
-                if (isMounted) {
+                // コンポーネントがアンマウントされていなければ、まだ聞いていない場合のみ自動対話を開始
+                if (isMounted && !hasHeardDialogue) {
                     // 終点に到達したらダイアログを表示
                     // 少し遅延を入れてから表示
                     await new Promise(resolve => setTimeout(resolve, 300));
@@ -300,7 +300,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({npc, onNpcClick, onAutoDialogue, c
         return () => {
             isMounted = false;
         };
-    }, []); // 依存配列から hasHeardDialogue を削除（自動対話の判断はハンドラ内で行う）
+    }, [hasHeardDialogue, npc, onAutoDialogue]); // 依存配列から hasHeardDialogue を削除（自動対話の判断はハンドラ内で行う）
 
     const handleClick = () => {
         onNpcClick(npc); // 通常のクリックハンドラを使用
