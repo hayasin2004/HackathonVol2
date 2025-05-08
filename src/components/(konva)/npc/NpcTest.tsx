@@ -3,12 +3,13 @@ import React, {useEffect, useRef, useState} from 'react';
 import {NPC} from "@/types/npc";
 import {Stage, Layer, Group, Image, Text} from "react-konva";
 import useImage from "use-image";
-import DialogueBox from './DialogueBox'; // DialogueBoxコンポーネントをインポート
+import DialogueBox from './DialogueBox';
+import Grassmap from "@/components/(konva)/grassmap/Grassmap"; // DialogueBoxコンポーネントをインポート
 
 interface PropsNpcData {
     npcData: NPC[] | null
     cameraPosition: { x: number, y: number }
-
+    onDialogOpen?: (isOpen: boolean) => void;
 }
 
 // 現在のステージを定義（この変数がどこかで定義されている必要があります）
@@ -20,21 +21,49 @@ const onInteract = (npc: NPC, dialogue: any) => {
     console.log("NPCと対話:", npc.name, dialogue);
 };
 
-const NpcTest: React.FC<PropsNpcData> = ({npcData, cameraPosition}) => {
+const NpcTest: React.FC<PropsNpcData> = ({npcData, cameraPosition,onDialogOpen}) => {
     console.log(npcData);
-
-    // --- 対話ボックスの状態管理 ---
-    // isVisible: 対話ボックスが表示されているか
-    // npc: 現在対話しているNPCのデータ (nullの場合は表示しない)
     const [activeDialogue, setActiveDialogue] = useState<{
-        isVisible: boolean,
-        npc: NPC | null,
-        currentIndex: number // 現在表示中のダイアログインデックス
+        isVisible: boolean;
+        npc: NPC | null;
+        currentIndex?: number;
     }>({
         isVisible: false,
         npc: null,
         currentIndex: 0
     });
+
+    // --- 対話ボックスの状態管理 ---
+    // Grassmapに通知😢
+
+    useEffect(() => {
+        if (onDialogOpen) {
+            onDialogOpen(activeDialogue.isVisible);
+        }
+    }, [activeDialogue.isVisible, onDialogOpen]);
+
+    // NPCとの対話を開始する関数
+    const startDialogue = (npc: NPC) => {
+        setActiveDialogue({
+            isVisible: true,
+            npc: npc,
+            currentIndex: 0
+        });
+    };
+
+    // ダイアログを閉じる関数
+    const closeDialogue = () => {
+        setActiveDialogue({
+            isVisible: false,
+            npc: null
+        });
+    };
+
+
+
+    // isVisible: 対話ボックスが表示されているか
+    // npc: 現在対話しているNPCのデータ (nullの場合は表示しない)
+
     // --- ここまで ---
 
     // NPCがクリックされたときに呼び出されるハンドラ

@@ -58,129 +58,111 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onClose }) =>
     const handleBoxClick = (e: any) => {
         // イベントの伝播を停止して、背景クリックイベントが発火しないようにする
         e.cancelBubble = true;
-    };
 
-    // 背景のクリックハンドラ
-    const handleBackgroundClick = () => {
+        // ダイアログボックスをクリックしても閉じる
         if (onClose) {
             onClose();
         }
     };
 
     return (
-        <>
-            {/* 透明な背景全体をクリック可能にする（ダイアログ外をクリックして閉じるため） */}
+        <Group
+            x={0} // 画面左端に配置
+            y={boxY} // 画面下端に配置
+            width={stageWidth} // 画面いっぱいの幅
+            height={boxHeight} // ボックスの高さ
+            listening={true} // クリックイベントを受け取るようにする
+            zIndex={30} // zIndexを30に設定
+            onClick={handleBoxClick} // ダイアログボックス自体のクリックイベント
+            onTap={handleBoxClick}
+        >
+            {/* 背景の四角形（半透明） */}
             <Rect
-                x={0}
-                y={0}
                 width={stageWidth}
-                height={stageHeight}
-                fill="rgba(0, 0, 0, 0.01)" // ほぼ透明
-                onClick={handleBackgroundClick}
-                onTap={handleBackgroundClick}
-                zIndex={989} // ダイアログの下に配置
+                height={boxHeight}
+                fill="rgba(0, 0, 0, 0.8)" // 黒の半透明背景
             />
 
+            {/* キャラクターポートレート */}
+            {portraitImage && (
+                <Image
+                    image={portraitImage}
+                    x={boxPadding} // 左からの余白
+                    y={boxPadding} // 上からの余白
+                    width={portraitSize} // ポートレートの幅
+                    height={portraitSize} // ポートレートの高さ
+                    perfectDrawEnabled={false} // 描画最適化（パフォーマンスに影響する場合があります）
+                />
+            )}
+
+            {/* キャラクター名 */}
+            <Text
+                text={npc.name}
+                x={boxPadding * 2 + portraitSize} // ポートレートの右側に配置
+                y={boxPadding} // ポートレートの上端に合わせる
+                fontSize={nameFontSize}
+                fill="#FFFFFF" // 白い文字
+                fontStyle="bold"
+                shadowColor="#000000" // 黒い影
+                shadowBlur={3}
+                shadowOffsetX={1}
+                shadowOffsetY={1}
+                listening={false} // クリックイベントを受け取らない
+            />
+
+            {/* 対話テキスト */}
+            <Text
+                text={dialogueText}
+                x={textX} // 名前に合わせて配置
+                y={textY} // 名前の下に配置
+                fontSize={textFontSize}
+                fill="#FFFFFF" // 白い文字
+                width={textWidth} // テキストエリアの幅で折り返し
+                height={textHeight} // テキストエリアの最大の高さ
+                wrap="word" // 単語で折り返し
+                lineHeight={1.5} // 行間
+                verticalAlign="top" // テキストを上端に揃える
+                listening={false} // クリックイベントを受け取らない
+            />
+
+            {/* 閉じるボタン（右上に配置） */}
             <Group
-                x={0} // 画面左端に配置
-                y={boxY} // 画面下端に配置
-                width={stageWidth} // 画面いっぱいの幅
-                height={boxHeight} // ボックスの高さ
-                listening={true} // クリックイベントを受け取るようにする
-                zIndex={990} // zIndexを990に設定
-                onClick={handleBoxClick} // ダイアログボックス自体のクリックイベント
-                onTap={handleBoxClick}
+                x={stageWidth - boxPadding - 30}
+                y={boxPadding}
+                width={20}
+                height={20}
+                cursor="pointer"
             >
-                {/* 背景の四角形（半透明） */}
                 <Rect
-                    width={stageWidth}
-                    height={boxHeight}
-                    fill="rgba(0, 0, 0, 0.8)" // 黒の半透明背景
-                />
-
-                {/* キャラクターポートレート */}
-                {portraitImage && (
-                    <Image
-                        image={portraitImage}
-                        x={boxPadding} // 左からの余白
-                        y={boxPadding} // 上からの余白
-                        width={portraitSize} // ポートレートの幅
-                        height={portraitSize} // ポートレートの高さ
-                        perfectDrawEnabled={false} // 描画最適化（パフォーマンスに影響する場合があります）
-                    />
-                )}
-
-                {/* キャラクター名 */}
-                <Text
-                    text={npc.name}
-                    x={boxPadding * 2 + portraitSize} // ポートレートの右側に配置
-                    y={boxPadding} // ポートレートの上端に合わせる
-                    fontSize={nameFontSize}
-                    fill="#FFFFFF" // 白い文字
-                    fontStyle="bold"
-                    shadowColor="#000000" // 黒い影
-                    shadowBlur={3}
-                    shadowOffsetX={1}
-                    shadowOffsetY={1}
-                    listening={false} // クリックイベントを受け取らない
-                />
-
-                {/* 対話テキスト */}
-                <Text
-                    text={dialogueText}
-                    x={textX} // 名前に合わせて配置
-                    y={textY} // 名前の下に配置
-                    fontSize={textFontSize}
-                    fill="#FFFFFF" // 白い文字
-                    width={textWidth} // テキストエリアの幅で折り返し
-                    height={textHeight} // テキストエリアの最大の高さ
-                    wrap="word" // 単語で折り返し
-                    lineHeight={1.5} // 行間
-                    verticalAlign="top" // テキストを上端に揃える
-                    listening={false} // クリックイベントを受け取らない
-                />
-
-                {/* 閉じるボタン（右上に配置） */}
-                <Group
-                    x={stageWidth - boxPadding - 30}
-                    y={boxPadding}
                     width={20}
                     height={20}
-                    onClick={handleBackgroundClick}
-                    onTap={handleBackgroundClick}
-                    cursor="pointer"
-                >
-                    <Rect
-                        width={20}
-                        height={20}
-                        fill="rgba(80, 80, 80, 0.9)"
-                        cornerRadius={3}
-                        stroke="#FFFFFF"
-                        strokeWidth={1}
-                    />
-                    <Text
-                        text="×"
-                        x={5}
-                        y={1}
-                        fontSize={14}
-                        fill="#FFFFFF"
-                        listening={false}
-                    />
-                </Group>
-
-                {/* 現在のダイアログインデックスと総数を表示（オプション） */}
-                {dialogues && Array.isArray(dialogues) && dialogues.length > 1 && (
-                    <Text
-                        text={`${currentIndex + 1}/${dialogues.length}`}
-                        x={stageWidth - boxPadding - 50}
-                        y={boxHeight - boxPadding - 20}
-                        fontSize={14}
-                        fill="#AAAAAA"
-                        listening={false}
-                    />
-                )}
+                    fill="rgba(80, 80, 80, 0.9)"
+                    cornerRadius={3}
+                    stroke="#FFFFFF"
+                    strokeWidth={1}
+                />
+                <Text
+                    text="×"
+                    x={5}
+                    y={1}
+                    fontSize={14}
+                    fill="#FFFFFF"
+                    listening={false}
+                />
             </Group>
-        </>
+
+            {/* 現在のダイアログインデックスと総数を表示（オプション） */}
+            {dialogues && Array.isArray(dialogues) && dialogues.length > 1 && (
+                <Text
+                    text={`${currentIndex + 1}/${dialogues.length}`}
+                    x={stageWidth - boxPadding - 50}
+                    y={boxHeight - boxPadding - 20}
+                    fontSize={14}
+                    fill="#AAAAAA"
+                    listening={false}
+                />
+            )}
+        </Group>
     );
 };
 

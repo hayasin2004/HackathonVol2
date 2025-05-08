@@ -27,6 +27,7 @@ interface mapVolOneTypes {
     enemyData: Enemy[] | null
     npcData : NPC[] | null
     onItemRemove?: (enemyId: string) => void
+    onDialogOpen?: (isOpen: boolean) => void;
 }
 
 const MapVolOne: React.FC<mapVolOneTypes> = ({
@@ -39,7 +40,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  socket,
                                                  players,
                                                  npcData,
-                                                 onItemRemove
+                                                 onDialogOpen,
                                              }) => {
 
 
@@ -53,6 +54,20 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
     // アイテムの画像がロード完了したかを追跡するための状態
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: boolean }>({});
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    // ダイアログの状態が変更されたときに親コンポーネントに通知
+    useEffect(() => {
+        if (onDialogOpen) {
+            onDialogOpen(isDialogOpen);
+        }
+    }, [isDialogOpen, onDialogOpen]);
+
+    // NpcTestからダイアログの状態を受け取るハンドラー
+    const handleDialogStateChange = (isOpen: boolean) => {
+        setIsDialogOpen(isOpen);
+    };
 
     // useEffect(() => {
     //     console.log("items" + JSON.stringify(items))
@@ -453,8 +468,9 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     {Array.isArray(localNpcData) && localNpcData.length > 0 && (
                         <NpcTest
                             npcData={localNpcData}
-                            cameraPosition={cameraPosition}
+                            cameraPosition={ECollisionPosition}
                             ECollisionPosition={ECollisionPosition}
+                            onDialogOpen={handleDialogStateChange}
                         />
                     )}
 

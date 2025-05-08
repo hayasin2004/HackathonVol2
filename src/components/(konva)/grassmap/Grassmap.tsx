@@ -51,6 +51,14 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false); // ダイアログの表示状態を管理
+    console.log(isDialogOpen)
+    // 既存のコード...
+
+    // ダイアログの状態を受け取るハンドラー
+    const handleDialogStateChange = (isOpen: boolean) => {
+        setIsDialogOpen(isOpen);
+    };
 
 // PlayerInventoryに渡すアイテムの状態を追加
     const [playerInventory, setPlayerInventory] = useState([]);
@@ -354,10 +362,11 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     socket={socket}
                     enemyData={enemyData}
                     npcData={npcData}
+                    onDialogOpen={handleDialogStateChange}
                 />
 
             {/*<div>*/}
-
+            {!isDialogOpen && (
                 <PlayerInventory roomId={roomId} playerId={playerId}
                                  players={players}
                                  eCollisionGotItem={eCollisionGotItem}
@@ -370,7 +379,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                                  playerInventory={playerInventory}
 
                 />
-
+            )}
 
             {/*    /!*    <form action={logout}>*!/*/}
             {/*    /!*        <button className={styles.fixedLogOutButton}>*!/*/}
