@@ -411,7 +411,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             {/*    /!*        </div>*!/*/}
             {/*    /!*    ))}*!/*/}
             {/*</div>*/}
-　
+
         </div>
     );
 };

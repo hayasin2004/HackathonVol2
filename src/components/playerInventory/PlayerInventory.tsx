@@ -144,13 +144,13 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                             playerId: playerId.id,
                             currentDirectionRef,
                             ECollisionPosition,
-                            itemId: putItemData.data.itemId,
+                            itemId: putItemData?.data?.itemId,
                             id: putItemData?.data?.id,
-                            x: putItemData.data.x,
-                            y: putItemData.data.y,
-                            width: putItemData.data.width,
-                            height: putItemData.data.height,
-                            iconImage: putItemData.data.iconImage,
+                            x: putItemData?.data?.x,
+                            y: putItemData?.data?.y,
+                            width: putItemData?.data?.width,
+                            height: putItemData?.data?.height,
+                            iconImage: putItemData?.data?.iconImage,
                         };
                         // サーバーにアイテム配置を通知
                         socket.emit('placeItem', itemData);
