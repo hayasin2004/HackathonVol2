@@ -229,7 +229,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     useEffect(() => {
         let followPlayerInterval: NodeJS.Timeout | null = null;
 
-        if (activeQuest?.quest.id == 5) {
+        if (activeQuest?.quest.id === 5) {
             console.log("クエストID 5: 敵がプレイヤーを追尾します");
 
             followPlayerInterval = setInterval(() => {
@@ -267,7 +267,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                         return enemy; // 距離が0の場合はそのまま
                     })
                 );
-            }, 100); // 100msごとに更新
+            }, 0.3); // 100msごとに更新
         }
 
         return () => {
@@ -275,7 +275,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                 clearInterval(followPlayerInterval); // クリーンアップ時にインターバルを解除
             }
         };
-    }, [activeQuest?.quest.id, ECollisionPosition ]);
+    }, [activeQuest?.quest.id, ECollisionPosition]);;
     ;
 
 
@@ -502,6 +502,7 @@ const SingleEnemy: React.FC<{
     const [image] = useImage(Array.isArray(enemy.images) ? enemy.images[validImageIndex] : undefined);
 
     const [isColliding, setIsColliding] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(false); // ゲームオーバーフラグを追加
 
     // すべての動きのフックを呼び出す
     const randomMovement = useEnemyRandomMovement(enemy?.x, enemy?.y);
@@ -524,12 +525,20 @@ const SingleEnemy: React.FC<{
         const dy = playerY - enemyY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        const speed = 50;
+        const speed = 50; // 移動速度
 
         if (distance > 0) {
+            // 移動量を計算
+            const moveX = (dx / distance) * speed;
+            const moveY = (dy / distance) * speed;
+
+            // 新しい位置を計算（64px単位でスナップ）
+            const newX = Math.round((enemyX + moveX) / 64) * 64;
+            const newY = Math.round((enemyY + moveY) / 64) * 64;
+
             position = {
-                x: enemyX + (dx / distance) * speed,
-                y: enemyY + (dy / distance) * speed,
+                x: newX,
+                y: newY,
             };
         }
         showDialog = false;
@@ -569,29 +578,20 @@ const SingleEnemy: React.FC<{
         const collision = checkCollision(ECollisionPosition, { x: enemy.x, y: enemy.y });
         setIsColliding(collision);
 
-        // 衝突判定（矩形の範囲を考慮）
-        const padding = 20; // 余白を設定
-        const playerLeft = ECollisionPosition.x - padding;
-        const playerRight = ECollisionPosition.x + 50 + padding; // プレイヤーの幅を考慮
-        const playerTop = ECollisionPosition.y - padding;
-        const playerBottom = ECollisionPosition.y + 50 + padding; // プレイヤーの高さを考慮
-
-        const enemyLeft = enemy.x;
-        const enemyRight = enemy.x + enemy.width; // 敵の幅を考慮
-        const enemyTop = enemy.y;
-        const enemyBottom = enemy.y + enemy.height; // 敵の高さを考慮
-
-        // 矩形が重なっているかを判定
-        const isOverlapping =
-            playerRight > enemyLeft &&
-            playerLeft < enemyRight &&
-            playerBottom > enemyTop &&
-            playerTop < enemyBottom;
-
-        if (isOverlapping) {
-            alert(`敵「${enemy.name}」がプレイヤーと同じ座標にいます！`);
+        if (collision && !isGameOver) {
+            setIsGameOver(true); // ゲームオーバーフラグを立てる
         }
-    }, [ECollisionPosition, enemy, checkCollision]);
+    }, [ECollisionPosition, enemy, checkCollision, isGameOver]);
+
+    // ゲームオーバー時の処理
+    useEffect(() => {
+        if (isGameOver) {
+            alert("Game Over! "); // 一度だけログを出力
+            setTimeout(() => {
+                window.location.reload(); // サイトを再レンダリング
+            }, 500); // 1秒後にリロード
+        }
+    }, [isGameOver]);
 
     const enemyTalk = () => {
         const dialogues = typeof enemy.dialogues === 'string'
@@ -656,5 +656,4 @@ const SingleEnemy: React.FC<{
             )}
         </Group>
     );
-};
-export default EnemyTest
+};export default EnemyTest
