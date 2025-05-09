@@ -11,6 +11,7 @@ import {Socket} from "socket.io-client";
 import useEnemyBuruBuruMovement from "@/hooks/(animation)/enemy/EnemyBuruBuru/useEnemyBuruBuruMovement";
 import DialogueBox from "@/components/(konva)/npc/DialogueBox";
 import {QuestType} from "@/types/quest";
+import {number} from "prop-types";
 
 
 interface PropsNpcData {
@@ -345,7 +346,8 @@ const SingleEnemy: React.FC<{
     const [isColliding, setIsColliding] = useState(false);
     const [image] = useImage(enemy.images[validImageIndex]);
 
-   　
+    const [questProgress, setQuestProgress] = useState(0);
+
     // プレイヤー攻撃のクールダウン
     const [lastAttackTime, setLastAttackTime] = useState(0);
     const attackCooldown = 500; // プレイヤーの攻撃クールダウン時間（ミリ秒）
@@ -365,7 +367,25 @@ const SingleEnemy: React.FC<{
             openDialogue(enemy); // 敵をクリックしたときにダイアログを開く
         }
     };
+
+    useEffect(() => {
+        const questCurrent = localStorage.getItem("npcDialogueStates");
+
+        if (questCurrent == "Aiと話そう"){
+            setQuestProgress(1)
+            return;
+        }else {
+            setQuestProgress(0)
+            return;;
+        }
+
+
+    }, [isQuestActive]);
+
+
+
     const enemyTalk = () => {
+
         if (isQuestActive && enemy.id >= 7 && enemy.id <= 10) {
             // クエスト中は 2 番目以降のダイアログを返す
             if (Array.isArray(enemy.dialogues) && enemy.dialogues.length > 0) {

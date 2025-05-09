@@ -13,7 +13,7 @@ interface PropsNpcData {
     onDialogOpen?: (isOpen: boolean) => void;
     player : PlayerItem
     onQuestTrigger?: (npcId: number, questId: number) => void; // 追加: クエスト受注通知用
-    onAlert?: (message: string) => void; // 新たに追加
+    onAlert?: () => void; // 新たに追加
 
 }
 
@@ -215,6 +215,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
             setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
         }
     };// ダイアログを閉じるハンドラも修正
+// ダイアログを閉じるハンドラ（修正）
     const handleCloseDialogue = () => {
         if (activeDialogue.npc && activeDialogue.isVisible) {
             const dialogues = typeof activeDialogue.npc.dialogues === 'string'
@@ -223,57 +224,56 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             const currentIndex = activeDialogue.currentIndex || 0;
 
-            // 3番NPCの特殊処理
-            if (activeDialogue.npc.id === 3) {
-                const npcState = npcDialogueStates[activeDialogue.npc.id];
-                const targetX = 1024;
-                const targetY = 2176;
-                const hasMoved = npcState?.x === targetX && npcState?.y === targetY;
-
-                // 初回の対話で8個目まで表示した場合
-                if (!hasMoved && currentIndex >= 7) {
+            // 最後のダイアログだった場合
+            if (dialogues && Array.isArray(dialogues) && currentIndex >= dialogues.length - 1) {
+                // NPC IDが3の場合、移動処理を実行
+                if (activeDialogue.npc.id === 3) {
                     console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
 
-                    // 状態を更新 - yだけ更新して移動をトリガー
-                    const updatedStates = {
-                        ...npcDialogueStates,
-                        [activeDialogue.npc!.id]: {
-                            ...npcDialogueStates[activeDialogue.npc!.id],
-                            hasHeardDialogue: true,
-                            lastInteractionDate: new Date().toISOString(),
-                            y: activeDialogue.npc!.y + 1, // 少しだけ値を変えて移動をトリガー
-                            dialogueProgress: 8, // 8個目まで表示したことを記録
-                        },
-                    };
+                    // 既に最終位置にいるかチェック
+                    const targetX = 1024;
+                    const targetY = 2176;
+                    const currentX = npcDialogueStates[activeDialogue.npc.id]?.x || activeDialogue.npc.x;
+                    const currentY = npcDialogueStates[activeDialogue.npc.id]?.y || activeDialogue.npc.y;
 
-                    // 親コンポーネントに通知
-                    // 状態を設定してローカルストレージに保存
-                    setNpcDialogueStates(updatedStates);
-                    localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                    // 既に最終位置にいる場合は移動せず、そのまま保存
+                    if (currentX === targetX && currentY === targetY) {
+                        const updatedStates = {
+                            ...npcDialogueStates,
+                            [activeDialogue.npc!.id]: {
+                                ...npcDialogueStates[activeDialogue.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                x: targetX,
+                                y: targetY,
+                                dialogueProgress: 8, // 8個目まで表示したことを記録
+                                progress: "Aiと話そう" // 状態を更新
+                            },
+                        };
+                        setNpcDialogueStates(updatedStates);
+                        onAlert?.()
 
-                    // Alertを表示
-
-                    // 親コンポーネントに通知
-                    onAlert?.("移動を開始します！"); // トースト表示用のメッセージを渡す
-                }
-                // 移動後のダイアログを閉じた場合
-                if (hasMoved && currentIndex >= 8) {
-                    console.log("移動後のダイアログを閉じました");
-
-                    // 親コンポーネントに通知
-                    onAlert?.("移動後のダイアログを閉じました！"); // トースト表示用のメッセージを渡す
-                }
-
-                // 移動後のダイアログを閉じた場合
-                if (hasMoved && currentIndex >= 8) {
-                    console.log("移動後のダイアログを閉じました");
-
-                    // Alertを表示
-                    alert("移動後のダイアログを閉じました！");
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                    } else {
+                        // 移動が必要な場合は移動トリガーを設定
+                        const updatedStates = {
+                            ...npcDialogueStates,
+                            [activeDialogue.npc!.id]: {
+                                ...npcDialogueStates[activeDialogue.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                y: activeDialogue.npc!.y + 1, // 少しだけ値を変えて移動をトリガー
+                                dialogueProgress: 8, // 8個目まで表示したことを記録
+                                needsToMove: true, // 移動が必要なフラグを追加
+                            },
+                        };
+                        onAlert?.()
+                        setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                    }
                 }
             }
         }
-
         setActiveDialogue({
             isVisible: false,
             npc: null,
@@ -284,8 +284,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
             clearInterval(dialogueTimerRef.current);
             dialogueTimerRef.current = null;
         }
-    };
-    useEffect(() => {
+    };    useEffect(() => {
         return () => {
             if (dialogueTimerRef.current) {
                 clearInterval(dialogueTimerRef.current);

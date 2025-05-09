@@ -62,6 +62,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [isEnemyDialogOpen, setIsEnemyDialogOpen] = useState(false);
     // プレイヤーの位置を追跡するためのref
     const playerPositionRef = useRef({x: 0, y: 0});
+    const [activeQuest, setActiveQuest] = useState<QuestType | null>(null);
 
     // ダイアログの状態が変更されたときに親コンポーネントに通知
     const isDialogOpen = isEnemyDialogOpen || isNpcDialogOpen;
@@ -85,7 +86,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     };
 
     // クエスト受注処理を行うハンドラ
-    const [activeQuest, setActiveQuest] = useState<QuestType | null>(null);
 
     // クエスト受注処理を行うハンドラ
     const handleQuestTrigger = async (npcId: number, questId: number) => {
@@ -105,16 +105,18 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     };
 
     // NpcTest からの通知を受け取るためのハンドラー
-    const handleAlert = (message: string) => {
-        toast.info(message, {
-            position: "top-right",
-            autoClose: 3000, // 3秒後に自動で閉じる
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-        });
+    const handleAlert = () => {
+        if (activeQuest) {
+            toast.info(` ${activeQuest.quest.name} - ${activeQuest.quest.description}`, {
+                position: "top-right",
+                autoClose: 3000, // 3秒後に自動で閉じる
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+        }
     };
 
 

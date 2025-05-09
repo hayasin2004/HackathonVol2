@@ -5,7 +5,11 @@ import prisma from "@/lib/prismaClient";
 const firstQuest = async (playerId: number) => {
 
     try {
-        const firstQuest = await prisma.playerQuest.findFirst({where: {playerId: playerId}})
+        const firstQuest = await prisma.playerQuest.findFirst({
+            where: {playerId: playerId}, include: {
+                quest: true
+            }
+        })
 
         if (!firstQuest) {
             console.log("初めてこのクエストを受けます。")
@@ -15,14 +19,19 @@ const firstQuest = async (playerId: number) => {
                     questId: 1,
                 }
             })
-            return firstQuestCreate;
+            if (firstQuestCreate) {
+                const firstQuest = await prisma.playerQuest.findFirst({
+                    where: {playerId: playerId}, include: {
+                        quest: true
+                    }
+                })
+                return firstQuest;
+            }
         }
-        if (firstQuest.complete == true){
+        if (firstQuest?.complete == true) {
             console.log("このクエストは既にクリアしています。")
             return firstQuest
-        }
-
-        else if (firstQuest && firstQuest.complete == false) {
+        } else if (firstQuest && firstQuest.complete == false) {
             console.log("このクエストは進行中です。")
             return firstQuest
         }
