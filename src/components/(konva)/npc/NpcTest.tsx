@@ -188,8 +188,45 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 // 3番NPCの特
                 let startIndex = 0; // デフォルトは最初のダイアログ　
                 let filteredDialogues = dialogues; // 初期値は全体のダイアログ配列
-                if (questProgress !== 4 && clickedNpc.id === 1) {
-                    alert("koko")
+                if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
+                    setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
+
+                    // ID=1のNPCの場合、自動的にダイアログを進行
+                    if (clickedNpc.id === 1) {
+                        // 2秒ごとにダイアログを進行するタイマーを設定
+                        dialogueTimerRef.current = setInterval(() => {
+                            setActiveDialogue(prev => {
+                                // ダイアログの配列を取得
+                                const dialogArray = typeof clickedNpc.dialogues === 'string'
+                                    ? JSON.parse(clickedNpc.dialogues)
+                                    : clickedNpc.dialogues;
+
+                                // 次のインデックス
+                                const nextIndex = prev.currentIndex + 1;
+
+                                // 最後のダイアログまで表示したらタイマーを停止
+                                if (nextIndex >= dialogArray.length) {
+                                    if (dialogueTimerRef.current) {
+                                        clearInterval(dialogueTimerRef.current);
+                                        dialogueTimerRef.current = null;
+                                    }
+
+                                    // 自動表示の場合のみ、ダイアログが終了したら対話状態を保存
+                                    if (isAutomatic) {
+                                        saveNpcDialogueState(clickedNpc.id);
+                                    }
+
+                                    return prev; // インデックスを更新しない
+                                }
+
+                                // 次のダイアログを表示
+                                return {
+                                    ...prev,
+                                    currentIndex: nextIndex
+                                };
+                            });
+                        }, 2500); // 2秒ごと
+                    }
                 }
 
 
