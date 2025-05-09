@@ -262,6 +262,32 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     const handleCloseDialogue = () => {
         console.log("[EnemyTest] ダイアログを閉じる処理開始");
 
+        // ダイアログが閉じられる際に条件をチェック
+        if (questProgress === 1 && activeDialogue.enemy?.id === 10) {
+            console.log("[EnemyTest] 10番の敵に話しかけたので7～10の敵を移動させます");
+
+            // 7～10の敵を一斉に移動させる
+            setVisibleEnemies((prevEnemies) =>
+                prevEnemies.map((enemy) => {
+                    if (enemy.id >= 7 && enemy.id <= 10) {
+                        switch (enemy.id) {
+                            case 7:
+                                return { ...enemy, x: 1600, y: 704 };
+                            case 8:
+                                return { ...enemy, x: 576, y: 896 };
+                            case 9:
+                                return { ...enemy, x: 1152, y: 128 };
+                            case 10:
+                                return { ...enemy, x: 448, y: 512 };
+                            default:
+                                return enemy;
+                        }
+                    }
+                    return enemy;
+                })
+
+            );
+        }
         setActiveDialogue(prev => {
             if (!prev.isVisible) {
                 return prev;
@@ -383,6 +409,10 @@ const SingleEnemy: React.FC<{
         const dialogues = typeof enemy.dialogues === 'string'
             ? JSON.parse(enemy.dialogues)
             : enemy.dialogues;
+
+        if (enemy.id === 10) {
+
+        }
 
         if (dialogues && Array.isArray(dialogues) && dialogues.length > 0) {
             onInteract(enemy, dialogues[0]);
