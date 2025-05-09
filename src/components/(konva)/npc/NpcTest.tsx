@@ -192,14 +192,28 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
 
                     // ID=1のNPCの場合、自動的にダイアログを進行
-                    if (clickedNpc.id === 1) {
+                    if (questProgress !== 4 &&clickedNpc.id === 1) {
+
                         // 2秒ごとにダイアログを進行するタイマーを設定
+// 2秒ごとにダイアログを進行するタイマーを設定
                         dialogueTimerRef.current = setInterval(() => {
-                            setActiveDialogue(prev => {
+                            setActiveDialogue((prev) => {
                                 // ダイアログの配列を取得
-                                const dialogArray = typeof clickedNpc.dialogues === 'string'
-                                    ? JSON.parse(clickedNpc.dialogues)
-                                    : clickedNpc.dialogues;
+                                let dialogArray: string[] = [];
+                                if (typeof clickedNpc.dialogues === "string") {
+                                    try {
+                                        dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
+                                        alert(dialogArray)
+                                    } catch (error) {
+                                        console.error("ダイアログのパースに失敗しました:", error);
+                                        return prev; // パースエラーの場合は何もしない
+                                    }
+                                } else if (Array.isArray(clickedNpc.dialogues)) {
+                                    dialogArray = clickedNpc.dialogues.slice(0, 8); // 最初の8個を取得
+                                } else {
+                                    console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
+                                    return prev; // 不正な形式の場合は何もしない
+                                }
 
                                 // 次のインデックス
                                 const nextIndex = prev.currentIndex + 1;
@@ -216,16 +230,23 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                         saveNpcDialogueState(clickedNpc.id);
                                     }
 
-                                    return prev; // インデックスを更新しない
+                                    return {
+                                        ...prev,
+                                        isVisible: false, // ダイアログを非表示に設定
+                                    };
                                 }
 
                                 // 次のダイアログを表示
                                 return {
                                     ...prev,
-                                    currentIndex: nextIndex
+                                    currentIndex: nextIndex,
+                                    npc: {
+                                        ...prev.npc,
+                                        dialogues: dialogArray, // スライスされたダイアログを使用
+                                    },
                                 };
                             });
-                        }, 2500); // 2秒ごと
+                        }, 2500); // 2.5秒ごと; // 2秒ごと
                     }
                 }
 
