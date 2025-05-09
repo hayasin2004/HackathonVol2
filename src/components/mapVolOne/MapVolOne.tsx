@@ -17,6 +17,7 @@ import NpcTest from "@/components/(konva)/npc/NpcTest";
 import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
 import {QuestType} from "@/types/quest";
 import {toast, ToastContainer} from "react-toastify";
+import {getNextQuest} from "@/repository/prisma/quest/secondQuest/secondQuest";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -107,7 +108,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     // NpcTest からの通知を受け取るためのハンドラー
     const handleAlert = () => {
         if (activeQuest) {
-            toast.info(` ${activeQuest.quest.name} - ${activeQuest.quest.description}`, {
+            toast.info(` !!!${activeQuest.quest.name} - ${activeQuest.quest.description}`, {
                 position: "top-right",
                 autoClose: 3000, // 3秒後に自動で閉じる
                 hideProgressBar: false,
@@ -116,6 +117,30 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 draggable: true,
                 progress: undefined,
             });
+        }
+    };
+
+    const handleNextQuest = async (currentQuestId: number) => {
+        try {
+            // サーバーから次のクエストを取得
+            const nextQuest = await getNextQuest(currentQuestId , playerId.id);
+
+            // クエスト情報を状態に保存
+            setActiveQuest(nextQuest);
+
+            // 通知を表示
+            toast.info(`次のクエスト: ${nextQuest.quest.name} - ${nextQuest.quest.description}`, {
+                position: "top-right",
+                autoClose: 3000, // 3秒後に自動で閉じる
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+
+        } catch (error) {
+            console.error("次のクエスト取得中にエラーが発生しました:", error);
         }
     };
 
@@ -600,6 +625,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             onEnemyRemove={handleRemoveEnemy}
                             player={playerId}  // プレイヤー情報を渡す
                             playerAttack={playerId.attack}
+                            onNextQuest={handleNextQuest}
                             onDialogOpen={handleEnemyDialogStateChange}
                             onPlayerDamage={(newHp) => {
                                 // プレイヤーのHPが更新されたときの処理
@@ -617,6 +643,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             player={playerId}
                             onQuestTrigger={handleQuestTrigger}
                             onAlert={handleAlert}
+                            activeQuest={activeQuest}
                         />
                     )}
 

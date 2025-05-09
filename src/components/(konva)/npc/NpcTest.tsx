@@ -6,14 +6,16 @@ import useImage from "use-image";
 import DialogueBox from "./DialogueBox";
 import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
 import {PlayerItem} from "@/types/playerItem";
+import {QuestType} from "@/types/quest";
 
 interface PropsNpcData {
     npcData: NPC[] | null;
     cameraPosition: { x: number; y: number };
     onDialogOpen?: (isOpen: boolean) => void;
-    player : PlayerItem
+    player: PlayerItem
     onQuestTrigger?: (npcId: number, questId: number) => void; // 追加: クエスト受注通知用
     onAlert?: () => void; // 新たに追加
+    activeQuest?: QuestType;
 
 }
 
@@ -25,7 +27,6 @@ interface NpcDialogueState {
         y?: number
         x?: number
         dialogueProgress?: number; // どこまでダイアログを表示したかを追跡
-
     };
 }
 
@@ -39,6 +40,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                              player,
                                              onQuestTrigger,
                                              onAlert,
+                                             activeQuest
                                          }) => {
 
     console.log(player)
@@ -56,6 +58,16 @@ const NpcTest: React.FC<PropsNpcData> = ({
     const [npcDialogueStates, setNpcDialogueStates] = useState<NpcDialogueState>(
         {}
     );
+
+    const [questProgress, setQuestProgress] = useState(0);
+
+    useEffect(() => {
+        // クエストIDが2の場合にアラートを表示
+        if (activeQuest?.quest.id === 2) {
+            setQuestProgress(2)
+        }
+    }, [activeQuest]);
+
     console.log(npcDialogueStates)
 
     // ローカルストレージからNPCの対話状態を読み込む
@@ -284,14 +296,15 @@ const NpcTest: React.FC<PropsNpcData> = ({
             clearInterval(dialogueTimerRef.current);
             dialogueTimerRef.current = null;
         }
-    };    useEffect(() => {
+    };
+    useEffect(() => {
         return () => {
             if (dialogueTimerRef.current) {
                 clearInterval(dialogueTimerRef.current);
             }
         };
     }, []);
-　
+
 // 次のダイアログに進むハンドラ
     const handleNextDialogue = () => {
         // タイマーがある場合はクリア（自動進行を停止）
@@ -495,7 +508,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
     const [image] = useImage(npc.images[validImageIndex]);
     const moveInProgressRef = useRef(false);
-　
+
 
     if (npc.stageStatus !== currentStage) {
         return null;
@@ -515,7 +528,6 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             }));
         }
     }, [npcState?.y, npcState?.x]);
-
 
 
     // 移動用の参照
@@ -553,7 +565,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             moveToDestination();
         }
 
-        // ID=3のNPCの移動ロジック
+            // ID=3のNPCの移動ロジック
 // ID=3のNPCの移動ロジック部分を修正
         // ID=3のNPCの移動ロMジック - 移動が必要な場合のみ実行
         else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current) {

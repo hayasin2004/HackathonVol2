@@ -12,6 +12,7 @@ import useEnemyBuruBuruMovement from "@/hooks/(animation)/enemy/EnemyBuruBuru/us
 import DialogueBox from "@/components/(konva)/npc/DialogueBox";
 import {QuestType} from "@/types/quest";
 import {number} from "prop-types";
+import {toast} from "react-toastify";
 
 
 interface PropsNpcData {
@@ -25,8 +26,10 @@ interface PropsNpcData {
     socket: Socket | null
     onDialogOpen?: (isOpen: boolean) => void  // 追加: ダイアログの状態を親に通知
     activeQuest?: QuestType // クエスト情報があれば
-
+    onAlert?: () => void; // 新たに追加
+    onNextQuest?: (currentQuestId: number) => void;
 }
+
 const currentStage = 1;
 
 const onInteract = (enemy: Enemy, dialogue: any) => {
@@ -34,9 +37,9 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 };
 
 const EnemyTest: React.FC<PropsNpcData> = ({
-                                               enemyData, cameraPosition, player, socket,
+                                               enemyData, onAlert, cameraPosition, player, socket,
                                                onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack,
-                                               onDialogOpen, activeQuest
+                                               onDialogOpen, activeQuest, onNextQuest
                                            }) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     const [globalMouseDown, setGlobalMouseDown] = useState(false);
@@ -88,10 +91,6 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     }, []);
 
 
-
-
-
-
     const handleRemoveEnemy = (enemyId: number) => {
         console.log(`敵ID: ${enemyId} を削除します`);
 
@@ -124,9 +123,6 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     }, [socket]);
 
 
-
-
-
     // 敵にダメージを与える関数
     const damageEnemy = useCallback((enemy: Enemy, attackPower: number) => {
 
@@ -152,7 +148,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             prev.map(e => e.id === enemy.id ? updatedEnemy : e)
         );
         return false; // 敵はまだ生きている
-    }, [handleRemoveEnemy,playerAttack , socket]);
+    }, [handleRemoveEnemy, playerAttack, socket]);
 
 
     // プレイヤーにダメージを与える関数
@@ -220,7 +216,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             setVisibleEnemies(enemyData);
         }
     }, [enemyData]);
-　
+
 // isVisibleだけを抽出して依存配列に使用
     const isDialogVisible = activeDialogue.isVisible;
 
@@ -288,13 +284,13 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     if (enemy.id >= 7 && enemy.id <= 10) {
                         switch (enemy.id) {
                             case 7:
-                                return { ...enemy, x: 1600, y: 704 };
+                                return {...enemy, x: 1600, y: 704};
                             case 8:
-                                return { ...enemy, x: 576, y: 896 };
+                                return {...enemy, x: 576, y: 896};
                             case 9:
-                                return { ...enemy, x: 1152, y: 128 };
+                                return {...enemy, x: 1152, y: 128};
                             case 10:
-                                return { ...enemy, x: 448, y: 512 };
+                                return {...enemy, x: 448, y: 512};
                             default:
                                 return enemy;
                         }
@@ -304,6 +300,10 @@ const EnemyTest: React.FC<PropsNpcData> = ({
 
                 // ローカルストレージに保存
                 localStorage.setItem("enemyPositions", JSON.stringify(updatedEnemies));
+                if (onNextQuest) {
+                    onNextQuest(1); // 現在のクエストIDを渡す
+                }
+
 
                 return updatedEnemies;
             });
@@ -352,7 +352,6 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             setIsQuestActive(false); // クエストが終了したら非アクティブにする
         }
     }, [activeQuest]);
-
 
 
     if (!visibleEnemies || visibleEnemies.length === 0) {
@@ -409,7 +408,19 @@ const SingleEnemy: React.FC<{
     questProgress: number,
 
 
-}> = ({enemy, cameraPosition, damageEnemy, questProgress,  openDialogue, damagePlayer, isQuestActive,ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
+}> = ({
+          enemy,
+          cameraPosition,
+          damageEnemy,
+          questProgress,
+          openDialogue,
+          damagePlayer,
+          isQuestActive,
+          ECollisionPosition,
+          playerHP,
+          globalMouseDown,
+          playerAttack
+      }) => {
     const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
     const [isColliding, setIsColliding] = useState(false);
@@ -441,9 +452,6 @@ const SingleEnemy: React.FC<{
     };
 
 
-
-
-
     const enemyTalk = () => {
 
         if (isQuestActive && enemy.id >= 7 && enemy.id <= 10) {
@@ -467,11 +475,11 @@ const SingleEnemy: React.FC<{
         const linearMovement = useEnemyLinearRandomMovement(enemy?.x, enemy?.y);
         position = linearMovement.linearPosition;
         showDialog = linearMovement.showDialog;
-    }  else if (enemy.movementPattern.type === "buruburu") {
+    } else if (enemy.movementPattern.type === "buruburu") {
         const buruburuMovement = useEnemyBuruBuruMovement(enemy?.x, enemy?.y);
         position = buruburuMovement.buruburuPosition;
         showDialog = buruburuMovement.showDialog;
-    }else {
+    } else {
         // random でも linear でもない場合、初期位置を使用
         position = {x: enemy?.x, y: enemy?.y};
         showDialog = false;
@@ -527,7 +535,6 @@ const SingleEnemy: React.FC<{
             }
         }
     }, [isColliding, globalMouseDown, enemy, position, ECollisionPosition]);
-
 
 
     // 敵からプレイヤーへの攻撃処理（衝突中は自動的に攻撃）
