@@ -379,22 +379,25 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 if (dialogues && Array.isArray(dialogues) && currentIndex >= dialogues.length - 1) {
                     // NPC IDが3の場合、移動処理を実行　
                     if (activeDialogue.npc.id === 3 && questProgress == 1) {
-                        setQuestProgress(1)
-                        // 状態を更新 - yだけ更新して移動をトリガー
+
+                        const targetX = 1024;
+                        const targetY = 2176;
                         const updatedStates = {
                             ...npcDialogueStates,
                             [activeDialogue.npc!.id]: {
                                 ...npcDialogueStates[activeDialogue.npc!.id],
                                 hasHeardDialogue: true,
                                 lastInteractionDate: new Date().toISOString(),
-                                y: activeDialogue.npc!.y + 1, // 少しだけ値を変えて移動をトリガー
+                                x: targetX,
+                                y: targetY,
+                                dialogueProgress: 8, // 8個目まで表示したことを記録
+                                progress: "Aiと話そう" // 状態を更新
                             },
                         };
-
-                        // 状態を設定してローカルストレージに保存
                         setNpcDialogueStates(updatedStates);
+                        onAlert?.()
+
                         localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                        onNextQuest(0)
                     }
                     else if (activeDialogue.npc.id === 3 && questProgress !== 1 && questProgress !== 2) {
                         toast.info("みどりが走り出した！！追いかけよう！")
