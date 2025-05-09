@@ -18,6 +18,7 @@ import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
 import {QuestType} from "@/types/quest";
 import {toast, ToastContainer} from "react-toastify";
 import {getNextQuest} from "@/repository/prisma/quest/secondQuest/secondQuest";
+import DSCQuest from "@/repository/prisma/quest/DSCQuest/DSCQuest";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -91,7 +92,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         const fetchQuest = async () => {
             try {
                 // クエスト受注処理を実行
-                const response = await firstQuest(playerId.id);
+                const response = await DSCQuest(playerId.id);
                 console.log("クエスト受注結果:", response);
 
                 // クエスト情報を状態に保存
