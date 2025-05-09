@@ -24,9 +24,9 @@ interface mapVolOneTypes {
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
-    players : any[]
+    players: any[]
     enemyData: Enemy[] | null
-    npcData : NPC[] | null
+    npcData: NPC[] | null
     onItemRemove?: (enemyId: string) => void
     onDialogOpen?: (isOpen: boolean) => void;
 }
@@ -56,22 +56,30 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     // アイテムの画像がロード完了したかを追跡するための状態
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: boolean }>({});
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+    const [isNpcDialogOpen, setINpcDialogOpen] = useState(false);
+    const [isEnemyDialogOpen, setIsEnemyDialogOpen] = useState(false);
     // プレイヤーの位置を追跡するためのref
-    const playerPositionRef = useRef({ x: 0, y: 0 });
+    const playerPositionRef = useRef({x: 0, y: 0});
 
     // ダイアログの状態が変更されたときに親コンポーネントに通知
+    const isDialogOpen = isEnemyDialogOpen || isNpcDialogOpen;
     useEffect(() => {
         if (onDialogOpen) {
             onDialogOpen(isDialogOpen);
         }
     }, [isDialogOpen, onDialogOpen]);
 
+
     // NpcTestからダイアログの状態を受け取るハンドラー
     const handleDialogStateChange = (isOpen: boolean) => {
-        console.log("isOpen"+ isOpen)
-        setIsDialogOpen(isOpen);
+        console.log("isOpen" + isOpen)
+        setINpcDialogOpen(isOpen);
+    };
+
+    // EnemyTest 用のダイアログ状態変更ハンドラー
+    const handleEnemyDialogStateChange = (isOpen: boolean) => {
+        console.log("EnemyTest ダイアログ状態変更:", isOpen);
+        setIsEnemyDialogOpen(isOpen);
     };
 
     // クエスト受注処理を行うハンドラ
@@ -87,14 +95,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             console.log("クエスト受注結果:", response);
 
             // クエスト情報を状態に保存
-            setActiveQuest({ npcId, questId });
+            setActiveQuest({npcId, questId});
 
         } catch (error) {
             console.error("クエスト受注中にエラーが発生しました:", error);
         }
     };
-
-
 
 
     // useEffect(() => {
@@ -189,7 +195,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 // タブが表示された時、保存していたプレイヤー位置を使ってカメラを更新
-                const { x, y } = playerPositionRef.current;
+                const {x, y} = playerPositionRef.current;
 
                 // ウィンドウサイズを取得
                 const windowWidth = typeof window !== "undefined" ? window.innerWidth : 800;
@@ -298,7 +304,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     useEffect(() => {
         const fetchMusicList = async () => {
             try {
-                const { data, error } = await supabase.storage
+                const {data, error} = await supabase.storage
                     .from("hackathon2-picture-storage")
                     .list("bgm/mapVolOne"); // フォルダパスを指定
 
@@ -329,7 +335,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         if (selectedMusic) {
             const fetchAndPlayMusic = async () => {
                 try {
-                    const { data, error } = await supabase.storage
+                    const {data, error} = await supabase.storage
                         .from("hackathon2-picture-storage")
                         .createSignedUrl(`bgm/mapVolOne/${selectedMusic}`, 60 * 60); // フルパスを指定して署名付きURLを生成
 
@@ -386,7 +392,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     useEffect(() => {
         const handleResize = () => {
             // プレイヤーの現在位置を取得
-            const { x, y } = playerPositionRef.current;
+            const {x, y} = playerPositionRef.current;
 
             // ウィンドウサイズを取得
             const windowWidth = window.innerWidth;
@@ -571,7 +577,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             onEnemyRemove={handleRemoveEnemy}
                             player={playerId}  // プレイヤー情報を渡す
                             playerAttack={playerId.attack}
-                            onDialogOpen={handleDialogStateChange}
+                            onDialogOpen={handleEnemyDialogStateChange}
                             onPlayerDamage={(newHp) => {
                                 // プレイヤーのHPが更新されたときの処理
                                 console.log(`プレイヤーのHPが${newHp}に更新されました`);
@@ -588,9 +594,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             player={playerId}
                             onQuestTrigger={handleQuestTrigger}
                         />
-                    )}N
-
-
+                    )}
 
 
                     {musicList.map((music, index) => (
@@ -617,7 +621,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             />
                         </React.Fragment>
                     ))}
-                    <Text x={20} y={200} text="音量" fontSize={16} fill="black" />
+                    <Text x={20} y={200} text="音量" fontSize={16} fill="black"/>
                     <Line
                         points={[20, 230, 220, 230]} // スライダーのベースライン
                         stroke="black"
@@ -633,7 +637,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         dragBoundFunc={(pos) => {
                             // ドラッグ範囲を制限
                             const x = Math.max(20, Math.min(pos.x, 220));
-                            return { x, y: 220 };
+                            return {x, y: 220};
                         }}
                         onDragMove={(e) => {
                             // スライダーを移動したときに音量を更新
