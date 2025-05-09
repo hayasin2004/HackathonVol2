@@ -478,7 +478,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                 y={20 + index * 40}
                                 width={300}
                                 height={100}
-                                fill={selectedMusic === music ? "white" : "#444"}
+                                fill={selectedMusic === music ? "#ffffff80" : "#444"}
                                 cornerRadius={9}
                                 stroke="black"
                                 strokeWidth={1}
@@ -511,7 +511,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         y={80}
                         width={210}
                         height={30}
-                        fill="#e0e0ff"
+                        fill="#e0e0ff80"
                         cornerRadius={30}
                         stroke="black"
                         strokeWidth={1}
@@ -521,21 +521,27 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         shadowOpacity={2}
                         />
                     <Rect
-                        x={100 + volume * 200 - 5} // 音量に応じてスライダーの位置を調整
+                        x={105 + volume * 180} // 音量に応じてスライダーの位置を調整
                         y={85}
                         width={20}
                         height={20}
-                        fill="blue"
+                        fill="#fff"
                         draggable
                         cornerRadius={30}
+                        shadowColor="rgba(0,0,0,0.2)"
+                        shadowBlur={10}
+                        shadowOffset={{ x: 0, y: 5 }}
+                        shadowOpacity={2}
                         dragBoundFunc={(pos) => {
                             // ドラッグ範囲を制限
-                            const x = Math.max(20, Math.min(pos.x, 220));
+                            const x = Math.max(105, Math.min(pos.x, 280));
                             return { x, y: 85 };
                         }}
                         onDragMove={(e) => {
                             // スライダーを移動したときに音量を更新
-                            const newVolume = (e.target.x() - 20) / 200;
+                            // dragBoundFuncで制限された後の位置を使用
+                            const x = Math.max(105, Math.min(e.target.x(), 280));
+                            const newVolume = (x - 105) / 180;
                             setVolume(Math.max(0, Math.min(newVolume, 1))); // 音量を制限
                         }}
                     />
@@ -544,7 +550,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         y={60}
                         width={50}
                         height={50}
-                        fill={isPlaying ? "#ffc6e2" : "#c6ffe2"} // 再生中なら赤、停止中なら緑
+                        fill={isPlaying ? "#ffc6e2bb" : "#e0e0e0bb"} // 再生中なら赤、停止中なら緑
                         cornerRadius={30}
                         stroke="black"
                         strokeWidth={1}
