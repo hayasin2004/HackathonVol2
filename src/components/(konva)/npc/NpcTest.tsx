@@ -64,6 +64,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
     useEffect(() => {
         // クエストIDが2の場合にアラートを表示
         if (activeQuest?.quest.id === 2) {
+            alert(activeDialogue)
             setQuestProgress(2)
         }
     }, [activeQuest]);
@@ -80,7 +81,23 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 console.error("NPCの対話状態の読み込みに失敗しました:", e);
             }
         }
+        const questCurrent = localStorage.getItem("enemyPositions");
+        if (questCurrent) {
+            const parsedData = JSON.parse(questCurrent); // JSONをパース
+            const npc3Data = parsedData["10"]; // NPC IDが3のデータを取得
+
+            if (npc3Data?.progress === "みどりと話そう") {
+                setQuestProgress(2);
+                console.log("話しましょう");
+            } else {
+                setQuestProgress(0);
+                console.log("他の状態です");
+            }
+        }
     }, []);
+
+
+
 
     // NPCの対話状態を保存する関数
     const saveNpcDialogueState = (npcId: number) => {
@@ -464,6 +481,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     hasHeardDialogue={hasHeardDialogue(npc.id)}
                     onAutoDialogue={(npc) => handleNpcClick(npc, true)}
                     npcState={npcDialogueStates[npc.id]} // 追加：NPCの状態を渡す
+                    isHighlighted={questProgress === 2 && npc.id === 3} // 強調条件を追加
                 />
             ))}
 
@@ -493,6 +511,7 @@ interface PropsSingleNpc {
         y?: number;
         x?: number;
     };
+    isHighlighted?: boolean;
 }
 
 const SingleNpc: React.FC<PropsSingleNpc> = ({
@@ -502,6 +521,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                                                  cameraPosition,
                                                  hasHeardDialogue,
                                                  npcState,
+                                                 isHighlighted,
                                              }) => {
     const imageIndex = 1;
     const validImageIndex = npc.images.length > imageIndex ? imageIndex : 0;
@@ -669,9 +689,9 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                     height={64}
                     listening={true}
                     hitStrokeWidth={0}
-                    shadowColor="black"
-                    shadowBlur={5}
-                    shadowOpacity={0.5}
+                    shadowColor={isHighlighted ? "yellow" : "black"} // 強調表示の場合は黄色の影
+                    shadowBlur={isHighlighted ? 15 : 5} // 強調表示の場合は影を大きく
+                    shadowOpacity={isHighlighted ? 0.8 : 0.5} // 強調表示の場合は影を強調
                 />
             )}
         </Group>

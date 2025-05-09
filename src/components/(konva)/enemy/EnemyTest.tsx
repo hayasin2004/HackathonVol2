@@ -284,13 +284,13 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     if (enemy.id >= 7 && enemy.id <= 10) {
                         switch (enemy.id) {
                             case 7:
-                                return {...enemy, x: 1600, y: 704};
+                                return { ...enemy, x: 1600, y: 704, progress: "みどりと話そう" }; // progress を追加
                             case 8:
-                                return {...enemy, x: 576, y: 896};
+                                return { ...enemy, x: 576, y: 896, progress: "みどりと話そう" }; // progress を追加
                             case 9:
-                                return {...enemy, x: 1152, y: 128};
+                                return { ...enemy, x: 1152, y: 128, progress: "みどりと話そう" }; // progress を追加
                             case 10:
-                                return {...enemy, x: 448, y: 512};
+                                return { ...enemy, x: 448, y: 512, progress: "みどりと話そう" }; // progress を追加
                             default:
                                 return enemy;
                         }
@@ -298,8 +298,10 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     return enemy;
                 });
 
-                // ローカルストレージに保存
+// ローカルストレージに保存
                 localStorage.setItem("enemyPositions", JSON.stringify(updatedEnemies));
+
+// クエストの進行を更新する場合
                 if (onNextQuest) {
                     onNextQuest(1); // 現在のクエストIDを渡す
                 }

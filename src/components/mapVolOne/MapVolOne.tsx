@@ -87,6 +87,22 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     };
 
     // クエスト受注処理を行うハンドラ
+    useEffect(() => {
+        const fetchQuest = async () => {
+            try {
+                // クエスト受注処理を実行
+                const response = await firstQuest(playerId.id);
+                console.log("クエスト受注結果:", response);
+
+                // クエスト情報を状態に保存
+                setActiveQuest(response);
+
+            } catch (error) {
+                console.error("クエスト受注中にエラーが発生しました:", error);
+            }
+        }
+        fetchQuest()
+    }, []);
 
     // クエスト受注処理を行うハンドラ
     const handleQuestTrigger = async (npcId: number, questId: number) => {
@@ -123,7 +139,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const handleNextQuest = async (currentQuestId: number) => {
         try {
             // サーバーから次のクエストを取得
-            const nextQuest = await getNextQuest(currentQuestId , playerId.id);
+            const nextQuest = await getNextQuest(currentQuestId, playerId.id);
 
             // クエスト情報を状態に保存
             setActiveQuest(nextQuest);
@@ -462,7 +478,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     return (
         <div>
-            <ToastContainer />
+            <ToastContainer/>
 
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
@@ -611,8 +627,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             opacity={0.2}
                         />
                     )}
-
-
 
 
                     {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
