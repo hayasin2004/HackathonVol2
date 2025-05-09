@@ -287,6 +287,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
             clearInterval(dialogueTimerRef.current);
             dialogueTimerRef.current = null;
         }
+        if (questProgress === 2 && activeDialogue.npc?.id === 3) {
+            alert("questProgressが2で、NPC IDが3のダイアログを閉じました");
+        }
+
     };
     useEffect(() => {
         return () => {
