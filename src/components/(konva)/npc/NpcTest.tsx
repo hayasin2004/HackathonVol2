@@ -8,6 +8,7 @@ import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
 import {PlayerItem} from "@/types/playerItem";
 import {QuestType} from "@/types/quest";
 import {number} from "prop-types";
+import {toast} from "react-toastify";
 
 interface PropsNpcData {
     npcData: NPC[] | null;
@@ -63,7 +64,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
         {}
     );
     const [questProgress, setQuestProgress] = useState(0);
-
     useEffect(() => {
         // クエストIDが2の場合にアラートを表示
         if (activeQuest?.quest.id === 2) {
@@ -82,6 +82,9 @@ const NpcTest: React.FC<PropsNpcData> = ({
         const savedStates = localStorage.getItem("npcDialogueStates");
         if (savedStates) {
             try {
+                if (savedStates[3]){
+                    setQuestProgress(1)
+                }
                 setNpcDialogueStates(JSON.parse(savedStates));
             } catch (e) {
                 console.error("NPCの対話状態の読み込みに失敗しました:", e);
@@ -192,7 +195,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
 
                     // ID=1のNPCの場合、自動的にダイアログを進行
-                    if (questProgress !== 4 &&clickedNpc.id === 1) {
+                    if (questProgress !== 4 && clickedNpc.id === 1) {
 
                         // 2秒ごとにダイアログを進行するタイマーを設定
 // 2秒ごとにダイアログを進行するタイマーを設定
@@ -203,6 +206,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                 if (typeof clickedNpc.dialogues === "string") {
                                     try {
                                         dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
+
                                         alert(dialogArray)
                                     } catch (error) {
                                         console.error("ダイアログのパースに失敗しました:", error);
@@ -227,6 +231,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                                     // 自動表示の場合のみ、ダイアログが終了したら対話状態を保存
                                     if (isAutomatic) {
+                                        toast.info("みどりに話しかけよう")
                                         saveNpcDialogueState(clickedNpc.id);
                                     }
 
@@ -267,24 +272,17 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         currentIndex: startIndex, // 10番目（0ベースで9）から開始
                     });
                     return; // 他の処理をスキップ
-                }
-                if (clickedNpc.id === 3) {
+                } else if (clickedNpc.id === 3) {
                     const npcState = npcDialogueStates[clickedNpc.id];
                     const targetX = 1024;
                     const targetY = 2176;
 
                     // 移動完了後かどうかを判断
                     const hasMoved = npcState?.x === targetX && npcState?.y === targetY;
-
                     // 初回は8個目まで、移動完了後は9個目以降を表示
                     let startIndex = 0;
 
-                    if (questProgress === 2) {
-                        // questProgressが2の場合、15個目以降のダイアログのみを表示
-                        filteredDialogues = dialogues.slice(15); // 15個目以降を取得 (0-based index)
-                        startIndex = 0; // スライス後の配列なので最初の要素から開始
-                        console.log("questProgressが2のため、15個目以降のダイアログを1ページ目として表示します。");
-                    } else if (hasMoved) {
+                    if (questProgress == 1 && clickedNpc.id === 3) {
                         // 移動完了後は9番目から表示
                         startIndex = 8;
                         console.log("ID=3のNPCが移動後にクリックされました。9番目以降のダイアログを表示します。");
@@ -300,8 +298,18 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             console.log("開始インデックスがダイアログ配列の範囲を超えています。インデックス0から開始します。");
                             startIndex = 0;
                         }
-                    } else {
-                        console.log("ID=3のNPCが移動前にクリックされました。最初からのダイアログを表示します。");
+                    } else if (questProgress !== 2 && clickedNpc.id === 3) {
+                        // questProgressが2の場合、15個目以降のダイアログのみを表示
+                        filteredDialogues = dialogues.slice(0, 8); // 15個目以降を取得 (0-based index)
+                        startIndex = 0; // スライス後の配列なので最初の要素から開始
+                        console.log("0~8個目のダイアログを1ページ目として表示します。");
+
+
+                    } else if (questProgress === 2) {
+                        // questProgressが2の場合、15個目以降のダイアログのみを表示
+                        filteredDialogues = dialogues.slice(15); // 15個目以降を取得 (0-based index)
+                        startIndex = 0; // スライス後の配列なので最初の要素から開始
+                        console.log("questProgressが2のため、15個目以降のダイアログを1ページ目として表示します。");
                     }
 
                     setActiveDialogue({
@@ -332,7 +340,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 // NPC IDが3の場合、移動処理を実行
 
                 // NPC IDが1の場合にアラートを表示
-                if (activeDialogue.npc.id === 1) {
+                if (activeDialogue.npc.id === 1 && questProgress === 4) {
                     onNextQuest(4); // 現在のクエストIDを渡す
                     localStorage.setItem("quest4Complete", "にげて。。。早く。。。");
 
@@ -357,45 +365,69 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                     console.log(`NPC ID 1 を位置 (${targetX}, ${targetY}) に移動しました。`);
                 }
-                if (activeDialogue.npc.id === 3) {
-                    console.log("最後のダイアログに到達しました - NPCを移動させます");
+                if (dialogues && Array.isArray(dialogues) && currentIndex >= dialogues.length - 1) {
+                    // NPC IDが3の場合、移動処理を実行　
+                    if (activeDialogue.npc.id === 3) {
+                        toast.info("みどりが走り出した！！追いかけよう！")
+                        console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
+                        setQuestProgress(1)
+                        // 状態を更新 - yだけ更新して移動をトリガー
+                        const updatedStates = {
+                            ...npcDialogueStates,
+                            [activeDialogue.npc!.id]: {
+                                ...npcDialogueStates[activeDialogue.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                y: activeDialogue.npc!.y + 1, // 少しだけ値を変えて移動をトリガー
+                            },
+                        };
 
-                    const moveNpc = async () => {
-                        const targetY = (npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0) + 20 * 64; // 20マス分下に移動
-                        let currentY = npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0;
-
-                        while (currentY < targetY) {
-                            await new Promise((resolve) => setTimeout(resolve, 100)); // 100msごとに移動
-                            currentY += 64; // 1マス分移動
-                            setNpcDialogueStates((prev) => ({
-                                ...prev,
-                                [3]: {
-                                    ...prev[3],
-                                    y: currentY,
-                                },
-                            }));
-                        }
-
-                        // 移動完了後、NPCを非表示にし、ローカルストレージに保存
-                        setNpcDialogueStates((prev) => {
-                            const updatedStates = {
-                                ...prev,
-                                [3]: {
-                                    ...prev[3],
-                                    isVisible: false, // NPCを非表示にするフラグ
-                                },
-                            };
-
-                            // ローカルストレージに保存
-                            localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                            return updatedStates;
-                        });
-
-                        console.log("NPCが移動完了し、非表示になりました");
-                    };
-
-                    moveNpc();
+                        // 状態を設定してローカルストレージに保存
+                        setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                    }
                 }
+
+
+                // if (activeDialogue.npc.id === 3) {
+                //     console.log("最後のダイアログに到達しました - NPCを移動させます");
+                //
+                //     const moveNpc = async () => {
+                //         const targetY = (npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0) + 20 * 64; // 20マス分下に移動
+                //         let currentY = npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0;
+                //
+                //         while (currentY < targetY) {
+                //             await new Promise((resolve) => setTimeout(resolve, 100)); // 100msごとに移動
+                //             currentY += 64; // 1マス分移動
+                //             setNpcDialogueStates((prev) => ({
+                //                 ...prev,
+                //                 [3]: {
+                //                     ...prev[3],
+                //                     y: currentY,
+                //                 },
+                //             }));
+                //         }
+                //
+                //         // 移動完了後、NPCを非表示にし、ローカルストレージに保存
+                //         setNpcDialogueStates((prev) => {
+                //             const updatedStates = {
+                //                 ...prev,
+                //                 [3]: {
+                //                     ...prev[3],
+                //                     isVisible: false, // NPCを非表示にするフラグ
+                //                 },
+                //             };
+                //
+                //             // ローカルストレージに保存
+                //             localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                //             return updatedStates;
+                //         });
+                //
+                //         console.log("NPCが移動完了し、非表示になりました");
+                //     };
+                //
+                //     moveNpc();
+                // }
             }
         }
 
@@ -484,6 +516,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                 // 移動完了後は9個目以降を表示
                 if (hasMoved) {
+                    alert("これ")
                     console.log(`ID=3のNPC移動後、次のダイアログに進みます: ${nextIndex + 1}/12`);
 
                     // 最後のダイアログに達した場合
@@ -539,7 +572,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
             const prevIndex = (prev.currentIndex || 0) - 1;
 
             // 3番NPCの特殊処理
-            if (prev.npc.id === 3) {
+            if (prev.npc.id === 3 && questProgress == 1) {
+                alert("これに、")
                 const npcState = npcDialogueStates[prev.npc.id];
                 const targetX = 1024;
                 const targetY = 2176;
@@ -662,6 +696,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
     // 移動用の参照
     useEffect(() => {
         isMountedRef.current = true; // 初期状態を true に設定
+        let isMounted = true;
 
         // ローカルストレージに `quest4Complete` が存在する場合は停止
         const quest4Complete = localStorage.getItem("quest4Complete");
@@ -708,7 +743,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                     }
                 }
 
-                if (isMountedRef.current && !hasHeardDialogue) {　
+                if (isMountedRef.current && !hasHeardDialogue) {
 
                     await new Promise((resolve) => setTimeout(resolve, 300));
                     onAutoDialogue(npc);
@@ -717,7 +752,68 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
 
             moveToDestination();
+        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current) {
+            const moveToDestination = async () => {
+                moveInProgressRef.current = true;
+
+                const targetX = 1024;
+                const targetY = 2176;
+
+                let currentX = position.x;
+                let currentY = position.y;
+
+                // Y座標の移動
+                while ((targetY > currentY ? currentY < targetY : currentY > targetY) && isMounted) {
+                    await new Promise((resolve) => setTimeout(resolve, 90));
+                    currentY += (targetY > currentY) ? 64 : -64;
+                    setPosition((prev) => ({x: prev.x, y: currentY}));
+                }
+
+                // X座標の移動
+                while ((targetX > currentX ? currentX < targetX : currentX > targetX) && isMounted) {
+                    await new Promise((resolve) => setTimeout(resolve, 10));
+                    currentX += (targetX > currentX) ? 64 : -64;
+                    setPosition((prev) => ({x: currentX, y: prev.y}));
+                }
+
+                // 移動完了後、最終位置をローカルストレージに保存
+                if (isMounted) {
+                    const savedStates = localStorage.getItem("npcDialogueStates");
+                    let updatedStates = {};
+
+                    if (savedStates) {
+                        try {
+                            updatedStates = JSON.parse(savedStates);
+                        } catch (e) {
+                            console.error("NPCの対話状態の読み込みに失敗しました:", e);
+                        }
+                    }
+
+                    // 最終位置を保存
+                    updatedStates = {
+                        ...updatedStates,
+                        [npc.id]: {
+                            ...(updatedStates[npc.id] || {}),
+                            hasHeardDialogue: true,
+                            lastInteractionDate: new Date().toISOString(),
+                            y: targetY,
+                            x: targetX, // X座標も保存しておく
+                        },
+                    };
+
+                    // ローカルストレージに保存
+                    localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                    console.log("移動完了、位置を保存しました:", targetX, targetY);
+                }
+
+                moveInProgressRef.current = false;
+            };
+
+            moveToDestination();
+
         }
+
+
         return () => {
             isMountedRef.current = false;
         };

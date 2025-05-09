@@ -87,6 +87,7 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, questProgress
             totalDialogues = dialogues.slice(14).length; // 15個目以降のダイアログ数
             displayCurrentIndex = currentIndex + 1; // スライス後のインデックスに基づく
         }
+
         const targetX = 1024;
         const targetY = 2176;
         const hasMoved = npcState?.x === targetX && npcState?.y === targetY;
