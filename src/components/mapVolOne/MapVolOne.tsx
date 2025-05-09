@@ -294,6 +294,16 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         }
     }, [volume, audio]);
 
+    const [sliderImage, setSliderImage] = useState<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/tiles/marmot.png";
+    img.onload = () => {
+      setSliderImage(img);
+    };
+  }, []);
+
 
     return (
         <div>
@@ -520,31 +530,33 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         shadowOffset={{ x: 0, y: 5 }}
                         shadowOpacity={2}
                         />
-                    <Rect
-                        x={105 + volume * 180} // 音量に応じてスライダーの位置を調整
-                        y={85}
-                        width={20}
-                        height={20}
-                        fill="#fff"
-                        draggable
-                        cornerRadius={30}
-                        shadowColor="rgba(0,0,0,0.2)"
-                        shadowBlur={10}
-                        shadowOffset={{ x: 0, y: 5 }}
-                        shadowOpacity={2}
-                        dragBoundFunc={(pos) => {
-                            // ドラッグ範囲を制限
-                            const x = Math.max(105, Math.min(pos.x, 280));
-                            return { x, y: 85 };
-                        }}
-                        onDragMove={(e) => {
-                            // スライダーを移動したときに音量を更新
-                            // dragBoundFuncで制限された後の位置を使用
-                            const x = Math.max(105, Math.min(e.target.x(), 280));
-                            const newVolume = (x - 105) / 180;
-                            setVolume(Math.max(0, Math.min(newVolume, 1))); // 音量を制限
-                        }}
-                    />
+                    {sliderImage && (
+            <KonvaImage
+              x={105 + volume * 180} // 音量に応じてスライダーの位置を調整
+              y={85}
+              width={20}
+              height={20}
+              image={sliderImage}
+              draggable
+              cornerRadius={30}
+              shadowColor="rgba(0,0,0,0.2)"
+              shadowBlur={10}
+              shadowOffset={{ x: 0, y: 5 }}
+              shadowOpacity={2}
+              dragBoundFunc={(pos) => {
+                // ドラッグ範囲を制限
+                const x = Math.max(105, Math.min(pos.x, 280));
+                return { x, y: 85 };
+              }}
+              onDragMove={(e) => {
+                // スライダーを移動したときに音量を更新
+                // dragBoundFuncで制限された後の位置を使用
+                const x = Math.max(105, Math.min(e.target.x(), 280));
+                const newVolume = (x - 105) / 180;
+                setVolume(Math.max(0, Math.min(newVolume, 1))); // 音量を制限
+              }}
+            />
+          )}
                     <Rect
                         x={40}
                         y={60}
