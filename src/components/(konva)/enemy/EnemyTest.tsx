@@ -109,8 +109,8 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             // 4体倒したらアラートを表示
             if (newCount === 4 && onNextQuest) {
                 onNextQuest(3); // 現在のクエストIDを渡す
+                localStorage.setItem("quest3Complete" , "サクラと話そう")
                 alert("4体の敵を倒しました！");
-                localStorage.setItem("quest4Complete" , "サクラと話そう")
             }
 
             return newCount;
