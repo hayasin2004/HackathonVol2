@@ -1,5 +1,6 @@
 .mainDiv{
-    height: 450vh;
+    height: auto;
+
 }
 
 .characterEditorWrapper{
@@ -28,7 +29,7 @@
     gap: 12px;
     text-align: center;
     align-items: center;
-    padding: 20px 0 10px 0;
+    padding: 20px 0 200px 0;
     flex-wrap: wrap;
 }
 .characterEditorTable{
@@ -94,9 +95,8 @@
 }
 
 
-
 .button {
-    margin-top: 15px;
+    margin-top: 100px;
     height: 45px;
     width: 25%;
     text-align: center;

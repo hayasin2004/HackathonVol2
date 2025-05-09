@@ -596,13 +596,13 @@ export default function Page() {
                     </tbody>
                 </table>
                 <br/>
-                <button type="submit" className={styles.button} disabled={loading}>
-                    {loading
-                        ? "生成中..."
-                        : frontImageUrl
-                            ? "キャラクター再生成"
-                            : "キャラクター生成"}
-                </button>
+                    <button type="submit" className={styles.button} disabled={loading}>
+                        {loading
+                            ? "生成中..."
+                            : frontImageUrl
+                                ? "キャラクター再生成"
+                                : "キャラクター生成"}
+                    </button>
             </form>
 
             {frontImageUrl && (
@@ -737,7 +737,7 @@ export default function Page() {
                 motionImages.right &&
                 motionImages.left && (
                     <div>
-                        <h2>確定画像 (リサイズ済み & GIF化)：</h2>
+                        <h2 className={styles.characterEditorWrapper}>確定画像 (リサイズ済み & GIF化)：</h2>
                         <div className={styles.horizontalImages}>
                             <button className={styles.button} onClick={handleConfirmCharacter} disabled={confirmLoading}>
                                 {confirmLoading ? "確定中..." : "キャラクターを確定"}
@@ -748,8 +748,8 @@ export default function Page() {
 
             {finalImages && (
                 <div>
-                    <h2>最終結果</h2>
-                    <h3>静止画像 (64×64)：</h3>
+                    <h2 className={styles.characterEditorWrapper}>最終結果</h2>
+                    <h3 className={styles.characterEditorWrapper}>静止画像 (64×64)：</h3>
                     <div>
                         <div className={styles.horizontalImages}>
                             <div className={styles.imageContainer}>
@@ -782,7 +782,7 @@ export default function Page() {
                             </div>
                         </div>
                     </div>
-                    <h3>モーション画像 (64×64)：</h3>
+                    <h3 className={styles.characterEditorWrapper}>モーション画像 (64×64)：</h3>
                         <div className={styles.horizontalImages}>
                             <div className={styles.imageContainer}>
                                 <img
@@ -813,7 +813,7 @@ export default function Page() {
                                 />
                             </div>
                         </div>
-                    <h3>GIF アニメーション：</h3>
+                    <h3 className={styles.characterEditorWrapper}>GIF アニメーション：</h3>
                     <div className={styles.horizontalImages}>
                         <div className={styles.imageContainer}>
                             <img
