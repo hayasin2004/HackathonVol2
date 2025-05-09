@@ -206,9 +206,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     useEffect(() => {
         try {
             const questCurrent = localStorage.getItem("npcDialogueStates")
-            if (activeQuest?.quest.id) {
-
-            } else if (questCurrent) {
+ if (questCurrent) {
                 const parsedData = JSON.parse(questCurrent); // JSONをパース
                 const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
 

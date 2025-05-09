@@ -283,10 +283,11 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     let startIndex = 0;
 
                     if (questProgress == 1 && clickedNpc.id === 3) {
-                        // 移動完了後は9番目から表示
-                        startIndex = 8;
-                        console.log("ID=3のNPCが移動後にクリックされました。9番目以降のダイアログを表示します。");
-                        console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${dialogues[startIndex]}`);
+                        // ダイアログを8番目から17番目まで取得
+                        filteredDialogues = dialogues.slice(8, 15); // 8番目から17番目（0-based index）を取得
+                        startIndex = 0; // スライス後の配列の最初から開始
+                        console.log("ID=3のNPCが移動後にクリックされました。8番目から17番目までのダイアログを表示します。");
+                        console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${filteredDialogues[startIndex]}`);
 
                         if (onQuestTrigger) {
                             // 第一引数: NPCのID、第二引数: クエストのID (ここでは1と仮定)
@@ -294,11 +295,21 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         }
 
                         // 配列の範囲を超えないようにチェック
-                        if (startIndex >= dialogues.length) {
+                        if (startIndex >= filteredDialogues.length) {
                             console.log("開始インデックスがダイアログ配列の範囲を超えています。インデックス0から開始します。");
                             startIndex = 0;
                         }
-                    } else if (questProgress !== 2 && clickedNpc.id === 3) {
+
+                        // スライスされたダイアログを設定
+                        setActiveDialogue({
+                            isVisible: true,
+                            npc: {
+                                ...clickedNpc,
+                                dialogues: filteredDialogues, // スライスされたダイアログを使用
+                            },
+                            currentIndex: startIndex,
+                        });
+                    }   else if (questProgress !== 2 && clickedNpc.id === 3) {
                         // questProgressが2の場合、15個目以降のダイアログのみを表示
                         filteredDialogues = dialogues.slice(0, 8); // 15個目以降を取得 (0-based index)
                         startIndex = 0; // スライス後の配列なので最初の要素から開始
@@ -367,7 +378,25 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 }
                 if (dialogues && Array.isArray(dialogues) && currentIndex >= dialogues.length - 1) {
                     // NPC IDが3の場合、移動処理を実行　
-                    if (activeDialogue.npc.id === 3) {
+                    if (activeDialogue.npc.id === 3 && questProgress == 1) {
+                        setQuestProgress(1)
+                        // 状態を更新 - yだけ更新して移動をトリガー
+                        const updatedStates = {
+                            ...npcDialogueStates,
+                            [activeDialogue.npc!.id]: {
+                                ...npcDialogueStates[activeDialogue.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                y: activeDialogue.npc!.y + 1, // 少しだけ値を変えて移動をトリガー
+                            },
+                        };
+
+                        // 状態を設定してローカルストレージに保存
+                        setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                        onNextQuest(0)
+                    }
+                    else if (activeDialogue.npc.id === 3 && questProgress !== 1 && questProgress !== 2) {
                         toast.info("みどりが走り出した！！追いかけよう！")
                         console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
                         setQuestProgress(1)
@@ -516,7 +545,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                 // 移動完了後は9個目以降を表示
                 if (hasMoved) {
-                    alert("これ")
                     console.log(`ID=3のNPC移動後、次のダイアログに進みます: ${nextIndex + 1}/12`);
 
                     // 最後のダイアログに達した場合
@@ -624,6 +652,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     onAutoDialogue={(npc) => handleNpcClick(npc, true)}
                     npcState={npcDialogueStates[npc.id]} // 追加：NPCの状態を渡す
                     isHighlighted={questProgress === 2 && npc.id === 3} // 強調条件を追加
+                    questProgress={questProgress}
                 />
             ))}
 
@@ -655,6 +684,7 @@ interface PropsSingleNpc {
         x?: number;
     };
     isHighlighted?: boolean;
+    questProgress : number
 }
 
 const SingleNpc: React.FC<PropsSingleNpc> = ({
@@ -665,6 +695,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                                                  hasHeardDialogue,
                                                  npcState,
                                                  isHighlighted,
+                                                 questProgress
                                              }) => {
     const imageIndex = 1;
     const validImageIndex = npc.images.length > imageIndex ? imageIndex : 0;
@@ -692,7 +723,17 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         }
     }, [npcState?.y, npcState?.x]);
 
+    useEffect(() => {
+        if (npc.id === 3 && questProgress === 1) {
+            // 指定された座標にレンダリング
+            const targetX = 1024;
+            const targetY = 2176;
 
+            setPosition({ x: targetX, y: targetY });
+
+            console.log(`NPC ID 3 を座標 (${targetX}, ${targetY}) にレンダリングしました`);
+        }
+    }, [npc.id, questProgress])
     // 移動用の参照
     useEffect(() => {
         isMountedRef.current = true; // 初期状態を true に設定
@@ -708,6 +749,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             }
             isMountedRef.current = false;
         }
+;
 
         if (npc.id === 1) {
             const moveToDestination = async () => {
@@ -752,7 +794,11 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
 
             moveToDestination();
-        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current) {
+        }
+
+  　
+
+        else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {　
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;
 
