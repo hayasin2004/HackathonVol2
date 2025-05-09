@@ -525,7 +525,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             listening={false} // クリックを無視
                         />
                     )}
-
                     {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
                         <EnemyTest
                             socket={socket}
