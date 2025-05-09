@@ -184,7 +184,26 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         }
     }, [playerHP, onPlayerDamage, isPlayerAlive]);
     // プレイヤーが死亡している場合、ゲームオーバー表示
+    const [questProgress, setQuestProgress] = useState(0);
+    useEffect(() => {
+        try {
+            const questCurrent = localStorage.getItem("npcDialogueStates");
+            if (questCurrent) {
+                const parsedData = JSON.parse(questCurrent); // JSONをパース
+                const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
 
+                if (npc3Data?.progress === "Aiと話そう") {
+                    setQuestProgress(1);
+                    console.log("話しましょう");
+                } else {
+                    setQuestProgress(0);
+                    console.log("他の状態です");
+                }
+            }
+        } catch (error) {
+            console.error("ローカルストレージからデータを取得・解析中にエラーが発生しました:", error);
+        }
+    }, [activeQuest]);
 　
 // isVisibleだけを抽出して依存配列に使用
     const isDialogVisible = activeDialogue.isVisible;
@@ -310,6 +329,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     playerHP={playerHP}
                     openDialogue={handleOpenDialogue}
                     isQuestActive={isQuestActive}
+                    questProgress={questProgress}
                 />
             ))}
             <DialogueBox
@@ -340,13 +360,15 @@ const SingleEnemy: React.FC<{
     playerHP?: number
     isQuestActive: boolean;
     openDialogue: (enemy: Enemy) => void
-}> = ({enemy, cameraPosition, damageEnemy,   openDialogue, damagePlayer, isQuestActive,ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
+    questProgress: number,
+
+
+}> = ({enemy, cameraPosition, damageEnemy, questProgress,  openDialogue, damagePlayer, isQuestActive,ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
     const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
     const [isColliding, setIsColliding] = useState(false);
     const [image] = useImage(enemy.images[validImageIndex]);
 
-    const [questProgress, setQuestProgress] = useState(0);
 
     // プレイヤー攻撃のクールダウン
     const [lastAttackTime, setLastAttackTime] = useState(0);
@@ -368,19 +390,7 @@ const SingleEnemy: React.FC<{
         }
     };
 
-    useEffect(() => {
-        const questCurrent = localStorage.getItem("npcDialogueStates");
 
-        if (questCurrent == "Aiと話そう"){
-            setQuestProgress(1)
-            return;
-        }else {
-            setQuestProgress(0)
-            return;;
-        }
-
-
-    }, [isQuestActive]);
 
 
 
@@ -500,7 +510,15 @@ const SingleEnemy: React.FC<{
             }
         };
     }, [isColliding, enemy, damagePlayer, lastEnemyAttackTime, enemyAttackCooldown]);
+// 敵を目立たせる条件
+    const isHighlighted = questProgress === 1 && enemy.id >= 7 && enemy.id <= 10;
 
+    // 敵のスタイルを動的に変更
+    const enemyStyle = {
+        shadowColor: isHighlighted ? "red" : "black",
+        shadowBlur: isHighlighted ? 10 : 5,
+        shadowOpacity: isHighlighted ? 0.8 : 0.5,
+    };
 
 
     return (
@@ -519,6 +537,7 @@ const SingleEnemy: React.FC<{
                     image={image}
                     width={enemy.width}
                     height={enemy.height}
+                    {...enemyStyle} // 動的スタイルを適用
                 />
             )}
             <Text
