@@ -408,8 +408,8 @@ export default function Page() {
             backgroundAttachment: "fixed", // 背景を固定
 
         }}>
-            <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
             <form className={styles.characterEditorForm} onSubmit={handleGenerate}>
+                <h1 className={styles.characterEditorWrapper}>Gemini Character Editor</h1>
                 <h2 className={styles.characterEditorWrapper}>キャラクター</h2>
                 <table className={styles.characterEditorTable}>
                     <tbody>
@@ -487,7 +487,7 @@ export default function Page() {
                 </table>
 
                 <br/>
-                <h2>お洋服</h2>
+                <h2 className={styles.characterEditorWrapper}>お洋服</h2>
 
                 <table className={styles.characterEditorTable}>
                     <tbody>

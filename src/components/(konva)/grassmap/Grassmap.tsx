@@ -29,6 +29,7 @@ import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {Enemy} from "@/types/enemy";
 import {Layer, Stage ,Image as KonvaImage} from "react-konva";
+import LoadingScreen from "@/components/LoadingScreen/LoadingScreen";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -301,7 +302,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
     // Loading or Error UI
     if (!connected) {
-        return <div className="loading">サーバーに接続中...</div>;
+        return <LoadingScreen message='読み込み中'/>;
     }
 
     if (error) {
