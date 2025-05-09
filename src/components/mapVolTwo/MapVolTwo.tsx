@@ -1,8 +1,8 @@
 import React, {useState, useEffect, useRef} from "react";
 
-import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
+import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMapDesert";
 import {PlayerItem} from "@/types/playerItem";
-import {Map_data, Tile_size} from "@/components/(konva)/grassmap/mapData";
+import {Map_data, Tile_size} from "@/components/(konva)/desertmap/mapData";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
 import {Stage, Layer, Rect, Image as KonvaImage, Text, Line} from "react-konva";
 import {defaultItem} from '@/types/defaultItem';
@@ -13,7 +13,6 @@ import {Enemy} from "@/types/enemy";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {NPC} from "@/types/npc";
 import {supabase} from "@/lib/supabase";
-import NpcTest from "@/components/(konva)/npc/NpcTest";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -25,12 +24,10 @@ interface mapVolOneTypes {
     socket: Socket | null
     players : any[]
     enemyData: Enemy[] | null
-    npcData : NPC[] | null
     onItemRemove?: (enemyId: string) => void
-    onDialogOpen?: (isOpen: boolean) => void;
 }
 
-const MapVolOne: React.FC<mapVolOneTypes> = ({
+const MapVolThree: React.FC<mapVolOneTypes> = ({
                                                  playerId,
                                                  ECollisionPosition,
                                                  playerCharacter,
@@ -39,8 +36,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  enemyData,
                                                  socket,
                                                  players,
-                                                 npcData,
-                                                 onDialogOpen,
+                                                 onItemRemove
                                              }) => {
 
 
@@ -54,23 +50,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const [DeleteItems, setDeleteItems] = useState<objectItemIconImage[] | null>(objectItemImage);
     // アイテムの画像がロード完了したかを追跡するための状態
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: boolean }>({});
-
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-    // プレイヤーの位置を追跡するためのref
-    const playerPositionRef = useRef({ x: 0, y: 0 });
-
-    // ダイアログの状態が変更されたときに親コンポーネントに通知
-    useEffect(() => {
-        if (onDialogOpen) {
-            onDialogOpen(isDialogOpen);
-        }
-    }, [isDialogOpen, onDialogOpen]);
-
-    // NpcTestからダイアログの状態を受け取るハンドラー
-    const handleDialogStateChange = (isOpen: boolean) => {
-        setIsDialogOpen(isOpen);
-    };
 
     // useEffect(() => {
     //     console.log("items" + JSON.stringify(items))
@@ -112,8 +91,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
         fetchItems();
         return () => {
-            socket?.off('itemPlaced');
-            socket?.off('itemRemoved');
+            socket.off('itemPlaced');
+            socket.off('itemRemoved');
         };
     }, [socket]);
 
@@ -131,65 +110,15 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         setItems(objectItemImage); // 外部から渡された最新のアイテムリストを反映
     }, [objectItemImage]);
 
-    // カメラ位置の更新をリファクタリング
+    const cameraPositionHook = useCameraPosition(
+        ECollisionPosition.x,
+        ECollisionPosition.y
+    );
     useEffect(() => {
-        // プレイヤーの位置が変わったら参照を更新
-        if (ECollisionPosition) {
-            playerPositionRef.current = {
-                x: ECollisionPosition.x,
-                y: ECollisionPosition.y
-            };
-        }
+        // cameraPositionの変更を検知して状態を更新
+        setCameraPosition(cameraPositionHook);
+    }, [cameraPositionHook, ECollisionPosition]);
 
-        // カメラ位置を更新
-        if (ECollisionPosition) {
-            // ウィンドウサイズを取得
-            const windowWidth = typeof window !== "undefined" ? window.innerWidth : 800;
-            const windowHeight = typeof window !== "undefined" ? window.innerHeight : 600;
-
-            // プレイヤーが画面中央に来るようにカメラ位置を計算
-            const newCameraX = ECollisionPosition.x - (windowWidth / 2) + (Tile_size / 2);
-            const newCameraY = ECollisionPosition.y - (windowHeight / 2) + (Tile_size / 2);
-
-            // カメラ位置を更新
-            setCameraPosition({
-                x: Math.max(0, newCameraX),  // 負の値にならないように
-                y: Math.max(0, newCameraY)   // 負の値にならないように
-            });
-        }
-    }, [ECollisionPosition]);
-
-    // タブ切り替え時にカメラ位置をリセット
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                // タブが表示された時、保存していたプレイヤー位置を使ってカメラを更新
-                const { x, y } = playerPositionRef.current;
-
-                // ウィンドウサイズを取得
-                const windowWidth = typeof window !== "undefined" ? window.innerWidth : 800;
-                const windowHeight = typeof window !== "undefined" ? window.innerHeight : 600;
-
-                // プレイヤーが画面中央に来るようにカメラ位置を計算
-                const newCameraX = x - (windowWidth / 2) + (Tile_size / 2);
-                const newCameraY = y - (windowHeight / 2) + (Tile_size / 2);
-
-                // カメラ位置を更新
-                setCameraPosition({
-                    x: Math.max(0, newCameraX),
-                    y: Math.max(0, newCameraY)
-                });
-            }
-        };
-
-        // visibilitychange イベントリスナーを追加
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        // クリーンアップ関数
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, []);
 
     useEffect(() => {
         setTileImages(tileImagesComplete)
@@ -223,14 +152,10 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         event.evt.preventDefault();
     };
     const [localEnemyData, setLocalEnemyData] = useState<Enemy[] | null>(enemyData);
-    const [localNpcData, setLocalNpcData] = useState<NPC[] | null>(npcData);
 
     useEffect(() => {
         setLocalEnemyData(enemyData);
     }, [enemyData]);
-    useEffect(() => {
-        setLocalNpcData(npcData);
-    }, [npcData]);
     // 敵を削除する関数
 
     const handleRemoveEnemy = (enemyId: number) => {
@@ -262,6 +187,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             loadImages();
         }
     }, [players]);
+
+    // カメラの位置を更新
+    useEffect(() => {
+        setCameraPosition({ x: playerId.x, y: playerId.y });
+    }, [playerId]);
 
     const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
     const [musicList, setMusicList] = useState<string[]>([]);
@@ -324,11 +254,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         newAudio.volume = Math.max(0, Math.min(volume, 1)); // 音量を制限
 
                         // 自動再生を試みる
-                        // newAudio
-                        //     .play()
-                        //     .catch((err) => {
-                        //         console.error("音楽の再生中にエラーが発生しました:", err);
-                        //     });
+                        newAudio
+                            .play()
+                            .catch((err) => {
+                                console.error("音楽の再生中にエラーが発生しました:", err);
+                            });
 
                         setAudio(newAudio);
                         setIsPlaying(true); // 再生状態を更新
@@ -357,35 +287,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         }
     }, [volume, audio]);
 
-    // ウィンドウのリサイズ時にカメラ位置を更新
-    useEffect(() => {
-        const handleResize = () => {
-            // プレイヤーの現在位置を取得
-            const { x, y } = playerPositionRef.current;
-
-            // ウィンドウサイズを取得
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-
-            // プレイヤーが画面中央に来るようにカメラ位置を計算
-            const newCameraX = x - (windowWidth / 2) + (Tile_size / 2);
-            const newCameraY = y - (windowHeight / 2) + (Tile_size / 2);
-
-            // カメラ位置を更新
-            setCameraPosition({
-                x: Math.max(0, newCameraX),
-                y: Math.max(0, newCameraY)
-            });
-        };
-
-        // リサイズイベントリスナーを追加
-        window.addEventListener('resize', handleResize);
-
-        // クリーンアップ関数
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
 
     return (
         <div>
@@ -395,15 +296,15 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 onContextMenu={handleStageContextMenu}
             >
                 <Layer>
-                    {/* --- 1. Grass背景 --- */}
+                    {/* --- 1. Desert背景 --- */}
                     {Map_data.map((row, rowIndex) =>
                         row.map((_, colIndex) => {
-                            const grassImg = tileImages["grass"];
-                            if (!grassImg) return null;
+                            const desertImg = tileImages["desert"];
+                            if (!desertImg) return null;
                             return (
                                 <KonvaImage
-                                    key={`grass-${rowIndex}-${colIndex}`}
-                                    image={grassImg}
+                                    key={`desert-${rowIndex}-${colIndex}`}
+                                    image={desertImg}
                                     x={colIndex * Tile_size - cameraPosition.x}
                                     y={rowIndex * Tile_size - cameraPosition.y}
                                     width={Tile_size}
@@ -525,7 +426,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             listening={false} // クリックを無視
                         />
                     )}
-
                     {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
                         <EnemyTest
                             socket={socket}
@@ -543,14 +443,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         />
                     )}
 
-                    {Array.isArray(localNpcData) && localNpcData.length > 0 && (
-                        <NpcTest
-                            npcData={localNpcData}
-                            cameraPosition={cameraPosition}
-                            onDialogOpen={handleDialogStateChange}
-                        />
-                    )}
-
 
                     {isDark && (
                         <Rect
@@ -563,7 +455,30 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         />
                     )}
 
-
+                    {musicList.map((music, index) => (
+                        <React.Fragment key={index}>
+                            {/* 背景を描画（選択状態の場合は色を変更） */}
+                            <Rect
+                                x={20}
+                                y={20 + index * 40}
+                                width={300}
+                                height={30}
+                                fill={selectedMusic === music ? "lightblue" : "white"}
+                                stroke="black"
+                                strokeWidth={1}
+                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
+                            />
+                            {/* 音楽名を描画 */}
+                            <Text
+                                x={25}
+                                y={25 + index * 40}
+                                text={music}
+                                fontSize={16}
+                                fill="black"
+                                onClick={() => setSelectedMusic(music)} // 音楽を選択する
+                            />
+                        </React.Fragment>
+                    ))}
                     {musicList.map((music, index) => (
                         <React.Fragment key={index}>
                             {/* 背景を描画（選択状態の場合は色を変更） */}
@@ -659,4 +574,4 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 }
 
 
-export default MapVolOne;
+export default MapVolThree;

@@ -15,12 +15,12 @@ import {MapTilesType} from "@/types/map";
 import {get_character} from "@/script/get_character";
 import useCharacterImage from "@/hooks/(realTime)/2D/2Dcamera/getCharacterImage/useCharacterImage";
 import useCameraPosition from "@/hooks/(realTime)/2D/2Dcamera/initialCameraPosition/useCameraPosition";
-import useGenerateMap from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMap";
+import useGenerateMapSnow from "@/hooks/(realTime)/2D/2DMap/firstMapGenerateTile/useGenerateMapSnow";
 import useMotionCharacter from "@/hooks/(realTime)/2D/2DCharacterMotion/useMotionCharacter";
 import {CharacterImageData} from "@/types/character";
 import {PlayerItem} from "@/types/playerItem";
 import useGetItem from "@/hooks/(realTime)/item/getItem/useGetItem";
-import MapVolOne from "@/components/mapVolOne/MapVolOne";
+import MapVolThree from "@/components/mapVolThree/MapVolThree";
 import useToastItem from "@/hooks/(realTime)/item/toastItem/useToastItem";
 import PlayerInventory from "@/components/playerInventory/PlayerInventory";
 import useDestroyANDRandom from "@/hooks/(realTime)/item/destroyANDRandom/useDestroyANDRandom";
@@ -29,8 +29,6 @@ import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {Enemy} from "@/types/enemy";
 import {Layer, Stage ,Image as KonvaImage} from "react-konva";
-import {GetNpc} from "@/repository/prisma/npc/npcRepository";
-import {NPC} from "@/types/npc";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -41,7 +39,7 @@ interface GameProps {
 }
 
 
-const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
+const MapWithCharacterSnow: React.FC<GameProps> = ({playerId, roomId, itemData}) => {
     const {socket, connected, players, items, error, movePlayer} = useSocketConnection(playerId.playerId, roomId);
 
     const {itemEvents, craftEvents} = useSupabaseRealtime(roomId, playerId.id);
@@ -51,17 +49,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
-    const [isDialogOpen, setIsDialogOpen] = useState(false); // ダイアログの表示状態を管理
-    console.log(isDialogOpen)
-    // 既存のコード...
 
-    // ダイアログの状態を受け取るハンドラー
-    const handleDialogStateChange = (isOpen: boolean) => {
-        setIsDialogOpen(isOpen);
-    };
-
-// PlayerInventoryに渡すアイテムの状態を追加
-    const [playerInventory, setPlayerInventory] = useState([]);
 
     // 試験的なデータ
 
@@ -188,7 +176,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     // ----------------------------
     // タイル画像の読み込み
     // ----------------------------
-    const {tileImagesComplete, isLoading} = useGenerateMap()
+    const {tileImagesComplete, isLoading} = useGenerateMapSnow()
 
     useEffect(() => {
         setTileImages(tileImagesComplete)
@@ -274,7 +262,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     //     }
     // }, [craftEvents, playerId]);
     const [enemyData, setEnemyData] = useState<Enemy[] | null>([]);
-    const [npcData, setNpcData] = useState<NPC[] | null>([]);
 
     const [isLoadingEnemy, setIsLoading] = useState(true);
 
@@ -291,20 +278,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             }
         };
         fetchEnemyData();
-    }, []);
-    useEffect(() => {
-        const fetchNpcData = async () => {
-            try {
-                const data = await GetNpc();
-                //console.log('Fetched enemy data:', data);
-                setNpcData(data);
-            } catch (error) {
-                console.error('Error fetching enemy data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchNpcData();
     }, []);
 
 
@@ -323,7 +296,6 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 　
         }
     }, [players]);
-
 
 
 
@@ -351,7 +323,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                 {/*))}*/}
             </div>
 
-                <MapVolOne
+                <MapVolThree
                     playerId={playerId}
                     players={players}
                     ECollisionPosition={ECollisionPosition}
@@ -361,25 +333,22 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     nearbyItemPosition={nearbyItemPosition}
                     socket={socket}
                     enemyData={enemyData}
-                    npcData={npcData}
-                    onDialogOpen={handleDialogStateChange}
                 />
 
             {/*<div>*/}
-            {!isDialogOpen && (
-                <PlayerInventory roomId={roomId} playerId={playerId}
-                                 players={players}
-                                 eCollisionGotItem={eCollisionGotItem}
-                                 objectItemImage={objectItemImage}
-                                 ECollisionPosition={ECollisionPosition}
-                                 craftEvents={craftEvents}
-                                 currentDirectionRef={currentDirectionRef}
-                                 playerDirection={playerDirection}
-                                 socket={socket}
-                                 playerInventory={playerInventory}
 
-                />
-            )}
+            {/*    <PlayerInventory roomId={roomId} playerId={playerId}*/}
+            {/*                     players={players}*/}
+            {/*                     eCollisionGotItem={eCollisionGotItem}*/}
+            {/*                     objectItemImage={objectItemImage}*/}
+            {/*                     ECollisionPosition={ECollisionPosition}*/}
+            {/*                     craftEvents={craftEvents}*/}
+            {/*                     currentDirectionRef={currentDirectionRef}*/}
+            {/*                     playerDirection={playerDirection}*/}
+            {/*                     socket={socket}*/}
+
+            {/*    />*/}
+
 
             {/*    /!*    <form action={logout}>*!/*/}
             {/*    /!*        <button className={styles.fixedLogOutButton}>*!/*/}
@@ -411,9 +380,9 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             {/*    /!*        </div>*!/*/}
             {/*    /!*    ))}*!/*/}
             {/*</div>*/}
-
+　
         </div>
     );
 };
 
-export default MapWithCharacter;
+export default MapWithCharacterSnow;

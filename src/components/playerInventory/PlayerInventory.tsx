@@ -28,8 +28,15 @@ interface PlayerInventoryProps {
 
 
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({
-                                                             roomId, playerId, eCollisionGotItem, ECollisionPosition,
-                                                             currentDirectionRef, craftEvents, socket, playerDirection,playerInventory
+                                                             roomId,
+                                                             playerId,
+                                                             eCollisionGotItem,
+                                                             ECollisionPosition,
+                                                             currentDirectionRef,
+                                                             craftEvents,
+                                                             socket,
+                                                             playerDirection,
+                                                             playerInventory
                                                          }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
@@ -42,11 +49,8 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     const handleItemClick = (itemId: number) => {
 
         if (selectedItemId === itemId) {
-            alert("どっちに来てるの１")
             setSelectedItemId(null);
         } else {
-            alert("どっちに来てるの１あ")
-
             setSelectedItemId(itemId);
         }
     };
@@ -99,7 +103,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
         };
 
         const handleMouseDown = (event) => {
-            if (event.button === 2 && selectedItemId !== null) {
+            if (event.button === 0 && selectedItemId !== null) {
                 event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
                 console.log(`アイテムを置いたよ!!!: ${selectedItemId}`);
                 // 置かれたアイテムを保存するロジック
@@ -135,18 +139,18 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                         }
                         const itemData = {
                             roomId,
-                            placedByPlayer : selectedItemId,
+                            placedByPlayer: selectedItemId,
                             playerDirection,
-                            playerId : playerId.id,
+                            playerId: playerId.id,
                             currentDirectionRef,
                             ECollisionPosition,
-                            itemId : putItemData.data.itemId,
+                            itemId: putItemData?.data?.itemId,
                             id: putItemData?.data?.id,
-                            x: putItemData.data.x,
-                            y: putItemData.data.y,
-                            width: putItemData.data.width,
-                            height: putItemData.data.height,
-                            iconImage: putItemData.data.iconImage,
+                            x: putItemData?.data?.x,
+                            y: putItemData?.data?.y,
+                            width: putItemData?.data?.width,
+                            height: putItemData?.data?.height,
+                            iconImage: putItemData?.data?.iconImage,
                         };
                         // サーバーにアイテム配置を通知
                         socket.emit('placeItem', itemData);

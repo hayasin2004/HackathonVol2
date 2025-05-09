@@ -8,7 +8,7 @@ export const Map_height = 64; // 高さ
 // タイルの種類 辞書型に定義
 export const Tile_list = {
     Desert: "desert",
-    Grass: "grass",
+    // Grass: "grass",
     Path: "path",
     Building: "building",
     Water: "water",
@@ -49,7 +49,7 @@ export const generateItemPositions = (
             tileX >= 0 && tileX < Map_width &&
             tileY >= 0 && tileY < Map_height;
 
-        const isTileEmpty = map[tileY]?.[tileX] === "grass"; // ←ここポイント！
+        const isTileEmpty = map[tileY]?.[tileX] === "desert"; // ←ここポイント！
 
         if (isInBounds && isTileEmpty && !isTooClose(tileX, tileY)) {
             itemPositions.push({tileX, tileY});
@@ -59,13 +59,13 @@ export const generateItemPositions = (
     return itemPositions;
 };
 // マップ生成関数
-//ランダムマップ再生 Array.fromで一つ一つを"grass"に設定
+//ランダムマップ再生 Array.fromで一つ一つを"desert"に設定
 export const generateMap = () => {
     const map2d: string[][] = [];
 
-    // 2D配列を grass で初期化
+    // 2D配列を desert で初期化
     for (let y = 0; y < Map_height; y++) {
-        map2d[y] = new Array(Map_width).fill("grass");
+        map2d[y] = new Array(Map_width).fill("desert");
     }
     for (let y = 0; y <= 11; y++) {
         map2d[y][19] = "path"; // x20 y0~11 A-1 <=
@@ -158,16 +158,6 @@ export const generateMap = () => {
         map2d[57][x] = "path"; // x23~54 y56 I+1 <=
     }
 
-    for (let y = 58; y <= 63; y++) {
-        map2d[y][37] = "path";
-    }
-    for (let y = 58; y <= 63; y++) {
-        map2d[y][38] = "path";
-    }
-    for (let y = 58; y <= 63; y++) {
-        map2d[y][39] = "path";
-    }
-
     const placeTile = (tile: string, count: number, size = 1) => {
         let placed = 0;
         while (placed < count) {
@@ -176,16 +166,16 @@ export const generateMap = () => {
 
             if (size === 1) {
                 // 1タイルの時
-                if (map2d[y][x] === "grass") {
+                if (map2d[y][x] === "desert") {
                     map2d[y][x] = tile;
                     placed++;
                 }
             } else if (size === 2) {
                 if (
-                    map2d[y][x] === "grass" &&
-                    map2d[y][x + 1] === "grass" &&
-                    map2d[y + 1][x] === "grass" &&
-                    map2d[y + 1][x + 1] === "grass"
+                    map2d[y][x] === "desert" &&
+                    map2d[y][x + 1] === "desert" &&
+                    map2d[y + 1][x] === "desert" &&
+                    map2d[y + 1][x + 1] === "desert"
                 ) {
                     map2d[y][x] = tile;
                     map2d[y][x + 1] = tile;
