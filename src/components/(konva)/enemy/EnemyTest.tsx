@@ -89,19 +89,40 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             window.removeEventListener('mousedown', handleGlobalMouseDown);
         };
     }, []);
-
+    const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0);
 
     const handleRemoveEnemy = (enemyId: number) => {
         console.log(`敵ID: ${enemyId} を削除します`);
+
+        // ローカルストレージに削除された敵IDを保存
+        const defeatedEnemies = JSON.parse(localStorage.getItem("defeatedEnemies") || "[]");
+        if (!defeatedEnemies.includes(enemyId)) {
+            defeatedEnemies.push(enemyId);
+            localStorage.setItem("defeatedEnemies", JSON.stringify(defeatedEnemies));
+        }
+
+        // 倒した敵のカウントを増やす
+        setTotalEnemiesDefeated((prevCount) => {
+            const newCount = prevCount + 1;
+            console.log(`現在までに倒した敵の合計数: ${newCount}`);
+
+            // 4体倒したらアラートを表示
+            if (newCount === 4 && onNextQuest) {
+                onNextQuest(3); // 現在のクエストIDを渡す
+                alert("4体の敵を倒しました！");
+            }
+
+            return newCount;
+        });
 
         // 親コンポーネントに通知（もし関数が提供されていれば）
         if (onEnemyRemove) {
             onEnemyRemove(enemyId);
         }
 
-        // ローカルの状態も更新
+        // ローカルの状態を更新して敵を削除
+        setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== enemyId));
     };
-
     // もし他のプレイヤーが敵を倒したときの通知
     // ソケットイベントで敵削除を受信
     useEffect(() => {
@@ -202,18 +223,13 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     }, [activeQuest]);
 
     useEffect(() => {
-        // ローカルストレージから敵の座標を取得
-        const storedPositions = localStorage.getItem("enemyPositions");
-        if (storedPositions) {
-            try {
-                const parsedPositions = JSON.parse(storedPositions);
-                setVisibleEnemies(parsedPositions);
-            } catch (error) {
-                console.error("ローカルストレージから敵の座標を読み込む際にエラーが発生しました:", error);
-            }
-        } else if (enemyData) {
-            // ローカルストレージにデータがない場合は、初期データを使用
-            setVisibleEnemies(enemyData);
+        // ローカルストレージから削除された敵IDを取得
+        const defeatedEnemies = JSON.parse(localStorage.getItem("defeatedEnemies") || "[]");
+
+        if (enemyData) {
+            // 削除された敵を除外して表示
+            const filteredEnemies = enemyData.filter((enemy) => !defeatedEnemies.includes(enemy.id));
+            setVisibleEnemies(filteredEnemies);
         }
     }, [enemyData]);
 
@@ -284,13 +300,13 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     if (enemy.id >= 7 && enemy.id <= 10) {
                         switch (enemy.id) {
                             case 7:
-                                return { ...enemy, x: 1600, y: 704, progress: "みどりと話そう" }; // progress を追加
+                                return {...enemy, x: 1600, y: 704, progress: "みどりと話そう"}; // progress を追加
                             case 8:
-                                return { ...enemy, x: 576, y: 896, progress: "みどりと話そう" }; // progress を追加
+                                return {...enemy, x: 576, y: 896, progress: "みどりと話そう"}; // progress を追加
                             case 9:
-                                return { ...enemy, x: 1152, y: 128, progress: "みどりと話そう" }; // progress を追加
+                                return {...enemy, x: 1152, y: 128, progress: "みどりと話そう"}; // progress を追加
                             case 10:
-                                return { ...enemy, x: 448, y: 512, progress: "みどりと話そう" }; // progress を追加
+                                return {...enemy, x: 448, y: 512, progress: "みどりと話そう"}; // progress を追加
                             default:
                                 return enemy;
                         }
