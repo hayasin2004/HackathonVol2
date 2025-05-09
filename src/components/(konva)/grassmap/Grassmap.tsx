@@ -63,7 +63,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
 // PlayerInventoryに渡すアイテムの状態を追加
     const [playerInventory, setPlayerInventory] = useState([]);
-
+    const [npcData, setNpcData] = useState<NPC[] | null>([]);
     // 試験的なデータ
 
     const [objectItemImage, setObjectItemImage] = useState<
