@@ -13,9 +13,10 @@ interface PropsDialogueBox {
     onClose?: () => void;
     onNextDialogue?: () => void;
     onPrevDialogue?: () => void;
+    questProgress: number
 }
 
-const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onClose, onNextDialogue, onPrevDialogue }) => {
+const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, questProgress,onClose, onNextDialogue, onPrevDialogue }) => {
     // activeDialogue.isVisible が true で、かつ activeDialogue.npc が存在する場合のみ表示
     if (!activeDialogue.isVisible || !activeDialogue.npc) {
         return null;
@@ -78,6 +79,14 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onClose, onNe
             }
         }
 
+        let totalDialogues = dialogues?.length || 0;
+        let displayCurrentIndex = currentIndex + 1; // デフォルトは通常通り
+
+        if (npc.id === 3 && questProgress === 2) {
+            // 15個目以降のダイアログに対応
+            totalDialogues = dialogues.slice(14).length; // 15個目以降のダイアログ数
+            displayCurrentIndex = currentIndex + 1; // スライス後のインデックスに基づく
+        }
         const targetX = 1024;
         const targetY = 2176;
         const hasMoved = npcState?.x === targetX && npcState?.y === targetY;

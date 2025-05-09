@@ -88,6 +88,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             if (npc3Data?.progress === "みどりと話そう") {
                 setQuestProgress(2);
+                // kaiha 16 start
                 console.log("話しましょう");
             } else {
                 setQuestProgress(0);
@@ -177,9 +178,15 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                     // 初回は8個目まで、移動完了後は9個目以降を表示
                     let startIndex = 0;
+                    let filteredDialogues = dialogues; // 初期値は全体のダイアログ配列
 
-                    if (hasMoved) {
-                        // 移動完了後は9個目から表示
+                    if (questProgress === 2) {
+                        // questProgressが2の場合、15個目以降のダイアログのみを表示
+                        filteredDialogues = dialogues.slice(15); // 15個目以降を取得 (0-based index)
+                        startIndex = 0; // スライス後の配列なので最初の要素から開始
+                        console.log("questProgressが2のため、15個目以降のダイアログを1ページ目として表示します。");
+                    } else if (hasMoved) {
+                        // 移動完了後は9番目から表示
                         startIndex = 8;
                         console.log("ID=3のNPCが移動後にクリックされました。9番目以降のダイアログを表示します。");
                         console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${dialogues[startIndex]}`);
@@ -200,46 +207,13 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                     setActiveDialogue({
                         isVisible: true,
-                        npc: clickedNpc,
-                        currentIndex: startIndex
+                        npc: {
+                            ...clickedNpc,
+                            dialogues: filteredDialogues, // フィルタリングしたダイアログを設定
+                        },
+                        currentIndex: startIndex,
                     });
-                } else {
-                    // 他のNPCは通常通り
-                    setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
-
-                    // ID=1のNPCの自動進行コードを復元
-                    if (clickedNpc.id === 1) {
-                        dialogueTimerRef.current = setInterval(() => {
-                            setActiveDialogue((prev) => {
-                                const dialogArray =
-                                    typeof clickedNpc.dialogues === "string"
-                                        ? JSON.parse(clickedNpc.dialogues)
-                                        : clickedNpc.dialogues;
-
-                                const nextIndex = prev.currentIndex + 1;
-
-                                if (nextIndex >= dialogArray.length) {
-                                    if (dialogueTimerRef.current) {
-                                        clearInterval(dialogueTimerRef.current);
-                                        dialogueTimerRef.current = null;
-                                    }
-
-                                    if (isAutomatic) {
-                                        saveNpcDialogueState(clickedNpc.id);
-                                    }
-
-                                    return prev;
-                                }
-
-                                return {
-                                    ...prev,
-                                    currentIndex: nextIndex,
-                                };
-                            });
-                        }, 2500);
-                    }
-                }
-            }
+                }            }
         } else {
             setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
         }
@@ -494,6 +468,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 onClose={handleCloseDialogue}
                 onNextDialogue={handleNextDialogue}
                 onPrevDialogue={handlePrevDialogue}
+                questProgress={questProgress}
             />
         </>
     );
