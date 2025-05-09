@@ -204,6 +204,22 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             console.error("ローカルストレージからデータを取得・解析中にエラーが発生しました:", error);
         }
     }, [activeQuest]);
+
+    useEffect(() => {
+        // ローカルストレージから敵の座標を取得
+        const storedPositions = localStorage.getItem("enemyPositions");
+        if (storedPositions) {
+            try {
+                const parsedPositions = JSON.parse(storedPositions);
+                setVisibleEnemies(parsedPositions);
+            } catch (error) {
+                console.error("ローカルストレージから敵の座標を読み込む際にエラーが発生しました:", error);
+            }
+        } else if (enemyData) {
+            // ローカルストレージにデータがない場合は、初期データを使用
+            setVisibleEnemies(enemyData);
+        }
+    }, [enemyData]);
 　
 // isVisibleだけを抽出して依存配列に使用
     const isDialogVisible = activeDialogue.isVisible;
@@ -267,8 +283,8 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             console.log("[EnemyTest] 10番の敵に話しかけたので7～10の敵を移動させます");
 
             // 7～10の敵を一斉に移動させる
-            setVisibleEnemies((prevEnemies) =>
-                prevEnemies.map((enemy) => {
+            setVisibleEnemies((prevEnemies) => {
+                const updatedEnemies = prevEnemies.map((enemy) => {
                     if (enemy.id >= 7 && enemy.id <= 10) {
                         switch (enemy.id) {
                             case 7:
@@ -284,9 +300,13 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                         }
                     }
                     return enemy;
-                })
+                });
 
-            );
+                // ローカルストレージに保存
+                localStorage.setItem("enemyPositions", JSON.stringify(updatedEnemies));
+
+                return updatedEnemies;
+            });
         }
         setActiveDialogue(prev => {
             if (!prev.isVisible) {
