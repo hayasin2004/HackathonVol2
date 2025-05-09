@@ -62,16 +62,19 @@ const NpcTest: React.FC<PropsNpcData> = ({
     const [npcDialogueStates, setNpcDialogueStates] = useState<NpcDialogueState>(
         {}
     );
-
     const [questProgress, setQuestProgress] = useState(0);
 
     useEffect(() => {
         // クエストIDが2の場合にアラートを表示
         if (activeQuest?.quest.id === 2) {
-            alert(activeDialogue)
             setQuestProgress(2)
         }
+        else if (activeQuest?.quest.id == 4){
+            alert("これ4つ目")
+            setQuestProgress(4)
+        }
     }, [activeQuest]);
+
 
     console.log(npcDialogueStates)
 
@@ -86,7 +89,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
             }
         }
         const questCurrent = localStorage.getItem("enemyPositions");
-        if (questCurrent) {
+        const quest4Sakura = localStorage.getItem("quest4Complete");
+        if (questCurrent && quest4Sakura == undefined || quest4Sakura == null ) {
             const parsedData = JSON.parse(questCurrent); // JSONをパース
             const npc3Data = parsedData["10"]; // NPC IDが3のデータを取得
 
@@ -98,7 +102,16 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 setQuestProgress(0);
                 console.log("他の状態です");
             }
+        }else if (questCurrent && quest4Sakura){; // JSONをパース
+
+            if (quest4Sakura  === "サクラと話そう") {
+                setQuestProgress(4);
+                // kaiha 16 start
+                console.log("話しましょう");
+            }
         }
+
+
     }, []);
 
 
@@ -172,6 +185,19 @@ const NpcTest: React.FC<PropsNpcData> = ({
         } else if (hasDialogue) {
             if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
                 // 3番NPCの特殊処理
+                let startIndex = 0;
+                if (questProgress === 4 && clickedNpc.id === 1) {
+                    // questProgressが4でNPC IDが1の場合、10番目のダイアログを表示
+                    startIndex = 9; // 0ベースで10番目
+                    console.log("questProgressが4でNPC IDが1です。10番目のダイアログを表示します。");
+                }
+
+                setActiveDialogue({
+                    isVisible: true,
+                    npc: clickedNpc,
+                    currentIndex: startIndex,
+                });
+
                 if (clickedNpc.id === 3) {
                     const npcState = npcDialogueStates[clickedNpc.id];
                     const targetX = 1024;
