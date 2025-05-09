@@ -401,6 +401,7 @@ export default function Page() {
     };
 
     return (
+        <div>
         <div className={styles.mainDiv} style={{
             backgroundImage: "url('/canvayoru.png')", // 背景画像のURL
             backgroundSize: "cover", // 背景を全体にフィット
@@ -677,13 +678,13 @@ export default function Page() {
                 staticImages.right &&
                 staticImages.left && (
                     <div>
-                        <h2 className={styles.characterStillEditorTitle}>モーション画像:</h2>
 
                         {motionImages.front &&
                             motionImages.back &&
                             motionImages.right &&
                             motionImages.left && (
                                 <div>
+                                    <h2 className={styles.characterStillEditorTitle}>モーション画像:</h2>
                                     <div className={styles.horizontalImages}>
                                         <div className={styles.imageContainer}>
                                             <h3>Front Walk:</h3>
@@ -849,5 +850,7 @@ export default function Page() {
                 </div>
             )}
         </div>
+        </div>
+
     );
 }

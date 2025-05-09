@@ -1,4 +1,6 @@
-
+.mainDiv{
+    height: 450vh;
+}
 
 .characterEditorWrapper{
     display: flex;
