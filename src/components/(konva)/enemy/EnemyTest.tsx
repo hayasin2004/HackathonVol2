@@ -520,6 +520,7 @@ const SingleEnemy: React.FC<{
         const questCurrent = localStorage.getItem("npcDialogueStates");
 
         if (questCurrent) {
+
             const parsedData = JSON.parse(questCurrent); // JSONをパース
             const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
 
