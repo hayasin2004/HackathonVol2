@@ -1,6 +1,6 @@
 // src/components/(konva)/enemy/EnemyTest.tsx
 "use client"
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Stage, Layer, Group, Image, Text} from "react-konva";
 import useImage from "use-image";
 import {Enemy} from "@/types/enemy";
@@ -9,18 +9,21 @@ import useEnemyLinearRandomMovement from "@/hooks/(animation)/enemy/linearEnemy/
 import {PlayerItem} from "@/types/playerItem";
 import {Socket} from "socket.io-client";
 import useEnemyBuruBuruMovement from "@/hooks/(animation)/enemy/EnemyBuruBuru/useEnemyBuruBuruMovement";
+import DialogueBox from "@/components/(konva)/npc/DialogueBox";
+
 
 interface PropsNpcData {
     enemyData: Enemy[] | null
     cameraPosition: { x: number, y: number }
     ECollisionPosition: { x: number, y: number }
-    onEnemyRemove?: (enemyId: number) => void  // 敵を削除するための関数を追加
+    onEnemyRemove?: (enemyId: number) => void
     playerAttack: number
-    player?: PlayerItem  // プレイヤー情報を追加
-    onPlayerDamage?: (newHp: number) => void  // プレイヤーのHPを更新するコールバック
+    player?: PlayerItem
+    onPlayerDamage?: (newHp: number) => void
     socket: Socket | null
+    onDialogOpen?: (isOpen: boolean) => void  // 追加: ダイアログの状態を親に通知
+    activeQuest?: any // クエスト情報があれば
 }
-
 const currentStage = 1;
 
 const onInteract = (enemy: Enemy, dialogue: any) => {
@@ -28,8 +31,9 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 };
 
 const EnemyTest: React.FC<PropsNpcData> = ({
-                                               enemyData, cameraPosition, player,socket,
-                                               onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack
+                                               enemyData, cameraPosition, player, socket,
+                                               onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack,
+                                               onDialogOpen, activeQuest // 追加: onDialogOpen プロップ
                                            }) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     const [globalMouseDown, setGlobalMouseDown] = useState(false);
@@ -37,6 +41,18 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     const [playerHP, setPlayerHP] = useState<number>(player?.hp || 100);
     const [isPlayerAlive, setIsPlayerAlive] = useState(true);
     const [visibleEnemies, setVisibleEnemies] = useState<Enemy[]>([]);
+
+    // ダイアログが開いているかどうかの状態
+    const [activeDialogue, setActiveDialogue] = useState<{
+        isVisible: boolean;
+        npc: Enemy | null;
+        currentIndex?: number;
+    }>({
+        isVisible: false,
+        npc: null,
+        currentIndex: 0,
+    });
+
     useEffect(() => {
         if (enemyData) {
             setVisibleEnemies(enemyData);
@@ -66,6 +82,11 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             window.removeEventListener('mousedown', handleGlobalMouseDown);
         };
     }, []);
+
+
+
+
+
 
     const handleRemoveEnemy = (enemyId: number) => {
         console.log(`敵ID: ${enemyId} を削除します`);
@@ -159,9 +180,89 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         }
     }, [playerHP, onPlayerDamage, isPlayerAlive]);
     // プレイヤーが死亡している場合、ゲームオーバー表示
+
+　
+// isVisibleだけを抽出して依存配列に使用
+    const isDialogVisible = activeDialogue.isVisible;
+
+// 状態変更を通知するuseEffect
+    const prevVisibleRef = useRef<boolean>(activeDialogue.isVisible);
+
+    useEffect(() => {
+        if (onDialogOpen && prevVisibleRef.current !== activeDialogue.isVisible) {
+            console.log("[EnemyTest] ダイアログ状態変更:", activeDialogue.isVisible);
+            onDialogOpen(activeDialogue.isVisible);
+            prevVisibleRef.current = activeDialogue.isVisible;
+        }
+    }, [activeDialogue.isVisible, onDialogOpen]);
     if (!isPlayerAlive) {
         console.log("死亡しました。ゲームオーバーです。")
     }
+
+    const handleOpenDialogue = (enemy: Enemy) => {
+        console.log("[EnemyTest] ダイアログを開く処理開始:", enemy.name);
+
+        // Enemy のダイアログデータを適切な形式に変換
+        const enemyDialogues = typeof enemy.dialogues === 'string'
+            ? JSON.parse(enemy.dialogues)
+            : enemy.dialogues;
+
+        const enemyWithDialogues = {
+            ...enemy,
+            dialogues: Array.isArray(enemyDialogues) ? enemyDialogues : []
+        };
+
+        // 関数型の更新を使用して重複更新を防止
+        setActiveDialogue(prev => {
+            if (prev.isVisible && prev.enemy?.id === enemy.id) {
+                return prev;
+            }
+            return {
+                isVisible: true,
+                enemy: enemyWithDialogues,
+                currentIndex: 0
+            };
+        });
+    };
+
+// ダイアログを閉じる処理
+    const handleCloseDialogue = () => {
+        console.log("[EnemyTest] ダイアログを閉じる処理開始");
+
+        setActiveDialogue(prev => {
+            if (!prev.isVisible) {
+                return prev;
+            }
+            return {
+                isVisible: false,
+                enemy: null,
+                currentIndex: 0,
+            };
+        });
+    };
+    const handleNextDialogue = () => {
+        if (activeDialogue.enemy && Array.isArray(activeDialogue.enemy.dialogues)) {
+            const nextIndex = activeDialogue.currentIndex + 1;
+            if (nextIndex < activeDialogue.enemy.dialogues.length) {
+                setActiveDialogue((prev) => ({
+                    ...prev,
+                    currentIndex: nextIndex,
+                }));
+            }
+        }
+    };
+
+    const handlePrevDialogue = () => {
+        if (activeDialogue.enemy && Array.isArray(activeDialogue.enemy.dialogues)) {
+            const prevIndex = activeDialogue.currentIndex - 1;
+            if (prevIndex >= 0) {
+                setActiveDialogue((prev) => ({
+                    ...prev,
+                    currentIndex: prevIndex,
+                }));
+            }
+        }
+    };
 
 
     if (!visibleEnemies || visibleEnemies.length === 0) {
@@ -182,23 +283,19 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     damagePlayer={damagePlayer}
                     playerAttack={playerAttack}
                     playerHP={playerHP}
+                    openDialogue={handleOpenDialogue}
                 />
             ))}
-            {dialogue && (
-                <div className="dialog" style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    backgroundColor: 'white',
-                    padding: '20px',
-                    borderRadius: '5px',
-                    zIndex: 1000
-                }}>
-                    <p>{dialogue}</p>
-                    <button onClick={() => setDialogue(null)}>Close</button>
-                </div>
-            )}
+            <DialogueBox
+                activeDialogue={{
+                    isVisible: activeDialogue.isVisible,
+                    npc: activeDialogue.enemy,
+                    currentIndex: activeDialogue.currentIndex,
+                }}
+                onClose={handleCloseDialogue}
+                onNextDialogue={handleNextDialogue}
+                onPrevDialogue={handlePrevDialogue}
+            />
         </>
     );
 };
@@ -214,7 +311,8 @@ const SingleEnemy: React.FC<{
     damageEnemy: (enemy: Enemy, attackPower: number) => boolean,
     playerAttack: number
     playerHP?: number
-}> = ({enemy, cameraPosition, damageEnemy,    damagePlayer, ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
+    openDialogue: (enemy: Enemy) => void
+}> = ({enemy, cameraPosition, damageEnemy,   openDialogue, damagePlayer, ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
     const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
     const [isColliding, setIsColliding] = useState(false);
@@ -233,11 +331,12 @@ const SingleEnemy: React.FC<{
         const dialogues = typeof enemy.dialogues === 'string'
             ? JSON.parse(enemy.dialogues)
             : enemy.dialogues;
+
         if (dialogues && Array.isArray(dialogues) && dialogues.length > 0) {
             onInteract(enemy, dialogues[0]);
+            openDialogue(enemy); // 敵をクリックしたときにダイアログを開く
         }
     };
-
     const enemyTalk = () => {
         // dialoguesが配列であることを確認し、インデックス1の要素を返す
         if (Array.isArray(enemy.dialogues) && enemy.dialogues.length > 1) {
@@ -397,4 +496,4 @@ const SingleEnemy: React.FC<{
     );
 };
 
-export default EnemyTest;
+export default EnemyTest

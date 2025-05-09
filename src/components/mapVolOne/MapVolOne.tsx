@@ -70,8 +70,12 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     // NpcTestからダイアログの状態を受け取るハンドラー
     const handleDialogStateChange = (isOpen: boolean) => {
+        console.log("isOpen"+ isOpen)
         setIsDialogOpen(isOpen);
     };
+
+    // クエスト受注処理を行うハンドラ
+    const [activeQuest, setActiveQuest] = useState<{ questId: number; npcId: number } | null>(null);
 
     // クエスト受注処理を行うハンドラ
     const handleQuestTrigger = async (npcId: number, questId: number) => {
@@ -82,8 +86,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             const response = await firstQuest(playerId.id);
             console.log("クエスト受注結果:", response);
 
-            // 必要に応じて状態を更新
-            // 例: クエスト一覧を更新するなど
+            // クエスト情報を状態に保存
+            setActiveQuest({ npcId, questId });
 
         } catch (error) {
             console.error("クエスト受注中にエラーが発生しました:", error);
@@ -547,15 +551,27 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         />
                     )}
 
+                    {isDark && (
+                        <Rect
+                            x={0}
+                            y={0}
+                            width={typeof window !== "undefined" ? window.innerWidth : 0}
+                            height={typeof window !== "undefined" ? window.innerHeight : 0}
+                            fill="black"
+                            opacity={0.2}
+                        />
+                    )}
                     {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
                         <EnemyTest
                             socket={socket}
+                            activeQuest={activeQuest}
                             enemyData={localEnemyData}
                             cameraPosition={cameraPosition}
                             ECollisionPosition={ECollisionPosition}
                             onEnemyRemove={handleRemoveEnemy}
                             player={playerId}  // プレイヤー情報を渡す
                             playerAttack={playerId.attack}
+                            onDialogOpen={handleDialogStateChange}
                             onPlayerDamage={(newHp) => {
                                 // プレイヤーのHPが更新されたときの処理
                                 console.log(`プレイヤーのHPが${newHp}に更新されました`);
@@ -572,19 +588,9 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             player={playerId}
                             onQuestTrigger={handleQuestTrigger}
                         />
-                    )}
+                    )}N
 
 
-                    {isDark && (
-                        <Rect
-                            x={0}
-                            y={0}
-                            width={typeof window !== "undefined" ? window.innerWidth : 0}
-                            height={typeof window !== "undefined" ? window.innerHeight : 0}
-                            fill="black"
-                            opacity={0.2}
-                        />
-                    )}
 
 
                     {musicList.map((music, index) => (
