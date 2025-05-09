@@ -184,20 +184,28 @@ const NpcTest: React.FC<PropsNpcData> = ({
             setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
         } else if (hasDialogue) {
             if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
-                // 3番NPCの特殊処理
-                let startIndex = 0;
+                // 3番NPCの特
+                let startIndex = 0; // デフォルトは最初のダイアログ　
+                let filteredDialogues = dialogues; // 初期値は全体のダイアログ配列
+
+
                 if (questProgress === 4 && clickedNpc.id === 1) {
                     // questProgressが4でNPC IDが1の場合、10番目のダイアログを表示
-                    startIndex = 9; // 0ベースで10番目
+                    startIndex = 0; // 0ベースで10番目
                     console.log("questProgressが4でNPC IDが1です。10番目のダイアログを表示します。");
+
+                    // ダイアログをフィルタリング
+                    const filteredDialogues = dialogues.slice(9); // 最初の10個を取得
+                    setActiveDialogue({
+                        isVisible: true,
+                        npc: {
+                            ...clickedNpc,
+                            dialogues: filteredDialogues, // フィルタリングしたダイアログを設定
+                        },
+                        currentIndex: startIndex, // 10番目（0ベースで9）から開始
+                    });
+                    return; // 他の処理をスキップ
                 }
-
-                setActiveDialogue({
-                    isVisible: true,
-                    npc: clickedNpc,
-                    currentIndex: startIndex,
-                });
-
                 if (clickedNpc.id === 3) {
                     const npcState = npcDialogueStates[clickedNpc.id];
                     const targetX = 1024;
@@ -208,7 +216,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                     // 初回は8個目まで、移動完了後は9個目以降を表示
                     let startIndex = 0;
-                    let filteredDialogues = dialogues; // 初期値は全体のダイアログ配列
 
                     if (questProgress === 2) {
                         // questProgressが2の場合、15個目以降のダイアログのみを表示
