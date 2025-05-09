@@ -82,7 +82,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
         const savedStates = localStorage.getItem("npcDialogueStates");
         if (savedStates) {
             try {
-                if (savedStates[3]){
+                if (savedStates[3]) {
                     setQuestProgress(1)
                 }
                 setNpcDialogueStates(JSON.parse(savedStates));
@@ -309,7 +309,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             },
                             currentIndex: startIndex,
                         });
-                    }   else if (questProgress !== 2 && clickedNpc.id === 3) {
+                    } else if (questProgress !== 2 && clickedNpc.id === 3) {
                         // questProgressが2の場合、15個目以降のダイアログのみを表示
                         filteredDialogues = dialogues.slice(0, 8); // 15個目以降を取得 (0-based index)
                         startIndex = 0; // スライス後の配列なので最初の要素から開始
@@ -395,11 +395,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             },
                         };
                         setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
                         onAlert?.()
 
-                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                    }
-                    else if (activeDialogue.npc.id === 3 && questProgress !== 1 && questProgress !== 2) {
+                    } else if (activeDialogue.npc.id === 3 && questProgress !== 1 && questProgress !== 2) {
                         toast.info("みどりが走り出した！！追いかけよう！")
                         console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
                         setQuestProgress(1)
@@ -687,7 +686,7 @@ interface PropsSingleNpc {
         x?: number;
     };
     isHighlighted?: boolean;
-    questProgress : number
+    questProgress: number
 }
 
 const SingleNpc: React.FC<PropsSingleNpc> = ({
@@ -732,7 +731,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             const targetX = 1024;
             const targetY = 2176;
 
-            setPosition({ x: targetX, y: targetY });
+            setPosition({x: targetX, y: targetY});
 
             console.log(`NPC ID 3 を座標 (${targetX}, ${targetY}) にレンダリングしました`);
         }
@@ -752,7 +751,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             }
             isMountedRef.current = false;
         }
-;
+        ;
 
         if (npc.id === 1) {
             const moveToDestination = async () => {
@@ -797,11 +796,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
 
             moveToDestination();
-        }
-
-  　
-
-        else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {　
+        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;
 

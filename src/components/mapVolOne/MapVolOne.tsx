@@ -124,8 +124,9 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     // NpcTest からの通知を受け取るためのハンドラー
     const handleAlert = () => {
+
         if (activeQuest) {
-            toast.info(` !!!${activeQuest.quest.name} - ${activeQuest.quest.description}`, {
+            toast.info(` ${activeQuest.quest.name} - ${activeQuest.quest.description}`, {
                 position: "top-right",
                 autoClose: 3000, // 3秒後に自動で閉じる
                 hideProgressBar: false,

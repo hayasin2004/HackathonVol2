@@ -206,7 +206,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     useEffect(() => {
         try {
             const questCurrent = localStorage.getItem("npcDialogueStates")
- if (questCurrent) {
+            if (questCurrent) {
                 const parsedData = JSON.parse(questCurrent); // JSONをパース
                 const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
 
@@ -273,7 +273,8 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                 clearInterval(followPlayerInterval); // クリーンアップ時にインターバルを解除
             }
         };
-    }, [activeQuest?.quest.id, ECollisionPosition]);;
+    }, [activeQuest?.quest.id, ECollisionPosition]);
+    ;
     ;
 
 
@@ -508,8 +509,33 @@ const SingleEnemy: React.FC<{
     const buruburuMovement = useEnemyBuruBuruMovement(enemy?.x, enemy?.y);
 
     // ポジションとダイアログの表示状態を決定
-    let position: { x: number, y: number } = { x: enemy?.x, y: enemy?.y };
+    let position: { x: number, y: number } = {x: enemy?.x, y: enemy?.y};
     let showDialog = false;
+
+    const [questFillProgress, setQuestFillProgress] = useState(0)
+
+
+
+    useEffect(() => {
+        const questCurrent = localStorage.getItem("npcDialogueStates");
+
+        if (questCurrent) {
+            const parsedData = JSON.parse(questCurrent); // JSONをパース
+            const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
+
+            if (npc3Data?.progress === "Aiと話そう") {
+                setQuestFillProgress(1);
+                console.log("話しましょう");
+            } else {
+                setQuestFillProgress(0  );
+                console.log("他の状態です");
+            }
+        }else {
+            setQuestFillProgress(0)
+            return;;
+        }
+
+    }, [questProgress]);
 
     if (activeQuest?.quest.id === 5) {
         // プレイヤーを追尾するロジック
@@ -551,7 +577,10 @@ const SingleEnemy: React.FC<{
         showDialog = buruburuMovement.showDialog;
     }
 
-    const checkCollision = useCallback((player: { x: number, y: number }, enemy: { x: number, y: number }, padding = 10) => {
+    const checkCollision = useCallback((player: { x: number, y: number }, enemy: {
+        x: number,
+        y: number
+    }, padding = 10) => {
         if (!player || !enemy) return false;
 
         const playerLeft = player.x - padding;
@@ -573,7 +602,7 @@ const SingleEnemy: React.FC<{
     }, []);
 
     useEffect(() => {
-        const collision = checkCollision(ECollisionPosition, { x: enemy.x, y: enemy.y });
+        const collision = checkCollision(ECollisionPosition, {x: enemy.x, y: enemy.y});
         setIsColliding(collision);
 
         if (collision && !isGameOver) {
@@ -582,14 +611,14 @@ const SingleEnemy: React.FC<{
     }, [ECollisionPosition, enemy, checkCollision, isGameOver]);
 
     // ゲームオーバー時の処理
-    useEffect(() => {
-        if (isGameOver) {
-            alert("Game Over! "); // 一度だけログを出力
-            setTimeout(() => {
-                window.location.reload(); // サイトを再レンダリング
-            }, 500); // 1秒後にリロード
-        }
-    }, [isGameOver]);
+    // useEffect(() => {
+    //     if (isGameOver) {
+    //         alert("Game Over! "); // 一度だけログを出力
+    //         setTimeout(() => {
+    //             window.location.reload(); // サイトを再レンダリング
+    //         }, 500); // 1秒後にリロード
+    //     }
+    // }, [isGameOver]);
 
     const enemyTalk = () => {
         const dialogues = typeof enemy.dialogues === 'string'
@@ -608,6 +637,14 @@ const SingleEnemy: React.FC<{
         }
         return ""; // ダイアログがない場合のデフォルト
     };
+    const isHighlighted = questFillProgress === 1 && enemy.id >= 7 && enemy.id <= 10;
+
+    const enemyStyle = {
+        shadowColor: isHighlighted ? "red" : "black",
+        shadowBlur: isHighlighted ? 10 : 5,
+        shadowOpacity: isHighlighted ? 0.8 : 0.5,
+    };
+
 
     return (
         <Group
@@ -624,6 +661,7 @@ const SingleEnemy: React.FC<{
                     image={image}
                     width={enemy.width}
                     height={enemy.height}
+                    {...enemyStyle}
                 />
             )}
             <Text
@@ -654,4 +692,5 @@ const SingleEnemy: React.FC<{
             )}
         </Group>
     );
-};export default EnemyTest
+};
+export default EnemyTest
