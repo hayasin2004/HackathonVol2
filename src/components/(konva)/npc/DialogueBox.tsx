@@ -84,26 +84,20 @@ const DialogueBox: React.FC<PropsDialogueBox> = ({ activeDialogue, onClose, onNe
 
         if (!hasMoved) {
             // 移動前は1～8個目のみ表示
-            totalDialogues = 8; // 総数は8個
-            // 現在のインデックスがそのまま表示インデックスになる
-            displayCurrentIndex = currentIndex + 1;
-
-            // 8個目より後は表示しない
-            showNextButton = currentIndex < Math.min(7, dialogues.length - 1);
+            totalDialogues = Math.min(8, dialogues?.length || 0); // 総数を8個に限定
+            displayCurrentIndex = Math.min(currentIndex + 1, totalDialogues); // 表示インデックスを調整
+            showNextButton = currentIndex < totalDialogues - 1;
         } else {
-            // 移動後は9～12個目のみ表示
-            totalDialogues = 4; // 9～12の4個
+            // 移動後は9個目以降を表示
+            const remainingDialogues = dialogues?.length - 8; // 9個目以降の要素数を計算
+            totalDialogues = remainingDialogues > 0 ? remainingDialogues : 0; // 9個目以降が存在しない場合は0にする
+            const adjustedIndex = currentIndex - 8; // 9個目以降のインデックスを調整
+            displayCurrentIndex = adjustedIndex + 1;
 
-            // 表示インデックスを調整: 8以降のインデックスを0から始まるように調整
-            const adjustedIndex = currentIndex - 8;
-            displayCurrentIndex = adjustedIndex + 1; // 1から始まる表示用
-
-            // ナビゲーションボタンの表示条件を調整
+            // ボタンの表示条件を修正
             showPrevButton = adjustedIndex > 0;
-            showNextButton = currentIndex < dialogues.length - 1;
-        }
-    }
-
+            showNextButton = adjustedIndex < totalDialogues - 1;
+        }    }
     // ダイアログボックスのクリックハンドラ
     const handleBoxClick = (e: any) => {
         e.cancelBubble = true;

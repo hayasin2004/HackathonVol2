@@ -13,6 +13,7 @@ interface PropsNpcData {
     onDialogOpen?: (isOpen: boolean) => void;
     player : PlayerItem
     onQuestTrigger?: (npcId: number, questId: number) => void; // 追加: クエスト受注通知用
+    onAlert?: (message: string) => void; // 新たに追加
 
 }
 
@@ -36,7 +37,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                              cameraPosition,
                                              onDialogOpen,
                                              player,
-                                             onQuestTrigger
+                                             onQuestTrigger,
+                                             onAlert,
                                          }) => {
 
     console.log(player)
@@ -214,7 +216,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
         }
     };// ダイアログを閉じるハンドラも修正
     const handleCloseDialogue = () => {
-        // ダイアログを閉じる前に、最後のダイアログだった場合の処理
         if (activeDialogue.npc && activeDialogue.isVisible) {
             const dialogues = typeof activeDialogue.npc.dialogues === 'string'
                 ? JSON.parse(activeDialogue.npc.dialogues)
@@ -245,12 +246,32 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         },
                     };
 
+                    // 親コンポーネントに通知
                     // 状態を設定してローカルストレージに保存
                     setNpcDialogueStates(updatedStates);
                     localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+
+                    // Alertを表示
+
+                    // 親コンポーネントに通知
+                    onAlert?.("移動を開始します！"); // トースト表示用のメッセージを渡す
+                }
+                // 移動後のダイアログを閉じた場合
+                if (hasMoved && currentIndex >= 8) {
+                    console.log("移動後のダイアログを閉じました");
+
+                    // 親コンポーネントに通知
+                    onAlert?.("移動後のダイアログを閉じました！"); // トースト表示用のメッセージを渡す
+                }
+
+                // 移動後のダイアログを閉じた場合
+                if (hasMoved && currentIndex >= 8) {
+                    console.log("移動後のダイアログを閉じました");
+
+                    // Alertを表示
+                    alert("移動後のダイアログを閉じました！");
                 }
             }
-            // 他のNPCの処理（既存のコード）...
         }
 
         setActiveDialogue({
@@ -264,7 +285,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
             dialogueTimerRef.current = null;
         }
     };
-
     useEffect(() => {
         return () => {
             if (dialogueTimerRef.current) {
@@ -272,8 +292,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
             }
         };
     }, []);
-
-// 次のダイアログに進むハンドラ
+　
 // 次のダイアログに進むハンドラ
     const handleNextDialogue = () => {
         // タイマーがある場合はクリア（自動進行を停止）

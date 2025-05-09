@@ -15,6 +15,8 @@ import {NPC} from "@/types/npc";
 import {supabase} from "@/lib/supabase";
 import NpcTest from "@/components/(konva)/npc/NpcTest";
 import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
+import {QuestType} from "@/types/quest";
+import {toast, ToastContainer} from "react-toastify";
 
 // const socket = io('http://localhost:5000');
 interface mapVolOneTypes {
@@ -83,7 +85,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     };
 
     // クエスト受注処理を行うハンドラ
-    const [activeQuest, setActiveQuest] = useState<{ questId: number; npcId: number } | null>(null);
+    const [activeQuest, setActiveQuest] = useState<QuestType | null>(null);
 
     // クエスト受注処理を行うハンドラ
     const handleQuestTrigger = async (npcId: number, questId: number) => {
@@ -95,11 +97,24 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             console.log("クエスト受注結果:", response);
 
             // クエスト情報を状態に保存
-            setActiveQuest({npcId, questId});
+            setActiveQuest(response);
 
         } catch (error) {
             console.error("クエスト受注中にエラーが発生しました:", error);
         }
+    };
+
+    // NpcTest からの通知を受け取るためのハンドラー
+    const handleAlert = (message: string) => {
+        toast.info(message, {
+            position: "top-right",
+            autoClose: 3000, // 3秒後に自動で閉じる
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
     };
 
 
@@ -420,6 +435,8 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
     return (
         <div>
+            <ToastContainer />
+
             <Stage
                 width={typeof window !== "undefined" ? window.innerWidth : 0}
                 height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -567,6 +584,10 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             opacity={0.2}
                         />
                     )}
+
+
+
+
                     {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
                         <EnemyTest
                             socket={socket}
@@ -593,6 +614,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             onDialogOpen={handleDialogStateChange}
                             player={playerId}
                             onQuestTrigger={handleQuestTrigger}
+                            onAlert={handleAlert}
                         />
                     )}
 

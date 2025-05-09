@@ -10,6 +10,7 @@ import {PlayerItem} from "@/types/playerItem";
 import {Socket} from "socket.io-client";
 import useEnemyBuruBuruMovement from "@/hooks/(animation)/enemy/EnemyBuruBuru/useEnemyBuruBuruMovement";
 import DialogueBox from "@/components/(konva)/npc/DialogueBox";
+import {QuestType} from "@/types/quest";
 
 
 interface PropsNpcData {
@@ -22,7 +23,8 @@ interface PropsNpcData {
     onPlayerDamage?: (newHp: number) => void
     socket: Socket | null
     onDialogOpen?: (isOpen: boolean) => void  // 追加: ダイアログの状態を親に通知
-    activeQuest?: any // クエスト情報があれば
+    activeQuest?: QuestType // クエスト情報があれば
+
 }
 const currentStage = 1;
 
@@ -33,7 +35,7 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 const EnemyTest: React.FC<PropsNpcData> = ({
                                                enemyData, cameraPosition, player, socket,
                                                onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack,
-                                               onDialogOpen, activeQuest // 追加: onDialogOpen プロップ
+                                               onDialogOpen, activeQuest
                                            }) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     const [globalMouseDown, setGlobalMouseDown] = useState(false);
@@ -41,18 +43,19 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     const [playerHP, setPlayerHP] = useState<number>(player?.hp || 100);
     const [isPlayerAlive, setIsPlayerAlive] = useState(true);
     const [visibleEnemies, setVisibleEnemies] = useState<Enemy[]>([]);
+    const [currentDialogue, setCurrentDialogue] = useState<string | null>(null); // 現在のダイアログ内容を管理
 
     // ダイアログが開いているかどうかの状態
+// 修正: activeDialogue の型定義を更新
     const [activeDialogue, setActiveDialogue] = useState<{
         isVisible: boolean;
-        npc: Enemy | null;
+        enemy: (Enemy & { dialogues: string | any[] }) | null; // dialogues プロパティを考慮
         currentIndex?: number;
     }>({
         isVisible: false,
-        npc: null,
+        enemy: null,
         currentIndex: 0,
     });
-
     useEffect(() => {
         if (enemyData) {
             setVisibleEnemies(enemyData);
@@ -199,33 +202,43 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         console.log("死亡しました。ゲームオーバーです。")
     }
 
-    const handleOpenDialogue = (enemy: Enemy) => {
+    const handleOpenDialogue = (enemy: Enemy, position: { x: number; y: number }) => {
         console.log("[EnemyTest] ダイアログを開く処理開始:", enemy.name);
 
-        // Enemy のダイアログデータを適切な形式に変換
-        const enemyDialogues = typeof enemy.dialogues === 'string'
-            ? JSON.parse(enemy.dialogues)
-            : enemy.dialogues;
+        const enemyDialogues = typeof enemy.dialogues === "string" ? JSON.parse(enemy.dialogues) : enemy.dialogues;
 
         const enemyWithDialogues = {
             ...enemy,
-            dialogues: Array.isArray(enemyDialogues) ? enemyDialogues : []
+            dialogues: Array.isArray(enemyDialogues) ? enemyDialogues : [],
         };
 
-        // 関数型の更新を使用して重複更新を防止
-        setActiveDialogue(prev => {
-            if (prev.isVisible && prev.enemy?.id === enemy.id) {
-                return prev;
+        // ダイアログ内容を計算
+        const calculateDialogue = () => {
+            if (isQuestActive && enemy.id >= 7 && enemy.id <= 10) {
+                // クエスト中は 2 番目以降のダイアログを表示
+                if (Array.isArray(enemyWithDialogues.dialogues) && enemyWithDialogues.dialogues.length > 2) {
+                    return enemyWithDialogues.dialogues[2];
+                }
+                return "…"; // ダイアログがない場合のデフォルト
             }
-            return {
-                isVisible: true,
-                enemy: enemyWithDialogues,
-                currentIndex: 0
-            };
-        });
-    };
 
-// ダイアログを閉じる処理
+            // 通常時は 1 番目のダイアログを表示
+            if (Array.isArray(enemyWithDialogues.dialogues) && enemyWithDialogues.dialogues.length > 1) {
+                return enemyWithDialogues.dialogues[1];
+            }
+
+            return ""; // デフォルトで空文字列を返す
+        };
+
+        // ダイアログ位置と内容を更新
+        setCurrentDialogue(calculateDialogue());
+
+        setActiveDialogue({
+            isVisible: true,
+            enemy: enemyWithDialogues,
+            currentIndex: isQuestActive && enemy.id >= 7 && enemy.id <= 10 ? 2 : 1, // クエスト中は 2 番目から開始
+        });
+    };// ダイアログを閉じる処理
     const handleCloseDialogue = () => {
         console.log("[EnemyTest] ダイアログを閉じる処理開始");
 
@@ -263,6 +276,17 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             }
         }
     };
+    // クエスト中かどうかを管理する状態
+    const [isQuestActive, setIsQuestActive] = useState<boolean>(false);
+    // プレイヤーのクエスト状況
+    useEffect(() => {
+        if (activeQuest?.complete == false) {
+            setIsQuestActive(true); // クエストがアクティブになる
+        } else {
+            setIsQuestActive(false); // クエストが終了したら非アクティブにする
+        }
+    }, [activeQuest]);
+
 
 
     if (!visibleEnemies || visibleEnemies.length === 0) {
@@ -284,6 +308,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     playerAttack={playerAttack}
                     playerHP={playerHP}
                     openDialogue={handleOpenDialogue}
+                    isQuestActive={isQuestActive}
                 />
             ))}
             <DialogueBox
@@ -292,6 +317,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     npc: activeDialogue.enemy,
                     currentIndex: activeDialogue.currentIndex,
                 }}
+                dialogueContent={currentDialogue}
                 onClose={handleCloseDialogue}
                 onNextDialogue={handleNextDialogue}
                 onPrevDialogue={handlePrevDialogue}
@@ -311,13 +337,15 @@ const SingleEnemy: React.FC<{
     damageEnemy: (enemy: Enemy, attackPower: number) => boolean,
     playerAttack: number
     playerHP?: number
+    isQuestActive: boolean;
     openDialogue: (enemy: Enemy) => void
-}> = ({enemy, cameraPosition, damageEnemy,   openDialogue, damagePlayer, ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
+}> = ({enemy, cameraPosition, damageEnemy,   openDialogue, damagePlayer, isQuestActive,ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
     const imageIndex = 1;
     const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
     const [isColliding, setIsColliding] = useState(false);
     const [image] = useImage(enemy.images[validImageIndex]);
 
+   　
     // プレイヤー攻撃のクールダウン
     const [lastAttackTime, setLastAttackTime] = useState(0);
     const attackCooldown = 500; // プレイヤーの攻撃クールダウン時間（ミリ秒）
@@ -338,13 +366,20 @@ const SingleEnemy: React.FC<{
         }
     };
     const enemyTalk = () => {
-        // dialoguesが配列であることを確認し、インデックス1の要素を返す
+        if (isQuestActive && enemy.id >= 7 && enemy.id <= 10) {
+            // クエスト中は 2 番目以降のダイアログを返す
+            if (Array.isArray(enemy.dialogues) && enemy.dialogues.length > 0) {
+                return enemy.dialogues[1]; // 2 番目のダイアログを返す
+            }
+            return "…"; // ダイアログがない場合のデフォルト
+        }
+
+        // 通常時は 1 番目のダイアログを返す
         if (Array.isArray(enemy.dialogues) && enemy.dialogues.length > 1) {
-            return enemy.dialogues[1]; // インデックス1の要素を返す
+            return enemy.dialogues[1];
         }
         return ""; // デフォルトで空文字列を返す
-    }
-
+    };
     let position: { x: number, y: number }, showDialog;
     if (enemy.movementPattern.type === "random") {
         ({position, showDialog} = useEnemyRandomMovement(enemy?.x, enemy?.y));
