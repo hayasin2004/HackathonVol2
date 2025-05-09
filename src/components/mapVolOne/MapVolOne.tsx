@@ -655,6 +655,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             cameraPosition={cameraPosition}
                             onDialogOpen={handleDialogStateChange}
                             player={playerId}
+                            onNextQuest={handleNextQuest}
                             onQuestTrigger={handleQuestTrigger}
                             onAlert={handleAlert}
                             activeQuest={activeQuest}

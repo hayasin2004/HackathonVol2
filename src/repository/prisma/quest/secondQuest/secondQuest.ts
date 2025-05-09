@@ -5,6 +5,7 @@ import prisma from "@/lib/prismaClient";
 
 export const getNextQuest = async (currentQuestId: number, playerId: number) => {
     try {
+        console.log(currentQuestId)
         const firstQuest = await prisma.playerQuest.findFirst({
             where: {playerId: playerId, questId: currentQuestId + 1}, include: {
                 quest: true

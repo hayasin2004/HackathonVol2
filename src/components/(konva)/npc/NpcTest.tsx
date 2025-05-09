@@ -7,6 +7,7 @@ import DialogueBox from "./DialogueBox";
 import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
 import {PlayerItem} from "@/types/playerItem";
 import {QuestType} from "@/types/quest";
+import {number} from "prop-types";
 
 interface PropsNpcData {
     npcData: NPC[] | null;
@@ -15,7 +16,9 @@ interface PropsNpcData {
     player: PlayerItem
     onQuestTrigger?: (npcId: number, questId: number) => void; // 追加: クエスト受注通知用
     onAlert?: () => void; // 新たに追加
-    activeQuest?: QuestType;
+    activeQuest?: QuestType
+    onNextQuest?: (currentQuestId: number) => void;
+
 
 }
 
@@ -40,7 +43,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                              player,
                                              onQuestTrigger,
                                              onAlert,
-                                             activeQuest
+                                             activeQuest,
+                                             onNextQuest
                                          }) => {
 
     console.log(player)
@@ -288,7 +292,16 @@ const NpcTest: React.FC<PropsNpcData> = ({
             dialogueTimerRef.current = null;
         }
         if (questProgress === 2 && activeDialogue.npc?.id === 3) {
-            alert("questProgressが2で、NPC IDが3のダイアログを閉じました");
+            const updatedEnemies ="みどりと会話が終わった。"
+            // ローカルストレージに保存
+            localStorage.setItem("MidoriTold", JSON.stringify(updatedEnemies));
+
+// クエストの進行を更新する場合
+            if (onNextQuest) {
+                alert("kore")
+                onNextQuest(2); // 現在のクエストIDを渡す
+            }
+
         }
 
     };
