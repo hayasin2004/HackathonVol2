@@ -48,7 +48,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                              onNextQuest
                                          }) => {
 
-    console.log(player)
+    //console.log(player)
     const [activeDialogue, setActiveDialogue] = useState<{
         isVisible: boolean;
         npc: NPC | null;
@@ -64,21 +64,21 @@ const NpcTest: React.FC<PropsNpcData> = ({
         {}
     );
     const [questProgress, setQuestProgress] = useState(0);
+    //console.log(questProgress)
     const [firstSakuraTalk, setFirstSakuraTalk] = useState(false);
-    console.log(firstSakuraTalk)
     useEffect(() => {
 
         // クエストIDが2の場合にアラートを表示
         if (activeQuest?.quest.id === 2) {
             setQuestProgress(2)
         } else if (activeQuest?.quest.id == 4) {
-            alert("これ4つ目")
+            //alert("これ4つ目")
             setQuestProgress(4)
         }
     }, [activeQuest]);
 
 
-    console.log(npcDialogueStates)
+    //console.log(npcDialogueStates)
 
     // ローカルストレージからNPCの対話状態を読み込む
     useEffect(() => {
@@ -89,11 +89,11 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 const npcState = parsedStates["1"]; // NPC IDが1のデータを取得
                 if (npcState?.message === "サクラ一回しゃべった") {
                     setQuestProgress(1)
-                    alert("pasokongagenkai")
+                    //alert("pasokongagenkai")
                 }
                 setNpcDialogueStates(JSON.parse(savedStates));
             } catch (e) {
-                console.error("NPCの対話状態の読み込みに失敗しました:", e);
+                //console.error("NPCの対話状態の読み込みに失敗しました:", e);
             }
         }
         const questCurrent = localStorage.getItem("enemyPositions");
@@ -103,11 +103,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
             (sakuraFirstContact && (quest4Sakura === undefined || quest4Sakura === null)) &&
             (questCurrent === undefined || questCurrent === null)
         ) {
-            // alert("あ");
+            // //alert("あ");
             setFirstSakuraTalk(true);
             return;
-        }
-        else if (questCurrent && quest4Sakura == undefined || quest4Sakura == null) {
+        } else if (questCurrent && quest4Sakura == undefined || quest4Sakura == null) {
             const parsedData = JSON.parse(questCurrent); // JSONをパース
             if (parsedData) {
 
@@ -116,7 +115,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 if (npc3Data?.progress === "みどりと話そう") {
                     setQuestProgress(2);
                     // kaiha 16 start
-                    console.log("話しましょう");
+                    //console.log("話しましょう");
                 }
             }
         } else if (questCurrent && quest4Sakura) {
@@ -125,7 +124,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
             if (quest4Sakura === "サクラと話そう") {
                 setQuestProgress(4);
                 // kaiha 16 start
-                console.log("話しましょう");
+                //console.log("話しましょう");
             }
         }
 
@@ -134,13 +133,13 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
 
     // NPCの対話状態を保存する関数
-    const saveNpcDialogueState = (npcId: number , message? : string) => {
+    const saveNpcDialogueState = (npcId: number, message?: string) => {
         const updatedStates = {
             ...npcDialogueStates,
             [npcId]: {
                 hasHeardDialogue: true,
                 lastInteractionDate: new Date().toISOString(),
-                message : message || ""
+                message: message || ""
             },
         };
 
@@ -183,6 +182,15 @@ const NpcTest: React.FC<PropsNpcData> = ({
     // NPCがクリックされたときに呼び出されるハンドラ
 // NPCがクリックされたときに呼び出されるハンドラを修正
 // NPCがクリックされたときに呼び出されるハンドラを修正
+
+    const questProgressRef = useRef(questProgress);
+    console.log(questProgressRef.current)
+// questProgressを更新するたびに参照を更新
+    useEffect(() => {
+        questProgressRef.current = questProgress;
+    }, [questProgress, questProgressRef]);
+
+// 最新の値を使用する
     const handleNpcClick = (clickedNpc: NPC, isAutomatic = false) => {
         if (dialogueTimerRef.current) {
             clearInterval(dialogueTimerRef.current);
@@ -190,16 +198,9 @@ const NpcTest: React.FC<PropsNpcData> = ({
         }
 
         // ここでしゃべらせてたのむから！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！うｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐ
-        if (clickedNpc.id === 1 && questProgress == 0){
+        if (clickedNpc.id === 1 && questProgressRef.current == 0) {
 
-
-
-
-
-
-
-            // alert(questProgress)
-
+            //alert("questProgress" + questProgressRef.current)
 
 
             if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
@@ -211,15 +212,15 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             try {
                                 dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
 
-                                alert(dialogArray)
+                                //alert(dialogArray)
                             } catch (error) {
-                                console.error("ダイアログのパースに失敗しました:", error);
+                                //console.error("ダイアログのパースに失敗しました:", error);
                                 return prev; // パースエラーの場合は何もしない
                             }
                         } else if (Array.isArray(clickedNpc.dialogues)) {
                             dialogArray = clickedNpc.dialogues.slice(0, 8); // 最初の8個を取得
                         } else {
-                            console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
+                            //console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
                             return prev; // 不正な形式の場合は何もしない
                         }
 
@@ -236,7 +237,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             // 自動表示の場合のみ、ダイアログが終了したら対話状態を保存
                             if (isAutomatic) {
                                 toast.info("みどりに話しかけよう")
-                                saveNpcDialogueState(clickedNpc.id , "サクラ一回しゃべった");
+                                saveNpcDialogueState(clickedNpc.id, "サクラ一回しゃべった");
                             }
 
                             return {
@@ -270,7 +271,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
             dialogues && Array.isArray(dialogues) && dialogues.length > 0;
 
 
-
         if (activeDialogue.isVisible && activeDialogue.npc?.id === clickedNpc.id) {
             setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
         } else if (hasDialogue) {
@@ -281,10 +281,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
                     setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
 
-                    console.log("クリックしたときの"  ,　questProgress !== 4 , clickedNpc.id === 1 , firstSakuraTalk)
+                    //console.log("クリックしたときの", questProgress !== 4, clickedNpc.id === 1, firstSakuraTalk)
                     // ID=1のNPCの場合、自動的にダイアログを進行
-
-
 
 
                     if (questProgress !== 4 && clickedNpc.id === 1 && firstSakuraTalk) {
@@ -302,13 +300,13 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                         dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
 
                                     } catch (error) {
-                                        console.error("ダイアログのパースに失敗しました:", error);
+                                        //console.error("ダイアログのパースに失敗しました:", error);
                                         return prev; // パースエラーの場合は何もしない
                                     }
                                 } else if (Array.isArray(clickedNpc.dialogues)) {
                                     dialogArray = clickedNpc.dialogues.slice(0, 8); // 最初の8個を取得
                                 } else {
-                                    console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
+                                    //console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
                                     return prev; // 不正な形式の場合は何もしない
                                 }
 
@@ -354,13 +352,13 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             try {
                                 dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
                             } catch (error) {
-                                console.error("ダイアログのパースに失敗しました:", error);
+                                //console.error("ダイアログのパースに失敗しました:", error);
                                 return; // パースエラーの場合は処理を終了
                             }
                         } else if (Array.isArray(clickedNpc.dialogues)) {
                             dialogArray = clickedNpc.dialogues.slice(0, 8); // 最初の8個を取得
                         } else {
-                            console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
+                            //console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
                             return; // 不正な形式の場合は処理を終了
                         }
 
@@ -373,13 +371,14 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             },
                             currentIndex: 0, // 最初のダイアログから開始
                         });
-                    }                }
+                    }
+                }
 
 
                 if (questProgress === 4 && clickedNpc.id === 1) {
                     // questProgressが4でNPC IDが1の場合、10番目のダイアログを表示
                     startIndex = 0; // 0ベースで10番目
-                    console.log("questProgressが4でNPC IDが1です。10番目のダイアログを表示します。");
+                    //console.log("questProgressが4でNPC IDが1です。10番目のダイアログを表示します。");
 
                     // ダイアログをフィルタリング
                     const filteredDialogues = dialogues.slice(9); // 最初の10個を取得
@@ -407,8 +406,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         // ダイアログを8番目から17番目まで取得
                         filteredDialogues = dialogues.slice(8, 15); // 8番目から17番目（0-based index）を取得
                         startIndex = 0; // スライス後の配列の最初から開始
-                        console.log("ID=3のNPCが移動後にクリックされました。8番目から17番目までのダイアログを表示します。");
-                        console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${filteredDialogues[startIndex]}`);
+                        //console.log("ID=3のNPCが移動後にクリックされました。8番目から17番目までのダイアログを表示します。");
+                        //console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${filteredDialogues[startIndex]}`);
 
                         if (onQuestTrigger) {
                             // 第一引数: NPCのID、第二引数: クエストのID (ここでは1と仮定)
@@ -417,7 +416,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                         // 配列の範囲を超えないようにチェック
                         if (startIndex >= filteredDialogues.length) {
-                            console.log("開始インデックスがダイアログ配列の範囲を超えています。インデックス0から開始します。");
+                            //console.log("開始インデックスがダイアログ配列の範囲を超えています。インデックス0から開始します。");
                             startIndex = 0;
                         }
 
@@ -434,14 +433,14 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         // questProgressが2の場合、15個目以降のダイアログのみを表示
                         filteredDialogues = dialogues.slice(0, 8); // 15個目以降を取得 (0-based index)
                         startIndex = 0; // スライス後の配列なので最初の要素から開始
-                        console.log("0~8個目のダイアログを1ページ目として表示します。");
+                        //console.log("0~8個目のダイアログを1ページ目として表示します。");
 
 
                     } else if (questProgress === 2) {
                         // questProgressが2の場合、15個目以降のダイアログのみを表示
                         filteredDialogues = dialogues.slice(15); // 15個目以降を取得 (0-based index)
                         startIndex = 0; // スライス後の配列なので最初の要素から開始
-                        console.log("questProgressが2のため、15個目以降のダイアログを1ページ目として表示します。");
+                        //console.log("questProgressが2のため、15個目以降のダイアログを1ページ目として表示します。");
                     }
 
                     setActiveDialogue({
@@ -495,7 +494,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         return updatedStates;
                     });
 
-                    console.log(`NPC ID 1 を位置 (${targetX}, ${targetY}) に移動しました。`);
+                    //console.log(`NPC ID 1 を位置 (${targetX}, ${targetY}) に移動しました。`);
                 }
                 if (dialogues && Array.isArray(dialogues) && currentIndex >= dialogues.length - 1) {
                     // NPC IDが3の場合、移動処理を実行　
@@ -521,7 +520,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                     } else if (activeDialogue.npc.id === 3 && questProgress !== 1 && questProgress !== 2) {
                         toast.info("みどりが走り出した！！追いかけよう！")
-                        console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
+                        //console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
                         setQuestProgress(1)
                         // 状態を更新 - yだけ更新して移動をトリガー
                         const updatedStates = {
@@ -542,7 +541,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
 
                 if (activeDialogue.npc.id === 3) {
-                    console.log("最後のダイアログに到達しました - NPCを移動させます");
+                    //console.log("最後のダイアログに到達しました - NPCを移動させます");
 
                     const moveNpc = async () => {
                         const targetY = (npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0) + 20 * 64; // 20マス分下に移動
@@ -575,7 +574,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             return updatedStates;
                         });
 
-                        console.log("NPCが移動完了し、非表示になりました");
+                        //console.log("NPCが移動完了し、非表示になりました");
                     };
 
                     moveNpc();
@@ -640,7 +639,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                 // 初回は8個目まで
                 if (!hasMoved && nextIndex >= 8) {
-                    console.log("初回の対話は8個目まで。移動を開始します。");
+                    //console.log("初回の対話は8個目まで。移動を開始します。");
 
                     // 状態を更新 - yだけ更新して移動をトリガー
                     const updatedStates = {
@@ -668,11 +667,11 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                 // 移動完了後は9個目以降を表示
                 if (hasMoved) {
-                    console.log(`ID=3のNPC移動後、次のダイアログに進みます: ${nextIndex + 1}/12`);
+                    //console.log(`ID=3のNPC移動後、次のダイアログに進みます: ${nextIndex + 1}/12`);
 
                     // 最後のダイアログに達した場合
                     if (nextIndex >= dialogues.length) {
-                        console.log("移動後の対話が終了しました");
+                        //console.log("移動後の対話が終了しました");
                         return {
                             isVisible: false,
                             npc: null,
@@ -680,7 +679,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         };
                     }
 
-                    console.log(`表示するダイアログ: ${dialogues[nextIndex]}`);
+                    //console.log(`表示するダイアログ: ${dialogues[nextIndex]}`);
                 }
             }
 
@@ -690,7 +689,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 if (prev.npc.id !== 3) {
                     // NPC IDが1の場合の処理
                     if (prev.npc.id === 1) {
-                        console.log("ID=1のNPCのダイアログが終了しました");
+                        //console.log("ID=1のNPCのダイアログが終了しました");
 
                         // 状態を更新
                         saveNpcDialogueState(prev.npc.id);
@@ -730,24 +729,24 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 const hasMoved = npcState?.x === targetX && npcState?.y === targetY;
 
                 if (hasMoved) {
-                    console.log(`ID=3のNPC移動後、前のダイアログに戻ります: ${prevIndex + 1}/12`);
+                    //console.log(`ID=3のNPC移動後、前のダイアログに戻ります: ${prevIndex + 1}/12`);
 
                     // 移動後は9個目より前には戻れない
                     if (prevIndex < 8) {
-                        console.log("移動後は9個目より前のダイアログには戻れません");
+                        //console.log("移動後は9個目より前のダイアログには戻れません");
                         return prev;
                     }
 
                     const dialogues = typeof prev.npc.dialogues === 'string'
                         ? JSON.parse(prev.npc.dialogues)
                         : prev.npc.dialogues;
-                    console.log(`表示するダイアログ: ${dialogues[prevIndex]}`);
+                    //console.log(`表示するダイアログ: ${dialogues[prevIndex]}`);
                 }
             }
 
             // 最初のダイアログより前には戻れない
             if (prevIndex < 0) {
-                console.log("最初のダイアログより前には戻れません");
+                //console.log("最初のダイアログより前には戻れません");
                 return prev;
             }
 
@@ -776,6 +775,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     isHighlighted={questProgress === 2 && npc.id === 3} // 強調条件を追加
                     questProgress={questProgress}
                     firstSakuraTalk={firstSakuraTalk}
+                    questProgressRef={questProgressRef}
                 />
             ))}
 
@@ -808,7 +808,8 @@ interface PropsSingleNpc {
     };
     isHighlighted?: boolean;
     questProgress: number
-    firstSakuraTalk : boolean
+    firstSakuraTalk: boolean
+    questProgressRef: React.MutableRefObject<number>; // 型指定を追加
 }
 
 const SingleNpc: React.FC<PropsSingleNpc> = ({
@@ -820,7 +821,8 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                                                  npcState,
                                                  isHighlighted,
                                                  questProgress,
-                                                 firstSakuraTalk
+                                                 firstSakuraTalk,
+                                                 questProgressRef
                                              }) => {
     const imageIndex = 1;
     const validImageIndex = npc.images.length > imageIndex ? imageIndex : 0;
@@ -856,10 +858,17 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
             setPosition({x: targetX, y: targetY});
 
-            console.log(`NPC ID 3 を座標 (${targetX}, ${targetY}) にレンダリングしました`);
+            //console.log(`NPC ID 3 を座標 (${targetX}, ${targetY}) にレンダリングしました`);
         }
     }, [npc.id, questProgress])
     // 移動用の参照
+
+// questProgressを更新するたびに参照を更新
+    useEffect(() => {
+        questProgressRef.current = questProgress;
+    }, [questProgress]);
+
+
     useEffect(() => {
         isMountedRef.current = true; // 初期状態を true に設定
         let isMounted = true;
@@ -876,7 +885,8 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         }
         ;
 
-        if (npc.id === 1 && !firstSakuraTalk) {
+        if (npc.id === 1 && questProgressRef !== 0) {
+            //alert(111222);
             const moveToDestination = async () => {
                 const targetX = 64;
                 const targetY = 128;
@@ -893,7 +903,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
                     // ローカルストレージを再確認してループを停止
                     if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (X軸)。");
+                        //console.log("移動処理が中断されました (X軸)。");
                         return;
                     }
                 }
@@ -905,19 +915,18 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
                     // ローカルストレージを再確認してループを停止
                     if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (Y軸)。");
+                        //console.log("移動処理が中断されました (Y軸)。");
                         return;
                     }
                 }
 
                 if (isMountedRef.current && !hasHeardDialogue) {
-
                     await new Promise((resolve) => setTimeout(resolve, 300));
+                    // ダイアログを出す処理を無効化
                     // onAutoDialogue(npc);
                 }
             };
 
-
             moveToDestination();
         } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
             const moveToDestination = async () => {
@@ -952,7 +961,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                         try {
                             updatedStates = JSON.parse(savedStates);
                         } catch (e) {
-                            console.error("NPCの対話状態の読み込みに失敗しました:", e);
+                            //console.error("NPCの対話状態の読み込みに失敗しました:", e);
                         }
                     }
 
@@ -970,16 +979,15 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
                     // ローカルストレージに保存
                     localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                    console.log("移動完了、位置を保存しました:", targetX, targetY);
+                    //console.log("移動完了、位置を保存しました:", targetX, targetY);
                 }
 
                 moveInProgressRef.current = false;
             };
 
             moveToDestination();
-
-        }
-        if (npc.id === 1 && questProgress == 0) {
+        }        //console.log(questProgressRef)
+        if (npc.id === 1 && questProgressRef == 0) {
             const moveToDestination = async () => {
                 const targetX = 64;
                 const targetY = 128;
@@ -996,7 +1004,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
                     // ローカルストレージを再確認してループを停止
                     if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (X軸)。");
+                        //console.log("移動処理が中断されました (X軸)。");
                         return;
                     }
                 }
@@ -1008,20 +1016,21 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
                     // ローカルストレージを再確認してループを停止
                     if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (Y軸)。");
+                        //console.log("移動処理が中断されました (Y軸)。");
                         return;
                     }
                 }
 
-                if (isMountedRef.current && !hasHeardDialogue) {
-
+                    console.log("これ!", questProgressRef);
+                if (isMountedRef.current && !hasHeardDialogue && questProgressRef.current == 0) {
+                    // //alert("これ!" + questProgress);
                     await new Promise((resolve) => setTimeout(resolve, 300));
                     onAutoDialogue(npc);
                 }
             };
-
-
             moveToDestination();
+
+
         } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;
@@ -1055,7 +1064,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                         try {
                             updatedStates = JSON.parse(savedStates);
                         } catch (e) {
-                            console.error("NPCの対話状態の読み込みに失敗しました:", e);
+                            //console.error("NPCの対話状態の読み込みに失敗しました:", e);
                         }
                     }
 
@@ -1073,7 +1082,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
                     // ローカルストレージに保存
                     localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                    console.log("移動完了、位置を保存しました:", targetX, targetY);
+                    //console.log("移動完了、位置を保存しました:", targetX, targetY);
                 }
 
                 moveInProgressRef.current = false;
@@ -1082,13 +1091,12 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             moveToDestination();
 
         }
-
 
 
         return () => {
             isMountedRef.current = false;
         };
-    }, [npcState?.y, npcState?.x, hasHeardDialogue]);
+    }, [npcState?.y, npcState?.x, hasHeardDialogue , questProgress]);
 
     const handleClick = () => {
         onNpcClick(npc);
@@ -1130,7 +1138,6 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         </Group>
     );
 };
-
 
 
 export default NpcTest;
