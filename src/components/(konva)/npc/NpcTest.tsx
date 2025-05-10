@@ -521,6 +521,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         setNpcDialogueStates(updatedStates);
                         localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
                         toast.info("みどりが走り出した！！追いかけよう！", {
+                            autoClose: 5000, // 3秒後に自動で閉じる
                             onClose: () => {
                                 // トーストが閉じた後にリロードを実行
                                 window.location.reload();

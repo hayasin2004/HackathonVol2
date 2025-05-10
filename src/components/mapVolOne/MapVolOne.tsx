@@ -129,7 +129,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
 
             toast.info(` ${activeQuest.quest.name} - ${activeQuest.quest.description}`, {
                 position: "top-right",
-                autoClose: 3000, // 3秒後に自動で閉じる
+                autoClose: 5000, // 3秒後に自動で閉じる
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
