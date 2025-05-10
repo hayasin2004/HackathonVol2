@@ -311,6 +311,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     });
                     return; // 他の処理をスキップ
                 } else if (clickedNpc.id === 3) {
+
                     const npcState = npcDialogueStates[clickedNpc.id];
                     const targetX = 1024;
                     const targetY = 2176;
@@ -458,45 +459,45 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 }
 
 
-                // if (activeDialogue.npc.id === 3) {
-                //     console.log("最後のダイアログに到達しました - NPCを移動させます");
-                //
-                //     const moveNpc = async () => {
-                //         const targetY = (npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0) + 20 * 64; // 20マス分下に移動
-                //         let currentY = npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0;
-                //
-                //         while (currentY < targetY) {
-                //             await new Promise((resolve) => setTimeout(resolve, 100)); // 100msごとに移動
-                //             currentY += 64; // 1マス分移動
-                //             setNpcDialogueStates((prev) => ({
-                //                 ...prev,
-                //                 [3]: {
-                //                     ...prev[3],
-                //                     y: currentY,
-                //                 },
-                //             }));
-                //         }
-                //
-                //         // 移動完了後、NPCを非表示にし、ローカルストレージに保存
-                //         setNpcDialogueStates((prev) => {
-                //             const updatedStates = {
-                //                 ...prev,
-                //                 [3]: {
-                //                     ...prev[3],
-                //                     isVisible: false, // NPCを非表示にするフラグ
-                //                 },
-                //             };
-                //
-                //             // ローカルストレージに保存
-                //             localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                //             return updatedStates;
-                //         });
-                //
-                //         console.log("NPCが移動完了し、非表示になりました");
-                //     };
-                //
-                //     moveNpc();
-                // }
+                if (activeDialogue.npc.id === 3) {
+                    console.log("最後のダイアログに到達しました - NPCを移動させます");
+
+                    const moveNpc = async () => {
+                        const targetY = (npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0) + 20 * 64; // 20マス分下に移動
+                        let currentY = npcDialogueStates[3]?.y || activeDialogue.npc?.y || 0;
+
+                        while (currentY < targetY) {
+                            await new Promise((resolve) => setTimeout(resolve, 100)); // 100msごとに移動
+                            currentY += 64; // 1マス分移動
+                            setNpcDialogueStates((prev) => ({
+                                ...prev,
+                                [3]: {
+                                    ...prev[3],
+                                    y: currentY,
+                                },
+                            }));
+                        }
+
+                        // 移動完了後、NPCを非表示にし、ローカルストレージに保存
+                        setNpcDialogueStates((prev) => {
+                            const updatedStates = {
+                                ...prev,
+                                [3]: {
+                                    ...prev[3],
+                                    isVisible: false, // NPCを非表示にするフラグ
+                                },
+                            };
+
+                            // ローカルストレージに保存
+                            localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+                            return updatedStates;
+                        });
+
+                        console.log("NPCが移動完了し、非表示になりました");
+                    };
+
+                    moveNpc();
+                }
             }
         }
 
