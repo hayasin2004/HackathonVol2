@@ -92,7 +92,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     //alert("pasokongagenkai")
                 }
                 setNpcDialogueStates(JSON.parse(savedStates));
-            } catch (e) {
+            } catch (err) {
+                console.log(err)
                 //console.error("NPCの対話状態の読み込みに失敗しました:", e);
             }
         }

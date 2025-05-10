@@ -293,7 +293,7 @@ const MapWithCharacterDesert: React.FC<GameProps> = ({playerId, roomId, itemData
                 }
                 return null; // デフォルト値としてnullを返す
             });
-　
+
         }
     }, [players]);
 
@@ -323,17 +323,17 @@ const MapWithCharacterDesert: React.FC<GameProps> = ({playerId, roomId, itemData
                 {/*))}*/}
             </div>
 
-                <MapVolTwo
-                    playerId={playerId}
-                    players={players}
-                    ECollisionPosition={ECollisionPosition}
-                    playerCharacter={playerCharacter}
-                    eCollisionGotItemStatus={eCollisionGotItemStatus}
-                    objectItemImage={objectItemImage}
-                    nearbyItemPosition={nearbyItemPosition}
-                    socket={socket}
-                    enemyData={enemyData}
-                />
+            <MapVolTwo
+                playerId={playerId}
+                players={players}
+                ECollisionPosition={ECollisionPosition}
+                playerCharacter={playerCharacter}
+                eCollisionGotItemStatus={eCollisionGotItemStatus}
+                objectItemImage={objectItemImage}
+                nearbyItemPosition={nearbyItemPosition}
+                socket={socket}
+                enemyData={enemyData}
+            />
 
             {/*<div>*/}
 
@@ -380,7 +380,7 @@ const MapWithCharacterDesert: React.FC<GameProps> = ({playerId, roomId, itemData
             {/*    /!*        </div>*!/*/}
             {/*    /!*    ))}*!/*/}
             {/*</div>*/}
-　
+
         </div>
     );
 };

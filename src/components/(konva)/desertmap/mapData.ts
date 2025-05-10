@@ -181,7 +181,7 @@ export const generateMap = () => {
 
 
 
-    
+
 
     for (let x = 0; x <= 2; x++) {
         map2d[61][x] = "desertpath"; // x20 y0~11 A-1 <=
@@ -202,7 +202,7 @@ export const generateMap = () => {
     for (let x = 1; x <= 3; x++) {
         map2d[62][x] = "desertpath"; // x20 y0~11 A-1 <=
     }
-    
+
     for (let x = 2; x <= 4; x++) {
         map2d[59][x] = "desertpath"; // x20 y0~11 A-1 <=
     }
@@ -222,7 +222,7 @@ export const generateMap = () => {
     for (let x = 3; x <= 5; x++) {
         map2d[60][x] = "desertpath";
     }
-    
+
     for (let x = 4; x <= 6; x++) {
         map2d[57][x] = "desertpath";
     }
@@ -242,7 +242,7 @@ export const generateMap = () => {
     for (let x = 5; x <= 7; x++) {
         map2d[58][x] = "desertpath";
     }
-    
+
     for (let x = 6; x <= 8; x++) {
         map2d[55][x] = "desertpath";
     }
@@ -252,7 +252,7 @@ export const generateMap = () => {
     for (let x = 6; x <= 8; x++) {
         map2d[57][x] = "desertpath";
     }
-    
+
     for (let x = 7; x <= 9; x++) {
         map2d[54][x] = "desertpath";
     }
@@ -262,7 +262,7 @@ export const generateMap = () => {
     for (let x = 7; x <= 9; x++) {
         map2d[56][x] = "desertpath";
     }
-    
+
     for (let x = 8; x <= 10; x++) {
         map2d[53][x] = "desertpath";
     }
@@ -282,7 +282,7 @@ export const generateMap = () => {
     for (let x = 9; x <= 11; x++) {
         map2d[54][x] = "desertpath";
     }
-    
+
     for (let x = 10; x <= 12; x++) {
         map2d[51][x] = "desertpath";
     }

@@ -417,11 +417,11 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         newAudio.volume = Math.max(0, Math.min(volume, 1)); // 音量を制限
 
                         // 自動再生を試みる
-                        // newAudio
-                        //     .play()
-                        //     .catch((err) => {
-                        //         console.error("音楽の再生中にエラーが発生しました:", err);
-                        //     });
+                        newAudio
+                            .play()
+                            .catch((err) => {
+                                console.error("音楽の再生中にエラーが発生しました:", err);
+                            });
 
                         setAudio(newAudio);
                         setIsPlaying(true); // 再生状態を更新
@@ -624,6 +624,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             onEnemyRemove={handleRemoveEnemy}
                             player={playerId}  // プレイヤー情報を渡す
                             playerAttack={playerId.attack}
+                            activeQuest={activeQuest}
                             onNextQuest={handleNextQuest}
                             onDialogOpen={handleEnemyDialogStateChange}
                             isAlertTriggered={isAlertTriggered}

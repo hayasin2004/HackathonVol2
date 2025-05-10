@@ -28,7 +28,7 @@ interface PropsNpcData {
     activeQuest?: QuestType // クエスト情報があれば
     onAlert?: () => void; // 新たに追加
     onNextQuest?: (currentQuestId: number) => void;
-    isAlertTriggered : boolean
+    isAlertTriggered: boolean
 
 }
 
@@ -41,7 +41,7 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 const EnemyTest: React.FC<PropsNpcData> = ({
                                                enemyData, onAlert, cameraPosition, player, socket,
                                                onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack,
-                                               onDialogOpen, activeQuest, onNextQuest,isAlertTriggered
+                                               onDialogOpen, activeQuest, onNextQuest, isAlertTriggered
                                            }) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     const [globalMouseDown, setGlobalMouseDown] = useState(false);
@@ -223,11 +223,11 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         } catch (error) {
             console.error("ローカルストレージからデータを取得・解析中にエラーが発生しました:", error);
         }
-    }, [activeQuest , questProgress , isAlertTriggered]);
+    }, [activeQuest, questProgress, isAlertTriggered]);
 
+    console.log(activeQuest?.quest.id)
     useEffect(() => {
         let followPlayerInterval: NodeJS.Timeout | null = null;
-
         if (activeQuest?.quest.id === 5) {
             console.log("クエストID 5: 敵がプレイヤーを追尾します");
 
@@ -275,8 +275,6 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             }
         };
     }, [activeQuest?.quest.id, ECollisionPosition]);
-
-
 
 
     useEffect(() => {
@@ -431,7 +429,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         } else {
             setIsQuestActive(false); // クエストが終了したら非アクティブにする
         }
-    }, [activeQuest , questProgress]);
+    }, [activeQuest, questProgress]);
 
 
     if (!visibleEnemies || visibleEnemies.length === 0) {
@@ -542,7 +540,7 @@ const SingleEnemy: React.FC<{
 
         }
 
-    }, [questProgress ,activeQuest]);
+    }, [questProgress, activeQuest]);
 
     if (activeQuest?.quest.id === 5) {
         // プレイヤーを追尾するロジック
@@ -703,7 +701,7 @@ const SingleEnemy: React.FC<{
                 width={64}
             />
             <Text
-                text={"HP : "+String(enemy.hp)}
+                text={"HP : " + String(enemy.hp)}
                 y={-40}
                 fontSize={14}
                 fill="red"
