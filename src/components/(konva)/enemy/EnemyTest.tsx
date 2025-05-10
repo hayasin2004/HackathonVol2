@@ -618,14 +618,14 @@ const SingleEnemy: React.FC<{
     }, [ECollisionPosition, enemy, checkCollision, isGameOver]);
 
     // ゲームオーバー時の処理
-    // useEffect(() => {
-    //     if (isGameOver) {
-    //         alert("Game Over! "); // 一度だけログを出力
-    //         setTimeout(() => {
-    //             window.location.reload(); // サイトを再レンダリング
-    //         }, 500); // 1秒後にリロード
-    //     }
-    // }, [isGameOver]);
+    useEffect(() => {
+        if (isGameOver) {
+            alert("Game Over! "); // 一度だけログを出力
+            setTimeout(() => {
+                window.location.reload(); // サイトを再レンダリング
+            }, 500); // 1秒後にリロード
+        }
+    }, [isGameOver]);
 
     const enemyTalk = () => {
         const dialogues = typeof enemy.dialogues === 'string'
