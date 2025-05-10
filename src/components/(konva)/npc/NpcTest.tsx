@@ -83,12 +83,15 @@ const NpcTest: React.FC<PropsNpcData> = ({
     // ローカルストレージからNPCの対話状態を読み込む
     useEffect(() => {
         const savedStates = localStorage.getItem("npcDialogueStates");
-        if (savedStates) {
-            try {
-                if (savedStates[3]) {
+        const parseSavedStates = JSON.parse(savedStates!);
+        if (parseSavedStates) {
+            try{
+
+
+                if (parseSavedStates[3] !== "" &&parseSavedStates[3] !== `"`&& parseSavedStates[3] !== '') {
                     setQuestProgress(1)
                 }
-                setNpcDialogueStates(JSON.parse(savedStates));
+                setNpcDialogueStates(JSON.parse(parseSavedStates));
             } catch (e) {
                 console.error("NPCの対話状態の読み込みに失敗しました:", e);
             }
@@ -100,7 +103,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
             (sakuraFirstContact && (quest4Sakura === undefined || quest4Sakura === null)) &&
             (questCurrent === undefined || questCurrent === null)
         ) {
-            alert("あ");
+            // alert("あ");
             setFirstSakuraTalk(true);
             return;
         }
@@ -327,6 +330,18 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         console.log("ID=3のNPCが移動後にクリックされました。8番目から17番目までのダイアログを表示します。");
                         console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${filteredDialogues[startIndex]}`);
 
+
+
+
+
+
+
+
+
+
+
+
+
                         if (onQuestTrigger) {
                             // 第一引数: NPCのID、第二引数: クエストのID (ここでは1と仮定)
                             onQuestTrigger(clickedNpc.id, 1);
@@ -347,7 +362,17 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             },
                             currentIndex: startIndex,
                         });
-                    } else if (questProgress !== 2 && clickedNpc.id === 3) {
+                    } else if (questProgress == 1 && clickedNpc.id === 3) {
+                        alert("a")
+                        // questProgressが2の場合、15個目以降のダイアログのみを表示
+                        filteredDialogues = dialogues.slice(9, 14); // 15個目以降を取得 (0-based index)
+                        startIndex = 0; // スライス後の配列なので最初の要素から開始
+                        console.log("0~8個目のダイアログを1ページ目として表示します。");
+
+
+                    }else if (questProgress !== 2 && clickedNpc.id === 3) {
+                        alert("a" + questProgress)
+
                         // questProgressが2の場合、15個目以降のダイアログのみを表示
                         filteredDialogues = dialogues.slice(0, 8); // 15個目以降を取得 (0-based index)
                         startIndex = 0; // スライス後の配列なので最初の要素から開始
@@ -767,6 +792,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
     useEffect(() => {
         if (npc.id === 3 && questProgress === 1) {
+            // alert("utagaigaharenaiyo")　→　これが原因
             // 指定された座標にレンダリング
             const targetX = 1024;
             const targetY = 2176;
@@ -839,7 +865,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;
-
+                // alert("これ？ｓ")　→　これ違う
                 const targetX = 1024;
                 const targetY = 2176;
 
