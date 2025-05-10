@@ -2,10 +2,23 @@
 import Image from "next/image";
 
 const ExitClearPage = () => {
+  const colors = [
+    "#FF0000",
+    "#FFA500",
+    "#FFFF00",
+    "#008000",
+    "#0000FF",
+    "#4B0082",
+    "#EE82EE",
+    "#FF4500",
+    "#00CED1",
+    "#32CD32",
+  ]; // 10色（虹色をベース）
+
   return (
     <div
       style={{
-        backgroundColor: "#ddd",
+        backgroundColor: "#fff",
         height: "100vh",
         color: "white",
         display: "flex",
@@ -18,7 +31,7 @@ const ExitClearPage = () => {
       {/* キャラクター画像 */}
       <div style={{ position: "relative", width: 600, height: 350 }}>
         <Image
-          src="/enemys.png" // publicフォルダに置いた画像名
+          src="/enemys2.png"
           alt="Among Us Characters"
           layout="fill"
           objectFit="contain"
@@ -31,10 +44,14 @@ const ExitClearPage = () => {
           marginTop: 30,
           letterSpacing: "10px",
           fontSize: "3rem",
-          color: "white",
+          display: "flex",
         }}
       >
-        GAME CLEAR
+        {"GAME CLEAR".split("").map((char, index) => (
+          <span key={index} style={{ color: colors[index % colors.length] }}>
+            {char}
+          </span>
+        ))}
       </h1>
     </div>
   );
