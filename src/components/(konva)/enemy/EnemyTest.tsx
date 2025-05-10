@@ -530,6 +530,7 @@ const SingleEnemy: React.FC<{
                 setQuestFillProgress(1);
                 console.log("話しましょう");
             } else {
+
                 setQuestFillProgress(0);
                 console.log("他の状態です");
             }
