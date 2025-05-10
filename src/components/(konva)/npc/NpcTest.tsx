@@ -987,7 +987,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
             moveToDestination();
         }        //console.log(questProgressRef)
-        if (npc.id === 1 && questProgressRef == 0) {
+        if (npc.id === 1 && questProgressRef.current == 0) {
             const moveToDestination = async () => {
                 const targetX = 64;
                 const targetY = 128;
