@@ -277,15 +277,19 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     ;
     ;
 
-
     useEffect(() => {
-        // ローカルストレージから削除された敵IDを取得
-        const defeatedEnemies = JSON.parse(localStorage.getItem("defeatedEnemies") || "[]");
-
-        if (enemyData) {
-            // 削除された敵を除外して表示
-            const filteredEnemies = enemyData.filter((enemy) => !defeatedEnemies.includes(enemy.id));
-            setVisibleEnemies(filteredEnemies);
+        // ローカルストレージから敵の座標を取得
+        const storedPositions = localStorage.getItem("enemyPositions");
+        if (storedPositions) {
+            try {
+                const parsedPositions = JSON.parse(storedPositions);
+                setVisibleEnemies(parsedPositions);
+            } catch (error) {
+                console.error("ローカルストレージから敵の座標を読み込む際にエラーが発生しました:", error);
+            }
+        } else if (enemyData) {
+            // ローカルストレージにデータがない場合は、初期データを使用
+            setVisibleEnemies(enemyData);
         }
     }, [enemyData]);
 
@@ -507,6 +511,8 @@ const SingleEnemy: React.FC<{
     const randomMovement = useEnemyRandomMovement(enemy?.x, enemy?.y);
     const linearMovement = useEnemyLinearRandomMovement(enemy?.x, enemy?.y);
     const buruburuMovement = useEnemyBuruBuruMovement(enemy?.x, enemy?.y);
+    const [lastAttackTime, setLastAttackTime] = useState(0);
+    const attackCooldown = 500; // プレイヤーの攻撃クールダウン時間（ミリ秒）
 
     // ポジションとダイアログの表示状態を決定
     let position: { x: number, y: number } = {x: enemy?.x, y: enemy?.y};
@@ -639,6 +645,28 @@ const SingleEnemy: React.FC<{
         return ""; // ダイアログがない場合のデフォルト
     };
     const isHighlighted = questFillProgress === 1 && enemy.id >= 7 && enemy.id <= 10;
+
+    useEffect(() => {
+        if (isColliding && globalMouseDown) {
+
+            const currentTime = Date.now();
+
+            // クールダウン時間が経過しているか確認
+            if (currentTime - lastAttackTime >= attackCooldown) {
+                console.log("衝突中に左クリックされました！");
+                console.log(`敵の名前: ${enemy.name}, 現在HP: ${enemy.hp}`);
+                console.log(`敵の移動パターン: ${enemy.movementPattern.type}`);
+                console.log(`プレイヤーの位置: x=${ECollisionPosition.x}, y=${ECollisionPosition.y}`);
+                console.log(`攻撃力: ${playerAttack}`);
+
+                // 攻撃を実行
+                damageEnemy(enemy, playerAttack);
+
+                // 最後の攻撃時間を更新
+                setLastAttackTime(currentTime);
+            }
+        }
+    }, [isColliding, globalMouseDown, enemy, position, ECollisionPosition])
 
     const enemyStyle = {
         shadowColor: isHighlighted ? "red" : "black",
