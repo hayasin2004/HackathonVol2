@@ -5,7 +5,7 @@ const ExitClearPage = () => {
   return (
     <div
       style={{
-        backgroundColor: "#000",
+        backgroundColor: "#ddd",
         height: "100vh",
         color: "white",
         display: "flex",
