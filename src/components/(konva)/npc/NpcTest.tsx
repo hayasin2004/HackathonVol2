@@ -64,7 +64,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
         {}
     );
     const [questProgress, setQuestProgress] = useState(0);
+    const [firstSakuraTalk, setFirstSakuraTalk] = useState(false);
+    console.log(firstSakuraTalk)
     useEffect(() => {
+
         // クエストIDが2の場合にアラートを表示
         if (activeQuest?.quest.id === 2) {
             setQuestProgress(2)
@@ -92,7 +95,16 @@ const NpcTest: React.FC<PropsNpcData> = ({
         }
         const questCurrent = localStorage.getItem("enemyPositions");
         const quest4Sakura = localStorage.getItem("quest3Complete");
-        if (questCurrent && quest4Sakura == undefined || quest4Sakura == null) {
+        const sakuraFirstContact = localStorage.getItem("npcDialogueStates")
+        if (
+            (sakuraFirstContact && (quest4Sakura === undefined || quest4Sakura === null)) &&
+            (questCurrent === undefined || questCurrent === null)
+        ) {
+            alert("あ");
+            setFirstSakuraTalk(true);
+            return;
+        }
+        else if (questCurrent && quest4Sakura == undefined || quest4Sakura == null) {
             const parsedData = JSON.parse(questCurrent); // JSONをパース
             if (parsedData) {
 
@@ -102,13 +114,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     setQuestProgress(2);
                     // kaiha 16 start
                     console.log("話しましょう");
-                } else {
-                    setQuestProgress(0);
-                    console.log("他の状態です");
                 }
             }
         } else if (questCurrent && quest4Sakura) {
-            ; // JSONをパース
+             // JSONをパース
 
             if (quest4Sakura === "サクラと話そう") {
                 setQuestProgress(4);
@@ -195,9 +204,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
 
                     // ID=1のNPCの場合、自動的にダイアログを進行
-                    if (questProgress !== 4 && clickedNpc.id === 1) {
-
+                    console.log("条件式の評価結果:", questProgress !== 4, clickedNpc.id === 1, firstSakuraTalk);
+                    if (questProgress !== 4 && clickedNpc.id === 1 && firstSakuraTalk) {
                         // 2秒ごとにダイアログを進行するタイマーを設定
+
 // 2秒ごとにダイアログを進行するタイマーを設定
                         dialogueTimerRef.current = setInterval(() => {
                             setActiveDialogue((prev) => {
@@ -603,7 +613,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             // 3番NPCの特殊処理
             if (prev.npc.id === 3 && questProgress == 1) {
-                alert("これに、")
                 const npcState = npcDialogueStates[prev.npc.id];
                 const targetX = 1024;
                 const targetY = 2176;
