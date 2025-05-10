@@ -203,9 +203,11 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
                     setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
 
+                    console.log("クリックしたときの"  ,　questProgress !== 4 , clickedNpc.id === 1 , firstSakuraTalk)
                     // ID=1のNPCの場合、自動的にダイアログを進行
                     if (questProgress !== 4 && clickedNpc.id === 1 && firstSakuraTalk) {
                         // 2秒ごとにダイアログを進行するタイマーを設定
+                        alert(2)
 
 // 2秒ごとにダイアログを進行するタイマーを設定
                         dialogueTimerRef.current = setInterval(() => {
@@ -214,9 +216,9 @@ const NpcTest: React.FC<PropsNpcData> = ({
                                 let dialogArray: string[] = [];
                                 if (typeof clickedNpc.dialogues === "string") {
                                     try {
+
                                         dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
 
-                                        alert(dialogArray)
                                     } catch (error) {
                                         console.error("ダイアログのパースに失敗しました:", error);
                                         return prev; // パースエラーの場合は何もしない
@@ -262,7 +264,34 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             });
                         }, 2500); // 2.5秒ごと; // 2秒ごと
                     }
-                }
+                //     すでにサクラとの自動会話を終わらせたときにクリックしたとき
+                    else if (questProgress !== 4 && clickedNpc.id === 1 && firstSakuraTalk) {
+                        // 自動スクロール機能を削除し、ダイアログを取得して表示するだけに変更
+                        let dialogArray: string[] = [];
+                        if (typeof clickedNpc.dialogues === "string") {
+                            try {
+                                dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
+                            } catch (error) {
+                                console.error("ダイアログのパースに失敗しました:", error);
+                                return; // パースエラーの場合は処理を終了
+                            }
+                        } else if (Array.isArray(clickedNpc.dialogues)) {
+                            dialogArray = clickedNpc.dialogues.slice(0, 8); // 最初の8個を取得
+                        } else {
+                            console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
+                            return; // 不正な形式の場合は処理を終了
+                        }
+
+                        // ダイアログを表示
+                        setActiveDialogue({
+                            isVisible: true,
+                            npc: {
+                                ...clickedNpc,
+                                dialogues: dialogArray, // スライスされたダイアログを設定
+                            },
+                            currentIndex: 0, // 最初のダイアログから開始
+                        });
+                    }                }
 
 
                 if (questProgress === 4 && clickedNpc.id === 1) {
@@ -663,6 +692,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     npcState={npcDialogueStates[npc.id]} // 追加：NPCの状態を渡す
                     isHighlighted={questProgress === 2 && npc.id === 3} // 強調条件を追加
                     questProgress={questProgress}
+                    firstSakuraTalk={firstSakuraTalk}
                 />
             ))}
 
@@ -695,6 +725,7 @@ interface PropsSingleNpc {
     };
     isHighlighted?: boolean;
     questProgress: number
+    firstSakuraTalk : boolean
 }
 
 const SingleNpc: React.FC<PropsSingleNpc> = ({
@@ -705,7 +736,8 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                                                  hasHeardDialogue,
                                                  npcState,
                                                  isHighlighted,
-                                                 questProgress
+                                                 questProgress,
+                                                 firstSakuraTalk
                                              }) => {
     const imageIndex = 1;
     const validImageIndex = npc.images.length > imageIndex ? imageIndex : 0;
@@ -761,7 +793,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         }
         ;
 
-        if (npc.id === 1) {
+        if (npc.id === 1 && !firstSakuraTalk) {
             const moveToDestination = async () => {
                 const targetX = 64;
                 const targetY = 128;
