@@ -28,6 +28,8 @@ interface PropsNpcData {
     activeQuest?: QuestType // クエスト情報があれば
     onAlert?: () => void; // 新たに追加
     onNextQuest?: (currentQuestId: number) => void;
+    isAlertTriggered : boolean
+
 }
 
 const currentStage = 1;
@@ -39,7 +41,7 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 const EnemyTest: React.FC<PropsNpcData> = ({
                                                enemyData, onAlert, cameraPosition, player, socket,
                                                onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack,
-                                               onDialogOpen, activeQuest, onNextQuest
+                                               onDialogOpen, activeQuest, onNextQuest,isAlertTriggered
                                            }) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     const [globalMouseDown, setGlobalMouseDown] = useState(false);
@@ -221,7 +223,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         } catch (error) {
             console.error("ローカルストレージからデータを取得・解析中にエラーが発生しました:", error);
         }
-    }, [activeQuest , questProgress]);
+    }, [activeQuest , questProgress , isAlertTriggered]);
 
     useEffect(() => {
         let followPlayerInterval: NodeJS.Timeout | null = null;
@@ -519,7 +521,7 @@ const SingleEnemy: React.FC<{
     let showDialog = false;
 
     const [questFillProgress, setQuestFillProgress] = useState(0)
-    console.log("tghjkdsflcvnk sxdc" + questFillProgress)
+    // console.log("tghjkdsflcvnk sxdc" + questFillProgress)
     useEffect(() => {
         const questCurrent = localStorage.getItem("npcDialogueStates");
 

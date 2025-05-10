@@ -59,6 +59,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     // アイテムの画像がロード完了したかを追跡するための状態
     const [loadedImages, setLoadedImages] = useState<{ [key: string]: boolean }>({});
 
+    const [isAlertTriggered, setIsAlertTriggered] = useState(false);
     const [isNpcDialogOpen, setINpcDialogOpen] = useState(false);
     const [isEnemyDialogOpen, setIsEnemyDialogOpen] = useState(false);
     // プレイヤーの位置を追跡するためのref
@@ -135,6 +136,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 draggable: true,
                 progress: undefined,
             });
+            setIsAlertTriggered(true);
             setActiveQuest(activeQuest)
         }
     };
@@ -626,6 +628,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             playerAttack={playerId.attack}
                             onNextQuest={handleNextQuest}
                             onDialogOpen={handleEnemyDialogStateChange}
+                            isAlertTriggered={isAlertTriggered}
                             onPlayerDamage={(newHp) => {
                                 // プレイヤーのHPが更新されたときの処理
                                 console.log(`プレイヤーのHPが${newHp}に更新されました`);
