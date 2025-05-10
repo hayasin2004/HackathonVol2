@@ -185,6 +185,11 @@ const NpcTest: React.FC<PropsNpcData> = ({
             dialogueTimerRef.current = null;
         }
 
+        // ここでしゃべらせてたのむから！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！うｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐ
+        if (clickedNpc.id === 1 && questProgress == 0){
+            alert("kokodesyabre")
+        }
+
         const dialogues =
             typeof clickedNpc.dialogues === "string"
                 ? JSON.parse(clickedNpc.dialogues)
@@ -192,6 +197,8 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
         const hasDialogue =
             dialogues && Array.isArray(dialogues) && dialogues.length > 0;
+
+
 
         if (activeDialogue.isVisible && activeDialogue.npc?.id === clickedNpc.id) {
             setActiveDialogue({isVisible: false, npc: null, currentIndex: 0});
@@ -205,9 +212,13 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                     console.log("クリックしたときの"  ,　questProgress !== 4 , clickedNpc.id === 1 , firstSakuraTalk)
                     // ID=1のNPCの場合、自動的にダイアログを進行
+
+
+
+
                     if (questProgress !== 4 && clickedNpc.id === 1 && firstSakuraTalk) {
                         // 2秒ごとにダイアログを進行するタイマーを設定
-                        alert(2)
+
 
 // 2秒ごとにダイアログを進行するタイマーを設定
                         dialogueTimerRef.current = setInterval(() => {
@@ -897,109 +908,6 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             moveToDestination();
 
         }
-        if (npc.id === 1 && !firstSakuraTalk) {
-            const moveToDestination = async () => {
-                const targetX = 64;
-                const targetY = 128;
-
-                let currentX = npc.x;
-                let currentY = npc.y;
-
-                setPosition({x: currentX, y: currentY});
-
-                while (currentX > targetX && isMountedRef.current) {
-                    await new Promise((resolve) => setTimeout(resolve, 150));
-                    currentX -= 64;
-                    setPosition((prev) => ({x: currentX, y: prev.y}));
-
-                    // ローカルストレージを再確認してループを停止
-                    if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (X軸)。");
-                        return;
-                    }
-                }
-
-                while (currentY > targetY && isMountedRef.current) {
-                    await new Promise((resolve) => setTimeout(resolve, 150));
-                    currentY -= 64;
-                    setPosition((prev) => ({x: prev.x, y: currentY}));
-
-                    // ローカルストレージを再確認してループを停止
-                    if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (Y軸)。");
-                        return;
-                    }
-                }
-
-                if (isMountedRef.current && !hasHeardDialogue) {
-
-                    await new Promise((resolve) => setTimeout(resolve, 300));
-                    // onAutoDialogue(npc);
-                }
-            };
-
-
-            moveToDestination();
-        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
-            const moveToDestination = async () => {
-                moveInProgressRef.current = true;
-
-                const targetX = 1024;
-                const targetY = 2176;
-
-                let currentX = position.x;
-                let currentY = position.y;
-
-                // Y座標の移動
-                while ((targetY > currentY ? currentY < targetY : currentY > targetY) && isMounted) {
-                    await new Promise((resolve) => setTimeout(resolve, 90));
-                    currentY += (targetY > currentY) ? 64 : -64;
-                    setPosition((prev) => ({x: prev.x, y: currentY}));
-                }
-
-                // X座標の移動
-                while ((targetX > currentX ? currentX < targetX : currentX > targetX) && isMounted) {
-                    await new Promise((resolve) => setTimeout(resolve, 10));
-                    currentX += (targetX > currentX) ? 64 : -64;
-                    setPosition((prev) => ({x: currentX, y: prev.y}));
-                }
-
-                // 移動完了後、最終位置をローカルストレージに保存
-                if (isMounted) {
-                    const savedStates = localStorage.getItem("npcDialogueStates");
-                    let updatedStates = {};
-
-                    if (savedStates) {
-                        try {
-                            updatedStates = JSON.parse(savedStates);
-                        } catch (e) {
-                            console.error("NPCの対話状態の読み込みに失敗しました:", e);
-                        }
-                    }
-
-                    // 最終位置を保存
-                    updatedStates = {
-                        ...updatedStates,
-                        [npc.id]: {
-                            ...(updatedStates[npc.id] || {}),
-                            hasHeardDialogue: true,
-                            lastInteractionDate: new Date().toISOString(),
-                            y: targetY,
-                            x: targetX, // X座標も保存しておく
-                        },
-                    };
-
-                    // ローカルストレージに保存
-                    localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                    console.log("移動完了、位置を保存しました:", targetX, targetY);
-                }
-
-                moveInProgressRef.current = false;
-            };
-
-            moveToDestination();
-
-        }
         if (npc.id === 1 && questProgress == 0) {
             const moveToDestination = async () => {
                 const targetX = 64;
@@ -1104,109 +1012,6 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
         }
 
-        if (npc.id === 1 && !firstSakuraTalk) {
-            const moveToDestination = async () => {
-                const targetX = 64;
-                const targetY = 128;
-
-                let currentX = npc.x;
-                let currentY = npc.y;
-
-                setPosition({x: currentX, y: currentY});
-
-                while (currentX > targetX && isMountedRef.current) {
-                    await new Promise((resolve) => setTimeout(resolve, 150));
-                    currentX -= 64;
-                    setPosition((prev) => ({x: currentX, y: prev.y}));
-
-                    // ローカルストレージを再確認してループを停止
-                    if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (X軸)。");
-                        return;
-                    }
-                }
-
-                while (currentY > targetY && isMountedRef.current) {
-                    await new Promise((resolve) => setTimeout(resolve, 150));
-                    currentY -= 64;
-                    setPosition((prev) => ({x: prev.x, y: currentY}));
-
-                    // ローカルストレージを再確認してループを停止
-                    if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (Y軸)。");
-                        return;
-                    }
-                }
-
-                if (isMountedRef.current && !hasHeardDialogue) {
-
-                    await new Promise((resolve) => setTimeout(resolve, 300));
-                    // onAutoDialogue(npc);
-                }
-            };
-
-
-            moveToDestination();
-        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
-            const moveToDestination = async () => {
-                moveInProgressRef.current = true;
-
-                const targetX = 1024;
-                const targetY = 2176;
-
-                let currentX = position.x;
-                let currentY = position.y;
-
-                // Y座標の移動
-                while ((targetY > currentY ? currentY < targetY : currentY > targetY) && isMounted) {
-                    await new Promise((resolve) => setTimeout(resolve, 90));
-                    currentY += (targetY > currentY) ? 64 : -64;
-                    setPosition((prev) => ({x: prev.x, y: currentY}));
-                }
-
-                // X座標の移動
-                while ((targetX > currentX ? currentX < targetX : currentX > targetX) && isMounted) {
-                    await new Promise((resolve) => setTimeout(resolve, 10));
-                    currentX += (targetX > currentX) ? 64 : -64;
-                    setPosition((prev) => ({x: currentX, y: prev.y}));
-                }
-
-                // 移動完了後、最終位置をローカルストレージに保存
-                if (isMounted) {
-                    const savedStates = localStorage.getItem("npcDialogueStates");
-                    let updatedStates = {};
-
-                    if (savedStates) {
-                        try {
-                            updatedStates = JSON.parse(savedStates);
-                        } catch (e) {
-                            console.error("NPCの対話状態の読み込みに失敗しました:", e);
-                        }
-                    }
-
-                    // 最終位置を保存
-                    updatedStates = {
-                        ...updatedStates,
-                        [npc.id]: {
-                            ...(updatedStates[npc.id] || {}),
-                            hasHeardDialogue: true,
-                            lastInteractionDate: new Date().toISOString(),
-                            y: targetY,
-                            x: targetX, // X座標も保存しておく
-                        },
-                    };
-
-                    // ローカルストレージに保存
-                    localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                    console.log("移動完了、位置を保存しました:", targetX, targetY);
-                }
-
-                moveInProgressRef.current = false;
-            };
-
-            moveToDestination();
-
-        }
 
 
         return () => {
