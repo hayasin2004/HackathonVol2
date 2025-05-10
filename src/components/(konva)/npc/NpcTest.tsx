@@ -187,7 +187,42 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
         // ここでしゃべらせてたのむから！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！うｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐ
         if (clickedNpc.id === 1 && questProgress == 0){
-            alert("kokodesyabre")
+            if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
+                setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
+
+                if (clickedNpc.id === 1) {
+                    dialogueTimerRef.current = setInterval(() => {
+                        setActiveDialogue((prev) => {
+                            const dialogArray =
+                                typeof clickedNpc.dialogues === "string"
+                                    ? JSON.parse(clickedNpc.dialogues)
+                                    : clickedNpc.dialogues;
+
+                            const nextIndex = prev.currentIndex + 1;
+
+                            if (nextIndex >= dialogArray.length) {
+                                if (dialogueTimerRef.current) {
+                                    clearInterval(dialogueTimerRef.current);
+                                    dialogueTimerRef.current = null;
+                                }
+
+                                if (isAutomatic) {
+                                    saveNpcDialogueState(clickedNpc.id);
+                                }
+
+                                return prev;
+                            }
+
+                            return {
+                                ...prev,
+                                currentIndex: nextIndex,
+                            };
+                        });
+                    }, 2500);
+                }
+            }
+
+
         }
 
         const dialogues =
