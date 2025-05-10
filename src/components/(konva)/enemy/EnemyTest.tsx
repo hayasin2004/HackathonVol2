@@ -519,7 +519,7 @@ const SingleEnemy: React.FC<{
     let showDialog = false;
 
     const [questFillProgress, setQuestFillProgress] = useState(0)
-    console.log(questFillProgress)
+
 
     useEffect(() => {
         const questCurrent = localStorage.getItem("npcDialogueStates");
@@ -645,10 +645,16 @@ const SingleEnemy: React.FC<{
         return ""; // ダイアログがない場合のデフォルト
     };
     const isHighlighted = questFillProgress === 1 && enemy.id >= 7 && enemy.id <= 10;
+    useEffect(() => {
+        const collision = checkCollision(ECollisionPosition, position);
+        setIsColliding(collision);
+    }, [ECollisionPosition, position, checkCollision]);
 
     useEffect(() => {
-        if (isColliding && globalMouseDown) {
 
+        if (isColliding) {
+            // if (isColliding && globalMouseDown) {
+            // alert("killing")
             const currentTime = Date.now();
 
             // クールダウン時間が経過しているか確認
