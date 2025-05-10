@@ -210,7 +210,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                 const parsedData = JSON.parse(questCurrent); // JSONをパース
                 const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
 
-                if (npc3Data?.progress === "Aiと話そう") {
+                if (parsedData?.progress === "Aiと話そう") {
                     setQuestProgress(1);
                     console.log("話しましょう");
                 } else {
@@ -521,7 +521,6 @@ const SingleEnemy: React.FC<{
     const [questFillProgress, setQuestFillProgress] = useState(0)
 
 
-
     useEffect(() => {
         const questCurrent = localStorage.getItem("npcDialogueStates");
 
@@ -529,17 +528,18 @@ const SingleEnemy: React.FC<{
 
             const parsedData = JSON.parse(questCurrent); // JSONをパース
             const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
-
-            if (npc3Data?.progress === "Aiと話そう") {
+            if (parsedData?.progress === "Aiと話そう") {
+                alert("09876")
                 setQuestFillProgress(1);
                 console.log("話しましょう");
             } else {
-                setQuestFillProgress(0  );
+                setQuestFillProgress(0);
                 console.log("他の状態です");
             }
-        }else {
+        } else {
             setQuestFillProgress(0)
-            return;;
+            return;
+            ;
         }
 
     }, [questProgress]);
