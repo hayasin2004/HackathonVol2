@@ -125,6 +125,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     const handleAlert = () => {
 
         if (activeQuest) {
+
             toast.info(` ${activeQuest.quest.name} - ${activeQuest.quest.description}`, {
                 position: "top-right",
                 autoClose: 3000, // 3秒後に自動で閉じる
@@ -134,6 +135,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                 draggable: true,
                 progress: undefined,
             });
+            setActiveQuest(activeQuest)
         }
     };
 

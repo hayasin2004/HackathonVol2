@@ -274,8 +274,9 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             }
         };
     }, [activeQuest?.quest.id, ECollisionPosition]);
-    ;
-    ;
+
+
+
 
     useEffect(() => {
         // ローカルストレージから敵の座標を取得
