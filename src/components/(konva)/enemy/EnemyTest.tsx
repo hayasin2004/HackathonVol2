@@ -210,7 +210,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                 const parsedData = JSON.parse(questCurrent); // JSONをパース
                 const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
 
-                if (parsedData?.progress === "Aiと話そう") {
+                if (parsedData[3]?.progress === "Aiと話そう") {
                     setQuestProgress(1);
                     console.log("話しましょう");
                 } else {

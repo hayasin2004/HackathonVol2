@@ -83,15 +83,12 @@ const NpcTest: React.FC<PropsNpcData> = ({
     // ローカルストレージからNPCの対話状態を読み込む
     useEffect(() => {
         const savedStates = localStorage.getItem("npcDialogueStates");
-        const parseSavedStates = JSON.parse(savedStates!);
-        if (parseSavedStates) {
-            try{
-
-
-                if (parseSavedStates[3] !== "" &&parseSavedStates[3] !== `"`&& parseSavedStates[3] !== '') {
+        if (savedStates) {
+            try {
+                if (savedStates[3]) {
                     setQuestProgress(1)
                 }
-                setNpcDialogueStates(JSON.parse(parseSavedStates));
+                setNpcDialogueStates(JSON.parse(savedStates));
             } catch (e) {
                 console.error("NPCの対話状態の読み込みに失敗しました:", e);
             }
@@ -120,7 +117,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 }
             }
         } else if (questCurrent && quest4Sakura) {
-             // JSONをパース
+            // JSONをパース
 
             if (quest4Sakura === "サクラと話そう") {
                 setQuestProgress(4);
@@ -208,7 +205,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
                     console.log("クリックしたときの"  ,　questProgress !== 4 , clickedNpc.id === 1 , firstSakuraTalk)
                     // ID=1のNPCの場合、自動的にダイアログを進行
-                    if (questProgress == 0 && clickedNpc.id === 1 ) {
+                    if (questProgress !== 4 && clickedNpc.id === 1 && firstSakuraTalk) {
                         // 2秒ごとにダイアログを進行するタイマーを設定
                         alert(2)
 
@@ -267,7 +264,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             });
                         }, 2500); // 2.5秒ごと; // 2秒ごと
                     }
-                //     すでにサクラとの自動会話を終わらせたときにクリックしたとき
+                    //     すでにサクラとの自動会話を終わらせたときにクリックしたとき
                     else if (questProgress !== 4 && clickedNpc.id === 1 && firstSakuraTalk) {
                         // 自動スクロール機能を削除し、ダイアログを取得して表示するだけに変更
                         let dialogArray: string[] = [];
@@ -330,18 +327,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         console.log("ID=3のNPCが移動後にクリックされました。8番目から17番目までのダイアログを表示します。");
                         console.log(`開始インデックス: ${startIndex}, 表示するダイアログ: ${filteredDialogues[startIndex]}`);
 
-
-
-
-
-
-
-
-
-
-
-
-
                         if (onQuestTrigger) {
                             // 第一引数: NPCのID、第二引数: クエストのID (ここでは1と仮定)
                             onQuestTrigger(clickedNpc.id, 1);
@@ -362,17 +347,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             },
                             currentIndex: startIndex,
                         });
-                    } else if (questProgress == 1 && clickedNpc.id === 3) {
-                        alert("a")
-                        // questProgressが2の場合、15個目以降のダイアログのみを表示
-                        filteredDialogues = dialogues.slice(9, 14); // 15個目以降を取得 (0-based index)
-                        startIndex = 0; // スライス後の配列なので最初の要素から開始
-                        console.log("0~8個目のダイアログを1ページ目として表示します。");
-
-
-                    }else if (questProgress !== 2 && clickedNpc.id === 3) {
-                        alert("a" + questProgress)
-
+                    } else if (questProgress !== 2 && clickedNpc.id === 3) {
                         // questProgressが2の場合、15個目以降のダイアログのみを表示
                         filteredDialogues = dialogues.slice(0, 8); // 15個目以降を取得 (0-based index)
                         startIndex = 0; // スライス後の配列なので最初の要素から開始
@@ -792,7 +767,6 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
     useEffect(() => {
         if (npc.id === 3 && questProgress === 1) {
-            // alert("utagaigaharenaiyo")　→　これが原因
             // 指定された座標にレンダリング
             const targetX = 1024;
             const targetY = 2176;
@@ -817,109 +791,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             }
             isMountedRef.current = false;
         }
-        if (npc.id === 1 && questProgress == 0) {
-            const moveToDestination = async () => {
-                const targetX = 64;
-                const targetY = 128;
-
-                let currentX = npc.x;
-                let currentY = npc.y;
-
-                setPosition({x: currentX, y: currentY});
-
-                while (currentX > targetX && isMountedRef.current) {
-                    await new Promise((resolve) => setTimeout(resolve, 150));
-                    currentX -= 64;
-                    setPosition((prev) => ({x: currentX, y: prev.y}));
-
-                    // ローカルストレージを再確認してループを停止
-                    if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (X軸)。");
-                        return;
-                    }
-                }
-
-                while (currentY > targetY && isMountedRef.current) {
-                    await new Promise((resolve) => setTimeout(resolve, 150));
-                    currentY -= 64;
-                    setPosition((prev) => ({x: prev.x, y: currentY}));
-
-                    // ローカルストレージを再確認してループを停止
-                    if (!isMountedRef.current) {
-                        console.log("移動処理が中断されました (Y軸)。");
-                        return;
-                    }
-                }
-
-                if (isMountedRef.current && !hasHeardDialogue) {
-
-                    await new Promise((resolve) => setTimeout(resolve, 300));
-                    onAutoDialogue(npc);
-                }
-            };
-
-
-            moveToDestination();
-        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
-            const moveToDestination = async () => {
-                moveInProgressRef.current = true;
-                // alert("これ？ｓ")　→　これ違う
-                const targetX = 1024;
-                const targetY = 2176;
-
-                let currentX = position.x;
-                let currentY = position.y;
-
-                // Y座標の移動
-                while ((targetY > currentY ? currentY < targetY : currentY > targetY) && isMounted) {
-                    await new Promise((resolve) => setTimeout(resolve, 90));
-                    currentY += (targetY > currentY) ? 64 : -64;
-                    setPosition((prev) => ({x: prev.x, y: currentY}));
-                }
-
-                // X座標の移動
-                while ((targetX > currentX ? currentX < targetX : currentX > targetX) && isMounted) {
-                    await new Promise((resolve) => setTimeout(resolve, 10));
-                    currentX += (targetX > currentX) ? 64 : -64;
-                    setPosition((prev) => ({x: currentX, y: prev.y}));
-                }
-
-                // 移動完了後、最終位置をローカルストレージに保存
-                if (isMounted) {
-                    const savedStates = localStorage.getItem("npcDialogueStates");
-                    let updatedStates = {};
-
-                    if (savedStates) {
-                        try {
-                            updatedStates = JSON.parse(savedStates);
-                        } catch (e) {
-                            console.error("NPCの対話状態の読み込みに失敗しました:", e);
-                        }
-                    }
-
-                    // 最終位置を保存
-                    updatedStates = {
-                        ...updatedStates,
-                        [npc.id]: {
-                            ...(updatedStates[npc.id] || {}),
-                            hasHeardDialogue: true,
-                            lastInteractionDate: new Date().toISOString(),
-                            y: targetY,
-                            x: targetX, // X座標も保存しておく
-                        },
-                    };
-
-                    // ローカルストレージに保存
-                    localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
-                    console.log("移動完了、位置を保存しました:", targetX, targetY);
-                }
-
-                moveInProgressRef.current = false;
-            };
-
-            moveToDestination();
-
-        }
+        ;
 
         if (npc.id === 1 && !firstSakuraTalk) {
             const moveToDestination = async () => {
@@ -967,7 +839,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;
-                // alert("これ？ｓ")　→　これ違う
+
                 const targetX = 1024;
                 const targetY = 2176;
 
