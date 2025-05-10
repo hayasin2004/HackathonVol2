@@ -1,7 +1,7 @@
 "use client";
 import React, {useEffect, useRef, useState} from "react";
 import {NPC} from "@/types/npc";
-import {Stage, Layer, Group, Image} from "react-konva";
+import {Stage, Layer, Group, Image, Text} from "react-konva";
 import useImage from "use-image";
 import DialogueBox from "./DialogueBox";
 import firstQuest from "@/repository/prisma/quest/firstQuest/firstQuest";
@@ -920,6 +920,14 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             onClick={handleClick}
             onTap={handleClick}
         >
+            <Text
+                text={npc.name}
+                y={-20}
+                fontSize={17}
+                fill="#fff"
+                align="center"
+                width={64}
+            />
             {image && (
                 <Image
                     image={image}

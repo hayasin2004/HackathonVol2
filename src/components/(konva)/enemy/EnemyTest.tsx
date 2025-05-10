@@ -702,8 +702,8 @@ const SingleEnemy: React.FC<{
                 width={64}
             />
             <Text
-                text={String(enemy.hp)}
-                y={-60}
+                text={"HP : "+String(enemy.hp)}
+                y={-40}
                 fontSize={14}
                 fill="red"
                 align="center"
