@@ -10,6 +10,7 @@ import {defaultItem} from "@/types/defaultItem";
 import MapWithCharacterDesert from '@/components/(konva)/desertmap/Desertmap';
 import MapWithCharacterSnow from '@/components/(konva)/snowmap/Snowmap';
 import ExitClearPage from '@/components/exitClear/exitclear';
+import LoadingScreen from "@/components/LoadingScreen/LoadingScreen";
 
 type MapType = "grass" | "desert" | "snow" | "exit";
 
@@ -261,7 +262,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     }, [playerId, roomId]);
 
     if (loading) {
-        return <div>ルーム情報を読み込み中...</div>;
+        return <LoadingScreen/>
     }
 
     if (error) {
@@ -297,7 +298,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     }
 
     if (!playerId) {
-        return <div >プレイヤー情報を読み込み中...</div>;
+        return <LoadingScreen/>
     }
 
 

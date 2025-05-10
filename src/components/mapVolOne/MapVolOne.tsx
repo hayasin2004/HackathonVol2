@@ -28,9 +28,9 @@ interface mapVolOneTypes {
     playerCharacter: HTMLImageElement | null
     objectItemImage: objectItemIconImage[] | null
     socket: Socket | null
-    players: any[]
+    players : any[]
     enemyData: Enemy[] | null
-    npcData: NPC[] | null
+    npcData : NPC[] | null
     onItemRemove?: (enemyId: string) => void
     onDialogOpen?: (isOpen: boolean) => void;
 }
@@ -73,7 +73,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
             onDialogOpen(isDialogOpen);
         }
     }, [isDialogOpen, onDialogOpen]);
-
 
     // NpcTestからダイアログの状態を受け取るハンドラー
     const handleDialogStateChange = (isOpen: boolean) => {
@@ -258,7 +257,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 // タブが表示された時、保存していたプレイヤー位置を使ってカメラを更新
-                const {x, y} = playerPositionRef.current;
+                const { x, y } = playerPositionRef.current;
 
                 // ウィンドウサイズを取得
                 const windowWidth = typeof window !== "undefined" ? window.innerWidth : 800;
@@ -367,7 +366,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     useEffect(() => {
         const fetchMusicList = async () => {
             try {
-                const {data, error} = await supabase.storage
+                const { data, error } = await supabase.storage
                     .from("hackathon2-picture-storage")
                     .list("bgm/mapVolOne"); // フォルダパスを指定
 
@@ -398,7 +397,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
         if (selectedMusic) {
             const fetchAndPlayMusic = async () => {
                 try {
-                    const {data, error} = await supabase.storage
+                    const { data, error } = await supabase.storage
                         .from("hackathon2-picture-storage")
                         .createSignedUrl(`bgm/mapVolOne/${selectedMusic}`, 60 * 60); // フルパスを指定して署名付きURLを生成
 
@@ -455,7 +454,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
     useEffect(() => {
         const handleResize = () => {
             // プレイヤーの現在位置を取得
-            const {x, y} = playerPositionRef.current;
+            const { x, y } = playerPositionRef.current;
 
             // ウィンドウサイズを取得
             const windowWidth = window.innerWidth;
@@ -619,7 +618,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
                         <EnemyTest
                             socket={socket}
-                            activeQuest={activeQuest}
                             enemyData={localEnemyData}
                             cameraPosition={cameraPosition}
                             ECollisionPosition={ECollisionPosition}
@@ -675,7 +673,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                             />
                         </React.Fragment>
                     ))}
-                    <Text x={20} y={200} text="音量" fontSize={16} fill="black"/>
+                    <Text x={20} y={200} text="音量" fontSize={16} fill="black" />
                     <Line
                         points={[20, 230, 220, 230]} // スライダーのベースライン
                         stroke="black"
@@ -691,7 +689,7 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                         dragBoundFunc={(pos) => {
                             // ドラッグ範囲を制限
                             const x = Math.max(20, Math.min(pos.x, 220));
-                            return {x, y: 220};
+                            return { x, y: 220 };
                         }}
                         onDragMove={(e) => {
                             // スライダーを移動したときに音量を更新
