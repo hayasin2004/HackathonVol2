@@ -48,7 +48,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                                  onDialogOpen,
                                              }) => {
 
-
     const {tileImagesComplete, isLoading} = useGenerateMap()
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [isDark, setIsDark] = useState(false);
@@ -574,24 +573,6 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                                 height={Tile_size}
                                 alt="プレイヤー写真"
                             />
-                            <Text
-                                text={`hp + ${String(playerId.hp)}`}
-                                x={ECollisionPosition?.x - cameraPosition.x}
-                                y={(ECollisionPosition?.y - cameraPosition.y) - 20}
-                                fontSize={30}
-                                fill="red"
-                                align="center"
-                                width={100}
-                            />
-                            <Text
-                                text={`attack + ${String(playerId.attack)}`}
-                                x={ECollisionPosition?.x - cameraPosition.x}
-                                y={(ECollisionPosition?.y - cameraPosition.y) - 60}
-                                fontSize={30}
-                                fill="red"
-                                align="center"
-                                width={150}
-                            />
                         </>
                     )}
                     {players
@@ -631,38 +612,38 @@ const MapVolOne: React.FC<mapVolOneTypes> = ({
                     )}
 
 
-                    {Array.isArray(localEnemyData) && localEnemyData.length > 0 && (
-                        <EnemyTest
-                            socket={socket}
-                            activeQuest={activeQuest}
-                            enemyData={localEnemyData}
-                            cameraPosition={cameraPosition}
-                            ECollisionPosition={ECollisionPosition}
-                            onEnemyRemove={handleRemoveEnemy}
-                            player={playerId}  // プレイヤー情報を渡す
-                            playerAttack={playerId.attack}
-                            onNextQuest={handleNextQuest}
-                            onDialogOpen={handleEnemyDialogStateChange}
-                            onPlayerDamage={(newHp) => {
-                                // プレイヤーのHPが更新されたときの処理
-                                console.log(`プレイヤーのHPが${newHp}に更新されました`);
-                                // ここで必要に応じて親コンポーネントに通知できます
-                            }}
-                        />
-                    )}
+                    {/*{Array.isArray(localEnemyData) && localEnemyData.length > 0 && (*/}
+                    {/*    <EnemyTest*/}
+                    {/*        socket={socket}*/}
+                    {/*        activeQuest={activeQuest}*/}
+                    {/*        enemyData={localEnemyData}*/}
+                    {/*        cameraPosition={cameraPosition}*/}
+                    {/*        ECollisionPosition={ECollisionPosition}*/}
+                    {/*        onEnemyRemove={handleRemoveEnemy}*/}
+                    {/*        player={playerId}  // プレイヤー情報を渡す*/}
+                    {/*        playerAttack={playerId.attack}*/}
+                    {/*        onNextQuest={handleNextQuest}*/}
+                    {/*        onDialogOpen={handleEnemyDialogStateChange}*/}
+                    {/*        onPlayerDamage={(newHp) => {*/}
+                    {/*            // プレイヤーのHPが更新されたときの処理*/}
+                    {/*            console.log(`プレイヤーのHPが${newHp}に更新されました`);*/}
+                    {/*            // ここで必要に応じて親コンポーネントに通知できます*/}
+                    {/*        }}*/}
+                    {/*    />*/}
+                    {/*)}*/}
 
-                    {Array.isArray(localNpcData) && localNpcData.length > 0 && (
-                        <NpcTest
-                            npcData={localNpcData}
-                            cameraPosition={cameraPosition}
-                            onDialogOpen={handleDialogStateChange}
-                            player={playerId}
-                            onNextQuest={handleNextQuest}
-                            onQuestTrigger={handleQuestTrigger}
-                            onAlert={handleAlert}
-                            activeQuest={activeQuest}
-                        />
-                    )}
+                    {/*{Array.isArray(localNpcData) && localNpcData.length > 0 && (*/}
+                    {/*    <NpcTest*/}
+                    {/*        npcData={localNpcData}*/}
+                    {/*        cameraPosition={cameraPosition}*/}
+                    {/*        onDialogOpen={handleDialogStateChange}*/}
+                    {/*        player={playerId}*/}
+                    {/*        onNextQuest={handleNextQuest}*/}
+                    {/*        onQuestTrigger={handleQuestTrigger}*/}
+                    {/*        onAlert={handleAlert}*/}
+                    {/*        activeQuest={activeQuest}*/}
+                    {/*    />*/}
+                    {/*)}*/}
 
 
                     {musicList.map((music, index) => (
