@@ -498,7 +498,30 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 }
                 if (dialogues && Array.isArray(dialogues) && currentIndex >= dialogues.length - 1) {
                     // NPC IDが3の場合、移動処理を実行　
-                    if (activeDialogue.npc.id === 3 && questProgress == 1) {
+
+                    if (activeDialogue.npc.id === 3 && questProgress == 0 ) {
+                        toast.info("みどりが走り出した！！追いかけよう！")
+                        //console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
+                        setQuestProgress(1)
+                        const targetX = 1024;
+                        const targetY = 2176;
+                        // 状態を更新 - yだけ更新して移動をトリガー
+                        const updatedStates = {
+                            ...npcDialogueStates,
+                            [activeDialogue.npc!.id]: {
+                                ...npcDialogueStates[activeDialogue.npc!.id],
+                                hasHeardDialogue: true,
+                                lastInteractionDate: new Date().toISOString(),
+                                x: targetX,
+                                y: targetY,　
+                                progress : "みどりと話そう"
+                            },
+                        };
+                        // 状態を設定してローカルストレージに保存
+                        setNpcDialogueStates(updatedStates);
+                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
+
+                    } else if (activeDialogue.npc.id === 3 && questProgress == 1) {
 
                         const targetX = 1024;
                         const targetY = 2176;
@@ -518,24 +541,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
                         localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
                         onAlert?.()
 
-                    } else if (activeDialogue.npc.id === 3 && questProgress !== 1 && questProgress !== 2) {
-                        toast.info("みどりが走り出した！！追いかけよう！")
-                        //console.log("最後のダイアログに到達しました - ダイアログ閉じる時");
-                        setQuestProgress(1)
-                        // 状態を更新 - yだけ更新して移動をトリガー
-                        const updatedStates = {
-                            ...npcDialogueStates,
-                            [activeDialogue.npc!.id]: {
-                                ...npcDialogueStates[activeDialogue.npc!.id],
-                                hasHeardDialogue: true,
-                                lastInteractionDate: new Date().toISOString(),
-                                y: activeDialogue.npc!.y + 1, // 少しだけ値を変えて移動をトリガー
-                            },
-                        };
-
-                        // 状態を設定してローカルストレージに保存
-                        setNpcDialogueStates(updatedStates);
-                        localStorage.setItem("npcDialogueStates", JSON.stringify(updatedStates));
                     }
                 }
 
@@ -723,6 +728,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             // 3番NPCの特殊処理
             if (prev.npc.id === 3 && questProgress == 1) {
+                alert("kk")
                 const npcState = npcDialogueStates[prev.npc.id];
                 const targetX = 1024;
                 const targetY = 2176;
@@ -850,7 +856,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         }
     }, [npcState?.y, npcState?.x]);
 
-    useEffect(() => {
+    useEffect(() => {　
         if (npc.id === 3 && questProgress === 1) {
             // 指定された座標にレンダリング
             const targetX = 1024;
@@ -928,7 +934,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             };
 
             moveToDestination();
-        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
+        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress == 1) {
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;
 
@@ -1020,8 +1026,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                         return;
                     }
                 }
-
-                    console.log("これ!", questProgressRef);
+　
                 if (isMountedRef.current && !hasHeardDialogue && questProgressRef.current == 0) {
                     // //alert("これ!" + questProgress);
                     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -1031,11 +1036,11 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
             moveToDestination();
 
 
-        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress !== 1) {
+        } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress == 1) {
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;
 
-                const targetX = 1024;
+                const targetX = 102;
                 const targetY = 2176;
 
                 let currentX = position.x;
@@ -1096,14 +1101,14 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         return () => {
             isMountedRef.current = false;
         };
-    }, [npcState?.y, npcState?.x, hasHeardDialogue , questProgress]);
+    }, [npcState?.y, npcState?.x, hasHeardDialogue, questProgress]);
 
     const handleClick = () => {
         onNpcClick(npc);
     };
-    if (npcState && npcState.isVisible === false) {
-        return null; // NPCが非表示の場合、描画しない
-    }
+    // if (npcState && npcState.isVisible === false) {
+    //     return null; // NPCが非表示の場合、描画しない
+    // }
 
     return (
         <Group

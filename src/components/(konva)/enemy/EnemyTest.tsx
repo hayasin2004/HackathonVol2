@@ -131,7 +131,6 @@ const EnemyTest: React.FC<PropsNpcData> = ({
 
         const handleEnemyRemoved = (removedEnemy: Enemy) => {
             console.log(removedEnemy.id);
-            alert(`敵ID ${removedEnemy.name} が倒された！`);
 
             // 正しい敵IDを使って削除
             setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== removedEnemy.id));
@@ -205,6 +204,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     const [questProgress, setQuestProgress] = useState(0);
     useEffect(() => {
         try {
+            console.log("wx")
             const questCurrent = localStorage.getItem("npcDialogueStates")
             if (questCurrent) {
                 const parsedData = JSON.parse(questCurrent); // JSONをパース
@@ -221,7 +221,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         } catch (error) {
             console.error("ローカルストレージからデータを取得・解析中にエラーが発生しました:", error);
         }
-    }, [activeQuest]);
+    }, [activeQuest , questProgress]);
 
     useEffect(() => {
         let followPlayerInterval: NodeJS.Timeout | null = null;
@@ -429,7 +429,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         } else {
             setIsQuestActive(false); // クエストが終了したら非アクティブにする
         }
-    }, [activeQuest]);
+    }, [activeQuest , questProgress]);
 
 
     if (!visibleEnemies || visibleEnemies.length === 0) {
@@ -519,19 +519,16 @@ const SingleEnemy: React.FC<{
     let showDialog = false;
 
     const [questFillProgress, setQuestFillProgress] = useState(0)
-
-
+    console.log("tghjkdsflcvnk sxdc" + questFillProgress)
     useEffect(() => {
         const questCurrent = localStorage.getItem("npcDialogueStates");
 
         if (questCurrent) {
-
             const parsedData = JSON.parse(questCurrent); // JSONをパース
             const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
             if (npc3Data?.progress === "Aiと話そう") {
                 setQuestFillProgress(1);
                 console.log("話しましょう");
-                return;
             } else {
                 setQuestFillProgress(0);
                 console.log("他の状態です");
@@ -539,10 +536,10 @@ const SingleEnemy: React.FC<{
         } else {
             setQuestFillProgress(0)
             return;
-            ;
+
         }
 
-    }, [questProgress]);
+    }, [questProgress ,activeQuest]);
 
     if (activeQuest?.quest.id === 5) {
         // プレイヤーを追尾するロジック
@@ -618,14 +615,7 @@ const SingleEnemy: React.FC<{
     }, [ECollisionPosition, enemy, checkCollision, isGameOver]);
 
     // ゲームオーバー時の処理
-    useEffect(() => {
-        if (isGameOver) {
-            alert("Game Over! "); // 一度だけログを出力
-            setTimeout(() => {
-                window.location.reload(); // サイトを再レンダリング
-            }, 500); // 1秒後にリロード
-        }
-    }, [isGameOver]);
+
 
     const enemyTalk = () => {
         const dialogues = typeof enemy.dialogues === 'string'
@@ -644,6 +634,8 @@ const SingleEnemy: React.FC<{
         }
         return ""; // ダイアログがない場合のデフォルト
     };
+
+
     const isHighlighted = questFillProgress === 1 && enemy.id >= 7 && enemy.id <= 10;
     useEffect(() => {
         const collision = checkCollision(ECollisionPosition, position);
