@@ -84,9 +84,10 @@ const NpcTest: React.FC<PropsNpcData> = ({
     useEffect(() => {
         const savedStates = localStorage.getItem("npcDialogueStates");
         if (savedStates) {
-            const parsedStates = JSON.parse(savedStates); // JSONをパース
             try {
-                if (parsedStates?.message === "サクラ一回しゃべった") {
+                const parsedStates = JSON.parse(savedStates); // JSONをパース
+                const npcState = parsedStates["1"]; // NPC IDが1のデータを取得
+                if (npcState?.message === "サクラ一回しゃべった") {
                     setQuestProgress(1)
                     alert("pasokongagenkai")
                 }
