@@ -188,38 +188,59 @@ const NpcTest: React.FC<PropsNpcData> = ({
         // ここでしゃべらせてたのむから！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！うｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐ
         if (clickedNpc.id === 1 && questProgress == 0){
             if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
-                setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
+                dialogueTimerRef.current = setInterval(() => {
+                    setActiveDialogue((prev) => {
+                        // ダイアログの配列を取得
+                        let dialogArray: string[] = [];
+                        if (typeof clickedNpc.dialogues === "string") {
+                            try {
+                                dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
 
-                if (clickedNpc.id === 1) {
-                    dialogueTimerRef.current = setInterval(() => {
-                        setActiveDialogue((prev) => {
-                            const dialogArray =
-                                typeof clickedNpc.dialogues === "string"
-                                    ? JSON.parse(clickedNpc.dialogues)
-                                    : clickedNpc.dialogues;
+                                alert(dialogArray)
+                            } catch (error) {
+                                console.error("ダイアログのパースに失敗しました:", error);
+                                return prev; // パースエラーの場合は何もしない
+                            }
+                        } else if (Array.isArray(clickedNpc.dialogues)) {
+                            dialogArray = clickedNpc.dialogues.slice(0, 8); // 最初の8個を取得
+                        } else {
+                            console.error("ダイアログの形式が不正です:", clickedNpc.dialogues);
+                            return prev; // 不正な形式の場合は何もしない
+                        }
 
-                            const nextIndex = prev.currentIndex + 1;
+                        // 次のインデックス
+                        const nextIndex = prev.currentIndex + 1;
 
-                            if (nextIndex >= dialogArray.length) {
-                                if (dialogueTimerRef.current) {
-                                    clearInterval(dialogueTimerRef.current);
-                                    dialogueTimerRef.current = null;
-                                }
+                        // 最後のダイアログまで表示したらタイマーを停止
+                        if (nextIndex >= dialogArray.length) {
+                            if (dialogueTimerRef.current) {
+                                clearInterval(dialogueTimerRef.current);
+                                dialogueTimerRef.current = null;
+                            }
 
-                                if (isAutomatic) {
-                                    saveNpcDialogueState(clickedNpc.id);
-                                }
-
-                                return prev;
+                            // 自動表示の場合のみ、ダイアログが終了したら対話状態を保存
+                            if (isAutomatic) {
+                                toast.info("みどりに話しかけよう")
+                                saveNpcDialogueState(clickedNpc.id);
                             }
 
                             return {
                                 ...prev,
-                                currentIndex: nextIndex,
+                                isVisible: false, // ダイアログを非表示に設定
                             };
-                        });
-                    }, 2500);
-                }
+                        }
+
+                        // 次のダイアログを表示
+                        return {
+                            ...prev,
+                            currentIndex: nextIndex,
+                            npc: {
+                                ...prev.npc,
+                                dialogues: dialogArray, // スライスされたダイアログを使用
+                            },
+                        };
+                    });
+                }, 2500)
             }
 
 
