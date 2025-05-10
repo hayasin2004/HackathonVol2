@@ -204,7 +204,6 @@ const NpcTest: React.FC<PropsNpcData> = ({
                     setActiveDialogue({isVisible: true, npc: clickedNpc, currentIndex: 0});
 
                     // ID=1のNPCの場合、自動的にダイアログを進行
-                    console.log("条件式の評価結果:", questProgress !== 4, clickedNpc.id === 1, firstSakuraTalk);
                     if (questProgress !== 4 && clickedNpc.id === 1 && firstSakuraTalk) {
                         // 2秒ごとにダイアログを進行するタイマーを設定
 
@@ -799,7 +798,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                 if (isMountedRef.current && !hasHeardDialogue) {
 
                     await new Promise((resolve) => setTimeout(resolve, 300));
-                    onAutoDialogue(npc);
+                    // onAutoDialogue(npc);
                 }
             };
 
