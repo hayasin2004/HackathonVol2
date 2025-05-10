@@ -9,8 +9,9 @@ import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import {defaultItem} from "@/types/defaultItem";
 import MapWithCharacterDesert from '@/components/(konva)/desertmap/Desertmap';
 import MapWithCharacterSnow from '@/components/(konva)/snowmap/Snowmap';
+import ExitClearPage from '@/components/exitClear/exitclear';
 
-type MapType = "grass" | "desert" | "snow";
+type MapType = "grass" | "desert" | "snow" | "exit";
 
 //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑
 
@@ -53,6 +54,12 @@ const RoomPage = ({params}: { params: { id: string } }) => {
         {x: 1216, y: 0}
     ];
 
+    const exitClear = [
+        {x: 1216, y: 0},
+        {x: 1280, y: 0},
+        {x: 1344, y: 0}
+    ]
+
     // Tキーを押したときの処理
     const handleTKeyPress = useCallback(() => {
         if (!playerId) return;
@@ -66,12 +73,16 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             //grassmapの座標に居るかの確認
             const isPlayerInGrassDesertMapCoordinates = grassdesertMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
             const isPlayerInGrassSnowMapCoordinates = grasssnowMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            const isPlayerInExitCoordinates = exitClear.some(coord => coord.x === playerX && coord.y === playerY);
 
             if (isPlayerInGrassDesertMapCoordinates) {
                 setCurrentMap("desert");
             };
             if (isPlayerInGrassSnowMapCoordinates) {
                 setCurrentMap("snow");
+            }
+            if (isPlayerInExitCoordinates) {
+                setCurrentMap("exit");
             }
             console.log(isPlayerInGrassSnowMapCoordinates)
         }
@@ -323,6 +334,9 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             )}
             {currentMap === "snow" && (
                 <MapWithCharacterSnow playerId={playerId} itemData={itemData} roomId={roomId}/>
+            )}
+            {currentMap === "exit" && (
+                <ExitClearPage/>
             )}
             {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑*/}
         </div>
