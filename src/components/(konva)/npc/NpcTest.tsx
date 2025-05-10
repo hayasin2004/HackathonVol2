@@ -190,6 +190,17 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
         // ここでしゃべらせてたのむから！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！うｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐ
         if (clickedNpc.id === 1 && questProgress == 0){
+
+
+
+
+
+
+
+            // alert(questProgress)
+
+
+
             if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
                 dialogueTimerRef.current = setInterval(() => {
                     setActiveDialogue((prev) => {
