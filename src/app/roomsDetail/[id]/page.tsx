@@ -1,10 +1,10 @@
 "use client"
 // pages/rooms/[id].tsx
-import React, {useCallback, useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
+import React, { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Game from "../../../components/(realTime)/game/Game";
-import {useSession} from "next-auth/react";
-import {PlayerItem} from "@/types/playerItem";
+import { useSession } from "next-auth/react";
+import { PlayerItem } from "@/types/playerItem";
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import {defaultItem} from "@/types/defaultItem";
 import MapWithCharacterDesert from '@/components/(konva)/desertmap/Desertmap';
@@ -88,38 +88,41 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             console.log(isPlayerInGrassSnowMapCoordinates)
         }
 
-        //現在のマップがGrassマップの場合
-        else if (currentMap === "desert") {
-            //desertmapの座標に居るかの確認
-            const isPlayerInDeserGrsstMapCoordinates = desertgrassMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+    //現在のマップがGrassマップの場合
+    else if (currentMap === "desert") {
+      //desertmapの座標に居るかの確認
+      const isPlayerInDeserGrsstMapCoordinates = desertgrassMapCoordinates.some(
+        (coord) => coord.x === playerX && coord.y === playerY
+      );
 
-            if (isPlayerInDeserGrsstMapCoordinates) {
-                setCurrentMap("grass");
-            }
-        }
-        // else if (currentMap === "grass") {
-        //     //snowmapの座標に居るかの確認
-        //     const isPlayerInGrassSnowMapCoordinates = grasssnowMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+      if (isPlayerInDeserGrsstMapCoordinates) {
+        setCurrentMap("grass");
+      }
+    }
+    // else if (currentMap === "grass") {
+    //     //snowmapの座標に居るかの確認
+    //     const isPlayerInGrassSnowMapCoordinates = grasssnowMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
 
-        //     if (isPlayerInGrassSnowMapCoordinates) {
-        //         setCurrentMap("snow");
-        //     }
-        // }
-        else if (currentMap === "snow") {
-            //snowmapの座標に居るかの確認
-            const isPlayerInSnowGrassMapCoordinates = snowgrassMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+    //     if (isPlayerInGrassSnowMapCoordinates) {
+    //         setCurrentMap("snow");
+    //     }
+    // }
+    else if (currentMap === "snow") {
+      //snowmapの座標に居るかの確認
+      const isPlayerInSnowGrassMapCoordinates = snowgrassMapCoordinates.some(
+        (coord) => coord.x === playerX && coord.y === playerY
+      );
 
-            if (isPlayerInSnowGrassMapCoordinates) {
-                setCurrentMap("grass");
-            }
-        }
+      if (isPlayerInSnowGrassMapCoordinates) {
+        setCurrentMap("grass");
+      }
+    }
+  }, [playerId, currentMap]);
 
-    }, [playerId, currentMap]);
-
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "t" || event.key === "T") {
-                handleTKeyPress();
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "t" || event.key === "T") {
+        handleTKeyPress();
 
                 //Tキー押したら座標再取得処理
 
@@ -318,30 +321,39 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             {/*        ルーム一覧に戻る*/}
             {/*    </button>*/}
 
-            {/*    <div className="mt-2">*/}
-            {/*        <p className="text-sm text-gray-500">*/}
-            {/*            ルームID: {room.id} | プレイヤー数: {room.players.length}*/}
-            {/*        </p>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
-                {/* <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/> */}
-            {/*<Game playerId={playerId} roomId={roomId}/>*/}
-            {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓*/}
-            {currentMap === "grass" && (
-                <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
-            )}
-            {currentMap === "desert" && (
-                <MapWithCharacterDesert playerId={playerId} itemData={itemData} roomId={roomId}/>
-            )}
-            {currentMap === "snow" && (
-                <MapWithCharacterSnow playerId={playerId} itemData={itemData} roomId={roomId}/>
-            )}
-            {currentMap === "exit" && (
-                <ExitClearPage/>
-            )}
-            {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑*/}
-        </div>
-    );
+      {/*    <div className="mt-2">*/}
+      {/*        <p className="text-sm text-gray-500">*/}
+      {/*            ルームID: {room.id} | プレイヤー数: {room.players.length}*/}
+      {/*        </p>*/}
+      {/*    </div>*/}
+      {/*</div>*/}
+      {/* <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/> */}
+      {/*<Game playerId={playerId} roomId={roomId}/>*/}
+      {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓*/}
+      {currentMap === "grass" && (
+        <MapWithCharacter
+          playerId={playerId}
+          itemData={itemData}
+          roomId={roomId}
+        />
+      )}
+      {currentMap === "desert" && (
+        <MapWithCharacterDesert
+          playerId={playerId}
+          itemData={itemData}
+          roomId={roomId}
+        />
+      )}
+      {currentMap === "snow" && (
+        <MapWithCharacterSnow
+          playerId={playerId}
+          itemData={itemData}
+          roomId={roomId}
+        />
+      )}
+      {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑*/}
+    </div>
+  );
 };
 
 export default RoomPage;
