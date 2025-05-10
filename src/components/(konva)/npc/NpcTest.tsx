@@ -84,9 +84,11 @@ const NpcTest: React.FC<PropsNpcData> = ({
     useEffect(() => {
         const savedStates = localStorage.getItem("npcDialogueStates");
         if (savedStates) {
+            const parsedStates = JSON.parse(savedStates); // JSONをパース
             try {
-                if (savedStates[3]) {
+                if (parsedStates?.message === "サクラ一回しゃべった") {
                     setQuestProgress(1)
+                    alert("pasokongagenkai")
                 }
                 setNpcDialogueStates(JSON.parse(savedStates));
             } catch (e) {
@@ -131,12 +133,13 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
 
     // NPCの対話状態を保存する関数
-    const saveNpcDialogueState = (npcId: number) => {
+    const saveNpcDialogueState = (npcId: number , message? : string) => {
         const updatedStates = {
             ...npcDialogueStates,
             [npcId]: {
                 hasHeardDialogue: true,
                 lastInteractionDate: new Date().toISOString(),
+                message : message || ""
             },
         };
 
@@ -221,7 +224,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             // 自動表示の場合のみ、ダイアログが終了したら対話状態を保存
                             if (isAutomatic) {
                                 toast.info("みどりに話しかけよう")
-                                saveNpcDialogueState(clickedNpc.id);
+                                saveNpcDialogueState(clickedNpc.id , "サクラ一回しゃべった");
                             }
 
                             return {
