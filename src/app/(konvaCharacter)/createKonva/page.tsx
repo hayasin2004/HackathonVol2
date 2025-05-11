@@ -844,7 +844,7 @@ export default function Page() {
                             />
                         </div>
                     </div>
-                    <div>
+                    <div className={styles.horizontalImages}>
                         <button className={styles.button} onClick={handleSaveAllImages}>Supabaseに画像保存</button>
                     </div>
                 </div>
