@@ -134,7 +134,7 @@ const MapWithCharacterSnow: React.FC<GameProps> = ({playerId, roomId, itemData})
     useEffect(() => {
         //console.log(eCollisionGotItemStatus)
 
-        // alert(JSON.stringify(eCollisionGotItemStatus))
+        // //alert(JSON.stringify(eCollisionGotItemStatus))
     }, [eCollisionGotItem]);
 
 

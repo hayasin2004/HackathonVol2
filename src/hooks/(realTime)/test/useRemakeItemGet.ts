@@ -153,7 +153,7 @@ export const useRemakeItemGet = ({
                 console.log(foundItem)
                 // プレイヤーが設置したかどうかの判定
                 if (foundItem.playerId || foundItem.userId ){
-                    alert("これだれが置いたんや！！" + foundItem.playerId)
+                    //alert("これだれが置いたんや！！" + foundItem.playerId)
                     const result = await playerGetItem(userId, [foundItem.itemId]);
 
                     if (result?.status === "success") {

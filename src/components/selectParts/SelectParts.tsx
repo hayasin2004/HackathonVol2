@@ -19,7 +19,7 @@ const SelectParts:React.FC<{session : number | undefined}> = (props) => {
         e.preventDefault()
         const result = await  konvaRepository(userId?.session , selectedValue)
         if(result.status == "error"){
-            window.alert(result.message)
+            window.//alert(result.message)
         }
         else if (result.status == "success"){
             router.push("/")

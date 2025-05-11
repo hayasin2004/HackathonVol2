@@ -46,7 +46,7 @@ const useCollisionWithKeyboard = (
                         break;
                     case 69: // Eキー
                         if (checkCollision(prev.x, prev.y)) {
-                            alert("障害物に隣接しています！");
+                            //alert("障害物に隣接しています！");
                         }
                         return prev
                     default:

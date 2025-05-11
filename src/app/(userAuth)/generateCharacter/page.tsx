@@ -244,7 +244,7 @@ export default function Page() {
       !motionImages.right ||
       !motionImages.left
     ) {
-      alert("全ての画像が生成されていません。");
+      //alert("全ての画像が生成されていません。");
       return;
     }
     setConfirmLoading(true);

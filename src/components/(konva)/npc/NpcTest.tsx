@@ -72,7 +72,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
         if (activeQuest?.quest.id === 2) {
             setQuestProgress(2)
         } else if (activeQuest?.quest.id == 4) {
-            //alert("これ4つ目")
+            ////alert("これ4つ目")
             setQuestProgress(4)
         }
     }, [activeQuest]);
@@ -89,7 +89,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                 const npcState = parsedStates["1"]; // NPC IDが1のデータを取得
                 if (npcState?.message === "サクラ一回しゃべった") {
                     setQuestProgress(1)
-                    //alert("pasokongagenkai")
+                    ////alert("pasokongagenkai")
                 }
                 setNpcDialogueStates(JSON.parse(savedStates));
             } catch (err) {
@@ -104,7 +104,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
             (sakuraFirstContact && (quest4Sakura === undefined || quest4Sakura === null)) &&
             (questCurrent === undefined || questCurrent === null)
         ) {
-            // //alert("あ");
+            // ////alert("あ");
             setFirstSakuraTalk(true);
             return;
         } else if (questCurrent && quest4Sakura == undefined || quest4Sakura == null) {
@@ -201,7 +201,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
         // ここでしゃべらせてたのむから！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！うｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐｐ
         if (clickedNpc.id === 1 && questProgressRef.current == 0) {
 
-            //alert("questProgress" + questProgressRef.current)
+            ////alert("questProgress" + questProgressRef.current)
 
 
             if (!isAutomatic || (isAutomatic && !hasHeardDialogue(clickedNpc.id))) {
@@ -213,7 +213,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
                             try {
                                 dialogArray = JSON.parse(clickedNpc.dialogues).slice(0, 8); // 最初の8個を取得
 
-                                //alert(dialogArray)
+                                ////alert(dialogArray)
                             } catch (error) {
                                 //console.error("ダイアログのパースに失敗しました:", error);
                                 return prev; // パースエラーの場合は何もしない
@@ -736,7 +736,7 @@ const NpcTest: React.FC<PropsNpcData> = ({
 
             // 3番NPCの特殊処理
             if (prev.npc.id === 3 && questProgress == 1) {
-                // alert("kk")
+                // //alert("kk")
                 const npcState = npcDialogueStates[prev.npc.id];
                 const targetX = 1024;
                 const targetY = 2176;
@@ -900,7 +900,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
         ;
 
         if (npc.id === 1 && questProgressRef !== 0) {
-            //alert(111222);
+            ////alert(111222);
             const moveToDestination = async () => {
                 const targetX = 64;
                 const targetY = 128;
@@ -1036,7 +1036,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
                 }
 
                 if (isMountedRef.current && !hasHeardDialogue && questProgressRef.current == 0) {
-                    // //alert("これ!" + questProgress);
+                    // ////alert("これ!" + questProgress);
                     await new Promise((resolve) => setTimeout(resolve, 300));
                     onAutoDialogue(npc);
                 }
@@ -1045,7 +1045,7 @@ const SingleNpc: React.FC<PropsSingleNpc> = ({
 
 
         } else if (npc.id === 3 && npcState?.y !== undefined && !moveInProgressRef.current && questProgress == 0) {
-            // alert(questProgress)
+            // //alert(questProgress)
             if (moveInProgressRef.current) return;
             const moveToDestination = async () => {
                 moveInProgressRef.current = true;

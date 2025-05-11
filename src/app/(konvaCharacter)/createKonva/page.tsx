@@ -14,7 +14,7 @@ export default function Page() {
         const confirmUserData = async () => {
             const response = await findPlayerData(session?.user.id)
             if (response){
-                alert(response)
+                //alert(response)
             }
         }
         confirmUserData()

@@ -40,7 +40,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                                                          }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
-    // alert(JSON.stringify(playerItems))
+    // //alert(JSON.stringify(playerItems))
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
     console.log(selectedItemId)
@@ -212,7 +212,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
 
     const handleCraftClick = () => {
         if (selectedItemId) {
-            alert(selectedItemId)
+            //alert(selectedItemId)
             const selectedItem = craftItems.find(
                 (item) => item.id === Number(selectedItemId)
             );

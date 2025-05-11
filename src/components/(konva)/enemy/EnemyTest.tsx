@@ -192,7 +192,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
 
             console.log("プレイヤーが倒れました！");
             // ここでゲームオーバー処理を追加できます
-            alert("ゲームオーバー！プレイヤーが倒れました。");
+            //alert("ゲームオーバー！プレイヤーが倒れました。");
         } else {
             // HPを更新
             setPlayerHP(newHP);
@@ -647,7 +647,7 @@ const SingleEnemy: React.FC<{
 
         if (isColliding) {
             // if (isColliding && globalMouseDown) {
-            // alert("killing")
+            // //alert("killing")
             const currentTime = Date.now();
 
             // クールダウン時間が経過しているか確認
