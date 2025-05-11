@@ -29,6 +29,9 @@ import EnemyTest from "@/components/(konva)/enemy/EnemyTest";
 import {GetEnemy} from "@/repository/prisma/enemy/enemyRepository";
 import {Enemy} from "@/types/enemy";
 import {Layer, Stage ,Image as KonvaImage} from "react-konva";
+import {GetNpc} from "@/repository/prisma/npc/npcRepository";
+import {NPC} from "@/types/npc";
+import LoadingScreen from "@/components/LoadingScreen/LoadingScreen";
 
 // プレイヤーをTile_sizeからx: 10 y: 10のところを取得する
 
@@ -49,8 +52,18 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
     const [tileImages, setTileImages] = useState<{ [key: string]: HTMLImageElement }>({});
     const [interactableMapObjects, setInteractableMapObjects] = useState<Array<MapTilesType>>([]);
     const [notifications, setNotifications] = useState<string[]>([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false); // ダイアログの表示状態を管理
+    console.log(isDialogOpen)
+    // 既存のコード...
 
+    // ダイアログの状態を受け取るハンドラー
+    const handleDialogStateChange = (isOpen: boolean) => {
+        setIsDialogOpen(isOpen);
+    };
 
+// PlayerInventoryに渡すアイテムの状態を追加
+    const [playerInventory, setPlayerInventory] = useState([]);
+    const [npcData, setNpcData] = useState<NPC[] | null>([]);
     // 試験的なデータ
 
     const [objectItemImage, setObjectItemImage] = useState<
@@ -279,6 +292,20 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
         };
         fetchEnemyData();
     }, []);
+    useEffect(() => {
+        const fetchNpcData = async () => {
+            try {
+                const data = await GetNpc();
+                //console.log('Fetched enemy data:', data);
+                setNpcData(data);
+            } catch (error) {
+                console.error('Error fetching enemy data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchNpcData();
+    }, []);
 
 
     // 衝突判定の更新
@@ -299,9 +326,10 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
 
 
 
+
     // Loading or Error UI
     if (!connected) {
-        return <div className="loading">サーバーに接続中...</div>;
+        return <LoadingScreen message='読み込み中'/>;
     }
 
     if (error) {
@@ -333,22 +361,25 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
                     nearbyItemPosition={nearbyItemPosition}
                     socket={socket}
                     enemyData={enemyData}
+                    npcData={npcData}
+                    onDialogOpen={handleDialogStateChange}
                 />
 
             {/*<div>*/}
+            {!isDialogOpen && (
+                <PlayerInventory roomId={roomId} playerId={playerId}
+                                 players={players}
+                                 eCollisionGotItem={eCollisionGotItem}
+                                 objectItemImage={objectItemImage}
+                                 ECollisionPosition={ECollisionPosition}
+                                 craftEvents={craftEvents}
+                                 currentDirectionRef={currentDirectionRef}
+                                 playerDirection={playerDirection}
+                                 socket={socket}
+                                 playerInventory={playerInventory}
 
-            {/*    <PlayerInventory roomId={roomId} playerId={playerId}*/}
-            {/*                     players={players}*/}
-            {/*                     eCollisionGotItem={eCollisionGotItem}*/}
-            {/*                     objectItemImage={objectItemImage}*/}
-            {/*                     ECollisionPosition={ECollisionPosition}*/}
-            {/*                     craftEvents={craftEvents}*/}
-            {/*                     currentDirectionRef={currentDirectionRef}*/}
-            {/*                     playerDirection={playerDirection}*/}
-            {/*                     socket={socket}*/}
-
-            {/*    />*/}
-
+                />
+            )}
 
             {/*    /!*    <form action={logout}>*!/*/}
             {/*    /!*        <button className={styles.fixedLogOutButton}>*!/*/}
@@ -380,7 +411,7 @@ const MapWithCharacter: React.FC<GameProps> = ({playerId, roomId, itemData}) => 
             {/*    /!*        </div>*!/*/}
             {/*    /!*    ))}*!/*/}
             {/*</div>*/}
-　
+
         </div>
     );
 };

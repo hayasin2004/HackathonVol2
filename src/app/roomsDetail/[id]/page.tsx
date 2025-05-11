@@ -1,12 +1,20 @@
 "use client"
 // pages/rooms/[id].tsx
-import React, {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
+import React, {useCallback, useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
 import Game from "../../../components/(realTime)/game/Game";
 import {useSession} from "next-auth/react";
 import {PlayerItem} from "@/types/playerItem";
 import MapWithCharacter from "@/components/(konva)/grassmap/Grassmap";
 import {defaultItem} from "@/types/defaultItem";
+import MapWithCharacterDesert from '@/components/(konva)/desertmap/Desertmap';
+import MapWithCharacterSnow from '@/components/(konva)/snowmap/Snowmap';
+import ExitClearPage from '@/components/exitClear/exitclear';
+import LoadingScreen from "@/components/LoadingScreen/LoadingScreen";
+
+type MapType = "grass" | "desert" | "snow" | "exit";
+
+//マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑
 
 const RoomPage = ({params}: { params: { id: string } }) => {
     const router = useRouter();
@@ -21,6 +29,144 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     const [error, setError] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<PlayerItem | null | undefined>(null);
     const [itemData, setItemData] = useState<defaultItem[]>([]);
+
+    //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓
+    const [currentMap, setCurrentMap] = useState<MapType>("grass") //初期マップをGrassmapに設定
+
+    //特定の座標
+    const grassdesertMapCoordinates = [
+        {x: 4032, y: 576},
+        {x: 4032, y: 640},
+        {x: 4032, y: 704}
+    ];
+    const desertgrassMapCoordinates = [
+        {x: 0, y: 576},
+        {x: 0, y: 640},
+        {x: 0, y: 704}
+    ];
+    const grasssnowMapCoordinates = [
+        {x: 2368, y: 4032},
+        {x: 2432, y: 4032},
+        {x: 2496, y: 4032}
+    ];
+    const snowgrassMapCoordinates = [
+        {x: 1216, y: 0},
+        {x: 1280, y: 0},
+        {x: 1216, y: 0}
+    ];
+
+    const exitClear = [
+        {x: 1216, y: 0},
+        {x: 1280, y: 0},
+        {x: 1344, y: 0}
+    ]
+
+    // Tキーを押したときの処理
+    const handleTKeyPress = useCallback(() => {
+        if (!playerId) return;
+        const playerX = playerId.x;
+        const playerY = playerId.y;
+
+        console.log("%cPlayerId確認", "color: blue", playerId)
+
+        //現在のマップがGrassマップの場合
+        if (currentMap === "grass") {
+            //grassmapの座標に居るかの確認
+            const isPlayerInGrassDesertMapCoordinates = grassdesertMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            const isPlayerInGrassSnowMapCoordinates = grasssnowMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+            const isPlayerInExitCoordinates = exitClear.some(coord => coord.x === playerX && coord.y === playerY);
+
+            if (isPlayerInGrassDesertMapCoordinates) {
+                setCurrentMap("desert");
+            }
+            ;
+            if (isPlayerInGrassSnowMapCoordinates) {
+                setCurrentMap("snow");
+            }
+
+            {
+                currentMap === "exit" && (
+                    <ExitClearPage/>
+                )
+            }
+            if (isPlayerInExitCoordinates) {
+                setCurrentMap("exit");
+            }
+            console.log(isPlayerInGrassSnowMapCoordinates)
+        }
+
+        //現在のマップがGrassマップの場合
+        else if (currentMap === "desert") {
+            //desertmapの座標に居るかの確認
+            const isPlayerInDeserGrsstMapCoordinates = desertgrassMapCoordinates.some(
+                (coord) => coord.x === playerX && coord.y === playerY
+            );
+
+            if (isPlayerInDeserGrsstMapCoordinates) {
+                setCurrentMap("grass");
+            }
+        }
+            // else if (currentMap === "grass") {
+            //     //snowmapの座標に居るかの確認
+            //     const isPlayerInGrassSnowMapCoordinates = grasssnowMapCoordinates.some(coord => coord.x === playerX && coord.y === playerY);
+
+            //     if (isPlayerInGrassSnowMapCoordinates) {
+            //         setCurrentMap("snow");
+            //     }
+        // }
+        else if (currentMap === "snow") {
+            //snowmapの座標に居るかの確認
+            const isPlayerInSnowGrassMapCoordinates = snowgrassMapCoordinates.some(
+                (coord) => coord.x === playerX && coord.y === playerY
+            );
+
+            if (isPlayerInSnowGrassMapCoordinates) {
+                setCurrentMap("grass");
+            }
+        }
+    }, [playerId, currentMap]);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "t" || event.key === "T") {
+                handleTKeyPress();
+
+                //Tキー押したら座標再取得処理
+
+                const userId = session?.user.id;
+                if (userId) {
+                    const currentUserId = async () => {
+                        const ItemResponse = await fetch(`/api/item/fetchItem`, {method: "GET"});
+                        const response = await fetch(`/api/player/catch/${userId}`, {method: "GET"});
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const text = await response.text(); // レスポンスをテキストとして取得
+                        const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
+                        if (data == undefined) return;
+
+                        const userData = JSON.parse(JSON.stringify(data.playerData))
+
+                        const itemDataList = await ItemResponse.json()
+                        console.log(userData)
+                        setPlayerId(userData);
+                        setItemData(itemDataList);
+                    }
+                    currentUserId()
+                }
+            }
+
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [handleTKeyPress]);
+    //マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑
+
     // 現在のユーザーIDを取得（認証システムから取得する想定）
     useEffect(() => {
         // ここでは仮の実装として、LocalStorageなどから取得するか、
@@ -38,12 +184,17 @@ const RoomPage = ({params}: { params: { id: string } }) => {
 
                 const text = await response.text(); // レスポンスをテキストとして取得
                 const data = text ? JSON.parse(text) : null; // 空チェックとJSONパース
-                const userData = JSON.parse(JSON.stringify(data.playerData))
+                if (data == undefined) return;
 
-                const itemDataList = await ItemResponse.json()
-                console.log(userData)
-                setPlayerId(userData);
-                setItemData(itemDataList);
+                if (data) {
+
+                    const userData = JSON.parse(JSON.stringify(data.playerData))
+
+                    const itemDataList = await ItemResponse.json()
+                    console.log(userData)
+                    setPlayerId(userData);
+                    setItemData(itemDataList);
+                }
             }
             currentUserId()
         } else {
@@ -121,7 +272,7 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     }, [playerId, roomId]);
 
     if (loading) {
-        return <div className="flex justify-center items-center h-screen">ルーム情報を読み込み中...</div>;
+        return <LoadingScreen/>
     }
 
     if (error) {
@@ -157,13 +308,15 @@ const RoomPage = ({params}: { params: { id: string } }) => {
     }
 
     if (!playerId) {
-        return <div className="flex justify-center items-center h-screen">プレイヤー情報を読み込み中...</div>;
+        return <LoadingScreen/>
     }
 
 
-
     return (
-        <div className="container mx-auto p-4">
+        <div
+            style={{overflowY: "hidden", overflowX: "hidden"}}
+
+        >
             {/*<h1 className="text-2xl font-bold mb-4">{room.name}</h1>*/}
 
             {/*<div className="mb-6">*/}
@@ -180,8 +333,34 @@ const RoomPage = ({params}: { params: { id: string } }) => {
             {/*        </p>*/}
             {/*    </div>*/}
             {/*</div>*/}
-                <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/>
+            {/* <MapWithCharacter playerId={playerId} itemData={itemData} roomId={roomId}/> */}
             {/*<Game playerId={playerId} roomId={roomId}/>*/}
+            {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↓*/}
+            {currentMap === "grass" && (
+                <MapWithCharacter
+                    playerId={playerId}
+                    itemData={itemData}
+                    roomId={roomId}
+                />
+            )}
+            {currentMap === "desert" && (
+                <MapWithCharacterDesert
+                    playerId={playerId}
+                    itemData={itemData}
+                    roomId={roomId}
+                />
+            )}
+            {currentMap === "snow" && (
+                <MapWithCharacterSnow
+                    playerId={playerId}
+                    itemData={itemData}
+                    roomId={roomId}
+                />
+            )}
+            {currentMap === "exit" && (
+                <ExitClearPage/>
+            )}
+            {/*マップの追加✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨↑*/}
         </div>
     );
 };

@@ -1,0 +1,9 @@
+.div {
+    display: flex;
+    justify-content: center;
+    color: #00a0f6;
+    font-size: 80px;
+    align-items: center;
+
+    height: 100vh;
+}

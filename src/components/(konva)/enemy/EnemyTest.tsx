@@ -1,6 +1,6 @@
 // src/components/(konva)/enemy/EnemyTest.tsx
 "use client"
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Stage, Layer, Group, Image, Text} from "react-konva";
 import useImage from "use-image";
 import {Enemy} from "@/types/enemy";
@@ -8,16 +8,28 @@ import useEnemyRandomMovement from "@/hooks/(animation)/enemy/randomEnemy/useEne
 import useEnemyLinearRandomMovement from "@/hooks/(animation)/enemy/linearEnemy/useEnemyLinearRandomMovement";
 import {PlayerItem} from "@/types/playerItem";
 import {Socket} from "socket.io-client";
+import useEnemyBuruBuruMovement from "@/hooks/(animation)/enemy/EnemyBuruBuru/useEnemyBuruBuruMovement";
+import DialogueBox from "@/components/(konva)/npc/DialogueBox";
+import {QuestType} from "@/types/quest";
+import {number} from "prop-types";
+import {toast} from "react-toastify";
+
 
 interface PropsNpcData {
     enemyData: Enemy[] | null
     cameraPosition: { x: number, y: number }
     ECollisionPosition: { x: number, y: number }
-    onEnemyRemove?: (enemyId: number) => void  // 敵を削除するための関数を追加
+    onEnemyRemove?: (enemyId: number) => void
     playerAttack: number
-    player?: PlayerItem  // プレイヤー情報を追加
-    onPlayerDamage?: (newHp: number) => void  // プレイヤーのHPを更新するコールバック
+    player?: PlayerItem
+    onPlayerDamage?: (newHp: number) => void
     socket: Socket | null
+    onDialogOpen?: (isOpen: boolean) => void  // 追加: ダイアログの状態を親に通知
+    activeQuest?: QuestType // クエスト情報があれば
+    onAlert?: () => void; // 新たに追加
+    onNextQuest?: (currentQuestId: number) => void;
+    isAlertTriggered: boolean
+
 }
 
 const currentStage = 1;
@@ -27,8 +39,9 @@ const onInteract = (enemy: Enemy, dialogue: any) => {
 };
 
 const EnemyTest: React.FC<PropsNpcData> = ({
-                                               enemyData, cameraPosition, player,socket,
-                                               onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack
+                                               enemyData, onAlert, cameraPosition, player, socket,
+                                               onPlayerDamage, onEnemyRemove, ECollisionPosition, playerAttack,
+                                               onDialogOpen, activeQuest, onNextQuest, isAlertTriggered
                                            }) => {
     const [dialogue, setDialogue] = useState<string | null>(null);
     const [globalMouseDown, setGlobalMouseDown] = useState(false);
@@ -36,6 +49,19 @@ const EnemyTest: React.FC<PropsNpcData> = ({
     const [playerHP, setPlayerHP] = useState<number>(player?.hp || 100);
     const [isPlayerAlive, setIsPlayerAlive] = useState(true);
     const [visibleEnemies, setVisibleEnemies] = useState<Enemy[]>([]);
+    const [currentDialogue, setCurrentDialogue] = useState<string | null>(null); // 現在のダイアログ内容を管理
+
+    // ダイアログが開いているかどうかの状態
+// 修正: activeDialogue の型定義を更新
+    const [activeDialogue, setActiveDialogue] = useState<{
+        isVisible: boolean;
+        enemy: (Enemy & { dialogues: string | any[] }) | null; // dialogues プロパティを考慮
+        currentIndex?: number;
+    }>({
+        isVisible: false,
+        enemy: null,
+        currentIndex: 0,
+    });
     useEffect(() => {
         if (enemyData) {
             setVisibleEnemies(enemyData);
@@ -65,47 +91,59 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             window.removeEventListener('mousedown', handleGlobalMouseDown);
         };
     }, []);
+    const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0);
 
     const handleRemoveEnemy = (enemyId: number) => {
         console.log(`敵ID: ${enemyId} を削除します`);
+
+        // ローカルストレージに削除された敵IDを保存
+        const defeatedEnemies = JSON.parse(localStorage.getItem("defeatedEnemies") || "[]");
+        if (!defeatedEnemies.includes(enemyId)) {
+            defeatedEnemies.push(enemyId);
+            localStorage.setItem("defeatedEnemies", JSON.stringify(defeatedEnemies));
+        }
+
+        // 倒した敵のカウントを増やす
+        setTotalEnemiesDefeated((prevCount) => {
+            const newCount = prevCount + 1;
+            console.log(`現在までに倒した敵の合計数: ${newCount}`);
+
+            // 4体倒したらアラートを表示
+            if (newCount === 4 && onNextQuest) {
+                onNextQuest(3); // 現在のクエストIDを渡す
+                localStorage.setItem("quest3Complete", "サクラと話そう")
+                alert("4体の敵を倒しました！");
+            }
+
+            return newCount;
+        });
 
         // 親コンポーネントに通知（もし関数が提供されていれば）
         if (onEnemyRemove) {
             onEnemyRemove(enemyId);
         }
 
-        // ローカルの状態も更新
+        // ローカルの状態を更新して敵を削除
+        setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== enemyId));
     };
-
     // もし他のプレイヤーが敵を倒したときの通知
     // ソケットイベントで敵削除を受信
     useEffect(() => {
         if (!socket) return;
 
-        const handleEnemyRemoved = (enemyId: number) => {
-            console.log(`敵ID ${enemyId} が削除されました`);
-            setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== enemyId));
-        };
+        const handleEnemyRemoved = (removedEnemy: Enemy) => {
+            console.log(removedEnemy.id);
 
-        const handleEnemyHpUpdated = ({ id, hp }: { id: number; hp: number }) => {
-            setVisibleEnemies((prev) =>
-                prev.map((enemy) =>
-                    enemy.id === id ? { ...enemy, hp } : enemy
-                )
-            );
+            // 正しい敵IDを使って削除
+            setVisibleEnemies((prev) => prev.filter((enemy) => enemy.id !== removedEnemy.id));
         };
 
         socket.on("enemyRemoved", handleEnemyRemoved);
-        socket.on("enemyHpUpdated", handleEnemyHpUpdated);
 
         return () => {
             socket.off("enemyRemoved", handleEnemyRemoved);
-            socket.off("enemyHpUpdated", handleEnemyHpUpdated);
         };
-    }, [socket]);;
-
-
-
+    }, [socket]);
 
 
     // 敵にダメージを与える関数
@@ -120,16 +158,10 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             handleRemoveEnemy(enemy.id);
 
             // サーバーに削除イベントを送信
-            if (socket) {　
+            if (socket) {
                 socket.emit("removeEnemy", enemy);
             }
             return true; // 敵が倒されたことを示す
-        }
-
-
-        // サーバーにHP更新を送信
-        if (socket) {
-            socket.emit("updateEnemyHp", enemy.id, newHp);
         }
 
         // HPが残っている場合は敵のHPを更新
@@ -139,7 +171,7 @@ const EnemyTest: React.FC<PropsNpcData> = ({
             prev.map(e => e.id === enemy.id ? updatedEnemy : e)
         );
         return false; // 敵はまだ生きている
-    }, [handleRemoveEnemy,playerAttack , socket]);
+    }, [handleRemoveEnemy, playerAttack, socket]);
 
 
     // プレイヤーにダメージを与える関数
@@ -160,10 +192,9 @@ const EnemyTest: React.FC<PropsNpcData> = ({
 
             console.log("プレイヤーが倒れました！");
             // ここでゲームオーバー処理を追加できます
-            console.log("ゲームオーバー！プレイヤーが倒れました。");
+            alert("ゲームオーバー！プレイヤーが倒れました。");
         } else {
             // HPを更新
-            setPlayerHP(newHP);
             setPlayerHP(newHP);
 
             if (onPlayerDamage) {
@@ -172,9 +203,233 @@ const EnemyTest: React.FC<PropsNpcData> = ({
         }
     }, [playerHP, onPlayerDamage, isPlayerAlive]);
     // プレイヤーが死亡している場合、ゲームオーバー表示
+    const [questProgress, setQuestProgress] = useState(0);
+    useEffect(() => {
+        try {
+            console.log("wx")
+            const questCurrent = localStorage.getItem("npcDialogueStates")
+            if (questCurrent) {
+                const parsedData = JSON.parse(questCurrent); // JSONをパース
+                const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
+                if (npc3Data?.progress === "Aiと話そう") {
+                    setQuestProgress(1);
+                    console.log("話しましょう");
+                } else {
+                    setQuestProgress(0);
+                    console.log("他の状態です");
+                }
+            }
+
+        } catch (error) {
+            console.error("ローカルストレージからデータを取得・解析中にエラーが発生しました:", error);
+        }
+    }, [activeQuest, questProgress, isAlertTriggered]);
+
+    console.log(activeQuest?.quest.id)
+    useEffect(() => {
+        let followPlayerInterval: NodeJS.Timeout | null = null;
+        if (activeQuest?.quest.id === 5) {
+            console.log("クエストID 5: 敵がプレイヤーを追尾します");
+
+            followPlayerInterval = setInterval(() => {
+                setVisibleEnemies((prevEnemies) =>
+                    prevEnemies.map((enemy) => {
+                        // プレイヤーの位置を取得
+                        const playerX = ECollisionPosition.x;
+                        const playerY = ECollisionPosition.y;
+
+                        // 敵の現在位置
+                        const enemyX = enemy.x;
+                        const enemyY = enemy.y;
+
+                        // プレイヤーに向かう方向を計算
+                        const dx = playerX - enemyX;
+                        const dy = playerY - enemyY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        // 移動速度を設定 (1フレームあたりの移動量)
+                        const speed = 5;
+
+                        // 距離が0でない場合に移動
+                        if (distance > 0) {
+                            const moveX = (dx / distance) * speed;
+                            const moveY = (dy / distance) * speed;
+
+                            // 敵の位置を更新
+                            return {
+                                ...enemy,
+                                x: enemyX + moveX,
+                                y: enemyY + moveY,
+                            };
+                        }
+
+                        return enemy; // 距離が0の場合はそのまま
+                    })
+                );
+            }, 0.3); // 100msごとに更新
+        }
+
+        return () => {
+            if (followPlayerInterval) {
+                clearInterval(followPlayerInterval); // クリーンアップ時にインターバルを解除
+            }
+        };
+    }, [activeQuest?.quest.id, ECollisionPosition]);
+
+
+    useEffect(() => {
+        // ローカルストレージから敵の座標を取得
+        const storedPositions = localStorage.getItem("enemyPositions");
+        if (storedPositions) {
+            try {
+                const parsedPositions = JSON.parse(storedPositions);
+                setVisibleEnemies(parsedPositions);
+            } catch (error) {
+                console.error("ローカルストレージから敵の座標を読み込む際にエラーが発生しました:", error);
+            }
+        } else if (enemyData) {
+            // ローカルストレージにデータがない場合は、初期データを使用
+            setVisibleEnemies(enemyData);
+        }
+    }, [enemyData]);
+
+// isVisibleだけを抽出して依存配列に使用
+    const isDialogVisible = activeDialogue.isVisible;
+
+// 状態変更を通知するuseEffect
+    const prevVisibleRef = useRef<boolean>(activeDialogue.isVisible);
+
+    useEffect(() => {
+        if (onDialogOpen && prevVisibleRef.current !== activeDialogue.isVisible) {
+            console.log("[EnemyTest] ダイアログ状態変更:", activeDialogue.isVisible);
+            onDialogOpen(activeDialogue.isVisible);
+            prevVisibleRef.current = activeDialogue.isVisible;
+        }
+    }, [activeDialogue.isVisible, onDialogOpen]);
     if (!isPlayerAlive) {
         console.log("死亡しました。ゲームオーバーです。")
     }
+
+    const handleOpenDialogue = (enemy: Enemy, position: { x: number; y: number }) => {
+        console.log("[EnemyTest] ダイアログを開く処理開始:", enemy.name);
+
+        const enemyDialogues = typeof enemy.dialogues === "string" ? JSON.parse(enemy.dialogues) : enemy.dialogues;
+
+        const enemyWithDialogues = {
+            ...enemy,
+            dialogues: Array.isArray(enemyDialogues) ? enemyDialogues : [],
+        };
+
+        // ダイアログ内容を計算
+        const calculateDialogue = () => {
+            if (isQuestActive && enemy.id >= 7 && enemy.id <= 10) {
+                // クエスト中は 2 番目以降のダイアログを表示
+                if (Array.isArray(enemyWithDialogues.dialogues) && enemyWithDialogues.dialogues.length > 2) {
+                    return enemyWithDialogues.dialogues[2];
+                }
+                return "…"; // ダイアログがない場合のデフォルト
+            }
+
+            // 通常時は 1 番目のダイアログを表示
+            if (Array.isArray(enemyWithDialogues.dialogues) && enemyWithDialogues.dialogues.length > 1) {
+                return enemyWithDialogues.dialogues[1];
+            }
+
+            return ""; // デフォルトで空文字列を返す
+        };
+
+        // ダイアログ位置と内容を更新
+        setCurrentDialogue(calculateDialogue());
+
+        setActiveDialogue({
+            isVisible: true,
+            enemy: enemyWithDialogues,
+            currentIndex: isQuestActive && enemy.id >= 7 && enemy.id <= 10 ? 2 : 1, // クエスト中は 2 番目から開始
+        });
+    };// ダイアログを閉じる処理
+    const handleCloseDialogue = () => {
+        console.log("[EnemyTest] ダイアログを閉じる処理開始");
+
+        // ダイアログが閉じられる際に条件をチェック
+        if (questProgress === 1 && activeDialogue.enemy?.id === 10) {
+            console.log("[EnemyTest] 10番の敵に話しかけたので7～10の敵を移動させます");
+
+            // 7～10の敵を一斉に移動させる
+            setVisibleEnemies((prevEnemies) => {
+                const updatedEnemies = prevEnemies.map((enemy) => {
+                    if (enemy.id >= 7 && enemy.id <= 10) {
+                        switch (enemy.id) {
+                            case 7:
+                                return {...enemy, x: 1600, y: 704, progress: "みどりと話そう"}; // progress を追加
+                            case 8:
+                                return {...enemy, x: 576, y: 896, progress: "みどりと話そう"}; // progress を追加
+                            case 9:
+                                return {...enemy, x: 1152, y: 128, progress: "みどりと話そう"}; // progress を追加
+                            case 10:
+                                return {...enemy, x: 448, y: 512, progress: "みどりと話そう"}; // progress を追加
+                            default:
+                                return enemy;
+                        }
+                    }
+                    return enemy;
+                });
+
+// ローカルストレージに保存
+                localStorage.setItem("enemyPositions", JSON.stringify(updatedEnemies));
+
+// クエストの進行を更新する場合
+                if (onNextQuest) {
+                    onNextQuest(1); // 現在のクエストIDを渡す
+                }
+
+
+                return updatedEnemies;
+            });
+        }
+        setActiveDialogue(prev => {
+            if (!prev.isVisible) {
+                return prev;
+            }
+            return {
+                isVisible: false,
+                enemy: null,
+                currentIndex: 0,
+            };
+        });
+    };
+    const handleNextDialogue = () => {
+        if (activeDialogue.enemy && Array.isArray(activeDialogue.enemy.dialogues)) {
+            const nextIndex = activeDialogue.currentIndex + 1;
+            if (nextIndex < activeDialogue.enemy.dialogues.length) {
+                setActiveDialogue((prev) => ({
+                    ...prev,
+                    currentIndex: nextIndex,
+                }));
+            }
+        }
+    };
+
+    const handlePrevDialogue = () => {
+        if (activeDialogue.enemy && Array.isArray(activeDialogue.enemy.dialogues)) {
+            const prevIndex = activeDialogue.currentIndex - 1;
+            if (prevIndex >= 0) {
+                setActiveDialogue((prev) => ({
+                    ...prev,
+                    currentIndex: prevIndex,
+                }));
+            }
+        }
+    };
+    // クエスト中かどうかを管理する状態
+    const [isQuestActive, setIsQuestActive] = useState<boolean>(false);
+    // プレイヤーのクエスト状況
+    useEffect(() => {
+        if (activeQuest?.complete == false) {
+            setIsQuestActive(true); // クエストがアクティブになる
+        } else {
+            setIsQuestActive(false); // クエストが終了したら非アクティブにする
+        }
+    }, [activeQuest, questProgress]);
 
 
     if (!visibleEnemies || visibleEnemies.length === 0) {
@@ -195,23 +450,23 @@ const EnemyTest: React.FC<PropsNpcData> = ({
                     damagePlayer={damagePlayer}
                     playerAttack={playerAttack}
                     playerHP={playerHP}
+                    openDialogue={handleOpenDialogue}
+                    isQuestActive={isQuestActive}
+                    questProgress={questProgress}
+                    activeQuest={activeQuest}
                 />
             ))}
-            {dialogue && (
-                <div className="dialog" style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    backgroundColor: 'white',
-                    padding: '20px',
-                    borderRadius: '5px',
-                    zIndex: 1000
-                }}>
-                    <p>{dialogue}</p>
-                    <button onClick={() => setDialogue(null)}>Close</button>
-                </div>
-            )}
+            <DialogueBox
+                activeDialogue={{
+                    isVisible: activeDialogue.isVisible,
+                    npc: activeDialogue.enemy,
+                    currentIndex: activeDialogue.currentIndex,
+                }}
+                dialogueContent={currentDialogue}
+                onClose={handleCloseDialogue}
+                onNextDialogue={handleNextDialogue}
+                onPrevDialogue={handlePrevDialogue}
+            />
         </>
     );
 };
@@ -223,60 +478,116 @@ const SingleEnemy: React.FC<{
     ECollisionPosition: { x: number, y: number },
     globalMouseDown: boolean,
     damagePlayer: (attackPower: number) => void,
-    onEnemyRemove: (enemyId: number) => void
+    onEnemyRemove: (enemyId: number) => void,
     damageEnemy: (enemy: Enemy, attackPower: number) => boolean,
-    playerAttack: number
-    playerHP?: number
-}> = ({enemy, cameraPosition, damageEnemy,    damagePlayer, ECollisionPosition, playerHP, globalMouseDown, playerAttack}) => {
+    playerAttack: number,
+    playerHP?: number,
+    isQuestActive: boolean,
+    openDialogue: (enemy: Enemy) => void,
+    questProgress: number,
+    activeQuest?: QuestType
+}> = ({
+          enemy,
+          cameraPosition,
+          damageEnemy,
+          questProgress,
+          openDialogue,
+          damagePlayer,
+          isQuestActive,
+          ECollisionPosition,
+          playerHP,
+          globalMouseDown,
+          playerAttack,
+          activeQuest
+      }) => {
     const imageIndex = 1;
-    const validImageIndex = enemy.images.length > imageIndex ? imageIndex : 0;
-    const [isColliding, setIsColliding] = useState(false);
-    const [image] = useImage(enemy.images[validImageIndex]);
+    const validImageIndex = Array.isArray(enemy.images) && enemy.images.length > imageIndex ? imageIndex : 0;
+    const [image] = useImage(Array.isArray(enemy.images) ? enemy.images[validImageIndex] : undefined);
 
-    // プレイヤー攻撃のクールダウン
+    const [isColliding, setIsColliding] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(false); // ゲームオーバーフラグを追加
+
+    // すべての動きのフックを呼び出す
+    const randomMovement = useEnemyRandomMovement(enemy?.x, enemy?.y);
+    const linearMovement = useEnemyLinearRandomMovement(enemy?.x, enemy?.y);
+    const buruburuMovement = useEnemyBuruBuruMovement(enemy?.x, enemy?.y);
     const [lastAttackTime, setLastAttackTime] = useState(0);
     const attackCooldown = 500; // プレイヤーの攻撃クールダウン時間（ミリ秒）
 
-    // 敵攻撃のクールダウン
-    const [lastEnemyAttackTime, setLastEnemyAttackTime] = useState(0);
-    const enemyAttackCooldown = 300; // 敵の攻撃クールダウン時間（ミリ秒）
+    // ポジションとダイアログの表示状態を決定
+    let position: { x: number, y: number } = {x: enemy?.x, y: enemy?.y};
+    let showDialog = false;
 
-    // 通常のクリックハンドラ（敵をクリックした時）
-    const handleClick = () => {
-        const dialogues = typeof enemy.dialogues === 'string'
-            ? JSON.parse(enemy.dialogues)
-            : enemy.dialogues;
-        if (dialogues && Array.isArray(dialogues) && dialogues.length > 0) {
-            onInteract(enemy, dialogues[0]);
+    const [questFillProgress, setQuestFillProgress] = useState(0)
+    // console.log("tghjkdsflcvnk sxdc" + questFillProgress)
+    useEffect(() => {
+        const questCurrent = localStorage.getItem("npcDialogueStates");
+
+        if (questCurrent) {
+            const parsedData = JSON.parse(questCurrent); // JSONをパース
+            const npc3Data = parsedData["3"]; // NPC IDが3のデータを取得
+            if (npc3Data?.progress === "Aiと話そう") {
+                setQuestFillProgress(1);
+                console.log("話しましょう");
+            } else {
+
+                setQuestFillProgress(0);
+                console.log("他の状態です");
+            }
+        } else {
+            setQuestFillProgress(0)
+            return;
+
         }
-    };
 
-    const enemyTalk = () => {
-        // dialoguesが配列であることを確認し、インデックス1の要素を返す
-        if (Array.isArray(enemy.dialogues) && enemy.dialogues.length > 1) {
-            return enemy.dialogues[1]; // インデックス1の要素を返す
+    }, [questProgress, activeQuest]);
+
+    if (activeQuest?.quest.id === 5) {
+        // プレイヤーを追尾するロジック
+        const playerX = ECollisionPosition.x;
+        const playerY = ECollisionPosition.y;
+
+        const enemyX = enemy.x;
+        const enemyY = enemy.y;
+
+        const dx = playerX - enemyX;
+        const dy = playerY - enemyY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        const speed = 50; // 移動速度
+
+        if (distance > 0) {
+            // 移動量を計算
+            const moveX = (dx / distance) * speed;
+            const moveY = (dy / distance) * speed;
+
+            // 新しい位置を計算（64px単位でスナップ）
+            const newX = Math.round((enemyX + moveX) / 64) * 64;
+            const newY = Math.round((enemyY + moveY) / 64) * 64;
+
+            position = {
+                x: newX,
+                y: newY,
+            };
         }
-        return ""; // デフォルトで空文字列を返す
-    }
-
-    let position: { x: number, y: number }, showDialog;
-    if (enemy.movementPattern.type === "random") {
-        ({position, showDialog} = useEnemyRandomMovement(enemy?.x, enemy?.y));
+        showDialog = false;
+    } else if (enemy.movementPattern.type === "random") {
+        position = randomMovement.position;
+        showDialog = randomMovement.showDialog;
     } else if (enemy.movementPattern.type === "linear") {
-        const linearMovement = useEnemyLinearRandomMovement(enemy?.x, enemy?.y);
         position = linearMovement.linearPosition;
         showDialog = linearMovement.showDialog;
-    } else {
-        // random でも linear でもない場合、初期位置を使用
-        position = {x: enemy?.x, y: enemy?.y};
-        showDialog = false;
+    } else if (enemy.movementPattern.type === "buruburu") {
+        position = buruburuMovement.buruburuPosition;
+        showDialog = buruburuMovement.showDialog;
     }
 
-    const checkCollision = useCallback((
-        player: { x: number, y: number },
-        enemy: { x: number, y: number },
-        padding = 10) => {
-        // paddingを使用して衝突判定の範囲を調整
+    const checkCollision = useCallback((player: { x: number, y: number }, enemy: {
+        x: number,
+        y: number
+    }, padding = 10) => {
+        if (!player || !enemy) return false;
+
         const playerLeft = player.x - padding;
         const playerRight = player.x + 50 + padding;
         const playerTop = player.y - padding;
@@ -296,14 +607,47 @@ const SingleEnemy: React.FC<{
     }, []);
 
     useEffect(() => {
+        const collision = checkCollision(ECollisionPosition, {x: enemy.x, y: enemy.y});
+        setIsColliding(collision);
+
+        if (collision && !isGameOver) {
+            setIsGameOver(true); // ゲームオーバーフラグを立てる
+        }
+    }, [ECollisionPosition, enemy, checkCollision, isGameOver]);
+
+    // ゲームオーバー時の処理
+
+
+    const enemyTalk = () => {
+        const dialogues = typeof enemy.dialogues === 'string'
+            ? (() => {
+                try {
+                    return JSON.parse(enemy.dialogues);
+                } catch (error) {
+                    console.error("Failed to parse dialogues:", error);
+                    return [];
+                }
+            })()
+            : enemy.dialogues;
+
+        if (Array.isArray(dialogues) && dialogues.length > 0) {
+            return dialogues[1]; // 2 番目のダイアログを返す
+        }
+        return ""; // ダイアログがない場合のデフォルト
+    };
+
+
+    const isHighlighted = questFillProgress === 1 && enemy.id >= 7 && enemy.id <= 10;
+    useEffect(() => {
         const collision = checkCollision(ECollisionPosition, position);
         setIsColliding(collision);
     }, [ECollisionPosition, position, checkCollision]);
 
-    // 衝突中に左クリックされた場合のログ出力
     useEffect(() => {
-        if (isColliding && globalMouseDown) {
 
+        if (isColliding) {
+            // if (isColliding && globalMouseDown) {
+            // alert("killing")
             const currentTime = Date.now();
 
             // クールダウン時間が経過しているか確認
@@ -321,59 +665,31 @@ const SingleEnemy: React.FC<{
                 setLastAttackTime(currentTime);
             }
         }
-    }, [isColliding, globalMouseDown, enemy, position, ECollisionPosition]);
+    }, [isColliding, globalMouseDown, enemy, position, ECollisionPosition])
 
-
-
-    // 敵からプレイヤーへの攻撃処理（衝突中は自動的に攻撃）
-    useEffect(() => {
-        let attackInterval: NodeJS.Timeout;
-
-        if (isColliding) {
-            // 衝突中は定期的に攻撃
-            attackInterval = setInterval(() => {
-                const currentTime = Date.now();
-
-                // 敵の攻撃クールダウンが経過しているか確認
-                if (currentTime - lastEnemyAttackTime >= enemyAttackCooldown) {
-                    console.log(`${enemy.name}がプレイヤーを攻撃！攻撃力: ${enemy.attack}`);
-
-
-                    // プレイヤーにダメージを与える
-                    damagePlayer(enemy.attack);
-
-                    // 最後の敵攻撃時間を更新
-                    setLastEnemyAttackTime(currentTime);
-                }
-            }, enemyAttackCooldown);
-        }
-
-        // クリーンアップ関数
-        return () => {
-            if (attackInterval) {
-                clearInterval(attackInterval);
-            }
-        };
-    }, [isColliding, enemy, damagePlayer, lastEnemyAttackTime, enemyAttackCooldown]);
-
+    const enemyStyle = {
+        shadowColor: isHighlighted ? "red" : "black",
+        shadowBlur: isHighlighted ? 10 : 5,
+        shadowOpacity: isHighlighted ? 0.8 : 0.5,
+    };
 
 
     return (
         <Group
             x={position.x - cameraPosition.x}
             y={position.y - cameraPosition.y}
-
+            zIndex={100}
             width={enemy.width}
             height={enemy.height}
             cursor="pointer"
-            onClick={handleClick}
-            onTap={handleClick}
+            onClick={() => openDialogue(enemy)}
         >
             {image && (
                 <Image
                     image={image}
                     width={enemy.width}
                     height={enemy.height}
+                    {...enemyStyle}
                 />
             )}
             <Text
@@ -385,8 +701,8 @@ const SingleEnemy: React.FC<{
                 width={64}
             />
             <Text
-                text={String(enemy.hp)}
-                y={-60}
+                text={"HP : " + String(enemy.hp)}
+                y={-40}
                 fontSize={14}
                 fill="red"
                 align="center"
@@ -405,5 +721,4 @@ const SingleEnemy: React.FC<{
         </Group>
     );
 };
-
-export default EnemyTest;
+export default EnemyTest

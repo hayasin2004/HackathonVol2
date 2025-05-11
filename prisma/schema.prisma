@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -52,34 +49,34 @@ model Follow {
   @@index([followingsId])
 }
 
-// PlayerDataモデルを修正
 model PlayerData {
-  id        Int          @id @default(autoincrement())
-  playerId  Int?         @unique
-  player    User?        @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  haveItems PlayerItem[] @relation("PlayerToItems")
-  x         Int          @default(64)
-  y         Int          @default(64)
-  roomId    Int? // ルームID
-  room      Room?        @relation("RoomPlayers", fields: [roomId], references: [id], map: "PlayerData_roomId_fkey_1")
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @default(now())
-  Room      Room?        @relation(fields: [roomId], references: [id])
-  hp        Int          @default(5)
-  attack    Int          @default(1)
-  defense   Int          @default(1)
-  level     Int          @default(1)
+  id          Int          @id @default(autoincrement())
+  playerId    Int?         @unique
+  player      User?        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  haveItems   PlayerItem[] @relation("PlayerToItems")
+  playerQuest Quest?       @relation("PlayerQuest")
+  x           Int          @default(64)
+  y           Int          @default(64)
+  roomId      Int?
+  room        Room?        @relation("RoomPlayers", fields: [roomId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+  hp          Int          @default(5)
+  attack      Int          @default(1)
+  defense     Int          @default(1)
+  level       Int          @default(1)
+  questId     Int?
 }
 
 model PlayerItem {
   id              Int              @id @default(autoincrement())
-  playerDataId    Int // PlayerData外部キー
-  itemId          Int // DefaultItemList外部キー
-  quantity        Int              @default(1) // 所持数
+  itemId          Int
+  quantity        Int              @default(1)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @default(now())
+  playerDataId    Int
   playerData      PlayerData       @relation("PlayerToItems", fields: [playerDataId], references: [id], onDelete: Cascade)
-  DefaultItemList DefaultItemList? @relation(fields: [itemId], references: [id], onDelete: Cascade) // DefaultItemListリレーション
+  DefaultItemList DefaultItemList? @relation(fields: [itemId], references: [id], onDelete: Cascade)
 }
 
 model DefaultItemList {
@@ -97,8 +94,10 @@ model DefaultItemList {
   UsedInRecipes   CraftItemMaterial[] @relation("MaterialItem")
   PlayerItem      PlayerItem[]
   RoomItem        RoomItem[]
-  EnemyDrops      Enemy[]             @relation("DropItems")
-  TradeItems      NPCTrade[]          @relation("TradeItems")
+  TradeItems      NPCTrade[]          @relation("TradeItems") // 既存のリレーション
+  EnemyDropItem   EnemyDropItem[]
+  CostItems       NPCTrade[]          @relation("CostItems") // 逆方向のリレーションを追加
+  NPCTrade        NPCTrade[]
 }
 
 model CraftItem {
@@ -106,38 +105,31 @@ model CraftItem {
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @default(now())
   craftItemIcon String?
-  // # 作成されるアイテム (1対1)
   createdItemId Int
   createdItem   DefaultItemList     @relation("CreatedItem", fields: [createdItemId], references: [id], onDelete: Cascade)
-  // # 必要な素材（中間テーブルを利用）
   materials     CraftItemMaterial[]
 }
 
-// # 中間テーブル：クラフトに必要な素材 + 個数
 model CraftItemMaterial {
   id             Int             @id @default(autoincrement())
   craftItemId    Int
   materialItemId Int
-  quantity       Int // 必要な個数
+  quantity       Int
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @default(now())
-  // # クラフトレシピとのリレーション
   craftItem      CraftItem       @relation(fields: [craftItemId], references: [id], onDelete: Cascade)
-  // # 必要な素材アイテムとのリレーション
   materialItem   DefaultItemList @relation("MaterialItem", fields: [materialItemId], references: [id], onDelete: Cascade)
 }
 
 model Room {
-  id         Int          @id @default(autoincrement())
-  name       String
-  players    PlayerData[] @relation("RoomPlayers")
-  items      RoomItem[]   @relation("RoomItems")
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @default(now())
-  PlayerData PlayerData[]
+  id        Int          @id @default(autoincrement())
+  name      String
+  players   PlayerData[] @relation("RoomPlayers")
+  items     RoomItem[]   @relation("RoomItems")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now())
 }
 
-// ルーム内のアイテムモデル
 model RoomItem {
   id        Int             @id @default(autoincrement())
   roomId    Int
@@ -171,33 +163,68 @@ model NPC {
 }
 
 model NPCTrade {
-  id     Int             @id @default(autoincrement())
-  npc    NPC             @relation("NPCTrades", fields: [npcId], references: [id])
-  npcId  Int
-  cost   Int
-  item   DefaultItemList @relation("TradeItems", fields: [itemId], references: [id])
-  itemId Int
+  id                Int              @id @default(autoincrement())
+  npc               NPC              @relation("NPCTrades", fields: [npcId], references: [id])
+  npcId             Int
+  costItem          Int
+  costItemRef       DefaultItemList  @relation("CostItems", fields: [costItem], references: [id], onDelete: Cascade)
+  cost              Int              @default(1)
+  item              DefaultItemList  @relation("TradeItems", fields: [itemId], references: [id])
+  itemId            Int
+  quantity          Int              @default(10)
+  DefaultItemList   DefaultItemList? @relation(fields: [defaultItemListId], references: [id])
+  defaultItemListId Int?
 }
 
 model Quest {
-  id   Int    @id @default(autoincrement())
-  name String
-  npcs NPC[]  @relation("NPCQuests")
+  id            Int           @id @default(autoincrement())
+  name          String
+  description   String?
+  npcs          NPC[]         @relation("NPCQuests")
+  howEnemykills Int?          @default(0)
+  contactNpc    Boolean       @default(false)
+  complete      Boolean       @default(false)
+  playerDataId  Int?          @unique
+  playerData    PlayerData?   @relation("PlayerQuest", fields: [playerDataId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
+  PlayerQuest   PlayerQuest[]
 }
 
 model Enemy {
-  id              Int               @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   name            String
   x               Int
   y               Int
-  width           Int?              @default(64)
-  height          Int?              @default(64)
+  width           Int?            @default(64)
+  height          Int?            @default(64)
   images          String[]
   dialogues       String[]
-  hp              Int?              @default(5)
-  attack          Int?              @default(2)
+  hp              Int?            @default(5)
+  attack          Int?            @default(2)
   damage          Int
   movementPattern Json
   stageStatus     Int
-  dropItems       DefaultItemList[] @relation("DropItems")
+  dropItems       EnemyDropItem[]
+}
+
+model EnemyDropItem {
+  id       Int             @id @default(autoincrement())
+  enemy    Enemy           @relation(fields: [enemyId], references: [id], onDelete: Cascade)
+  enemyId  Int
+  item     DefaultItemList @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId   Int
+  dropRate Float           @default(1.0) // ドロップ率（100% = 1.0）
+}
+
+model PlayerQuest {
+  id        Int      @id @default(autoincrement())
+  playerId  Int // プレイヤーのID
+  questId   Int // クエストのID
+  complete  Boolean  @default(false) // 完了状態　
+  quest     Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([playerId, questId]) // プレイヤーごとにクエストは一意
 }

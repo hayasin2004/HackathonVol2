@@ -20,27 +20,37 @@ interface PlayerInventoryProps {
     currentDirectionRef: { current: string }
     playerDirection: { current: number }
     socket: Socket | null
+
+    playerInventory: any[]; // 新たに追加
 }
 
 // const socket = io('http://localhost:5000'); // サーバーのURLを指定
 
 
 const PlayerInventory: React.FC<PlayerInventoryProps> = ({
-                                                             roomId, playerId, eCollisionGotItem, ECollisionPosition,
-                                                             currentDirectionRef, craftEvents, socket, playerDirection
+                                                             roomId,
+                                                             playerId,
+                                                             eCollisionGotItem,
+                                                             ECollisionPosition,
+                                                             currentDirectionRef,
+                                                             craftEvents,
+                                                             socket,
+                                                             playerDirection,
+                                                             playerInventory
                                                          }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playerItems, setPlayerItems] = useState<PlayerHaveItem[] | null>(null);
     // alert(JSON.stringify(playerItems))
     const [craftItems, setCraftItems] = useState<any[]>([]);
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+    console.log(selectedItemId)
     const [selectItemIndex, setSelectItemIndex] = useState<number>(0);
     const [selectedCraftItemId, setSelectedCraftItemId] = useState<number | null>(null);
     const handleItemClick = (itemId: number) => {
+
         if (selectedItemId === itemId) {
             setSelectedItemId(null);
         } else {
-
             setSelectedItemId(itemId);
         }
     };
@@ -93,7 +103,7 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
         };
 
         const handleMouseDown = (event) => {
-            if (event.button === 2 && selectedItemId !== null) {
+            if (event.button === 0 && selectedItemId !== null) {
                 event.preventDefault(); // 右クリックのデフォルトメニューを防ぐ
                 console.log(`アイテムを置いたよ!!!: ${selectedItemId}`);
                 // 置かれたアイテムを保存するロジック
@@ -129,18 +139,18 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                         }
                         const itemData = {
                             roomId,
-                            placedByPlayer : selectedItemId,
+                            placedByPlayer: selectedItemId,
                             playerDirection,
-                            playerId : playerId.id,
+                            playerId: playerId.id,
                             currentDirectionRef,
                             ECollisionPosition,
-                            itemId : putItemData.data.itemId,
+                            itemId: putItemData?.data?.itemId,
                             id: putItemData?.data?.id,
-                            x: putItemData.data.x,
-                            y: putItemData.data.y,
-                            width: putItemData.data.width,
-                            height: putItemData.data.height,
-                            iconImage: putItemData.data.iconImage,
+                            x: putItemData?.data?.x,
+                            y: putItemData?.data?.y,
+                            width: putItemData?.data?.width,
+                            height: putItemData?.data?.height,
+                            iconImage: putItemData?.data?.iconImage,
                         };
                         // サーバーにアイテム配置を通知
                         socket.emit('placeItem', itemData);
@@ -199,11 +209,10 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
     };
 
     // クラフトをプルダウンメニュー化
-    const handleCraftSelectChange = (id: number) => {
-        setSelectedCraftItemId(id);
-    };
+
     const handleCraftClick = () => {
         if (selectedItemId) {
+            alert(selectedItemId)
             const selectedItem = craftItems.find(
                 (item) => item.id === Number(selectedItemId)
             );
@@ -292,11 +301,11 @@ const PlayerInventory: React.FC<PlayerInventoryProps> = ({
                                         <div
                                             className={`${styles.craftButtons} ${selectedCraftItemId === craftItem.createdItem.id ? styles.selected : ''}`}
                                             key={craftItem.id}
-                                            onClick={() => handleCraftSelectChange(craftItem.createdItem.id)}
+                                            onClick={() => setSelectedItemId(craftItem.id)}
                                         >
-                                            <span className={styles.itemName}>{craftItem.createdItem.itemName}</span>
+                                            <span className={styles.itemName}>{craftItem.createdItem.id}</span>
                                             <Image
-                                                src={craftItem.createdItem.itemIcon}
+                                                src={craftItem.createdItem.itemIcon[0]}
                                                 alt={craftItem.createdItem.itemName}
                                                 width={64}
                                                 height={64}

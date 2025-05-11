@@ -75,6 +75,7 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
 
             // ルーム内のアイテムを非アクティブに設定
             if (roomItems.length > 0) {
+
                 console.log("!!ここに来たのか!")
 
                 await prisma.roomItem.updateMany({
@@ -88,6 +89,11 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
             }
 
             if (newItems.length > 0) {
+                const savedItemData = await prisma.defaultItemList.findMany({
+                    where: {
+                        id: { in: itemIds },
+                    }
+                });
                 console.log(playerId)
                 // 新しいアイテムを作成
                 const savedItem = await prisma.playerItem.createMany({
@@ -96,10 +102,8 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                         playerDataId: playerId
                     }))
                 });
-
-
-
-                return { status: "success", message: 'アイテムをプレイヤーに保存しました',savedItemData: savedItem };
+                console.log("!!ここに来たのか!!新規相手も取得"+savedItem)
+                return { status: "success", message: 'アイテムをプレイヤーに保存しました新規取得',savedItemData: savedItemData };
             }
 
             // 既存アイテムの数量を増やす
@@ -120,12 +124,12 @@ export const playerGetItem = async (playerId: number | undefined, itemIds: numbe
                         quantity: { increment: 1 },
                     },
                 });
-                console.log("!!ここに来たのか????dsfsdfdsf")
 
                 if (savedItem.count === 0) {
                     console.error("更新対象のデータが見つかりませんでした");
                     return { status: 'error', message: 'アイテム保存中にエラーが発生しました' };
                 }
+
                 return { status: "success", message: 'アイテムをプレイヤーに保存しました', savedItemData: savedItemData};
             } else {
                 return { status: 'error', message: 'ユーザーが存在しない可能性があります。' };
